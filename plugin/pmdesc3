@@ -3,54 +3,48 @@
 #
 #         FILE:  pmdesc3
 #
-#        USAGE:  ./pmdesc3 [-h] [-s] [-t ddd] [--] [dir [dir [dir [...]]]]
+#     SYNOPSIS:  Find versions and descriptions of installed perl Modules and PODs
 #
-#     SYNOPSIS:  Find versions and descriptions of installed perl Modules
+#  DESCRIPTION:  See POD below.
 #
-#  DESCRIPTION:  Find versions and descriptions of installed Perl Modules.
-#                If no parameters given, searches @INC .
-#
-#      OPTIONS:  -h     : print usage
-#                -s     : sort output
-#                -t ddd : tabulated output, name column has width ddd (1-3 digits)
-#                     
-#
-# REQUIREMENTS:  ExtUtils::MakeMaker, File::Find, Getopt::Std
-#         BUGS:  ---
-#        NOTES:  Based on pmdesc2 (Aristotle, http://qs321.pair.com/~monkads/)
-#                which is based on pmdesc (Perl Cookbook, 1. Ed., recipe 12.19).
-#                pmdesc2 is at least one magnitude faster than pmdesc.
-#
-#       AUTHOR:  Aristotle, http://qs321.pair.com/~monkads/
-#                Dr.-Ing. Fritz Mehner, mehner@fh-swf.de (extension)
-#
-#      VERSION:  1.0
-#      CREATED:  13.06.2004 22:12:41 CEST
-#     REVISION:  13.10.2004
+#      CREATED:  15.06.2004 22:12:41 CEST
+#     REVISION:  23.10.2004 
+#                - Module versions are checked with a regex; avoids unprintable
+#                  characters (original version) and doubling of entries.
+#                - new option -v
+#     REVISION:  28.10.2004 
+#                - function get_module_description completely new written
+#                 
 #===================================================================================
 
-use strict;
+$VERSION=1.2;
 
 require 5.6.1;
+
+use strict;
 use Carp;
 use ExtUtils::MakeMaker;
 use File::Find           qw(find);
 use Getopt::Std          qw(getopts);
 
-# max. length of the description field: prevents slurping in big amount of faulty docs
-my  $MaxDescriptionLength = 200;  
+my  $MaxDescLength= 150;          # Maximum length for the description field:
+                                  # prevents slurping in big amount of faulty docs.
+
+my  $rgx_version  = q/\A\d+(\.\w+)*\Z/; # regex for module versions 
 
 #===  FUNCTION  ====================================================================
 #         NAME:  usage
 #===================================================================================
 sub usage {
-  my  $searchdirs = " "x 14 . join("\n"." "x 14, @INC ) . "\n";
+  my  $searchdirs = " "x12;
+  $searchdirs .= join( "\n"." "x12, sort { length $b <=> length $a } @INC ) . "\n";
   print <<EOT;
-Usage:   pmdesc3 [-h] [-s] [--] [dir [dir [dir [...]]]]
+Usage:   pmdesc3 [-h] [-s] [-t ddd] [-v dd] [--] [dir [dir [dir [...]]]]
 Options:  -h         print this message
           -s         sort output
-          -t ddd     tabulated output; name column has width ddd (1-3 digits)
-          If no parameters given, searches:
+          -t ddd     name column has width ddd (1-3 digits); default 36
+          -v  dd     version column has width ddd (1-3 digits); default 10
+          If no directories given, searches:
 $searchdirs
 EOT
   exit;
@@ -73,35 +67,51 @@ sub get_module_name {
 #===  FUNCTION  ====================================================================
 #         NAME:  get_module_description
 #===================================================================================
-sub get_module_description {
-  my ($file) = @_;
+sub get_module_description 
+{
+  my  $desc;
+  my  ($INFILE_file_name) = @_;               # input file name
 
-  open my $pod, "<", $file
-    or (warn("\tCannot open $file: $!"), return);
+  undef $/;                                   # undefine input record separator
 
-  local $_;
-  local $/ = '';
-  while (<$pod>) {
-    if (/=head\d\s+NAME/) {
-      $_ = <$pod>;
-      return unless $_; # $_ may be undefined
-      chomp;
-      s/ \A .*? - \s+ //sx;
-      tr/\n/ /;
-      return $_;
-    }
+  open ( INFILE, '<', $INFILE_file_name )
+    or die "$0 : failed to open input file $INFILE_file_name : $!\n";
+
+  my  $file = <INFILE>;                       # slurp mode
+  close ( INFILE );                           # close input file
+
+  $file =~  s/\cM\cJ/\cJ/g;                   # remove DOS line ends 
+  $file =~  m/\A=head1\s+NAME(.*?)\n=\w+/s;   # file starts with '=head1' (PODs)
+  $desc = $1;
+
+  if ( ! defined $desc  )
+  {
+    $file =~  m/\n=head1\s+NAME(.*?)\n=\w+/s; # '=head1' is embedded
+    $desc = $1;
   }
 
-  return;
+  if ( defined $desc )
+  {
+    $desc =~ s/\A[ \t\n]*//s;                 # remove leading whitespaces
+    $desc =~ s/\n\s+\n/\n\n/sg;               # make true empty lines
+    $desc =~ s/\n\n.*$//s;                    # discard all trailing paragraphs
+    $desc =~ s/\A.*?\s+-+\s+//s;              # discard leading module name
+    $desc =~ s/\n/ /sg;                       # join lines
+    $desc =~ s/\s+/ /g;                       # squeeze whitespaces
+    $desc =~ s/\s*$//g;                       # remove trailing whitespaces
+    $desc =  substr $desc, 0, $MaxDescLength; # limited length
+  }
+  return $desc;
 }
 
 #===  FUNCTION  ====================================================================
 #         NAME:  get_module_version
 #===================================================================================
 sub get_module_version {
-  local $_;     # MM->parse_version is naughty
+  local $_;                                   # MM->parse_version is naughty
   my $vers_code = MM->parse_version($File::Find::name) || '';
-  return eval $vers_code || undef;
+  $vers_code = undef unless $vers_code =~ /$rgx_version/;
+  return $vers_code;
 }
 
 #===  FUNCTION  ====================================================================
@@ -112,53 +122,91 @@ my %visited;
 
 $|++;
 
+#---------------------------------------------------------------------------
+#  process options and command line arguments
+#---------------------------------------------------------------------------
 my  %options;
 
-getopts("hst:", \%options)         or $options{h}=1;
+getopts("hst:v:", \%options)         or $options{h}=1;
 
 my  @args = @ARGV;
 @ARGV = @INC unless @ARGV;
 
-usage() if $options{h};              #  option -h  :  usage
+usage() if $options{h};                               #  option -h  :  usage
 
-usage() if $options{t} && $options{t}!~/^\d{1,3}$/;         # width 1-3 digits
-$options{t} = "" unless $options{t};
+#---------------------------------------------------------------------------
+#  option -t : width of the module name column
+#---------------------------------------------------------------------------
+usage() if $options{t} && $options{t}!~/^\d{1,3}$/;   # width 1-3 digits
 
-#------------------------------------------------------------------------------
+$options{t} = "36" unless $options{t};
+
+#---------------------------------------------------------------------------
+#  option -v : width of the version column
+#---------------------------------------------------------------------------
+usage() if $options{v} && $options{v}!~/^\d{1,2}$/;   # width 1-2 digits
+
+$options{v} = "10" unless $options{v};
+
+#---------------------------------------------------------------------------
 #  option -s  :  install an output filter to sort the module list
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 if ($options{s}) {
-    if (open(ME, "-|")) {
-        $/ = "";
-        while (<ME>) {
-            chomp;
-            print join("\n", sort split /\n/), "\n";
-        }
-        exit;
+  if (open(ME, "-|")) {
+    $/ = "";
+    while (<ME>) {
+      chomp;
+      print join("\n", sort split /\n/), "\n";
     }
+    exit;
+  }
 }
 
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 #  process 
-#------------------------------------------------------------------------------
+#---------------------------------------------------------------------------
         
 for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
   find({
     wanted => sub {
       return unless /\.p(?:m|od)\z/ && -f;
 
-      my $module  = get_module_name($File::Find::name, $inc_dir);
-      my $version = get_module_version($_);
-      my $desc    = get_module_description($_);
-
-      if ( $desc ) {
-        $desc       = substr $desc, 0, $MaxDescriptionLength;
+      #---------------------------------------------------------------------
+      #  return from function if there exists a pod-file for this module
+      #---------------------------------------------------------------------
+      my $pod = $_;
+      my $pm  = $_;
+      if ( m/\.pm\z/ )
+      {
+        $pod  =~ s/\.pm\z/\.pod/; 
+        return if -f $pod;
       }
 
-      $version = defined $version ? " ($version)" : " (n/a)";
-      $desc    = defined $desc    ? "- $desc"    : "- <description not available>";
+      my $module  = get_module_name($File::Find::name, $inc_dir);
+      my $version;
+      if ( /\.pod\z/ )
+      {
+        $pm =~ s/\.pod\z/\.pm/; 
+        #-------------------------------------------------------------------
+        #  try to find the version from the pm-file
+        #-------------------------------------------------------------------
+        if ( -f $pm )
+        {
+          local $_;
+          $version = MM->parse_version($pm) || "";
+          $version = undef unless $version =~ /$rgx_version/;
+        }
+      }
+      else
+      {
+        $version = get_module_version($_);
+      }
+      my $desc = get_module_description($_);
 
-      printf("%-${options{t}}s%-10s%-s\n", $module, $version, $desc ); 
+      $version = defined $version ? " ($version)" : " (n/a)";
+      $desc    = defined $desc    ? " $desc"      : " <description not available>";
+
+      printf("%-${options{t}}s%-${options{v}}s%-s\n", $module, $version, $desc ); 
 
     },
     preprocess => sub {
@@ -169,4 +217,82 @@ for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
   $inc_dir);
 }
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#  Modul Documentation
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+=head1 NAME
+  
+pmdesc3 - Find versions and descriptions of installed perl modules and PODs
+
+=head1 SYNOPSIS
+
+pmdesc3
+
+pmdesc3 ~/perllib
+
+=head1 DESCRIPTION
+
+  pmdesc3 [-h] [-s] [-t ddd] [-v dd] [--] [dir [dir [dir [...]]]]
+
+  OPTIONS:  -h     : print help message; show search path
+            -s     : sort output
+            -t ddd : name column has width ddd (1-3 digits); default 36
+            -v  dd : version column has width dd (1-2 digits); default 10
+
+Find versions and descriptions of installed Perl Modules and PODs.
+If no directories given, searches @INC .
+The first column of the output (see below) can be used as module name or
+FAQ-name for perldoc.
+
+Some modules are split into a pm-file and an accompanying pod-file.
+The version is always taken from the pm-file.
+
+The description found will be cut down to a length of at most
+150 characters (prevents slurping in big amount of faulty docs).
+
+=over 2
+
+=item Output
+
+The output looks like that:
+
+   ...
+IO::Socket         (1.28)  Object interface to socket communications
+IO::Socket::INET   (1.27)  Object interface for AF_INET domain sockets
+IO::Socket::UNIX   (1.21)  Object interface for AF_UNIX domain sockets
+IO::Stty           (n/a)   <description not available>
+IO::Tty            (1.02)  Low-level allocate a pseudo-Tty, import constants.
+IO::Tty::Constant  (n/a)   Terminal Constants (autogenerated)
+   ...
+
+The three parts module name, version and description are separated
+by at least one blank.
+  
+=back
+
+=head1 REQUIREMENTS
+
+ExtUtils::MakeMaker, File::Find, Getopt::Std
+
+
+=head1 AUTHORS
+
+  Tom Christiansen, tchrist@perl.com (pmdesc)
+  Aristotle, http://qs321.pair.com/~monkads/ (pmdesc2)
+  Fritz Mehner, mehner@fh-swf.de (pmdesc3)
+
+=head1 NOTES
+
+pmdesc3 is based on pmdesc2 (Aristotle, http://qs321.pair.com/~monkads/).
+pmdesc3 adds extensions and bugfixes.
+
+pmdesc2 is based on pmdesc (Perl Cookbook, 1. Ed., recipe 12.19).
+pmdesc2 is at least one magnitude faster than pmdesc.
+
+=head1 VERSION
+
+1.2
+
+=cut
 

@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.3) / Oct 13 2004
+README for perl-support.vim (Version 2.3.2) / Nov 05 2004
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -43,13 +43,27 @@ Restart gVim/Vim and look at the perlsupport help with
 
   :help perlsupport 
 
->>>>>                                <<<<<
->>>>>    or read  perlsupport.txt    <<<<<
->>>>>                                <<<<<
+                 +--------------------------------------------+
+                 | +----------------------------------------+ |
+                 | |  ** Please read the documentation **   | |
+                 | |  Actions differ for different modes!   | |
+                 | +----------------------------------------+ |
+                 +--------------------------------------------+
+
 
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.3.2
+---------------------------------------------------------------------------------------
++ Perl module list generator pmdesc3 improved (no double entries, no control
+  characters in version numbers, handles DOS-teminated files correctly).
++ Looking up help with Shift-F1 now works also in the perldoc help buffer.
++ Running a Perl-script now opens a window with name "Perl-Output" to display
+  the script output. The buffer and its content will disappear when closing
+  the window. 
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.3
@@ -174,6 +188,7 @@ rc/customization.ctags    Additional settings I use in  .ctags to enable navigat
 doc/perl-hot-keys.pdf     Reference card for the key mappings. 
                           The mappings can be used with the non-GUI Vim, 
                           because the menus are not available.
+doc/pmdesc3.txt           The man page for pmdesc3.
 
 
 =======================================================================================

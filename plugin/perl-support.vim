@@ -22,7 +22,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  13.10.2004
+"       Revision:  02.11.2004
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -34,7 +34,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.3"
+let g:Perl_Version= "2.3.2"
 "        
 "###############################################################################################
 "
@@ -687,7 +687,7 @@ function!	Perl_InitMenu ()
 		exe "amenu          ".s:Perl_Root.'&POD.-SEP3-      		        :'
 		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ html\ \ (&4)   <Esc><C-C>:call Perl_POD("html")<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ man\ \ (&5)    <Esc><C-C>:call Perl_POD("man")<CR>'
-		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&6)   <Esc><C-C>:call Perl_POD("text")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&6)   <Esc><C-C>:call Perl_POD("txt")<CR>'
 		"
 		"---------- Run-Menu ----------------------------------------------------------------------
 		"
@@ -722,8 +722,10 @@ function!	Perl_InitMenu ()
 		exe "amenu <silent> ".s:Perl_Root.'&Run.&generate\ Perl\ module\ list            <C-C>:call Perl_perldoc_generate_module_list()<CR><CR>'
 		"
 		exe "amenu          ".s:Perl_Root.'&Run.-SEP4-      		              	         :'
-		exe "amenu <silent> ".s:Perl_Root.'&Run.hard&copy\ buffer\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>'
-		exe "vmenu <silent> ".s:Perl_Root.'&Run.hardc&opy\ part\ to\ FILENAME\.part\.ps  <C-C>:call Perl_Hardcopy("v")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.hard&copy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>'
+		exe "vmenu <silent> ".s:Perl_Root.'&Run.hardc&opy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("v")<CR>'
+"		exe "amenu <silent> ".s:Perl_Root.'&Run.hard&copy\ buffer\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>'
+"		exe "vmenu <silent> ".s:Perl_Root.'&Run.hardc&opy\ part\ to\ FILENAME\.part\.ps  <C-C>:call Perl_Hardcopy("v")<CR>'
 		exe "imenu          ".s:Perl_Root.'&Run.-SEP5-                                   :'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.s&ettings\ and\ hot\ keys                <C-C>:call Perl_Settings()<CR>'
 		"
@@ -895,16 +897,16 @@ function! Perl_CommentTemplates (arg)
 		"  substitute keywords
 		"----------------------------------------------------------------------
 		" 
-		call  Perl_SubstituteTag( pos1, pos2, '|FILENAME|',        expand("%:t")        )
-		call  Perl_SubstituteTag( pos1, pos2, '|DATE|',            strftime("%x %X %Z") )
-		call  Perl_SubstituteTag( pos1, pos2, '|TIME|',            strftime("%X")       )
-		call  Perl_SubstituteTag( pos1, pos2, '|YEAR|',            strftime("%Y")       )
-		call  Perl_SubstituteTag( pos1, pos2, '|AUTHOR|',          s:Perl_AuthorName       )
-		call  Perl_SubstituteTag( pos1, pos2, '|EMAIL|',           s:Perl_Email            )
-		call  Perl_SubstituteTag( pos1, pos2, '|AUTHORREF|',       s:Perl_AuthorRef        )
-		call  Perl_SubstituteTag( pos1, pos2, '|PROJECT|',         s:Perl_Project          )
-		call  Perl_SubstituteTag( pos1, pos2, '|COMPANY|',         s:Perl_Company          )
-		call  Perl_SubstituteTag( pos1, pos2, '|COPYRIGHTHOLDER|', s:Perl_CopyrightHolder  )
+		call Perl_SubstituteTag( pos1, pos2, '|FILENAME|',        expand("%:t")          )
+		call Perl_SubstituteTag( pos1, pos2, '|DATE|',            strftime("%x %X %Z")   )
+		call Perl_SubstituteTag( pos1, pos2, '|TIME|',            strftime("%X")         )
+		call Perl_SubstituteTag( pos1, pos2, '|YEAR|',            strftime("%Y")         )
+		call Perl_SubstituteTag( pos1, pos2, '|AUTHOR|',          s:Perl_AuthorName      )
+		call Perl_SubstituteTag( pos1, pos2, '|EMAIL|',           s:Perl_Email           )
+		call Perl_SubstituteTag( pos1, pos2, '|AUTHORREF|',       s:Perl_AuthorRef       )
+		call Perl_SubstituteTag( pos1, pos2, '|PROJECT|',         s:Perl_Project         )
+		call Perl_SubstituteTag( pos1, pos2, '|COMPANY|',         s:Perl_Company         )
+		call Perl_SubstituteTag( pos1, pos2, '|COPYRIGHTHOLDER|', s:Perl_CopyrightHolder )
 		"
 		"----------------------------------------------------------------------
 		"  Position the cursor
@@ -1107,6 +1109,7 @@ function! Perl_CodeSnippet(arg1)
 		endif
 
 	else
+		redraw
 		echohl ErrorMsg
 		echo "code snippet directory ".s:Perl_CodeSnippets." does not exist"
 		echohl None
@@ -1122,23 +1125,17 @@ let s:Perl_PerldocModulelistBuffer=-1
 "
 function! Perl_perldoc(arg)
 
-	let	item=""
-	if a:arg=='m'		 " called from the menu
+	let	buffername	= getcwd()."/".bufname("%")
+	if( buffername == s:Perl_PerlModuleList )
+		normal 0
+		let	item=expand("<cWORD>")				" WORD under the cursor 
+	else
+		let	item=expand("<cword>")				" word under the cursor 
+	endif
+	if  item == ""
 		let	item=Perl_Input("perldoc - module, function or FAQ keyword : ", "")
 	endif
 
-	if a:arg=='c'		 " called via hot key
-		let	buffername	= getcwd()."/".bufname("%")
-		if( buffername == s:Perl_PerlModuleList )
-			normal 0
-			let	item=expand("<cWORD>")				" WORD under the cursor 
-		else
-			let	item=expand("<cword>")				" word under the cursor 
-		endif
-		if  item == ""
-			let	item=Perl_Input("perldoc - module, function or FAQ keyword : ", "")
-		endif
-	endif
 	"------------------------------------------------------------------------------
 	"  replace buffer content with Perl documentation
 	"------------------------------------------------------------------------------
@@ -1146,11 +1143,21 @@ function! Perl_perldoc(arg)
 		"
 		" jump to an already open perldoc window or create one
 		" 
-		if bufexists(s:Perl_PerldocHelpBuffer) && bufwinnr(s:Perl_PerldocHelpBuffer)!=-1
+		if bufloaded("PERLDOC") && bufwinnr(s:Perl_PerldocHelpBuffer)!=-1
 			exe bufwinnr(s:Perl_PerldocHelpBuffer) . "wincmd w"
+			" buffer number may have changed, e.g. after a 'save as' 
+			if bufnr("%") != s:Perl_PerldocHelpBuffer
+				let s:Perl_PerldocHelpBuffer=bufnr(s:Perl_OutputBufferName)
+				exe ":bn ".s:Perl_PerldocHelpBuffer
+			endif
 		else
-			exe ":new"
+			exe ":new PERLDOC"
 			let s:Perl_PerldocHelpBuffer=bufnr("%")
+			setlocal buftype=nofile
+			setlocal noswapfile
+			setlocal filetype=perl
+			setlocal syntax=none
+			setlocal bufhidden=delete
 		endif
 		"
 		" search order:
@@ -1158,15 +1165,26 @@ function! Perl_perldoc(arg)
 		"  (2)  builtin function
 		"  (3)  FAQ keyword
 		" 
+		setlocal	modifiable
 		silent exe ":%!perldoc ".item
-		if line("$")==1
+		if v:shell_error != 0
+			redraw!
 			silent exe ":%!perldoc -f ".item
+			if v:shell_error != 0
+				redraw!
+				silent exe ":%!perldoc -q ".item
+				if v:shell_error != 0
+					redraw!
+					let zz=   "No documentation found for perl module, perl function or perl FAQ keyword\n"
+					let zz=zz."  '".item."'  "
+					silent put!	=zz
+					normal	2jdd$
+				endif
+			endif
 		endif
-		if line("$")==1
-			silent exe ":%!perldoc -q ".item
-		endif
-		set buftype=nofile
-		set noswapfile
+
+		setlocal nomodifiable
+		redraw!
 	endif
 endfunction
 "
@@ -1175,6 +1193,7 @@ endfunction
 "------------------------------------------------------------------------------
 function! Perl_perldoc_show_module_list()
 	if !filereadable(s:Perl_PerlModuleList)
+		redraw
 		echohl WarningMsg | echo 'Have to create '.s:Perl_PerlModuleList.' for the first time:'| echohl None
 		call Perl_perldoc_generate_module_list()
 	endif
@@ -1186,13 +1205,13 @@ function! Perl_perldoc_show_module_list()
 	else
 		silent exe "view ".s:Perl_PerlModuleList
 		let s:Perl_PerldocModulelistBuffer=bufnr("%")
+		setlocal nomodifiable
 	endif
 	silent exe ":set filetype=perl"
 	silent exe ":syntax clear"
 	normal gg
-	echohl Search 
-	echomsg 'use S-F1 to show a manual'
-	echohl None
+	redraw
+	echohl Search | echomsg 'use S-F1 to show a manual' | echohl None
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -1201,7 +1220,9 @@ endfunction
 function! Perl_perldoc_generate_module_list()
 	echohl Search
 	echo " ... generating Perl module list ... " 
+	setlocal modifiable
 	silent exe ":!".s:Perl_PerlModuleListGenerator
+	setlocal nomodifiable
 	echo " DONE " 
 	echohl None
 endfunction
@@ -1259,9 +1280,7 @@ function! Perl_SyntaxCheck ()
 	"
 	if l:currentbuffer ==  bufname("%")
 		redraw
-		echohl Search
-		echo l:currentbuffer." : Syntax is OK"
-		echohl None
+		echohl Search | echo l:currentbuffer." : Syntax is OK" | echohl None
 		nohlsearch						" delete unwanted highlighting (Vim bug?)
 	endif
 endfunction
@@ -1269,23 +1288,55 @@ endfunction
 "------------------------------------------------------------------------------
 "  run : run
 "------------------------------------------------------------------------------
+"
+let s:Perl_OutputBufferName="Perl-Output"
+let s:Perl_OutputBufferNumber=-1
+"
 function! Perl_Run (arg1)
-	let	l:currentbuffer=bufname("%")
-	call Perl_SyntaxCheck()
+	"
+	let	l:currentbuffer	= bufname("%")
+	let l:currentdir		= getcwd()
+	silent call Perl_SyntaxCheck()
+	"
 	if l:currentbuffer ==  bufname("%")
-		if has("unix")
-			if a:arg1==0
-				exe		"update | !./% ".s:Perl_CmdLineArgs
+		"
+		let l:fullname=l:currentdir."/".l:currentbuffer
+		if a:arg1==0
+			if bufloaded(s:Perl_OutputBufferName) != 0 && bufwinnr(s:Perl_OutputBufferNumber)!=-1 
+				exe bufwinnr(s:Perl_OutputBufferNumber) . "wincmd w"
+				" buffer number may have changed, e.g. after a 'save as' 
+				if bufnr("%") != s:Perl_OutputBufferNumber
+					let s:Perl_OutputBufferNumber=bufnr(s:Perl_OutputBufferName)
+					exe ":bn ".s:Perl_OutputBufferNumber
+				endif
 			else
-				exe		"update | !./% ".s:Perl_CmdLineArgs." | ".s:Perl_Pager
+				silent exe ":new ".s:Perl_OutputBufferName
+				let s:Perl_OutputBufferNumber=bufnr("%")
+				setlocal buftype=nofile
+				setlocal noswapfile
+				setlocal syntax=none
+				setlocal bufhidden=delete
 			endif
-		else " needed for Windows
-			if a:arg1==0
-				exe		"update | !  % ".s:Perl_CmdLineArgs
-			else
-				exe		"update | !  % ".s:Perl_CmdLineArgs." | ".s:Perl_Pager
+			"
+			setlocal	modifiable
+			silent exe ":update | %!".l:fullname." ".s:Perl_CmdLineArgs
+			setlocal	nomodifiable
+			"
+			" stdout is empty
+			"
+
+			if line("$")==1 && col("$")==1
+				silent	exe ":bdelete"
+				echomsg "\"".l:currentbuffer." ".s:Perl_CmdLineArgs."\" run - nothing sent to stdout"
 			endif
-		endif	
+
+			if v:shell_error != 0
+				echo "\"".l:currentbuffer." ".s:Perl_CmdLineArgs."\" returned ".v:shell_error
+			endif
+			
+		else
+			exe		"update | !".l:fullname." ".s:Perl_CmdLineArgs." | ".s:Perl_Pager
+		endif
 	endif
 endfunction
 "
@@ -1301,6 +1352,7 @@ endfunction
 "------------------------------------------------------------------------------
 function! Perl_MakeScriptExecutable ()
 	silent exe "!chmod u+x %"
+	redraw
 	if v:shell_error
 		echohl WarningMsg
 	  echo 'Could not make '.expand("%").' executable !'
@@ -1323,15 +1375,17 @@ endfunction
 "------------------------------------------------------------------------------
 "  run : hardcopy
 "------------------------------------------------------------------------------
-function!Perl_Hardcopy (arg1)
+function! Perl_Hardcopy (arg1)
 	let	Sou		= expand("%")								" name of the file in the current buffer
 	" ----- normal mode ----------------
 	if a:arg1=="n"
-		exe	"hardcopy > ".Sou.".ps"		
+		silent exe	"hardcopy > ".Sou.".ps"		
+		echo "file \"".Sou."\" printed to \"".Sou.".ps\""
 	endif
 	" ----- visual mode ----------------
 	if a:arg1=="v"
-		exe	"*hardcopy > ".Sou.".part.ps"		
+		silent exe	"*hardcopy > ".Sou.".ps"		
+		echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
 	endif
 endfunction
 "
@@ -1415,11 +1469,12 @@ if has("autocmd")
 		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | call Perl_MakeScriptExecutable()
 	endif
 	" 
-	" =====  Perl module : insert hedaer, write file  =================================
+	" =====  Perl module : insert header, write file  =================================
 	autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!
 	" 
 	" =====  Perl POD module : set filetype to Perl  ==================================
 	autocmd BufNewFile,BufRead *.pod  set filetype=perl
+	" 
 	"
 endif " has("autocmd")
 "
