@@ -26,7 +26,7 @@
 #
 #      VERSION:  1.0
 #      CREATED:  13.06.2004 22:12:41 CEST
-#     REVISION:  22.06.2004
+#     REVISION:  13.10.2004
 #===================================================================================
 
 use strict;
@@ -155,7 +155,7 @@ for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
         $desc       = substr $desc, 0, $MaxDescriptionLength;
       }
 
-      $version = defined $version ? "($version)" : "(n/a)";
+      $version = defined $version ? " ($version)" : " (n/a)";
       $desc    = defined $desc    ? "- $desc"    : "- <description not available>";
 
       printf("%-${options{t}}s%-10s%-s\n", $module, $version, $desc ); 

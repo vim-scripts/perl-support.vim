@@ -4,7 +4,7 @@
 "
 "    Description:  Write, compile and run Perl-scripts using menus and key mappings.
 "
-"      Features:   - insert various types of comments
+"       Features:  - insert various types of comments
 "                  - insert complete but empty statements (e.g. 'if {} else {}' )
 "                  - insert often used code snippets (e.g. declarations, 
 "                    the opening of files, .. )
@@ -14,33 +14,29 @@
 "                    directory
 "                  - run scripts or run syntax check from within the editor
 "                  - show compilation errors in a quickfix window; navigate with hotkeys 
-"                  - read perldoc for functions and modules 
+"                  - read perldoc for functions, modules and FAQs
 "                 
 "  Configuration:  There are some personal details which should be configured 
-"                  (see the files README and perlsupport.txt).
+"                  (see the files README.perlsupport and perlsupport.txt).
 "
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
-let s:Perl_Version = "2.2"            " version number of this script; do not change
-"
-"       Revision:  04.10.2004
-"        Created:  09.07.2001 - 12:21:33
-"
-"        License:  This program is free software; you can redistribute it and/or modify
-"                  it under the terms of the GNU General Public License as published by
-"                  the Free Software Foundation; either version 2 of the License, or
-"                  (at your option) any later version.
-"
-"                  This program is distributed in the hope that it will be useful,
-"                  but WITHOUT ANY WARRANTY; without even the implied warranty of
-"                  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-"                  GNU General Public License for more details.
-"
+"        Version:  see variable  g:Perl_Version  below 
+"       Revision:  13.10.2004
+"        Created:  09.07.2001
+"        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
-"        
-"###############################################################################################
 "
 "------------------------------------------------------------------------------
+" 
+" Prevent duplicate loading: 
+" 
+if exists("g:Perl_Version") || &cp
+ finish
+endif
+let g:Perl_Version= "2.3"
+"        
+"###############################################################################################
 "
 "  Global variables (with default values) which can be overridden.
 "
@@ -69,7 +65,6 @@ let s:Perl_CopyrightHolder         = ''
 let s:Perl_Root                    = '&Perl.'
 let s:Perl_LoadMenus               = 'yes'
 let s:Perl_CodeSnippets            = root_dir.'codesnippets-perl/'
-let s:Perl_Doc_Directory           = root_dir.'doc/'
 let s:Perl_Template_Directory      = root_dir.'plugin/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
@@ -77,8 +72,8 @@ let s:Perl_Template_Frame          = 'perl-frame'
 let s:Perl_Template_Function       = 'perl-function-description'
 let s:Perl_Pager                   = 'less'
 let s:Perl_MenuHeader              = 'yes'
-let	s:Perl_PerlModuleList          = root_dir.'plugin/perl-modules.list'
-let	s:Perl_PerlModuleListGenerator = root_dir.'plugin/pmdesc3 -s -t36 > '.s:Perl_PerlModuleList
+let s:Perl_PerlModuleList          = root_dir.'plugin/perl-modules.list'
+let s:Perl_PerlModuleListGenerator = root_dir.'plugin/pmdesc3 -s -t36 > '.s:Perl_PerlModuleList
 "
 "------------------------------------------------------------------------------
 "
@@ -99,7 +94,6 @@ call Perl_CheckGlobal("Perl_CopyrightHolder        ")
 call Perl_CheckGlobal("Perl_Root                   ")
 call Perl_CheckGlobal("Perl_LoadMenus              ")
 call Perl_CheckGlobal("Perl_CodeSnippets           ")
-call Perl_CheckGlobal("Perl_Doc_Directory          ")
 call Perl_CheckGlobal("Perl_Template_Directory     ")
 call Perl_CheckGlobal("Perl_Template_File          ")
 call Perl_CheckGlobal("Perl_Template_Module        ")
@@ -718,12 +712,12 @@ function!	Perl_InitMenu ()
 		"   set execution rights for user only ( user may be root ! )
 		"
 		if !has('win32')
-			exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ e&xecutable                <C-C>:!chmod -c u+x %<CR>'
+			exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ e&xecutable                <C-C>:call Perl_MakeScriptExecutable()<CR>'
 		endif
 		exe "amenu <silent> ".s:Perl_Root.'&Run.command\ line\ &arguments                <C-C>:call Perl_Arguments()<CR>'
 		exe "amenu          ".s:Perl_Root.'&Run.-SEP2-      		              	         :'
 
-		exe "amenu <silent> ".s:Perl_Root.'&Run.read\ perl&doc<Tab><S-F1>                <C-C>:call Perl_perldoc_dialog()<CR><CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.read\ perl&doc<Tab><S-F1>                <C-C>:call Perl_perldoc("m")<CR><CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.show\ &installed\ Perl\ modules          <Esc><Esc>:call Perl_perldoc_show_module_list()<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.&generate\ Perl\ module\ list            <C-C>:call Perl_perldoc_generate_module_list()<CR><CR>'
 		"
@@ -873,6 +867,11 @@ function! Perl_CommentTemplates (arg)
 	if filereadable(templatefile)
 		let	length= line("$")
 		let	pos1  = line(".")+1
+		"
+		" Prevent the alternate buffer from being set to this files
+		"
+		let l:old_cpoptions	= &cpoptions
+		setlocal cpo-=a
 		if  a:arg=='header'|| a:arg=='module' 
 			:goto 1
 			let	pos1  = 1
@@ -880,6 +879,8 @@ function! Perl_CommentTemplates (arg)
 		else
 			exe 'read '.templatefile
 		endif
+		let &cpoptions	= l:old_cpoptions		" restore previous options
+		"
 		let	length= line("$")-length
 		let	pos2  = pos1+length-1
 		"----------------------------------------------------------------------
@@ -1054,15 +1055,18 @@ function! Perl_CodeSnippet(arg1)
 			let	l:snippetfile=browse(0,"read a code snippet",s:Perl_CodeSnippets,"")
 			if filereadable(l:snippetfile)
 				let	length= line("$")
+				"
+				" Prevent the alternate buffer from being set to this files
+				let l:old_cpoptions	= &cpoptions
+				setlocal cpo-=a
 				:execute "read ".l:snippetfile
+				let &cpoptions	= l:old_cpoptions		" restore previous options
+				"
 				let	length= line("$")-length-1
 				if length>=0
 					silent exe "normal =".length."+"
 				endif
 			endif
-"			if l:snippetfile != ""
-"				:execute "read ".l:snippetfile
-"			endif
 		endif
 		"
 		" update current buffer / split window / edit snippet file
@@ -1110,47 +1114,56 @@ function! Perl_CodeSnippet(arg1)
 endfunction
 "
 "------------------------------------------------------------------------------
-"  Perl-Run : Perl_perldoc - dialog
+"  Perl-Run : Perl_perldoc - try word under the cursor or ask
 "------------------------------------------------------------------------------
-function! Perl_perldoc_dialog()
-
-	let	item=Perl_Input("perldoc function or mudule : ", "")
-	"------------------------------------------------------------------------------
-	"  replace buffer content with Perl documentation
-	"------------------------------------------------------------------------------
-	if item != ""
-		exe ":new | %!perldoc ".item
-		if line("$")==1
-			exe ":%!perldoc -f ".item
-		endif
-
-		set buftype=nofile
-		set noswapfile
-	endif
-endfunction
 "
-"------------------------------------------------------------------------------
-"  Perl-Run : Perl_perldoc - word under the cursor
-"------------------------------------------------------------------------------
-function! Perl_perldoc_cursor()
+let s:Perl_PerldocHelpBuffer=-1
+let s:Perl_PerldocModulelistBuffer=-1
+"
+function! Perl_perldoc(arg)
 
-	let	buffername	= getcwd()."/".bufname("%")
-	if( buffername == s:Perl_PerlModuleList )
-		normal 0
-		let	item=expand("<cWORD>")				" WORD under the cursor 
-	else
-		let	item=expand("<cword>")				" word under the cursor 
+	let	item=""
+	if a:arg=='m'		 " called from the menu
+		let	item=Perl_Input("perldoc - module, function or FAQ keyword : ", "")
 	endif
-	if  item == ""
-		let	item=Perl_Input("perldoc function or mudule : ", "")
+
+	if a:arg=='c'		 " called via hot key
+		let	buffername	= getcwd()."/".bufname("%")
+		if( buffername == s:Perl_PerlModuleList )
+			normal 0
+			let	item=expand("<cWORD>")				" WORD under the cursor 
+		else
+			let	item=expand("<cword>")				" word under the cursor 
+		endif
+		if  item == ""
+			let	item=Perl_Input("perldoc - module, function or FAQ keyword : ", "")
+		endif
 	endif
 	"------------------------------------------------------------------------------
 	"  replace buffer content with Perl documentation
 	"------------------------------------------------------------------------------
 	if item != ""
-		exe ":new | %!perldoc ".item
+		"
+		" jump to an already open perldoc window or create one
+		" 
+		if bufexists(s:Perl_PerldocHelpBuffer) && bufwinnr(s:Perl_PerldocHelpBuffer)!=-1
+			exe bufwinnr(s:Perl_PerldocHelpBuffer) . "wincmd w"
+		else
+			exe ":new"
+			let s:Perl_PerldocHelpBuffer=bufnr("%")
+		endif
+		"
+		" search order:
+		"  (1)  library module
+		"  (2)  builtin function
+		"  (3)  FAQ keyword
+		" 
+		silent exe ":%!perldoc ".item
 		if line("$")==1
-			exe ":%!perldoc -f ".item
+			silent exe ":%!perldoc -f ".item
+		endif
+		if line("$")==1
+			silent exe ":%!perldoc -q ".item
 		endif
 		set buftype=nofile
 		set noswapfile
@@ -1161,18 +1174,25 @@ endfunction
 "  Perl-Run : Perl_perldoc - show module list
 "------------------------------------------------------------------------------
 function! Perl_perldoc_show_module_list()
-	if filereadable(s:Perl_PerlModuleList)
-		exe ":new"
-		exe "view ".s:Perl_PerlModuleList
-		exe ":set filetype=perl"
-		exe ":syntax clear"
-		normal gg
-		echohl Search 
-		echomsg 'use S-F1 to show a manual'
-		echohl None
-	else
-		echohl WarningMsg | echo 'Perl module list '.s:Perl_PerlModuleList.' does not exist or is not readable'| echohl None
+	if !filereadable(s:Perl_PerlModuleList)
+		echohl WarningMsg | echo 'Have to create '.s:Perl_PerlModuleList.' for the first time:'| echohl None
+		call Perl_perldoc_generate_module_list()
 	endif
+	"
+	" jump to the already open buffer or create one
+	" 
+	if bufexists(s:Perl_PerldocModulelistBuffer) && bufwinnr(s:Perl_PerldocModulelistBuffer)!=-1
+		silent exe bufwinnr(s:Perl_PerldocModulelistBuffer) . "wincmd w"
+	else
+		silent exe "view ".s:Perl_PerlModuleList
+		let s:Perl_PerldocModulelistBuffer=bufnr("%")
+	endif
+	silent exe ":set filetype=perl"
+	silent exe ":syntax clear"
+	normal gg
+	echohl Search 
+	echomsg 'use S-F1 to show a manual'
+	echohl None
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -1211,7 +1231,7 @@ function! Perl_Settings ()
 	let txt = txt."                 Alt-F9  :  update file, run syntax check     \n\n"
 	let txt = txt."  command line arguments :  \"".s:Perl_CmdLineArgs."\"  (only Perl scripts)\n\n"
 	let txt = txt."_________________________________________________________________________\n"
-	let	txt = txt." Perl-Support, Version ".s:Perl_Version." / Dr.-Ing. Fritz Mehner / mehner@fh-swf.de\n\n"
+	let	txt = txt." Perl-Support, Version ".g:Perl_Version." / Dr.-Ing. Fritz Mehner / mehner@fh-swf.de\n\n"
 	echo txt
 endfunction
 "
@@ -1277,6 +1297,21 @@ function! Perl_Arguments ()
 endfunction
 "
 "------------------------------------------------------------------------------
+"  run : make script executable
+"------------------------------------------------------------------------------
+function! Perl_MakeScriptExecutable ()
+	silent exe "!chmod u+x %"
+	if v:shell_error
+		echohl WarningMsg
+	  echo 'Could not make '.expand("%").' executable !'
+	else
+		echohl Search
+	  echo 'Made '.expand("%").' executable.'
+	endif
+	echohl None
+endfunction
+"
+"------------------------------------------------------------------------------
 "  run : POD -> html / man / text
 "------------------------------------------------------------------------------
 function! Perl_POD (arg1)
@@ -1297,16 +1332,6 @@ function!Perl_Hardcopy (arg1)
 	" ----- visual mode ----------------
 	if a:arg1=="v"
 		exe	"*hardcopy > ".Sou.".part.ps"		
-	endif
-endfunction
-"
-"------------------------------------------------------------------------------
-"  Look for a new perlsupport help file
-"------------------------------------------------------------------------------
-function! Perl_CheckNewDoc ()
-	if	getftime( s:Perl_Doc_Directory.'perlsupport.txt' ) > 
-		\	getftime( s:Perl_Doc_Directory.'tags' )
-		silent exe 'helptags '.s:Perl_Doc_Directory
 	endif
 endfunction
 "
@@ -1387,7 +1412,7 @@ if has("autocmd")
 	if has('win32')
 		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! 
 	else
-		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | :!chmod -c u+x %
+		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | call Perl_MakeScriptExecutable()
 	endif
 	" 
 	" =====  Perl module : insert hedaer, write file  =================================
@@ -1403,10 +1428,5 @@ endif " has("autocmd")
 "------------------------------------------------------------------------------
 nmap    <silent>  <Leader>lps             :call Perl_Handle()<CR>
 nmap    <silent>  <Leader>ups             :call Perl_Handle()<CR>
-"
-"------------------------------------------------------------------------------
-"  Look for a new perlsupport help file
-"------------------------------------------------------------------------------
-"call Perl_CheckNewDoc()
 "
 " vim:set tabstop=2: 

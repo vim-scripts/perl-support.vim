@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.2) / Oct 05 2004
+README for perl-support.vim (Version 2.3) / Oct 13 2004
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -50,6 +50,16 @@ Restart gVim/Vim and look at the perlsupport help with
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.3
+---------------------------------------------------------------------------------------
++ There is now at most one help window/buffer.
++ There is now at most one Perl module list window/buffer.
++ The perldoc help will now search in FAQs too; 
+  search order :  modules - functions - FAQs. 
++ Template files and snippet files are no longer kept in the list of alternate files.
++ A bug fixed in the Perl module list generator pmdesc3.
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.2
@@ -215,6 +225,8 @@ Ryan Hennig <hennig@amazon.com> improved the install script.
 Aristotle, http://qs321.pair.com/~monkads/ is the author of the script pmdesc2
   which is the base of the included script pmdesc3.
 
-David Fishhburn contributed changes for the Windows plattform.
+David Fishhburn contributed changes for the Windows platform and suggested to not let
+  enter snippets and templates the list of alternate files.
+
 
 =======================================================================================
