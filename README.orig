@@ -1,4 +1,11 @@
-README for perl-support.vim (Version 1.7) / April 26 2003
+README for perl-support.vim (Version 1.8) / May 31 2003
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 1.8
+=======================================================================================
+
++ Tag substitution rewritten (Some characters in a substitution text for a tag 
+  prevented the tag from being substituted).
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 1.7

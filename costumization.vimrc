@@ -112,10 +112,7 @@ highlight Cursor guibg=Blue guifg=NONE
 " Insert header into new Bash files
 "-------------------------------------------------------------------------------
 if has("autocmd")
-	autocmd BufNewFile  *.\(c\|cc\|cpp\|C\)  call C_CommentTemplates('cheader')
-	autocmd BufNewFile  *.\(h\|hpp\)         call C_CommentTemplates('hheader')
 	autocmd BufNewFile  *.\(pl\|pm\)         call Perl_CommentTemplates('header')
-	autocmd BufNewFile  *.sh                 call BASH_CommentTemplates('header')
 endif " has("autocmd")
 "
 "

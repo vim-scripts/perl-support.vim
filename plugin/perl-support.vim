@@ -31,9 +31,9 @@
 "        Company:  Fachhochschule Südwestfalen, Iserlohn
 "          Email:  mehner@fh-swf.de
 "
-let s:Perl_Version = "1.7"              " version number of this script; do not change
+let s:Perl_Version = "1.8"              " version number of this script; do not change
 "
-"       Revision:  25.04.2003
+"       Revision:  31.05.2003
 "
 "        Created:  09.07.2001 - 12:21:33
 "
@@ -61,22 +61,25 @@ let s:Perl_Version = "1.7"              " version number of this script; do not 
 "
 "-------------------------------------------------------------------------------------------
 "
-let s:Perl_AuthorName      = "Dr.-Ing. Fritz Mehner"
-let s:Perl_AuthorRef       = "Mn"
-let s:Perl_Email           = "mehner@fh-swf.de"
-let s:Perl_Company         = "FH Südwestfalen, Iserlohn"
 "
-"  Copyright information
-"  ---------------------
-"  If the code has been developed over a period of years, each year must be stated.
-"  If Perl_CopyrightHolder is empty the copyright notice will not appear.
-"  If Perl_CopyrightHolder is not empty and Perl_CopyrightYears is empty, 
-"  the current year will be inserted.
+"------------------------------------------------------------------------------------------
+"   plugin variable          value                                     tag
+"------------------------------------------------------------------------------------------
+let s:Perl_AuthorName      = "Dr.-Ing. Fritz Mehner"								" |AUTHOR|
+let s:Perl_AuthorRef       = "Mn"                         		 			" |AUTHORREF|
+let s:Perl_Email           = "mehner@fh-swf.de"           		 			" |EMAIL|
+let s:Perl_Company         = "FH Südwestfalen, Iserlohn"  		 			" |COMPANY|   
+let s:Perl_Project         = ""                                			" |PROJECT|
+let s:Perl_CopyrightHolder = ""                           	   			" |COPYRIGHTHOLDER|
 "
-let s:Perl_CopyrightHolder = ""
-let s:Perl_CopyrightYears  = ""
 "
-let s:Perl_ShowMenues      = "no"      " show menues immediately after loading this plugin (yes/no)
+"  Copyright information. If the code has been developed over a period of years, 
+"  each year must be stated. In a template file use a fixed year in the first position :
+"  
+"    '#     Copyright (C) 1998-|YEAR|  |COPYRIGHTHOLDER|'
+"
+"
+let s:Perl_ShowMenues      = "yes"      " show menues immediately after loading this plugin (yes/no)
 "
 "
 " The menu entries for code snippet support will not appear if the following string is empty 
@@ -184,16 +187,16 @@ amenu P-St&atements.fo&reach\ \{\ \}                 <Esc><Esc>oforeach  (  )<CR
 "---------- submenu : idioms -------------------------------------------------------------
 "
 amenu P-I&dioms.&my\ $;                          <Esc><Esc>omy<Tab>$;<Esc>i
-amenu P-I&dioms.m&y\ $\ =\ ;                     <Esc><Esc>omy<Tab>$ = ;<Esc>F$a
+amenu P-I&dioms.m&y\ $\ =\ ;                     <Esc><Esc>omy<Tab>$<Tab>= ;<Esc>F$a
 amenu P-I&dioms.my\ (\ $&,\ $\ );                <Esc><Esc>omy<Tab>( $, $ );<Esc>2F$a
 amenu P-I&dioms.-SEP1-                           :
 amenu P-I&dioms.(&1)\ \ \ my\ @;                 <Esc><Esc>omy<Tab>@;<Esc>i
-amenu P-I&dioms.(&2)\ \ \ my\ @\ =\ (,,);        <Esc><Esc>omy<Tab>@ = ( , ,  );<Esc>F@a
+amenu P-I&dioms.(&2)\ \ \ my\ @\ =\ (,,);        <Esc><Esc>omy<Tab>@<Tab>= ( , ,  );<Esc>F@a
 amenu P-I&dioms.-SEP2-                           :
 amenu P-I&dioms.(&3)\ \ \ my\ %;                 <Esc><Esc>omy<Tab>%;<Esc>i
-amenu P-I&dioms.(&4)\ \ \ my\ %\ =\ (=>,=>,);    <Esc><Esc>omy<Tab>% = <CR>(<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2kf%a
-amenu P-I&dioms.(&5)\ \ \ my\ $regex_\ =\ '';    <Esc><Esc>omy<Tab>$regex_	= '';<Esc>F_a
-amenu P-I&dioms.(&6)\ \ \ my\ $regex_\ =\ qr//;  <Esc><Esc>omy<Tab>$regex_	= qr//;<Esc>F_a
+amenu P-I&dioms.(&4)\ \ \ my\ %\ =\ (=>,=>,);    <Esc><Esc>omy<Tab>%<Tab>= <CR>(<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2kf%a
+amenu P-I&dioms.(&5)\ \ \ my\ $regex_\ =\ '';    <Esc><Esc>omy<Tab>$regex_<Tab>= '';<Esc>F_a
+amenu P-I&dioms.(&6)\ \ \ my\ $regex_\ =\ qr//;  <Esc><Esc>omy<Tab>$regex_<Tab>= qr//;<Esc>F_a
 
 amenu P-I&dioms.-SEP3-                           :
 
@@ -545,6 +548,41 @@ function! Perl_CommentClassified (class)
 endfunction
 "
 "------------------------------------------------------------------------------
+"  Substitute tags
+"------------------------------------------------------------------------------
+function! Perl_SubstituteTag( pos1, pos2, tag, replacement )
+	" 
+	" loop over marked block
+	" 
+	let	linenumber=a:pos1
+	while linenumber <= a:pos2
+		let line=getline(linenumber)
+		" 
+		" loop for multiple tags in one line
+		" 
+		let	start=0
+		while match(line,a:tag,start)>=0				" do we have a tag ?
+			let frst=match(line,a:tag,start)
+			let last=matchend(line,a:tag,start)
+			if frst!=-1
+				let part1=strpart(line,0,frst)
+				let part2=strpart(line,last)
+				let line=part1.a:replacement.part2
+				"
+				" next search starts after the replacement to suppress recursion
+				" 
+				let start=strlen(part1)+strlen(a:replacement)
+			endif
+			exe linenumber
+			exe "d"
+			put! =line
+		endwhile
+		let	linenumber=linenumber+1
+	endwhile
+
+endfunction    " ----------  end of function  Perl_SubstituteTag  ----------
+"
+"------------------------------------------------------------------------------
 "  P-Comments : Insert Template Files
 "------------------------------------------------------------------------------
 function! Perl_CommentTemplates (arg)
@@ -588,18 +626,18 @@ function! Perl_CommentTemplates (arg)
 		"----------------------------------------------------------------------
 		"  substitute keywords
 		"----------------------------------------------------------------------
-		silent! exe pos1.','.pos2.' s/|FILENAME|/'.expand("%:t").'/g'
-		" the seperator (#) for the following substitute (s) may not appear 
-		" in the date representation
-		silent! exe pos1.','.pos2.' s#|DATE|#'.strftime("%x %X %Z").'#g'
-		silent! exe pos1.','.pos2.' s/|TIME|/'.strftime("%X").'/g'
-		silent! exe pos1.','.pos2.' s/|YEAR|/'.strftime("%Y").'/g'
-		silent! exe pos1.','.pos2.' s/|AUTHOR|/'.s:Perl_AuthorName.'/g'
-		silent! exe pos1.','.pos2.' s/|EMAIL|/'.s:Perl_Email.'/g'
-		silent! exe pos1.','.pos2.' s/|AUTHORREF|/'.s:Perl_AuthorRef.'/g'
-		silent! exe pos1.','.pos2.' s/|PROJECT|/'.s:Perl_Project.'/g'
-		silent! exe pos1.','.pos2.' s/|COMPANY|/'.s:Perl_Company.'/g'
-		silent! exe pos1.','.pos2.' s/|COPYRIGHTHOLDER|/'.s:Perl_CopyrightHolder.'/g'
+		" 
+		call  Perl_SubstituteTag( pos1, pos2, '|FILENAME|',        expand("%:t")        )
+		call  Perl_SubstituteTag( pos1, pos2, '|DATE|',            strftime("%x %X %Z") )
+		call  Perl_SubstituteTag( pos1, pos2, '|TIME|',            strftime("%X")       )
+		call  Perl_SubstituteTag( pos1, pos2, '|YEAR|',            strftime("%Y")       )
+		call  Perl_SubstituteTag( pos1, pos2, '|AUTHOR|',          s:Perl_AuthorName       )
+		call  Perl_SubstituteTag( pos1, pos2, '|EMAIL|',           s:Perl_Email            )
+		call  Perl_SubstituteTag( pos1, pos2, '|AUTHORREF|',       s:Perl_AuthorRef        )
+		call  Perl_SubstituteTag( pos1, pos2, '|PROJECT|',         s:Perl_Project          )
+		call  Perl_SubstituteTag( pos1, pos2, '|COMPANY|',         s:Perl_Company          )
+		call  Perl_SubstituteTag( pos1, pos2, '|COPYRIGHTHOLDER|', s:Perl_CopyrightHolder  )
+		"
 		"----------------------------------------------------------------------
 		"  Position the cursor
 		"----------------------------------------------------------------------
@@ -834,9 +872,6 @@ function! Perl_Settings ()
 	let settings = settings."author  :  ".s:Perl_AuthorName." (".s:Perl_AuthorRef.") ".s:Perl_Email."\n"
 	let settings = settings."company :  ".s:Perl_Company."\n"
 	let settings = settings."copyright holder :  ".s:Perl_CopyrightHolder."\n"
-	if(s:Perl_CopyrightHolder!="")
-		let settings = settings."copyright year(s) :  ".s:Perl_CopyrightYears."\n"
-	endif
 	let settings = settings."code snippet directory  :  ".s:Perl_CodeSnippets."\n"
 	let settings = settings."\n"
 	let settings = settings."\nMake changes in file bash-support.vim\n"
