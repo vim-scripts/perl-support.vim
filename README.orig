@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 1.9.2) / Aug  4  2003
+README for perl-support.vim (Version 2.0) / May  12  2003
 
 
   *  RELEASE NOTES 
@@ -8,12 +8,29 @@ README for perl-support.vim (Version 1.9.2) / Aug  4  2003
   *  TEMPLATE FILES AND TAGS
   *  CODE SNIPPETS
   *  PERL DICTIONARY
+  *  THE PERL MODULE LIST
+  *  THE ROOT MENU
   *  SPEED UP TYPING
   *  CREDITS
 
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.0
+---------------------------------------------------------------------------------------
+
++ New menu for regex-construction.
++ New menu with POD items.
++ A list of all installed Perl modules can be built and read in. 
+  The documentation for a module can be opened from this list.
++ Extension to ctags + taglist shows POD table of content and enables navigation.
++ Append aligned comments to all lines of a marked block.
++ The root menu can be removed (default is not removed).
++ Documentation improved.
++ Bug fix (template file handling).
++ Install script improved.
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 1.9.2
@@ -66,17 +83,22 @@ README                                    This file.
 install.sh                                Install script
 
 plugin/perl-support.vim                   The Perl plugin for Vim/gVim.
+plugin/pmdesc                             Perl script (Perl Cookbook); generates a list
+                                          of all installed Perl modules
 
 plugin/templates/perl-file-header           -+-  Perl template files 
 plugin/templates/perl-frame                  |   (see section TEMPLATE FILES below).
-plugin/templates/perl-function-description  -+
+plugin/templates/perl-function-description   |
+plugin/templates/perl-module-header         -+
 
 -----------------------   -------------------------------------------------------------
 -----------------------   The following files and extensions are for convenience only.
                           perl-support.vim will work without them.
                           -------------------------------------------------------------
 
-rc/perl.vimrc              The minimal additions which should be added  to $HOME/.vimrc .
+codesnippets-perl         Some Perl code snippets as a starting point.
+
+rc/perl.vimrc             The minimal additions which should be added  to $HOME/.vimrc .
 
 rc/customization.vimrc    Additional settings I use in  .vimrc:  incremental search,
                           tabstop, hot keys, font, use of dictionaries, ...
@@ -86,6 +108,9 @@ rc/customization.gvimrc   Additional settings I use in  .gvimrc:
                             hot keys, mouse settings, ...
                           The file is commented. Append it to your .gvimrc if you like.
 
+rc/customization.ctags    Additional settings I use in  .ctags to enable navigation
+                          through POD with the plugin taglist.vim.
+
 doc/perlsupport.txt       The help file for the local online help. 
                           
 doc/perl-hot-keys.pdf     Reference card for the key mappings. 
@@ -93,7 +118,7 @@ doc/perl-hot-keys.pdf     Reference card for the key mappings.
                           because the menus are not available.
 
 
-wordlists/perl.list       A file with words used as dictionary for automatic word completion. 
+wordlists/perl.list       A file used as dictionary for automatic word completion. 
                           This file is referenced in the file customization.vimrc .
 
 ftplugin/perl.vim         A filetype plugin. Define hotkeys, create a local dictionary 
@@ -120,22 +145,41 @@ which is needed below the local installation directory $HOME/.vim/ .
 (2) Move the content of the corresponding subdirectories of the distribution into these
     subdirectories.
 
-(3) Append at least the file  rc/perl.vimrc  to  $HOME/.vimrc  :
+(3) Start Vim or gVim and generate the local help tags file with the following command:
 
-      cat rc/perl.vimrc  >> $HOME/.vimrc
-
-(4) Start Vim or gVim and generate the local help tags file with the following command:
-
-      :helptags $target_dir
+      :helptags $HOME/.vim/doc
       
-    You can see an entry for the local help file when you do:
+    You can see the entries for the local help files with
 
       :help local-additions
 
+    Jump directly to the help for this plugin with
+
+      :help perlsupport
+
+(4) Append at least the file  rc/perl.vimrc  to  $HOME/.vimrc  :
+
+      cat rc/perl.vimrc  >> $HOME/.vimrc
+
 (5) Do the configuration described below (personal details, ... )
 
+    ---------------------------------------------------------------------
 
-If you are on LINUX or U**X steps 1 - 3 can be done by calling the script  install.sh.
+If you are on LINUX or U**X steps 1 - 5 can be done by calling the script  install.sh 
+with the command line option -p :
+  
+  ./install.sh -p
+
+If you have already a personalized .vimrc call the script without an option:
+  
+  ./install.sh 
+
+If $HOME/.vim is NOT your target directory than call the script with the -t option 
+followed by the name of a subdirectory:
+
+  ./install.sh -t xyz
+
+The files go now to $HOME/xyz .
 
 
 =======================================================================================
@@ -144,29 +188,42 @@ If you are on LINUX or U**X steps 1 - 3 can be done by calling the script  insta
 
 Several global variables are checked by the script to customize it:
 
-  -----------------------------------------------------------------------------------
-  GLOBAL VARIABLE              DEFAULT VALUE                      TAG (see below)
-  -----------------------------------------------------------------------------------
-  g:Perl_AuthorName            ""                                 |AUTHOR|
-  g:Perl_AuthorRef             ""                                 |AUTHORREF|
-  g:Perl_Email                 ""                                 |EMAIL|
-  g:Perl_Company               ""                                 |COMPANY|   
-  g:Perl_Project               ""                                 |PROJECT|
-  g:Perl_CopyrightHolder       ""                                 |COPYRIGHTHOLDER|
+  -------------------------------------------------------------------------------------
+  GLOBAL VARIABLE                DEFAULT VALUE                      TAG (see below)
+  -------------------------------------------------------------------------------------
+  g:Perl_AuthorName              ""                                 |AUTHOR|
+  g:Perl_AuthorRef               ""                                 |AUTHORREF|
+  g:Perl_Email                   ""                                 |EMAIL|
+  g:Perl_Company                 ""                                 |COMPANY|   
+  g:Perl_Project                 ""                                 |PROJECT|
+  g:Perl_CopyrightHolder         ""                                 |COPYRIGHTHOLDER|
 
-  g:Perl_Template_Directory    $HOME."/.vim/plugin/templates/"
-  g:Perl_Template_File         "perl-file-header"
-  g:Perl_Template_Frame        "perl-frame"
-  g:Perl_Template_Function     "perl-function-description"
+  g:Perl_Template_Directory      $HOME.'/.vim/plugin/templates/'
+  g:Perl_Template_File           'perl-file-header'
+  g:Perl_Template_Module         'perl-module-header'
+  g:Perl_Template_Frame          'perl-frame'
+  g:Perl_Template_Function       'perl-function-description'
 
-  g:Perl_CodeSnippets          $HOME."/.vim/codesnippets-perl"
-  g:Perl_Pager                 "less"
-  g:Perl_LoadMenus             "yes"
-  g:Perl_Dictionary_File       $HOME."/.vim/wordlists/perl.list"
+  g:Perl_CodeSnippets            $HOME.'/.vim/codesnippets-perl'
+  g:Perl_Pager                   'less'
+  g:Perl_LoadMenus               'yes'
+  g:Perl_Dictionary_File         ''
+  g:Perl_Root                    '&Perl.'
+  g:Perl_MenuHeader              'yes'
+
+  g:Perl_PerlModuleList          $HOME.'/.vim/plugin/perl-modules.list'
+
   -----------------------------------------------------------------------------------
 
 1. group: Defines the text which will be inserted for the tags when a template  
-          is read in (see below).
+          is read in (see also TEMPLATE FILES AND TAGS below).
+
+          g:Perl_AuthorName      : author name
+          g:Perl_AuthorRef       : author reference (e.g. acronym)
+          g:Perl_Email           : email address
+          g:Perl_Company         : name of the company / institution
+          g:Perl_Project         : project
+          g:Perl_CopyrightHolder : the copyright holder
 
 2. group: Sets the template directory and the names of the template files (see below).
 
@@ -177,8 +234,14 @@ Several global variables are checked by the script to customize it:
           g:Perl_LoadMenus       : Load menus and mappings ("yes", "no") at startup.
           g:Perl_Dictionary_File : Path and filename of the Perl word list used for
                                    dictionary completion (see below).
-          
-To override the default add appropriate assignments to .vimrc .
+          g:Perl_Root            : The name of the root menu entry of this plugin 
+                                   (see below).
+          g:Perl_MenuHeader      : Switch submenu titles on/off.
+
+4. group: g:Perl_PerlModuleList  : The name of the Perl module list (text file,
+                                   see below).
+
+To override the defaults add appropriate assignments to .vimrc .
 Here are my settings as an example:
 
   let g:Perl_AuthorName      = "Dr.-Ing. Fritz Mehner"     
@@ -191,20 +254,22 @@ Here are my settings as an example:
   TEMPLATE FILES AND TAGS
 =======================================================================================
 
-Three menu entries generate block comments:
+Four menu entries generate block comments:
 
-    Perl -> Comments -> Frame Comment
-    Perl -> Comments -> Function Description
-    Perl -> Comments -> File Header
+    Perl -> Comments -> Frame Comm.
+    Perl -> Comments -> Function Descr. 
+    Perl -> Comments -> File Header (.pl)
+    Perl -> Comments -> File Header (.pm)
 
 The comments which will be inserted by these menu entries are read from template files:
 
   ----------------------------------------------------------------------------------
-  MENU ENTRY                FILE (in ./plugin/templates )   GLOBAL VARIABLE         
+  MENU ENTRY                FILE                            GLOBAL VARIABLE         
   ----------------------------------------------------------------------------------
   Frame Comment             perl-frame                      g:Perl_Template_Frame   
   Function Description      perl-function-description       g:Perl_Template_Function
-  File Header               perl-file-header                g:Perl_Template_File    
+  File Header (.pl)         perl-file-header                g:Perl_Template_File    
+  File Header (.pm)         perl-module-header              g:Perl_Template_Module
   ----------------------------------------------------------------------------------
 
 The template files can be written or changed by the user to fulfill special
@@ -213,7 +278,7 @@ blocks have to be prepared for a documentation tool, ... ).  They can hold not
 only comments but a complete file skeleton if this is necessary.  So you may
 want to lay out your own templates.
 
-The comments in these files do not have to be personalized but they can be.
+The comments in these files do not have to be personalized but they can.
 The text can contain the following tags which are replaced by the appropriate
 information when the file is read in:
 
@@ -237,22 +302,23 @@ There is no need to use any of these tags, some or all can be missing.
 
 The template files can actually be links pointing to existing templates.
 
+See also: $HOME/.vim/doc/perlsupport.txt .
+
 
 =======================================================================================
   CODE SNIPPETS
 =======================================================================================
 
-Code snippets are pieces of code which are kept in separate files in a special 
-directory. File names are used to identify the snippets.
-The snippet directory has to be created by the user 
-( $HOME/.vim/codesnippets-perl is the default).
-Snippets are managed with the 3 entries 
+Code snippets are any pieces of code which are kept in separate files in a special 
+directory. File names are used to identify the snippets. The snippet directory has 
+to be created by the user (default: $HOME/.vim/codesnippets-perl).
+Snippets are managed by the entries 
 
-   Perl -> Idioms -> read  code snippet
-   Perl -> Idioms -> write code snippet
-   Perl -> Idioms -> edit  code snippet
+   Perl -> Statements -> read  code snippet
+   Perl -> Statements -> write code snippet
+   Perl -> Statements -> edit  code snippet
 
-from the Idioms submenu.
+from the Statements submenu.
 
 Creating a new snippet:  
 -----------------------
@@ -263,7 +329,6 @@ Insert a snippet:
 -----------------
 Select the appropriate file from the snippet directory ("read  code snippet").
 The inserted lines will be indented.
-Creating a new snippet:  
 
 
 =======================================================================================
@@ -288,22 +353,72 @@ In order to use this feature
 This will create a local dictionary for each Perl file and enable keyword 
 completion for Perl using Vim's dictionary feature CTRL-X CTRL-K.
 
+=======================================================================================
+THE PERL MODULE LIST
+=======================================================================================
+
+The entry 'Run -> generate Perl module list' generates a text file 
+(default: $HOME/.vim/plugin/perl-modules.list ) which contains one line for 
+each Perl module installed:
+
+  5.8.0::Devel::GraphVizProf   - per-line Perl profiler (with graph output)
+  5.8.0::Graph   - graph operations
+  5.8.0::Graph::BFS   - graph breadth-first search
+  5.8.0::Graph::Base   - graph base class
+  5.8.0::Graph::DFS   - graph depth-first search
+    ...
+
+The entry 'Run -> show installed Perl modules' loads this file in a new window.
+Now an entry can be chosen by Shift-F1. This will open another window with the
+man page for this module.
+
+The module list is generated by the Perl script  $HOME/.vim/plugin/pmdesc
+(Perl Cook Book, T. Christiansen/N. Torkington, 2. Ed., p. 493ff, recipe 12.23 ).
+
+
+=======================================================================================
+THE ROOT MENU
+=======================================================================================
+
+The variable g:Perl_Root, if set (in .vimrc or in .gvimrc), gives the name of the
+single gVim root menu entry in which the Perl submenus will be put. 
+The default is 
+                  '&Perl.'
+Note the terminating dot. A single root menu entry is appropriate if the screen is
+limited or several plugins are in use.
+
+If set to "", this single root menu entry will not appear.  Now all submenus
+are put into the gVim root menu. Nice for a Perl-only-programmer and Perl courses. 
+
+=======================================================================================
+NAVIGATE THROUGH PODS
+=======================================================================================
+
+The plugin taglist.vim (Author: Yegappan Lakshmanan) is a source code browser
+plugin for Vim and provides an overview of the structure of source code files
+and allows you to efficiently browse through source code files for different
+programming languages. It is based on  ctags.
+The file rc/customization.ctags is an extension for the configuration file of
+ctags (generates tag files for source code, see http://ctags.sourceforge.net).
+If appended to $HOME/.ctags (the initialization file for ctags) taglist can
+show the structure of the included POD as an table of content.
+See also the file doc/perlsupport.txt .
 
 =======================================================================================
   SPEED UP TYPING / SAVE KEYSTROKES
 =======================================================================================
 
-(1) gvim. Toggle 'insert mode' <--> 'normal mode' with the right mouse button
+(1) gVim. Toggle 'insert mode' <--> 'normal mode' with the right mouse button
     (see mapping in file customization.gvimrc).
 
-(2) gvim. Use tear off menus and
+(2) gVim. Use tear off menus and
 
-(3) try 'Focus under mouse' as window behavior (No mouse click when the mouse
+(3) Try 'Focus under mouse' as window behavior (No mouse click when the mouse
     pointer is back from the menu entry).
 
 (4) Use Emulate3Buttons "on" (X11) even for a 3-button mouse. Pressing left and
-    right button simultaneously without moving your fingers is faster then 
-    moving a finger to the middle button (often a wheel).
+    right button simultaneously without moving your fingers is faster than 
+    moving a finger to the middle button (which is often a wheel).
 
 
 =======================================================================================
@@ -315,5 +430,7 @@ Lukas Zapletal for the errorformat (taken from the script perl.vim).
 David Fishburn <fishburn@ianywhere.com> for the implementation of the 
   single root menu and several suggestions for improving the customization
   and the documentation.
+  
+Ryan Hennig <hennig@amazon.com> improved the install script.
 
 =======================================================================================

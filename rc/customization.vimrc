@@ -3,6 +3,17 @@
 "==========  CUSTOMIZATION (vimrc)  ============================================
 "===============================================================================
 "
+"shift down   : change window focus to lower one
+"shift up     : change window focus to upper one
+"shift left   : change window focus to one on left
+"shift right  : change window focus to one on right
+"
+nmap <s-down>   <c-w>j
+nmap <s-up>     <c-w>k
+nmap <s-left>   <c-w>h
+nmap <s-right>  <c-w>l
+
+"
 set autoread
 set autowrite
 set backupdir=$HOME/.vim.backupdir       " Don't forget to create this directory!
@@ -117,12 +128,30 @@ let g:Perl_Company         = ""
 let g:Perl_Project         = ""
 let g:Perl_CopyrightHolder = ""
 
+let g:Perl_LoadMenus       = "yes"
+
 " ----------  Insert header into new PERL files  ----------
 if has("autocmd")
-  autocmd BufNewFile  *.\(pl\|pm\)         call Perl_CommentTemplates('header')
+	" 
+	" =====  Perl-script : insert header, write file, make it executable  =============
+	autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | :!chmod -c u+x %
+	" 
+	" =====  Perl module : insert hedaer, write file  =================================
+	autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!
+	" 
+	" =====  Perl POD module : set filetype to Perl  ==================================
+	autocmd BufNewFile,BufRead *.pod  set filetype=perl
+	"
 endif " has("autocmd")
 
-let g:Perl_Dictionary_File       = $HOME."/.vim/wordlists/perl.list"
+"
+"-------------------------------------------------------------------------------
+" taglist.vim : toggle the taglist window
+" taglist.vim : define the title texts for Perl
+"-------------------------------------------------------------------------------
+nnoremap <silent> <F11> :Tlist<CR>
+
+let tlist_perl_settings='perl;p:packages;s:subroutines;d:POD'
 
 
 

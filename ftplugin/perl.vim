@@ -3,7 +3,7 @@
 " Language   :  Perl
 " Plugin     :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  Jul 31 2003 
+" Last Change:  01.02.2004
 "
 " -----------------------------------------------------------------
 "
@@ -24,7 +24,7 @@ endif
 "
 " ---------- Key mappings  -------------------------------------
 "
-"	 Shift-F1   read perldoc  (for the word under the cursor)
+"  Shift-F1   read perldoc  (for the word under the cursor)
 "   Ctrl-F9   run script
 "        F9   run script with pager
 "    Alt-F9   run syntax check
@@ -39,9 +39,11 @@ imap    <buffer>  <silent>  <C-F9>        <Esc>:call Perl_Run(0)<CR>
 imap    <buffer>  <silent>  <F9>          <Esc>:call Perl_Run(1)<CR>
 
 nmap    <buffer>  <silent>  <Leader>cl    A<Tab><Tab><Tab>#<Space>
+vmap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_MultiLineEndComments()<CR>
 nmap    <buffer>  <silent>  <Leader>cf    :call Perl_CommentTemplates('frame')<CR>
 nmap    <buffer>  <silent>  <Leader>cu    :call Perl_CommentTemplates('function')<CR>
 nmap    <buffer>  <silent>  <Leader>ch    :call Perl_CommentTemplates('header')<CR>
+nmap    <buffer>  <silent>  <Leader>ce    :call Perl_CommentTemplates('module')<CR>
 nmap    <buffer>  <silent>  <Leader>ckb   $<Esc>:call Perl_CommentClassified("BUG")     <CR>kJA
 nmap    <buffer>  <silent>  <Leader>ckt   $<Esc>:call Perl_CommentClassified("TODO")    <CR>kJA
 nmap    <buffer>  <silent>  <Leader>ckr   $<Esc>:call Perl_CommentClassified("TRICKY")  <CR>kJA
@@ -62,16 +64,18 @@ nmap    <buffer>  <silent>  <Leader>au    ounless (  )<CR>{<CR>}<Esc>2kf(la
 nmap    <buffer>  <silent>  <Leader>an    ounless (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la
 nmap    <buffer>  <silent>  <Leader>at    ountil (  )<CR>{<CR>}<Esc>2kf(la
 nmap    <buffer>  <silent>  <Leader>aw    owhile (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>2kF(la
+nmap    <buffer>  <silent>  <Leader>a{    o{<CR>}<Esc>ko
 
 vmap    <buffer>  <silent>  <Leader>ad    <Esc><Esc>:call Perl_DoWhile('v')<CR><Esc>f(la
 vmap    <buffer>  <silent>  <Leader>af    DOfor ( ; ;  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f;i
 vmap    <buffer>  <silent>  <Leader>ao    DOforeach  (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(hi
-vmap    <buffer>  <silent>  <Leader>ai  	DOif (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+vmap    <buffer>  <silent>  <Leader>ai    DOif (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
 vmap    <buffer>  <silent>  <Leader>ae    DOif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>3kP2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
 vmap    <buffer>  <silent>  <Leader>au    DOunless (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
 vmap    <buffer>  <silent>  <Leader>an    DOunless (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>3kP2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
 vmap    <buffer>  <silent>  <Leader>at    DOuntil (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
 vmap    <buffer>  <silent>  <Leader>aw    DOwhile (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+vmap    <buffer>  <silent>  <Leader>a{    DO{<CR>}<Esc>Pk<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f;i
 
 nmap    <buffer>  <silent>  <Leader>dm    omy<Tab>$;<Esc>i
 nmap    <buffer>  <silent>  <Leader>dy    omy<Tab>$<Tab>= ;<Esc>F$a
@@ -80,8 +84,8 @@ nmap    <buffer>  <silent>  <Leader>d1    omy<Tab>@;<Esc>i
 nmap    <buffer>  <silent>  <Leader>d2    omy<Tab>@<Tab>= ( , ,  );<Esc>F@a
 nmap    <buffer>  <silent>  <Leader>d3    omy<Tab>%;<Esc>i
 nmap    <buffer>  <silent>  <Leader>d4    omy<Tab>%<Tab>= <CR>(<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2kf%a
-nmap    <buffer>  <silent>  <Leader>d5    omy<Tab>$regex_<Tab>= '';<Esc>F_a
-nmap    <buffer>  <silent>  <Leader>d6    omy<Tab>$regex_<Tab>= qr//;<Esc>F_a
+nmap    <buffer>  <silent>  <Leader>d5    omy<Tab>$rgx_<Tab>= q//;<Esc>F_a
+nmap    <buffer>  <silent>  <Leader>d6    omy<Tab>$rgx_<Tab>= qr//;<Esc>F_a
 nmap    <buffer>  <silent>  <Leader>d7    <Esc>a$ =~ m//<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>d8    <Esc>a$ =~ s///<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>d9    <Esc>a$ =~ tr///<Esc>F$a
@@ -91,19 +95,19 @@ nmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_CodeFunction()<CR
 nmap    <buffer>  <silent>  <Leader>di    <Esc><Esc>:call Perl_CodeOpenRead()<CR>
 nmap    <buffer>  <silent>  <Leader>do    <Esc><Esc>:call Perl_CodeOpenWrite()<CR>
 nmap    <buffer>  <silent>  <Leader>de    <Esc><Esc>:call Perl_CodeOpenPipe()<CR>
-nmap    <buffer>  <silent>  <Leader>la		a[:alnum:]
-nmap    <buffer>  <silent>  <Leader>lh		a[:alpha:]
-nmap    <buffer>  <silent>  <Leader>li		a[:ascii:]
-nmap    <buffer>  <silent>  <Leader>lc		a[:cntrl:]
-nmap    <buffer>  <silent>  <Leader>ld		a[:digit:]
-nmap    <buffer>  <silent>  <Leader>lg		a[:graph:]
-nmap    <buffer>  <silent>  <Leader>ll		a[:lower:]
-nmap    <buffer>  <silent>  <Leader>lp		a[:print:]
-nmap    <buffer>  <silent>  <Leader>ln		a[:punct:]
-nmap    <buffer>  <silent>  <Leader>ls		a[:space:]
-nmap    <buffer>  <silent>  <Leader>lu		a[:upper:]
-nmap    <buffer>  <silent>  <Leader>lw		a[:word:]
-nmap    <buffer>  <silent>  <Leader>lx		a[:xdigit:]
+nmap    <buffer>  <silent>  <Leader>la    a[:alnum:]
+nmap    <buffer>  <silent>  <Leader>lh    a[:alpha:]
+nmap    <buffer>  <silent>  <Leader>li    a[:ascii:]
+nmap    <buffer>  <silent>  <Leader>lc    a[:cntrl:]
+nmap    <buffer>  <silent>  <Leader>ld    a[:digit:]
+nmap    <buffer>  <silent>  <Leader>lg    a[:graph:]
+nmap    <buffer>  <silent>  <Leader>ll    a[:lower:]
+nmap    <buffer>  <silent>  <Leader>lp    a[:print:]
+nmap    <buffer>  <silent>  <Leader>ln    a[:punct:]
+nmap    <buffer>  <silent>  <Leader>ls    a[:space:]
+nmap    <buffer>  <silent>  <Leader>lu    a[:upper:]
+nmap    <buffer>  <silent>  <Leader>lw    a[:word:]
+nmap    <buffer>  <silent>  <Leader>lx    a[:xdigit:]
 nmap    <buffer>  <silent>  <Leader>rx    :!chmod -c u+x %<CR>
 nmap    <buffer>  <silent>  <Leader>rh    :call Perl_Hardcopy("n")<CR>
 

@@ -1,0 +1,7 @@
+
+--langmap=perl:+.pod
+--regex-perl=/^=head1[[:space:]]*(.+)$/\1/d,pod/
+--regex-perl=/^=head2[[:space:]]*(.+)$/. \1/d,pod/
+--regex-perl=/^=head3[[:space:]]*(.+)$/\.\. \1/d,pod/
+--regex-perl=/^=head4[[:space:]]*(.+)$/\.\.\. \1/d,pod/
+
