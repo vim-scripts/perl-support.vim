@@ -72,7 +72,6 @@ if has("autocmd")
 	autocmd BufEnter * :lcd %:p:h
 endif " has("autocmd")
 "
-"
 "-------------------------------------------------------------------------------
 " use of dictionaries
 " 
@@ -81,7 +80,7 @@ endif " has("autocmd")
 "   complete : search the files defined by the 'dictionary' option
 "-------------------------------------------------------------------------------
 "
-set dictionary=$HOME/.vim/word.list
+set dictionary=$HOME/.vim/wordlists/german.list
 set complete+=k
 "
 "
@@ -105,12 +104,25 @@ set printoptions=left:8pc,right:3pc
 "
 
 highlight Cursor guibg=Blue guifg=NONE
-"
+
+
 "-------------------------------------------------------------------------------
-" Insert header into new PERL files
+" perl-support.vim
 "-------------------------------------------------------------------------------
+
+let g:Perl_AuthorName      = ""     
+let g:Perl_AuthorRef       = ""                         
+let g:Perl_Email           = ""            
+let g:Perl_Company         = ""    
+let g:Perl_Project         = ""
+let g:Perl_CopyrightHolder = ""
+
+" ----------  Insert header into new PERL files  ----------
 if has("autocmd")
-	autocmd BufNewFile  *.\(pl\|pm\)         call Perl_CommentTemplates('header')
+  autocmd BufNewFile  *.\(pl\|pm\)         call Perl_CommentTemplates('header')
 endif " has("autocmd")
-"
-"
+
+let g:Perl_Dictionary_File       = $HOME."/.vim/wordlists/perl.list"
+
+
+
