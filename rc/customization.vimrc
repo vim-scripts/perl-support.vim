@@ -33,7 +33,7 @@ set visualbell                        " visual bell instead of beeping
 "-------------------------------------------------------------------------------
 "     F2  -  write file without confirmation
 "     F3  -  call file explorer Ex
-"     F4  -  show tag under curser in the preview window
+"     F4  -  show tag under curser in the preview window (tagfile must exist!)
 "     F6  -  list all errors           
 "     F7  -  display previous error
 "     F8  -  display next error   
@@ -120,5 +120,5 @@ let g:Perl_Debugger     = "perl"
  noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 
-let tlist_perl_settings  = 'perl;p:packages;s:subroutines;d:POD'
+let tlist_perl_settings  = 'perl;c:constants;l:labels;s:subroutines;d:POD'
 

@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.4) / Dec 10 2004
+README for perl-support.vim (Version 2.4.1) / Feb 26 2005
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -39,21 +39,33 @@ There are a lot of features and options which can be used and influenced:
   *  reading Perl documentation with inegrated calls to perldoc
   *  removing the root menu
 
-Restart gVim/Vim and look at the perlsupport help with
+Restart gVim/Vim generate the help tags 
+
+  :helptags ~/.vim/doc
+
+and look at the perlsupport help with
 
   :help perlsupport 
 
-                 +--------------------------------------------+
-                 | +----------------------------------------+ |
-                 | |  ** Please read the documentation **   | |
-                 | |  Actions differ for different modes!   | |
-                 | +----------------------------------------+ |
-                 +--------------------------------------------+
+             +-----------------------------------------------+
+             | +-------------------------------------------+ |
+             | |    ** Please read the documentation **    | |
+             | |    Actions differ for different modes!    | |
+             | +-------------------------------------------+ |
+             +-----------------------------------------------+
 
 
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.4.1
+---------------------------------------------------------------------------------------
++ Run the profiler SmallProf from the menu; save different results with time stamps. 
++ Line end comments start in a fixed column now (can be set from the menu).
++ Recommended settings for ctags corrected (Thanks to William McKee).
++ Perl module list generator pmdesc3 again slightly improved.
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.4
@@ -206,7 +218,7 @@ rc/customization.ctags    Additional settings I use in  .ctags to enable navigat
 doc/perl-hot-keys.pdf     Reference card for the key mappings. 
                           The mappings can be used with the non-GUI Vim, 
                           because the menus are not available.
-doc/pmdesc3.txt           The man page for pmdesc3.
+doc/pmdesc3.text          The man page for pmdesc3.
 
 
 =======================================================================================

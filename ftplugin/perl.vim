@@ -3,7 +3,7 @@
 " Language   :  Perl
 " Plugin     :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  26.11.2004
+" Last Change:  07.02.2005
 "
 " -----------------------------------------------------------------
 "
@@ -24,13 +24,9 @@ endif
 "
 " ---------- Key mappings  -------------------------------------
 "
-"  Shift-F1   read perldoc  (for the word under the cursor)
 "   Ctrl-F9   run script
 "        F9   run script with pager
 "    Alt-F9   run syntax check
-"
- map    <buffer>  <silent>  <S-F1>             :call Perl_perldoc('c')<CR><CR>
-imap    <buffer>  <silent>  <S-F1>        <Esc>:call Perl_perldoc('c')<CR><CR>
 "
  map    <buffer>  <silent>  <A-F9>             :call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>
 imap    <buffer>  <silent>  <A-F9>        <Esc>:call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>

@@ -20,7 +20,7 @@ DESCRIPTION
     below) can be used as module name or FAQ-name for perldoc.
 
     Some modules are split into a pm-file and an accompanying pod-file. The
-    version is always taken from the pm-file.
+    version number is always taken from the pm-file.
 
     The description found will be cut down to a length of at most 150
     characters (prevents slurping in big amount of faulty docs).
@@ -56,5 +56,5 @@ NOTES
     pmdesc2 is at least one magnitude faster than pmdesc.
 
 VERSION
-    1.2
+    1.2.1
 

@@ -12,12 +12,17 @@
 #                - Module versions are checked with a regex; avoids unprintable
 #                  characters (original version) and doubling of entries.
 #                - new option -v
-#     REVISION:  28.10.2004 
-#                - function get_module_description completely new written
+#                28.10.2004 
+#                - Function get_module_description completely new written.
+#                29.01.2005 
+#                - Look for a description in the DESCRIPTION section if no
+#                  NAME section is found.
 #                 
 #===================================================================================
 
-$VERSION=1.2;
+package pmdesc3;
+
+$VERSION=1.2.1;                   # update POD at the end of this file
 
 require 5.6.1;
 
@@ -87,6 +92,12 @@ sub get_module_description
   if ( ! defined $desc  )
   {
     $file =~  m/\n=head1\s+NAME(.*?)\n=\w+/s; # '=head1' is embedded
+    $desc = $1;
+  }
+
+  if ( ! defined $desc  )
+  {
+    $file =~  m/\n=head1\s+DESCRIPTION(.*?)\n=\w+/s; # '=head1' is embedded
     $desc = $1;
   }
 
@@ -246,7 +257,7 @@ The first column of the output (see below) can be used as module name or
 FAQ-name for perldoc.
 
 Some modules are split into a pm-file and an accompanying pod-file.
-The version is always taken from the pm-file.
+The version number is always taken from the pm-file.
 
 The description found will be cut down to a length of at most
 150 characters (prevents slurping in big amount of faulty docs).
@@ -292,7 +303,7 @@ pmdesc2 is at least one magnitude faster than pmdesc.
 
 =head1 VERSION
 
-1.2
+1.2.1
 
 =cut
 

@@ -22,7 +22,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  09.12.2004
+"       Revision:  26.02.2005
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -34,7 +34,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.4"
+let g:Perl_Version= "2.4.1"
 "        
 "###############################################################################################
 "
@@ -76,6 +76,8 @@ let s:Perl_PerlModuleListGenerator = root_dir.'plugin/pmdesc3 -s -t36 > '.s:Perl
 let s:Perl_OutputGvim              = "vim"
 let s:Perl_XtermDefaults           = "-fa courier -fs 12 -geometry 80x24"
 let s:Perl_Debugger                = "perl"
+let s:Perl_ProfilerTimestamp       = "no"
+let s:Perl_LineEndCommColDefault   = 49
 "
 "------------------------------------------------------------------------------
 "
@@ -85,7 +87,7 @@ function! Perl_CheckGlobal ( name )
 	if exists('g:'.a:name)
 		exe 'let s:'.a:name.'  = g:'.a:name
 	endif
-endfunction
+endfunction		" ---------- end of function  Perl_CheckGlobal  ----------
 "
 call Perl_CheckGlobal("Perl_AuthorName             ")
 call Perl_CheckGlobal("Perl_AuthorRef              ")
@@ -107,6 +109,8 @@ call Perl_CheckGlobal("Perl_PerlModuleListGenerator")
 call Perl_CheckGlobal("Perl_OutputGvim             ")
 call Perl_CheckGlobal("Perl_XtermDefaults          ")
 call Perl_CheckGlobal("Perl_Debugger               ")
+call Perl_CheckGlobal("Perl_ProfilerTimestamp      ")
+call Perl_CheckGlobal("Perl_LineEndCommColDefault  ")
 "
 "
 "------------------------------------------------------------------------------
@@ -143,12 +147,13 @@ function!	Perl_InitMenu ()
 			exe "amenu ".s:Perl_Root.'&Comments.-Sep0-        :'
 		endif
 
-		exe "amenu           ".s:Perl_Root.'&Comments.&Line\ End\ Comm\.                <Esc><Esc>A<Tab><Tab><Tab>#<Space>'
-		exe "vmenu <silent>  ".s:Perl_Root.'&Comments.&Line\ End\ Comm\.                <Esc><Esc>:call Perl_MultiLineEndComments()<CR>A'
-		exe "amenu <silent>  ".s:Perl_Root.'&Comments.&Frame\ Comm\.          <Esc><Esc>:call Perl_CommentTemplates("frame")<CR>'
-		exe "amenu <silent>  ".s:Perl_Root.'&Comments.F&unction\ Descr\.      <Esc><Esc>:call Perl_CommentTemplates("function")<CR>'
-		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ &Header\ (\.pl)   <Esc><Esc>:call Perl_CommentTemplates("header")<CR>'
-		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ &Header\ (\.pm)   <Esc><Esc>:call Perl_CommentTemplates("module")<CR>'
+		exe "amenu           ".s:Perl_Root.'&Comments.&Line\ End\ Comm\.        <Esc><Esc>:call Perl_LineEndComment()<CR>A'
+		exe "vmenu <silent>  ".s:Perl_Root.'&Comments.&Line\ End\ Comm\.        <Esc><Esc>:call Perl_MultiLineEndComments()<CR>A'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.&Set\ End\ Comm\.\ Col\.  <Esc><Esc>:call Perl_GetLineEndCommCol()<CR>'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.&Frame\ Comm\.            <Esc><Esc>:call Perl_CommentTemplates("frame")<CR>'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.F&unction\ Descr\.        <Esc><Esc>:call Perl_CommentTemplates("function")<CR>'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ &Header\ (\.pl)     <Esc><Esc>:call Perl_CommentTemplates("header")<CR>'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ Header\ (\.&pm)     <Esc><Esc>:call Perl_CommentTemplates("module")<CR>'
 
 		exe "amenu ".s:Perl_Root.'&Comments.-SEP1-                     :'
 		"
@@ -204,7 +209,7 @@ function!	Perl_InitMenu ()
 		exe "imenu  ".s:Perl_Root.'&Comments.Ta&gs\ (plugin).&PROJECT          <Esc>a'.s:Perl_Project
 		"
 		"
-		exe "amenu ".s:Perl_Root.'&Comments.&vim\ modeline             <Esc><Esc>:call Perl_CommentVimModeline()<CR>'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.&vim\ modeline             <Esc><Esc>:call Perl_CommentVimModeline()<CR>'
 
 		"---------- Statements-Menu ----------------------------------------------------------------------
 
@@ -722,13 +727,15 @@ function!	Perl_InitMenu ()
 		endif
 		exe "amenu          ".s:Perl_Root.'&Run.-SEP2-                           :'
 
-		exe "amenu <silent> ".s:Perl_Root.'&Run.read\ perl&doc<Tab><S-F1>        <C-C>:call Perl_perldoc("m")<CR><CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.read\ perl&doc<Tab><S-F1>        <C-C>:call Perl_perldoc()<CR><CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.show\ &installed\ Perl\ modules  <Esc><Esc>:call Perl_perldoc_show_module_list()<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.&generate\ Perl\ module\ list    <C-C>:call Perl_perldoc_generate_module_list()<CR><CR>'
 		"
 		exe "amenu          ".s:Perl_Root.'&Run.-SEP4-                           :'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.run\ perltid&y                   <C-C>:call Perl_Perltidy("n")<CR>'
 		exe "vmenu <silent> ".s:Perl_Root.'&Run.run\ perltid&y                   <C-C>:call Perl_Perltidy("v")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.run\ S&mallProf                  <C-C>:call Perl_Smallprof()<CR><CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.save\ buffer\ with\ timestam&p   <C-C>:call Perl_SaveWithTimestamp()<CR><CR>'
 
 		exe "amenu          ".s:Perl_Root.'&Run.-SEP5-                           :'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.&hardcopy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>'
@@ -751,7 +758,7 @@ function!	Perl_InitMenu ()
 	"
 	"--------------------------------------------------------------------------------------------
 	"
-endfunction			" function Perl_InitMenu
+endfunction		" ---------- end of function  Perl_InitMenu  ----------
 "
 "
 "------------------------------------------------------------------------------
@@ -771,12 +778,45 @@ function! Perl_Input ( promp, text )
   call inputrestore()                 " restore typeahead
   echohl None                         " reset highlighting
   return retval
-endfunction
+endfunction		" ---------- end of function  Perl_Input  ----------
+"
+"------------------------------------------------------------------------------
+"  Comments : get line-end comment position
+"------------------------------------------------------------------------------
+function! Perl_GetLineEndCommCol ()
+  let	b:Perl_LineEndCommentColumn	= virtcol(".") 
+  echomsg "line end comments will start at column  ".b:Perl_LineEndCommentColumn
+endfunction		" ---------- end of function  Perl_GetLineEndCommCol  ----------
+"
+"------------------------------------------------------------------------------
+"  Comments : single line-end comment
+"------------------------------------------------------------------------------
+function! Perl_LineEndComment ()
+	if !exists("b:Perl_LineEndCommentColumn")
+		let	b:Perl_LineEndCommentColumn	= s:Perl_LineEndCommColDefault
+	endif
+	" ----- trim whitespaces -----
+	exe "s/\s\*$//"
+	let linelength= virtcol("$") - 1
+	if linelength < b:Perl_LineEndCommentColumn
+		let diff	= b:Perl_LineEndCommentColumn -1 -linelength
+		exe "normal	".diff."A "
+	endif
+	" append at least one blank
+	if linelength >= b:Perl_LineEndCommentColumn
+		exe "normal A "
+	endif
+	exe "normal A# "
+endfunction		" ---------- end of function  Perl_LineEndComment  ----------
 "
 "------------------------------------------------------------------------------
 "  Comments : multi line-end comments
 "------------------------------------------------------------------------------
 function! Perl_MultiLineEndComments ()
+  if !exists("b:Perl_LineEndCommentColumn")
+		let	b:Perl_LineEndCommentColumn	= s:Perl_LineEndCommColDefault
+  endif
+	"
 	let pos0	= line("'<")
 	let pos1	= line("'>")
 	" ----- trim whitespaces -----
@@ -792,37 +832,35 @@ function! Perl_MultiLineEndComments ()
 		let linenumber=linenumber+1
 		normal j
 	endwhile
-	let	maxlength	= maxlength-1
-	let	maxlength	= ((maxlength + &tabstop)/&tabstop)*&tabstop
-	" ----- fill lines with tabs -----
+	"
+	if maxlength < b:Perl_LineEndCommentColumn
+	  let maxlength = b:Perl_LineEndCommentColumn
+	else
+	  let maxlength = maxlength+1		" at least 1 blank
+	endif
+	"
+	" ----- fill lines with blanks -----
 	let	linenumber	= pos0
 	normal '<
 	while linenumber <= pos1
 		if getline(".") !~ "^\\s*$"
-			let ll		= virtcol("$")-1
-			let diff	= (maxlength-ll)/&tabstop
-			if ll%(&tabstop)!=0
-				let diff	= diff + 1
-			endif
-			while diff>0
-				exe "normal	$A	"
-				let diff=diff-1
-			endwhile
-			exe "normal	$a# "
+			let diff	= maxlength - virtcol("$")
+			exe "normal	".diff."A "
+			exe "normal	$A# "
 		endif
 		let linenumber=linenumber+1
 		normal j
 	endwhile
-	" ----- back to the beginning of the marked block -----
+	" ----- back to the beginof the marked block -----
 	normal '<
-endfunction
+endfunction		" ---------- end of function  Perl_MultiLineEndComments  ----------
 "
 "------------------------------------------------------------------------------
 "  Comments : classified comments
 "------------------------------------------------------------------------------
 function! Perl_CommentClassified (class)
   	put = '# :'.a:class.':'.strftime(\"%x\").':'.s:Perl_AuthorRef.': '
-endfunction
+endfunction		" ---------- end of function  Perl_CommentClassified  ----------
 "
 "------------------------------------------------------------------------------
 "  Substitute tags
@@ -885,11 +923,8 @@ function! Perl_CommentTemplates (arg)
 	if filereadable(templatefile)
 		let	length= line("$")
 		let	pos1  = line(".")+1
-		"
-		" Prevent the alternate buffer from being set to this files
-		"
-		let l:old_cpoptions	= &cpoptions
-		setlocal cpo-=a
+		let l:old_cpoptions	= &cpoptions " Prevent the alternate buffer from being set to this files
+		setlocal cpoptions-=a
 		if  a:arg=='header'|| a:arg=='module' 
 			:goto 1
 			let	pos1  = 1
@@ -966,7 +1001,7 @@ function! Perl_CodeFunction ()
 	let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
 	put =zz
 	normal 3j
-endfunction
+endfunction		" ---------- end of function  Perl_CodeFunction  ----------
 "
 "------------------------------------------------------------------------------
 "  Statements : do-while
@@ -991,7 +1026,7 @@ function! Perl_DoWhile (arg)
 		:'>+2
 	endif
 
-endfunction
+endfunction		" ---------- end of function  Perl_DoWhile  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Idioms : CodeOpenRead
@@ -1014,7 +1049,7 @@ function! Perl_CodeOpenRead ()
 	put =zz
 	normal =6+
 	normal f'
-endfunction
+endfunction		" ---------- end of function  Perl_CodeOpenRead  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Idioms : CodeOpenWrite
@@ -1037,7 +1072,7 @@ function! Perl_CodeOpenWrite ()
 	normal =6+
 	exe "imenu ".s:Perl_Root.'I&dioms.print\ '.filehandle.'\ "\\n";    print '.filehandle.' "\n";<ESC>3hi'
 	normal f'
-endfunction
+endfunction		" ---------- end of function  Perl_CodeOpenWrite  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Idioms : CodeOpenPipe
@@ -1059,7 +1094,7 @@ function! Perl_CodeOpenPipe ()
 	put =zz
 	normal =6+
 	normal f'
-endfunction
+endfunction		" ---------- end of function  Perl_CodeOpenPipe  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Idioms : read / edit code snippet
@@ -1073,10 +1108,8 @@ function! Perl_CodeSnippet(arg1)
 			let	l:snippetfile=browse(0,"read a code snippet",s:Perl_CodeSnippets,"")
 			if filereadable(l:snippetfile)
 				let	linesread= line("$")
-				"
-				" Prevent the alternate buffer from being set to this files
-				let l:old_cpoptions	= &cpoptions
-				setlocal cpo-=a
+				let l:old_cpoptions	= &cpoptions " Prevent the alternate buffer from being set to this files
+				setlocal cpoptions-=a
 				:execute "read ".l:snippetfile
 				let &cpoptions	= l:old_cpoptions		" restore previous options
 				"
@@ -1130,23 +1163,30 @@ function! Perl_CodeSnippet(arg1)
 		echo "code snippet directory ".s:Perl_CodeSnippets." does not exist"
 		echohl None
 	endif
-endfunction
+endfunction		" ---------- end of function  Perl_CodeSnippet  ----------
 "
 "------------------------------------------------------------------------------
-"  Perl-Run : Perl_perldoc - try word under the cursor or ask
+"  Perl-Run : Perl_perldoc - lookup word under the cursor or ask
 "------------------------------------------------------------------------------
 "
-let s:Perl_PerldocHelpBuffer=-1
-let s:Perl_PerldocModulelistBuffer=-1
+let s:Perl_PerldocBufferName   = "PERLDOC"
+let s:Perl_PerldocHelpBufferNumber = -1
+let s:Perl_PerldocModulelistBuffer = -1
 "
-function! Perl_perldoc(arg)
+function! Perl_perldoc()
 
 	let	buffername	= getcwd()."/".bufname("%")
 	if( buffername == s:Perl_PerlModuleList )
 		normal 0
 		let	item=expand("<cWORD>")				" WORD under the cursor 
 	else
-		let	item=expand("<cword>")				" word under the cursor 
+		" try to look up the documentation for the module in a use statement
+		let	item= matchstr( getline("."), '^\s*use\s\+\S\+' ) 
+		let	item= substitute( item, '^\s*use\s\+', '', '' ) 
+		let	item= substitute( item, ',$', '', '' ) 
+		if item == ""
+			let	item=expand("<cword>")				" word under the cursor 
+		endif
 	endif
 	if  item == ""
 		let	item=Perl_Input("perldoc - module, function or FAQ keyword : ", "")
@@ -1157,38 +1197,38 @@ function! Perl_perldoc(arg)
 	"------------------------------------------------------------------------------
 	if item != ""
 		"
-		" jump to an already open perldoc window or create one
+		" jump to an already open PERLDOC window or create one
 		" 
-		if bufloaded("PERLDOC") && bufwinnr(s:Perl_PerldocHelpBuffer)!=-1
-			exe bufwinnr(s:Perl_PerldocHelpBuffer) . "wincmd w"
+		if bufloaded(s:Perl_PerldocBufferName) != 0 && bufwinnr(s:Perl_PerldocHelpBufferNumber) != -1
+			exe bufwinnr(s:Perl_PerldocHelpBufferNumber) . "wincmd w"
 			" buffer number may have changed, e.g. after a 'save as' 
-			if bufnr("%") != s:Perl_PerldocHelpBuffer
-				let s:Perl_PerldocHelpBuffer=bufnr(s:Perl_OutputBufferName)
-				exe ":bn ".s:Perl_PerldocHelpBuffer
+			if bufnr("%") != s:Perl_PerldocHelpBufferNumber
+				let s:Perl_PerldocHelpBufferNumber=bufnr(s:Perl_OutputBufferName)
+				exe ":bn ".s:Perl_PerldocHelpBufferNumber
 			endif
 		else
-			exe ":new PERLDOC"
-			let s:Perl_PerldocHelpBuffer=bufnr("%")
+			exe ":new ".s:Perl_PerldocBufferName
+			let s:Perl_PerldocHelpBufferNumber=bufnr("%")
 			setlocal buftype=nofile
 			setlocal noswapfile
-			setlocal filetype=perl
-			setlocal syntax=none
 			setlocal bufhidden=delete
+			setlocal filetype=help
 		endif
 		"
-		" search order:
-		"  (1)  library module
-		"  (2)  builtin function
-		"  (3)  FAQ keyword
+		" search order:  library module --> builtin function --> FAQ keyword
 		" 
+		let delete_perldoc_errors	= ""
+		if has("unix")
+			let delete_perldoc_errors	= " 2>/dev/null"
+		endif
 		setlocal	modifiable
-		silent exe ":%!perldoc ".item
+		silent exe ":%!perldoc ".item.delete_perldoc_errors
 		if v:shell_error != 0
 			redraw!
-			silent exe ":%!perldoc -f ".item
+			silent exe ":%!perldoc -f ".item.delete_perldoc_errors
 			if v:shell_error != 0
 				redraw!
-				silent exe ":%!perldoc -q ".item
+				silent exe ":%!perldoc -q ".item.delete_perldoc_errors
 				if v:shell_error != 0
 					redraw!
 					let zz=   "No documentation found for perl module, perl function or perl FAQ keyword\n"
@@ -1202,7 +1242,7 @@ function! Perl_perldoc(arg)
 		setlocal nomodifiable
 		redraw!
 	endif
-endfunction
+endfunction		" ---------- end of function  Perl_perldoc  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Run : Perl_perldoc - show module list
@@ -1222,13 +1262,12 @@ function! Perl_perldoc_show_module_list()
 		silent exe "view ".s:Perl_PerlModuleList
 		let s:Perl_PerldocModulelistBuffer=bufnr("%")
 		setlocal nomodifiable
+		setlocal filetype=help
 	endif
-	silent exe ":set filetype=perl"
-	silent exe ":syntax clear"
 	normal gg
 	redraw
 	echohl Search | echomsg 'use S-F1 to show a manual' | echohl None
-endfunction
+endfunction		" ---------- end of function  Perl_perldoc_show_module_list  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Run : Perl_perldoc - generate module list
@@ -1241,7 +1280,7 @@ function! Perl_perldoc_generate_module_list()
 	setlocal nomodifiable
 	echo " DONE " 
 	echohl None
-endfunction
+endfunction		" ---------- end of function  Perl_perldoc_generate_module_list  ----------
 "
 "------------------------------------------------------------------------------
 "  Run : settings
@@ -1262,13 +1301,14 @@ function! Perl_Settings ()
 	endif
 	let txt = txt."    Additional hot keys\n\n"
 	let txt = txt."               Shift-F1  :  read perldoc (for word under cursor)\n"
-	let txt = txt."                Ctrl-F9  :  update file, run script           \n"
-	let txt = txt."                     F9  :  start Perl debugger               \n"
-	let txt = txt."                 Alt-F9  :  update file, run syntax check     \n\n"
+  let txt = txt."                     F9  :  start a debugger          \n"
+  let txt = txt."                 Alt-F9  :  run syntax check          \n"
+  let txt = txt."                Ctrl-F9  :  run script                \n"
+  let txt = txt."               Shift-F9  :  set command line arguments\n"
 	let txt = txt."_________________________________________________________________________\n"
 	let	txt = txt." Perl-Support, Version ".g:Perl_Version." / Dr.-Ing. Fritz Mehner / mehner@fh-swf.de\n\n"
 	echo txt
-endfunction
+endfunction		" ---------- end of function  Perl_Settings  ----------
 "
 "------------------------------------------------------------------------------
 "  run : syntax check
@@ -1298,14 +1338,16 @@ function! Perl_SyntaxCheck ()
 	"
 	if l:currentbuffer ==  bufname("%")
 		let s:Perl_SyntaxCheckMsg = l:currentbuffer." : Syntax is OK"
+		return 0
 	endif
-endfunction
+	return 1
+endfunction		" ---------- end of function  Perl_SyntaxCheck  ----------
 "
 function! Perl_SyntaxCheckMsg ()
 		echohl Search 
 		echo s:Perl_SyntaxCheckMsg
 		echohl None
-endfunction
+endfunction		" ---------- end of function  Perl_SyntaxCheckMsg  ----------
 "
 "----------------------------------------------------------------------
 "  run : toggle output destination
@@ -1340,19 +1382,21 @@ let s:Perl_OutputBufferNumber = -1
 "
 function! Perl_Run ()
 	"
-	let	l:currentbuffer		= bufname("%")
 	let	l:currentbuffernr	= bufnr("%")
 	let l:currentdir			= getcwd()
 	let	l:arguments				= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
+	let	l:currentbuffer		= bufname("%")
+	let l:fullname				=l:currentdir."/".l:currentbuffer
 	"
 	silent exe ":update"
+	silent exe ":cclose"
 	"
 	"------------------------------------------------------------------------------
 	"  run : run from the vim command line
 	"------------------------------------------------------------------------------
 	if s:Perl_OutputGvim == "vim"
 		"
-		exe "!./%".l:arguments
+		exe "!".l:fullname.l:arguments
 		"
 	endif
 	"
@@ -1360,11 +1404,11 @@ function! Perl_Run ()
 	"  run : redirect output to an output buffer
 	"------------------------------------------------------------------------------
 	if s:Perl_OutputGvim == "buffer"
+		let	l:currentbuffernr	= bufnr("%")
 		if l:currentbuffer ==  bufname("%")
 			"
-			let l:fullname=l:currentdir."/".l:currentbuffer
 			"
-			if bufloaded(s:Perl_OutputBufferName) != 0 && bufwinnr(s:Perl_OutputBufferNumber)!=-1 
+			if bufloaded(s:Perl_OutputBufferName) != 0 && bufwinnr(s:Perl_OutputBufferNumber) != -1 
 				exe bufwinnr(s:Perl_OutputBufferNumber) . "wincmd w"
 				" buffer number may have changed, e.g. after a 'save as' 
 				if bufnr("%") != s:Perl_OutputBufferNumber
@@ -1379,6 +1423,8 @@ function! Perl_Run ()
 				setlocal syntax=none
 				setlocal bufhidden=delete
 			endif
+			"
+			" run script 
 			"
 			setlocal	modifiable
 			silent exe ":update | %!".l:fullname.l:arguments
@@ -1402,8 +1448,7 @@ function! Perl_Run ()
 	"------------------------------------------------------------------------------
 	if s:Perl_OutputGvim == "xterm"
 		"
-		let script	= expand("%")
-		silent exe "!xterm -title ".script." ".s:Perl_XtermDefaults." -e $HOME/.vim/plugin/wrapper.sh ./".script.l:arguments.' &'
+		silent exe "!xterm -title ".l:currentbuffer." ".s:Perl_XtermDefaults." -e $HOME/.vim/plugin/wrapper.sh ".l:fullname.l:arguments.' &'
 		"
 	endif
 	"
@@ -1435,7 +1480,7 @@ function! Perl_Debugger ()
 		silent exe '!ddd ./'.expand("%").l:arguments.' &'
 	endif
 	"
-endfunction
+endfunction		" ---------- end of function  Perl_Debugger  ----------
 "
 "------------------------------------------------------------------------------
 "  run : Arguments
@@ -1447,7 +1492,7 @@ function! Perl_Arguments ()
 	else
 		let	b:Perl_CmdLineArgs= Perl_Input( prompt , "" )
 	endif
-endfunction
+endfunction		" ---------- end of function  Perl_Arguments  ----------
 "
 "------------------------------------------------------------------------------
 "  run : xterm geometry
@@ -1465,7 +1510,7 @@ function! Perl_XtermSize ()
 	let answer  = substitute( answer, '\s\+$', "", "" )						" remove trailing whitespaces
 	let answer  = substitute( answer, '\s\+', "x", "" )						" replace inner whitespaces
 	let s:Perl_XtermDefaults	= substitute( s:Perl_XtermDefaults, regex, "-geometry ".answer , "" )
-endfunction
+endfunction		" ---------- end of function  Perl_XtermSize  ----------
 "
 "------------------------------------------------------------------------------
 "  run : make script executable
@@ -1481,7 +1526,7 @@ function! Perl_MakeScriptExecutable ()
 	  echo 'Made '.expand("%").' executable.'
 	endif
 	echohl None
-endfunction
+endfunction		" ---------- end of function  Perl_MakeScriptExecutable  ----------
 "
 "------------------------------------------------------------------------------
 "  run : POD -> html / man / text
@@ -1491,7 +1536,7 @@ function! Perl_POD (arg1)
 	silent exe	":update"
 	silent exe	":!pod2".a:arg1." ".expand("%")." > ".filename
 	echo  " '".getcwd()."/".filename."' generated"
-endfunction
+endfunction		" ---------- end of function  Perl_POD  ----------
 "
 "------------------------------------------------------------------------------
 "  run : perltidy
@@ -1504,8 +1549,12 @@ function! Perl_Perltidy (arg1)
 		return
 	endif
 
-	silent exe	":update"
 	let	Sou		= expand("%")								" name of the file in the current buffer
+	if &filetype != "perl"
+		echohl WarningMsg | echo Sou.' seems not to be a Perl file' | echohl None
+		return
+	endif
+	silent exe	":update"
 	" ----- normal mode ----------------
 	if a:arg1=="n"
 		let	pos1  = line(".")
@@ -1520,13 +1569,74 @@ function! Perl_Perltidy (arg1)
 		silent exe	pos1.",".pos2."!perltidy"
 		echo "file \"".Sou."\" (lines ".pos1."-".pos2.") reformatted"
 	endif
-endfunction
+endfunction		" ---------- end of function  Perl_Perltidy  ----------
+"
+"------------------------------------------------------------------------------
+"  run : SmallProf
+"------------------------------------------------------------------------------
+let	s:Perl_ProfileOutput  	= 'smallprof.out'
+let	s:Perl_TimestampFormat 	= '%y%m%d.%H%M%S'
+	
+function! Perl_Smallprof ()
+	let	Sou		= expand("%")								" name of the file in the current buffer
+	if &filetype != "perl"
+		echohl WarningMsg | echo Sou.' seems not to be a Perl file' | echohl None
+		return
+	endif
+	silent exe	":update"
+	"
+	echohl Search | echo ' ... profiling ... ' | echohl None
+	silent exe	"!perl -d:SmallProf ".Sou
+	"
+	if v:shell_error
+		echohl WarningMsg | echo 'Could not execute "perl -d:SmallProf '.Sou.'"' | echohl None
+	else
+		"
+		let currentbuffer	= s:Perl_ProfileOutput
+		if s:Perl_ProfilerTimestamp=="yes"
+			let currentbuffer=currentbuffer.".".strftime(s:Perl_TimestampFormat)
+			call rename( s:Perl_ProfileOutput, currentbuffer )
+		endif
+		echohl Search | echo 'file "'.Sou.'" profiled' | echohl None
+		if filereadable(currentbuffer) 
+			let currentbuffernr=bufnr(currentbuffer)
+			if currentbuffernr==-1          " buffer not open
+				exe	":botright new"
+				exe	":edit +set\\ autoread ".currentbuffer
+			else
+				if bufwinnr(currentbuffernr)!=-1		" window open ?
+					exe  bufwinnr(currentbuffernr) . "wincmd w"
+				else
+					:botright new
+					exe ":buffer ".currentbuffer
+				endif
+			endif
+			normal gg
+		else
+			echohl WarningMsg | echo currentbuffer.' (profiling results) not readable!' | echohl None
+		endif
+	endif
+endfunction		" ---------- end of function  Perl_Smallprof  ----------
+"
+"------------------------------------------------------------------------------
+"  run : Save buffer with timestamp
+"------------------------------------------------------------------------------
+function! Perl_SaveWithTimestamp ()
+  if expand("%") == ""
+		redraw
+		echohl WarningMsg | echo " no file name " | echohl None
+		return
+  endif
+	let	Sou	 	= expand("%").".".strftime(s:Perl_TimestampFormat)
+	exe ":write ".Sou
+	echohl Search | echo Sou.' written ' | echohl None
+endfunction		" ---------- end of function  Perl_SaveWithTimestamp  ----------
 "
 "------------------------------------------------------------------------------
 "  run : hardcopy
 "------------------------------------------------------------------------------
 function! Perl_Hardcopy (arg1)
-	let target	= bufname("%")=='PERLDOC' ? '$HOME/' : './'
+	let target	= bufname("%")==s:Perl_PerldocBufferName ? '$HOME/' : './'
 	let	Sou			= target.expand("%")					" name of the file in the current buffer
 	" ----- normal mode ----------------
 	if a:arg1=="n"
@@ -1538,7 +1648,7 @@ function! Perl_Hardcopy (arg1)
 		silent exe	"*hardcopy > ".Sou.".ps"		
 		echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
 	endif
-endfunction
+endfunction		" ---------- end of function  Perl_Hardcopy  ----------
 "
 
 "------------------------------------------------------------------------------
@@ -1570,7 +1680,7 @@ function! Perl_CreateUnLoadMenuEntries ()
 		exe 'amenu <silent> 40.1160 &Tools.Load\ Perl\ Support <C-C>:call Perl_Handle()<CR>'
 	endif
 	"
-endfunction
+endfunction		" ---------- end of function  Perl_CreateUnLoadMenuEntries  ----------
 "
 "------------------------------------------------------------------------------
 "  Loads or unloads Perl extensions menus
@@ -1600,7 +1710,7 @@ function! Perl_Handle ()
 	endif
 
 	call Perl_CreateUnLoadMenuEntries ()
-endfunction
+endfunction		" ---------- end of function Perl_Handle   ----------
 "
 "------------------------------------------------------------------------------
 " 
@@ -1634,5 +1744,8 @@ endif " has("autocmd")
 "------------------------------------------------------------------------------
 nmap    <silent>  <Leader>lps             :call Perl_Handle()<CR>
 nmap    <silent>  <Leader>ups             :call Perl_Handle()<CR>
+"
+ map     <silent>  <S-F1>             :call Perl_perldoc()<CR><CR>
+imap     <silent>  <S-F1>        <Esc>:call Perl_perldoc()<CR><CR>
 "
 " vim:set tabstop=2: 
