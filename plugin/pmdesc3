@@ -1,0 +1,172 @@
+#!/usr/bin/perl -w
+#===================================================================================
+#
+#         FILE:  pmdesc3
+#
+#        USAGE:  ./pmdesc3 [-h] [-s] [-t ddd] [--] [dir [dir [dir [...]]]]
+#
+#     SYNOPSIS:  Find versions and descriptions of installed perl Modules
+#
+#  DESCRIPTION:  Find versions and descriptions of installed Perl Modules.
+#                If no parameters given, searches @INC .
+#
+#      OPTIONS:  -h     : print usage
+#                -s     : sort output
+#                -t ddd : tabulated output, name column has width ddd (1-3 digits)
+#                     
+#
+# REQUIREMENTS:  ExtUtils::MakeMaker, File::Find, Getopt::Std
+#         BUGS:  ---
+#        NOTES:  Based on pmdesc2 (Aristotle, http://qs321.pair.com/~monkads/)
+#                which is based on pmdesc (Perl Cookbook, 1. Ed., recipe 12.19).
+#                pmdesc2 is at least one magnitude faster than pmdesc.
+#
+#       AUTHOR:  Aristotle, http://qs321.pair.com/~monkads/
+#                Dr.-Ing. Fritz Mehner, mehner@fh-swf.de (extension)
+#
+#      VERSION:  1.0
+#      CREATED:  13.06.2004 22:12:41 CEST
+#     REVISION:  22.06.2004
+#===================================================================================
+
+use strict;
+
+require 5.6.1;
+use Carp;
+use ExtUtils::MakeMaker;
+use File::Find           qw(find);
+use Getopt::Std          qw(getopts);
+
+# max. length of the description field: prevents slurping in big amount of faulty docs
+my  $MaxDescriptionLength = 200;  
+
+#===  FUNCTION  ====================================================================
+#         NAME:  usage
+#===================================================================================
+sub usage {
+  my  $searchdirs = " "x 14 . join("\n"." "x 14, @INC ) . "\n";
+  print <<EOT;
+Usage:   pmdesc3 [-h] [-s] [--] [dir [dir [dir [...]]]]
+Options:  -h         print this message
+          -s         sort output
+          -t ddd     tabulated output; name column has width ddd (1-3 digits)
+          If no parameters given, searches:
+$searchdirs
+EOT
+  exit;
+}
+
+#===  FUNCTION  ====================================================================
+#         NAME:  get_module_name
+#===================================================================================
+sub get_module_name {
+  my ($path, $relative_to) = @_;
+
+  local $_ = $path;
+  s!\A\Q$relative_to\E/?!!;
+  s! \.p(?:m|od) \z!!x;
+  s!/!::!g;
+
+  return $_;
+}
+
+#===  FUNCTION  ====================================================================
+#         NAME:  get_module_description
+#===================================================================================
+sub get_module_description {
+  my ($file) = @_;
+
+  open my $pod, "<", $file
+    or (warn("\tCannot open $file: $!"), return);
+
+  local $_;
+  local $/ = '';
+  while (<$pod>) {
+    if (/=head\d\s+NAME/) {
+      $_ = <$pod>;
+      return unless $_; # $_ may be undefined
+      chomp;
+      s/ \A .*? - \s+ //sx;
+      tr/\n/ /;
+      return $_;
+    }
+  }
+
+  return;
+}
+
+#===  FUNCTION  ====================================================================
+#         NAME:  get_module_version
+#===================================================================================
+sub get_module_version {
+  local $_;     # MM->parse_version is naughty
+  my $vers_code = MM->parse_version($File::Find::name) || '';
+  return eval $vers_code || undef;
+}
+
+#===  FUNCTION  ====================================================================
+#         NAME:  MAIN
+#===================================================================================
+
+my %visited;
+
+$|++;
+
+my  %options;
+
+getopts("hst:", \%options)         or $options{h}=1;
+
+my  @args = @ARGV;
+@ARGV = @INC unless @ARGV;
+
+usage() if $options{h};              #  option -h  :  usage
+
+usage() if $options{t} && $options{t}!~/^\d{1,3}$/;         # width 1-3 digits
+$options{t} = "" unless $options{t};
+
+#------------------------------------------------------------------------------
+#  option -s  :  install an output filter to sort the module list
+#------------------------------------------------------------------------------
+if ($options{s}) {
+    if (open(ME, "-|")) {
+        $/ = "";
+        while (<ME>) {
+            chomp;
+            print join("\n", sort split /\n/), "\n";
+        }
+        exit;
+    }
+}
+
+#------------------------------------------------------------------------------
+#  process 
+#------------------------------------------------------------------------------
+        
+for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
+  find({
+    wanted => sub {
+      return unless /\.p(?:m|od)\z/ && -f;
+
+      my $module  = get_module_name($File::Find::name, $inc_dir);
+      my $version = get_module_version($_);
+      my $desc    = get_module_description($_);
+
+      if ( $desc ) {
+        $desc       = substr $desc, 0, $MaxDescriptionLength;
+      }
+
+      $version = defined $version ? "($version)" : "(n/a)";
+      $desc    = defined $desc    ? "- $desc"    : "- <description not available>";
+
+      printf("%-${options{t}}s%-10s%-s\n", $module, $version, $desc ); 
+
+    },
+    preprocess => sub {
+      my ($dev, $inode) = stat $File::Find::dir or return;
+      $visited{"$dev:$inode"}++ ? () : @_;
+    },
+  },
+  $inc_dir);
+}
+
+

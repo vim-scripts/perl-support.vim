@@ -14,14 +14,14 @@ nmap <s-left>   <c-w>h
 nmap <s-right>  <c-w>l
 
 "
-set autoread
-set autowrite
-set backupdir=$HOME/.vim.backupdir       " Don't forget to create this directory!
-set browsedir=current                    " Which directory to use for the file browser
-set incsearch
+set autoread                          " read open files again when changed outside Vim
+set autowrite                         " write a modified buffer on each :next , ...
+set backupdir  =$HOME/.vim.backupdir  " directory for the backup files (Don't forget to create it!)
+set browsedir  =current               " which directory to use for the file browser
+set incsearch                         " use incremental search
 set nowrap
-set shiftwidth=2
-set tabstop=2
+set shiftwidth =2
+set tabstop    =2
 set visualbell
 "
 "
@@ -59,21 +59,14 @@ imap  <silent> <F8>    <Esc>:cn<CR>
 " The current buffer will be written before switching to the next one.
 "-------------------------------------------------------------------------------
 "
- map  <silent> <s-tab>       :if &modifiable && !&readonly && &modified <cr> :w<cr> :endif<cr> :bp<cr> 
-imap  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && &modified <cr> :w<cr> :endif<cr> :bp<cr> 
+ map  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && &modified <CR> :write<CR> :endif<CR>:bprevious<CR>
+imap  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && &modified <CR> :write<CR> :endif<CR>:bprevious<CR>
 "
 "
 "-------------------------------------------------------------------------------
 " Leave the editor with Ctrl-q : Write all changed buffers and exit Vim
 "-------------------------------------------------------------------------------
 nmap	<C-q> 		:wqa<CR>
-"
-"
-"-------------------------------------------------------------------------------
-" use font with clearly distinguishable brackets : ()[]{}
-"-------------------------------------------------------------------------------
-" 
-set guifont=-b&h-lucidatypewriter-medium-r-normal-*-*-140-*-*-m-*-iso10646-1
 "
 "
 "-------------------------------------------------------------------------------
@@ -98,7 +91,7 @@ set complete+=k
 "-------------------------------------------------------------------------------
 " filename completion
 " 
-"   wildmenu : command-line completion operates in an enhanced 	mode
+"   wildmenu : command-line completion operates in an enhanced mode
 " wildignore : A file that matches with one of these
 "              patterns is ignored when completing file or directory names.
 "-------------------------------------------------------------------------------
@@ -128,7 +121,7 @@ let g:Perl_Company         = ""
 let g:Perl_Project         = ""
 let g:Perl_CopyrightHolder = ""
 
-let g:Perl_LoadMenus       = "yes"
+let g:Perl_Dictionary_File =$HOME."/.vim/wordlists/perl.list"
 
 " ----------  Insert header into new PERL files  ----------
 if has("autocmd")
@@ -149,9 +142,9 @@ endif " has("autocmd")
 " taglist.vim : toggle the taglist window
 " taglist.vim : define the title texts for Perl
 "-------------------------------------------------------------------------------
-nnoremap <silent> <F11> :Tlist<CR>
+ noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
+inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 
 let tlist_perl_settings='perl;p:packages;s:subroutines;d:POD'
-
 
 

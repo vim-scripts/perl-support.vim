@@ -21,9 +21,9 @@
 "
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
-let s:Perl_Version = "2.0"              " version number of this script; do not change
+let s:Perl_Version = "2.1"            " version number of this script; do not change
 "
-"       Revision:  12.05.2004
+"       Revision:  26.06.2004
 "        Created:  09.07.2001 - 12:21:33
 "
 "        License:  This program is free software; you can redistribute it and/or modify
@@ -47,6 +47,15 @@ let s:Perl_Version = "2.0"              " version number of this script; do not 
 "
 "  Global variables (with default values) which can be overridden.
 "
+"  Key word completion is enabled by the filetype plugin 'perl.vim'
+"  g:Perl_Dictionary_File  must be global
+"          
+if !exists("g:Perl_Dictionary_File")
+	let g:Perl_Dictionary_File       = $HOME.'/.vim/wordlists/perl.list'
+endif
+"
+"  Modul global variables (with default values) which can be overridden.
+"
 let s:Perl_AuthorName              = ''
 let s:Perl_AuthorRef               = ''
 let s:Perl_Email                   = ''
@@ -56,7 +65,8 @@ let s:Perl_CopyrightHolder         = ''
 
 let s:Perl_Root                    = '&Perl.'
 let s:Perl_LoadMenus               = 'yes'
-let s:Perl_CodeSnippets            = $HOME.'/.vim/codesnippets-perl'
+let s:Perl_CodeSnippets            = $HOME.'/.vim/codesnippets-perl/'
+let s:Perl_Doc_Directory           = $HOME.'/.vim/doc/'
 let s:Perl_Template_Directory      = $HOME.'/.vim/plugin/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
@@ -64,8 +74,8 @@ let s:Perl_Template_Frame          = 'perl-frame'
 let s:Perl_Template_Function       = 'perl-function-description'
 let s:Perl_Pager                   = 'less'
 let s:Perl_MenuHeader              = 'yes'
-let s:Perl_Dictionary_File         = ''
 let	s:Perl_PerlModuleList          = $HOME.'/.vim/plugin/perl-modules.list'
+let	s:Perl_PerlModuleListGenerator = $HOME.'/.vim/plugin/pmdesc3 -s -t36 > '.s:Perl_PerlModuleList
 "
 "------------------------------------------------------------------------------
 "
@@ -86,6 +96,7 @@ call Perl_CheckGlobal("Perl_CopyrightHolder        ")
 call Perl_CheckGlobal("Perl_Root                   ")
 call Perl_CheckGlobal("Perl_LoadMenus              ")
 call Perl_CheckGlobal("Perl_CodeSnippets           ")
+call Perl_CheckGlobal("Perl_Doc_Directory          ")
 call Perl_CheckGlobal("Perl_Template_Directory     ")
 call Perl_CheckGlobal("Perl_Template_File          ")
 call Perl_CheckGlobal("Perl_Template_Module        ")
@@ -93,8 +104,8 @@ call Perl_CheckGlobal("Perl_Template_Frame         ")
 call Perl_CheckGlobal("Perl_Template_Function      ")
 call Perl_CheckGlobal("Perl_Pager                  ")
 call Perl_CheckGlobal("Perl_MenuHeader             ")
-call Perl_CheckGlobal("Perl_Dictionary_File        ")
 call Perl_CheckGlobal("Perl_PerlModuleList         ")
+call Perl_CheckGlobal("Perl_PerlModuleListGenerator")
 "
 "
 "------------------------------------------------------------------------------
@@ -108,13 +119,6 @@ let	s:Perl_POD_man ='<CR>=begin  man<CR><CR><CR><CR>=end    man  #  back to Perl
 let	s:Perl_POD_text='<CR>=begin  text<CR><CR><CR><CR>=end    text  #  back to Perl<CR>'
 "
 function!	Perl_InitMenu ()
-	"
-	"----- The following two maps are only used for the development of this plugin ----------------
-	"
-	 noremap   <F12>       :write<CR><Esc>:so %<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR>
-	inoremap   <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR>
-	"
-	"-----------------------------------------------------------------------------------------------
 	"
 	if has("gui_running")
 
@@ -738,8 +742,19 @@ endfunction			" function Perl_InitMenu
 "
 let s:Perl_CmdLineArgs  = ""          " command line arguments for Run-run; initially empty
 let s:Perl_Active       = -1					" state variable controlling the Perl-menus
-let	s:Perl_PerlModuleListGenerator = $HOME.'/.vim/plugin/pmdesc -s > '.s:Perl_PerlModuleList.' 2> '.s:Perl_PerlModuleList.'.error'
 "
+"
+"------------------------------------------------------------------------------
+"  Input after a highlighted prompt
+"------------------------------------------------------------------------------
+function! Perl_Input ( promp, text )
+	echohl Search												" highlight prompt
+	call inputsave()										" preserve typeahead
+	let	retval=input( a:promp, a:text )	" read input
+	call inputrestore()									" restore typeahead
+	echohl None													" reset highlighting
+	return retval
+endfunction
 "
 "------------------------------------------------------------------------------
 "  Comments : multi line-end comments
@@ -918,16 +933,9 @@ endfunction    " ----------  end of function Perl_CommentVimModeline  ----------
 "  Statements : subroutine
 "------------------------------------------------------------------------------
 function! Perl_CodeFunction ()
-	if has("gui_running")
-		let	identifier=inputdialog("subroutine name", "f" )
-	else
-		let	identifier=input("subroutine name : ", "f" )
-	endif
-	if identifier==""
-		let	identifier	= "f"
-	endif
-  let zz=    "sub ".identifier."\n{\n\tmy\t$par1\t= shift;\n\t\n\treturn ;\n}"
-  let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
+	let	identifier=Perl_Input("subroutine name : ", "" )
+	let zz=    "sub ".identifier."\n{\n\tmy\t$par1\t= shift;\n\t\n\treturn ;\n}"
+	let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
 	put =zz
 	normal 3j
 endfunction
@@ -962,11 +970,7 @@ endfunction
 "------------------------------------------------------------------------------
 function! Perl_CodeOpenRead ()
 
-	if has("gui_running")
-		let	filehandle=inputdialog("input file handle", "INFILE")
-	else
-		let	filehandle=input("input file handle : ", "INFILE" )
-	endif
+	let	filehandle=Perl_Input("input file handle : ", "INFILE")
 	
 	if filehandle==""
 		let	filehandle	= "INFILE"
@@ -989,11 +993,7 @@ endfunction
 "------------------------------------------------------------------------------
 function! Perl_CodeOpenWrite ()
 
-	if has("gui_running")
-		let	filehandle=inputdialog("output file handle", "OUTFILE")
-	else
-		let	filehandle=input("output file handle : ", "OUTFILE" )
-	endif
+	let	filehandle=Perl_Input("output file handle : ", "OUTFILE")
 	
 	if filehandle==""
 		let	filehandle	= "OUTFILE"
@@ -1016,11 +1016,7 @@ endfunction
 "------------------------------------------------------------------------------
 function! Perl_CodeOpenPipe ()
 
-	if has("gui_running")
-		let	filehandle=inputdialog("pipe handle", "PIPE")
-	else
-		let	filehandle=input("pipe handle : ", "PIPE" )
-	endif
+	let	filehandle=Perl_Input("pipe handle : ", "PIPE")
 
 	if filehandle==""
 		let	filehandle	= "PIPE"
@@ -1075,7 +1071,7 @@ function! Perl_CodeSnippet(arg1)
 			let	l:snippetfile=browse(0,"write a code snippet",s:Perl_CodeSnippets,"")
 			if l:snippetfile != ""
 				if filereadable(l:snippetfile)
-					if confirm("File exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
+					if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
 						return
 					endif
 				endif
@@ -1088,6 +1084,11 @@ function! Perl_CodeSnippet(arg1)
 		if a:arg1 == "wv"
 			let	l:snippetfile=browse(0,"write a code snippet",s:Perl_CodeSnippets,"")
 			if l:snippetfile != ""
+				if filereadable(l:snippetfile)
+					if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
+						return
+					endif
+				endif
 				:execute ":*write! ".l:snippetfile
 			endif
 		endif
@@ -1104,7 +1105,7 @@ endfunction
 "------------------------------------------------------------------------------
 function! Perl_perldoc_dialog()
 
-	let	item=inputdialog("perldoc function or mudule : ", "")
+	let	item=Perl_Input("perldoc function or mudule : ", "")
 	"------------------------------------------------------------------------------
 	"  replace buffer content with Perl documentation
 	"------------------------------------------------------------------------------
@@ -1132,7 +1133,7 @@ function! Perl_perldoc_cursor()
 		let	item=expand("<cword>")				" word under the cursor 
 	endif
 	if  item == ""
-		let	item=inputdialog("perldoc function or mudule : ", "")
+		let	item=Perl_Input("perldoc function or mudule : ", "")
 	endif
 	"------------------------------------------------------------------------------
 	"  replace buffer content with Perl documentation
@@ -1180,31 +1181,29 @@ endfunction
 "  Run : settings
 "------------------------------------------------------------------------------
 function! Perl_Settings ()
-	let	settings =         "Perl-Support settings\n\n"
-	let settings = settings."______________________________________________________\n\n"
-	let settings = settings."Additional hot keys\n\n"
-	let settings = settings."Shift-F1  :  read perldoc (for word under cursor)\n"
-	let settings = settings." Ctrl-F9  :  update file, run script           \n"
-	let settings = settings."      F9  :  update file, run script with pager\n"
-	let settings = settings."  Alt-F9  :  update file, run syntax check     \n"
-	let settings = settings."______________________________________________________\n\n"
-	let settings = settings."author name  :  ".s:Perl_AuthorName."\n"
-	let settings = settings."author ref  :  ".s:Perl_AuthorRef."\n"
-	let settings = settings."author email  :  ".s:Perl_Email."\n"
-	let settings = settings."company  :  ".s:Perl_Company."\n"
-	let settings = settings."project  :  ".s:Perl_Project."\n"
-	let settings = settings."copyright holder  :  ".s:Perl_CopyrightHolder."\n"
-	let settings = settings."code snippet directory  :  ".s:Perl_CodeSnippets."\n"
-	let settings = settings."template directory  :  ".s:Perl_Template_Directory."\n"
-	if s:Perl_Dictionary_File != ""
-		let ausgabe= substitute( s:Perl_Dictionary_File, ",", ",\n\t", "g" )
-		let settings = settings."dictionary file(s)  :  ".ausgabe."\n"
+	let	txt =     "  Perl-Support settings\n\n"
+	let txt = txt."            author name  :  ".s:Perl_AuthorName."\n"
+	let txt = txt."               initials  :  ".s:Perl_AuthorRef."\n"
+	let txt = txt."                  email  :  ".s:Perl_Email."\n"
+	let txt = txt."                company  :  ".s:Perl_Company."\n"
+	let txt = txt."                project  :  ".s:Perl_Project."\n"
+	let txt = txt."       copyright holder  :  ".s:Perl_CopyrightHolder."\n"
+	let txt = txt." code snippet directory  :  ".s:Perl_CodeSnippets."\n"
+	let txt = txt."     template directory  :  ".s:Perl_Template_Directory."\n"
+	if g:Perl_Dictionary_File != ""
+		let ausgabe= substitute( g:Perl_Dictionary_File, ",", ",\n                         + ", "g" )
+		let txt = txt."      dictionary file(s) :  ".ausgabe."\n"
 	endif
-	let settings = settings."pager  :  ".s:Perl_Pager."\n"
-	let settings = settings."\n"
-	let	settings = settings."----------------------------------------------------------------------------------------\n"
-	let	settings = settings."Perl-Support, Version ".s:Perl_Version."  /  Dr.-Ing. Fritz Mehner  /  mehner@fh-swf.de\n"
-	let dummy=confirm( settings, "ok", 1, "Info" )
+	let txt = txt."                  pager  :  ".s:Perl_Pager."\n\n"
+	let txt = txt."    Additional hot keys\n\n"
+	let txt = txt."               Shift-F1  :  read perldoc (for word under cursor)\n"
+	let txt = txt."                Ctrl-F9  :  update file, run script           \n"
+	let txt = txt."                     F9  :  update file, run script with pager\n"
+	let txt = txt."                 Alt-F9  :  update file, run syntax check     \n\n"
+	let txt = txt."  command line arguments :  \"".s:Perl_CmdLineArgs."\"  (only Perl scripts)\n\n"
+	let txt = txt."_________________________________________________________________________\n"
+	let	txt = txt." Perl-Support, Version ".s:Perl_Version." / Dr.-Ing. Fritz Mehner / mehner@fh-swf.de\n\n"
+	echo txt
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -1257,7 +1256,7 @@ endfunction
 "  run : Arguments
 "------------------------------------------------------------------------------
 function! Perl_Arguments ()
-	let	s:Perl_CmdLineArgs= inputdialog("command line arguments",s:Perl_CmdLineArgs)
+	let	s:Perl_CmdLineArgs= Perl_Input("command line arguments : ",s:Perl_CmdLineArgs)
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -1284,13 +1283,19 @@ function!Perl_Hardcopy (arg1)
 	endif
 endfunction
 "
+"------------------------------------------------------------------------------
+"  Look for a new perlsupport help file
+"------------------------------------------------------------------------------
+function! Perl_CheckNewDoc ()
+	if getftime( s:Perl_Doc_Directory.'perlsupport.txt' ) > getftime( s:Perl_Doc_Directory.'tags' )
+		silent exe 'helptags '.s:Perl_Doc_Directory
+	endif
+endfunction
 "
 "------------------------------------------------------------------------------
 "	 Create the load/unload entry in the GVIM tool menu, depending on 
 "	 which script is already loaded
 "------------------------------------------------------------------------------
-"
-"
 function! Perl_CreateUnLoadMenuEntries ()
 	"
 	" Perl is now active and was former inactive -> 
@@ -1352,9 +1357,33 @@ endfunction
 " 
 call Perl_CreateUnLoadMenuEntries()			" create the menu entry in the GVIM tool menu
 if s:Perl_LoadMenus == "yes"
-	call Perl_Handle()											" load the menus
+	call Perl_Handle()										" load the menus
 endif
-	
+"
+"------------------------------------------------------------------------------
+"  Automated header insertion
+"------------------------------------------------------------------------------
+if has("autocmd")
+	" 
+	" =====  Perl-script : insert header, write file, make it executable  =============
+	autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | :!chmod -c u+x %
+	" 
+	" =====  Perl module : insert hedaer, write file  =================================
+	autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!
+	" 
+	" =====  Perl POD module : set filetype to Perl  ==================================
+	autocmd BufNewFile,BufRead *.pod  set filetype=perl
+	"
+endif " has("autocmd")
+"
+"------------------------------------------------------------------------------
+"  Look for a new perlsupport help file
+"------------------------------------------------------------------------------
+silent call Perl_CheckNewDoc()
+"
+"------------------------------------------------------------------------------
+"  Key mappings : show / hide the perl-support menus
+"------------------------------------------------------------------------------
 nmap    <silent>  <Leader>lps             :call Perl_Handle()<CR>
 nmap    <silent>  <Leader>ups             :call Perl_Handle()<CR>
 "
