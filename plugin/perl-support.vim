@@ -2,7 +2,7 @@
 "
 "       Filename:  perl-support.vim
 "
-"    Description:  Write, compile and run PERL-scripts using menus
+"    Description:  Write, compile and run Perl-scripts using menus
 "
 "          Usage:  Load this script manually with :so[urce] perl-support.vim
 "                  or better put this file into your plugin directory  ~/.vim/plugin
@@ -27,15 +27,13 @@
 "  Configuration:  There are some personal details which should be configured 
 "                  (see section Configuration  below; use my configuration as an example)
 "
-"           Note:  The register z is used in many places.
-"
 "         Author:  Dr.-Ing. Fritz Mehner
 "        Company:  Fachhochschule Südwestfalen, Iserlohn
 "          Email:  mehner@fh-swf.de
 "
-let s:Perl_Version = "1.6"              " version number of this script; do not change
+let s:Perl_Version = "1.7"              " version number of this script; do not change
 "
-"       Revision:  07.02.2003
+"       Revision:  25.04.2003
 "
 "        Created:  09.07.2001 - 12:21:33
 "
@@ -63,36 +61,41 @@ let s:Perl_Version = "1.6"              " version number of this script; do not 
 "
 "-------------------------------------------------------------------------------------------
 "
-let s:PERL_AuthorName      = "Dr.-Ing. Fritz Mehner"
-let s:PERL_AuthorRef       = "Mn"
-let s:PERL_Email           = "mehner@fh-swf.de"
-let s:PERL_Company         = "FH Südwestfalen, Iserlohn"
+let s:Perl_AuthorName      = "Dr.-Ing. Fritz Mehner"
+let s:Perl_AuthorRef       = "Mn"
+let s:Perl_Email           = "mehner@fh-swf.de"
+let s:Perl_Company         = "FH Südwestfalen, Iserlohn"
 "
 "  Copyright information
 "  ---------------------
 "  If the code has been developed over a period of years, each year must be stated.
-"  If PERL_CopyrightHolder is empty the copyright notice will not appear.
-"  If PERL_CopyrightHolder is not empty and PERL_CopyrightYears is empty, 
+"  If Perl_CopyrightHolder is empty the copyright notice will not appear.
+"  If Perl_CopyrightHolder is not empty and Perl_CopyrightYears is empty, 
 "  the current year will be inserted.
 "
-let s:PERL_CopyrightHolder = ""
-let s:PERL_CopyrightYears  = ""
+let s:Perl_CopyrightHolder = ""
+let s:Perl_CopyrightYears  = ""
 "
-let s:Perl_ShowMenues      = "no"      " show menues immediately after loading (yes/no)
+let s:Perl_ShowMenues      = "no"      " show menues immediately after loading this plugin (yes/no)
 "
-let  s:Tools_menu_name     = "Tools"   " this variable contains the name of the Tools-menu
-                                       " if the original VIM-menus are translated;
-                                       " for German menus use "Werkzeuge"
 "
 " The menu entries for code snippet support will not appear if the following string is empty 
 " (Do not forget to create the directory if you want to use code snippets)
 "
-let s:Perl_CodeSnippets    = $HOME."/.vim/codesnippets-perl"   " PERL code snippets
+let s:Perl_CodeSnippets    = $HOME."/.vim/codesnippets-perl"   " Perl code snippets
 "                                       
 " The menu entrie 'run with pager' will not appear if the following string is empty 
 "
 let s:Perl_Pager           = "less"          " pager
 "
+"  
+let s:Perl_Template_Directory    = $HOME."/.vim/plugin/templates/"
+"                           
+"                             ----- Perl template files ---- ( 1. set of templates ) ----
+"                             
+let s:Perl_Template_File         = "perl-file-header"
+let s:Perl_Template_Frame        = "perl-frame"
+let s:Perl_Template_Function     = "perl-function-description"
 "
 "-------------------------------------------------------------------------------------------
 "  End of the configuration section
@@ -100,7 +103,7 @@ let s:Perl_Pager           = "less"          " pager
 "
 "
 "------------------------------------------------------------------------------
-"  PERL Menu Initialization
+"  Perl Menu Initialization
 "------------------------------------------------------------------------------
 function!	Perl_InitMenu ()
 "
@@ -109,11 +112,6 @@ function!	Perl_InitMenu ()
 "  If enabled, there may be conflicts with predefined key bindings of your window manager.
 "-------------------------------------------------------------------------------------------------
 "
-"        F2   update/save file without confirmation
-"        F3   file open dialog
-"        F6   open the error window
-"        F7   go to the previous error
-"        F8   go to the next error   
 "   Ctrl-F9   run script
 "        F9   run script with pager
 "    Alt-F9   run syntax check
@@ -121,23 +119,11 @@ function!	Perl_InitMenu ()
 "   run the script from the local directory 
 "   ( the one which is being edited; other versions may exist elsewhere ! )
 "   
-	nmap     <F1>		<F1>
-	vmap     <F1>  "zy<Esc>:call Perl_perldoc_visual(1)<CR><CR>
-	vmap   <S-F1>  "zy<Esc>:call Perl_perldoc_visual(0)<CR><CR>
+	nmap   <S-F1>				<Esc>:call Perl_perldoc_cursor()<CR><CR>
 
-	map     <F2>  :update<CR>
-	map     <F3>  :browse confirm e<CR>
-	map     <F6>  :cwindow<CR>
-	map     <F7>  :cp<CR>
-	map     <F8>  :cn<CR>
 	map   <A-F9>  :call Perl_SyntaxCheck()<CR><CR>
 	map   <C-F9>  :call Perl_Run(0)<CR>
 "
-	imap    <F2>  <Esc>:update<CR>
-	imap    <F3>  <Esc>:browse confirm e<CR>
-	imap    <F6>  <Esc>:cwindow<CR>
-	imap    <F7>  <Esc>:cp<CR>
-	imap    <F8>  <Esc>:cn<CR>
 	imap  <A-F9>  <Esc>:call Perl_SyntaxCheck()<CR><CR>
 	imap  <C-F9>  <Esc>:call Perl_Run(0)<CR>
 	
@@ -147,18 +133,20 @@ function!	Perl_InitMenu ()
 	endif
 "
 "
-"----- only used for the developement of this script -------------------------------------------------------------------
+"----- The following two maps are only used for the developement of this plugin ----------------
 "
-   noremap   <F12>       :write<CR><Esc>:so %<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR>
-  inoremap   <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR>
+"   noremap   <F12>       :write<CR><Esc>:so %<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR>
+"  inoremap   <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR><Esc>:call Perl_Handle()<CR>
 "
 "
 "---------- P-Comments-Menu ----------------------------------------------------------------------
 "
-amenu  P-&Comments.&Line\ End\ Comment          <Esc><Esc>A<Tab><Tab><Tab># 
-amenu  P-&Comments.&Frame\ Comment              <Esc><Esc>:call Perl_CommentFrame()    <CR>jA
-amenu  P-&Comments.&Function\ Description       <Esc><Esc>:call Perl_CommentFunction() <CR>:/NAME<CR>A
-amenu  P-&Comments.File\ &Prologue              <Esc><Esc>:call Perl_FilePrologue()    <CR>:/DESCRIPTION<CR>A
+amenu  P-&Comments.&Line\ End\ Comment          <Esc><Esc>A<Tab><Tab><Tab>#<Space>
+
+amenu  <silent>  P-&Comments.&Frame\ Comment         <Esc><Esc>:call Perl_CommentTemplates('frame')<CR>
+amenu  <silent>  P-&Comments.F&unction\ Description  <Esc><Esc>:call Perl_CommentTemplates('function')<CR>
+amenu  <silent>  P-&Comments.File\ &Header           <Esc><Esc>:call Perl_CommentTemplates('header')<CR>
+
 amenu  P-&Comments.-SEP1-                       :
 	"
 	"---------- submenu : KEYWORD -------------------------------------------------------------
@@ -172,58 +160,94 @@ amenu  P-&Comments.-SEP1-                       :
 vmenu  P-&Comments.&code->comment               <Esc><Esc>:'<,'>s/^/#/<CR><Esc>:nohlsearch<CR>
 vmenu  P-&Comments.c&omment->code               <Esc><Esc>:'<,'>s/^#//<CR><Esc>:nohlsearch<CR>
 amenu  P-&Comments.-SEP2-                       :
-amenu  P-&Comments.&Date                        <Esc><Esc>:let @z=strftime("%x")     <CR>"zpa
-amenu  P-&Comments.Date\ &Time                  <Esc><Esc>:let @z=strftime("%x - %X")<CR>"zpa
 "
+ menu  P-&Comments.&Date                      i<C-R>=strftime("%x")<CR>
+imenu  P-&Comments.&Date                       <C-R>=strftime("%x")<CR>
+ menu  P-&Comments.Date\ &Time                i<C-R>=strftime("%x %X %Z")<CR>
+imenu  P-&Comments.Date\ &Time                 <C-R>=strftime("%x %X %Z")<CR>
+
+amenu  P-&Comments.-SEP3-                       :
+amenu  P-&Comments.&vim\ modeline             <Esc><Esc>:call Perl_CommentVimModeline()<CR>
+			
 "---------- P-Statements-Menu ----------------------------------------------------------------------
 "
-imenu P-St&atements.&if\ \{\ \}		                   <Esc>:let @z="if (  )\n{\n\t\n}\n"                     <CR>"z]p<Esc>f(la
-imenu P-St&atements.if\ \{\ \}\ &else\ \{\ \}        <Esc>:let @z="if (  )\n{\n\t\n}\nelse\n{\n\t\n}\n"     <CR>"z]p<Esc>f(la
-imenu P-St&atements.&unless\ \{\ \}                  <Esc>:let @z="unless (  )\n{\n\t\n}\n"                 <CR>"z]p<Esc>f(la
-imenu P-St&atements.un&less\ \{\ \}\ else\ \{\ \}    <Esc>:let @z="unless (  )\n{\n\t\n}\nelse\n{\n\t\n}\n" <CR>"z]p<Esc>f(la
-imenu P-St&atements.&while\ \{\ \}                   <Esc>:let @z="while (  )\n{\n\t\n}\t\t\t\t# -----  end while  -----\n"<CR>"z]p<Esc>f(la
-imenu P-St&atements.&do\ \{\ \}\ while               <Esc>:call Perl_DoWhile()           <CR>"z]p<Esc>:/while <CR>f(la
-imenu P-St&atements.un&til\ \{\ \}                   <Esc>:let @z="until (  )\n{\n\t\n}\n"                  <CR>"z]p<Esc>f(la
-imenu P-St&atements.f&or\ \{\ \}                     <Esc>:let @z="for ( ; ;  )\n{\n\t\n}\n"                <CR>"z]p<Esc>f;i
-imenu P-St&atements.fo&reach\ \{\ \}                 <Esc>:let @z="foreach  (  )\n{\n\t\n}\t\t\t\t# -----  end foreach  -----\n"<CR>"z]p<Esc>f(hi
+amenu P-St&atements.&if\ \{\ \}		                   <Esc><Esc>oif (  )<CR>{<CR>}<Esc>2kf(la
+amenu P-St&atements.if\ \{\ \}\ &else\ \{\ \}        <Esc><Esc>oif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la
+amenu P-St&atements.&unless\ \{\ \}                  <Esc><Esc>ounless (  )<CR>{<CR>}<Esc>2kf(la
+amenu P-St&atements.un&less\ \{\ \}\ else\ \{\ \}    <Esc><Esc>ounless (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la
+amenu P-St&atements.&while\ \{\ \}                   <Esc><Esc>owhile (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>2kF(la
+amenu P-St&atements.&do\ \{\ \}\ while               <Esc><Esc>:call Perl_DoWhile()<CR><Esc>4jf(la
+amenu P-St&atements.un&til\ \{\ \}                   <Esc><Esc>ountil (  )<CR>{<CR>}<Esc>2kf(la
+amenu P-St&atements.f&or\ \{\ \}                     <Esc><Esc>ofor ( ; ;  )<CR>{<CR>}<Esc>2kf;i
+amenu P-St&atements.fo&reach\ \{\ \}                 <Esc><Esc>oforeach  (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>2kF(hi
 "
 "---------- submenu : idioms -------------------------------------------------------------
 "
-imenu P-I&dioms.&my\ $;                        my<Tab>$;<Esc>i
-imenu P-I&dioms.m&y\ $\ =\ ;                   my<Tab>$ = ;<Esc>F$a
-imenu P-I&dioms.my\ (\ $&,\ $\ );              my<Tab>( $, $ );<Esc>2F$a
-imenu P-I&dioms.-SEP1-                         :
-imenu P-I&dioms.(&1)\ \ \ my\ @;               my<Tab>@;<Esc>i
-imenu P-I&dioms.(&2)\ \ \ my\ @\ =\ (,,);      my<Tab>@ = ( , ,  );<Esc>F@a
-imenu P-I&dioms.-SEP2-                         :
-imenu P-I&dioms.(&3)\ \ \ my\ %;               my<Tab>%;<Esc>i
-imenu P-I&dioms.(&4)\ \ \ my\ %\ =\ (=>,=>,);  <Esc>:let @z="my\t% = \n(\n\t => ,\n\t => ,\n);"<CR>"z]p<Esc>f%a
-imenu P-I&dioms.-SEP3-                         :
-imenu P-I&dioms.(&5)\ \ \ $\ =~\ m//           $ =~ m//<Esc>F$a
-imenu P-I&dioms.(&6)\ \ \ $\ =~\ s///          $ =~ s///<Esc>F$a
-imenu P-I&dioms.(&7)\ \ \ $\ =~\ tr///         $ =~ tr///<Esc>F$a
-imenu P-I&dioms.-SEP4-                         :
-imenu P-I&dioms.&print\ \"\.\.\.\\n\";         print "\n";<ESC>3hi
-imenu P-I&dioms.print&f\ (\"\.\.\.\\n\");     printf ("\n");<ESC>4hi
-""imenu P-I&dioms.&warn\ \"\.\.\.\\n\";          warn "\n";<ESC>3hi
-imenu P-I&dioms.&subroutine                    <Esc>:call Perl_CodeFunction()<CR>3jA
-imenu P-I&dioms.open\ &input\ file             <Esc>:call Perl_CodeOpenRead()<CR>f'a
-imenu P-I&dioms.open\ &output\ file            <Esc>:call Perl_CodeOpenWrite()<CR>f'a
-imenu P-I&dioms.open\ pip&e                    <Esc>:call Perl_CodeOpenPipe()<CR>f'a
-imenu P-I&dioms.-SEP5-                         :
-imenu P-I&dioms.<STDIN>                        <STDIN>
-imenu P-I&dioms.<STDOUT>                       <STDOUT>
-imenu P-I&dioms.<STDERR>                       <STDERR>
+amenu P-I&dioms.&my\ $;                          <Esc><Esc>omy<Tab>$;<Esc>i
+amenu P-I&dioms.m&y\ $\ =\ ;                     <Esc><Esc>omy<Tab>$ = ;<Esc>F$a
+amenu P-I&dioms.my\ (\ $&,\ $\ );                <Esc><Esc>omy<Tab>( $, $ );<Esc>2F$a
+amenu P-I&dioms.-SEP1-                           :
+amenu P-I&dioms.(&1)\ \ \ my\ @;                 <Esc><Esc>omy<Tab>@;<Esc>i
+amenu P-I&dioms.(&2)\ \ \ my\ @\ =\ (,,);        <Esc><Esc>omy<Tab>@ = ( , ,  );<Esc>F@a
+amenu P-I&dioms.-SEP2-                           :
+amenu P-I&dioms.(&3)\ \ \ my\ %;                 <Esc><Esc>omy<Tab>%;<Esc>i
+amenu P-I&dioms.(&4)\ \ \ my\ %\ =\ (=>,=>,);    <Esc><Esc>omy<Tab>% = <CR>(<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2kf%a
+amenu P-I&dioms.(&5)\ \ \ my\ $regex_\ =\ '';    <Esc><Esc>omy<Tab>$regex_	= '';<Esc>F_a
+amenu P-I&dioms.(&6)\ \ \ my\ $regex_\ =\ qr//;  <Esc><Esc>omy<Tab>$regex_	= qr//;<Esc>F_a
+
+amenu P-I&dioms.-SEP3-                           :
+
+ menu P-I&dioms.(&7)\ \ \ $\ =~\ m//             <Esc>a$ =~ m//<Esc>F$a
+ menu P-I&dioms.(&8)\ \ \ $\ =~\ s///            <Esc>a$ =~ s///<Esc>F$a
+ menu P-I&dioms.(&9)\ \ \ $\ =~\ tr///           <Esc>a$ =~ tr///<Esc>F$a
+imenu P-I&dioms.(&7)\ \ \ $\ =~\ m//             $ =~ m//<Esc>F$a
+imenu P-I&dioms.(&8)\ \ \ $\ =~\ s///            $ =~ s///<Esc>F$a
+imenu P-I&dioms.(&9)\ \ \ $\ =~\ tr///           $ =~ tr///<Esc>F$a
+
+ menu P-I&dioms.-SEP4-                           :
+
+ menu P-I&dioms.&print\ \"\.\.\.\\n\";           <Esc>aprint "\n";<ESC>3hi
+ menu P-I&dioms.print&f\ (\"\.\.\.\\n\");        <Esc>aprintf ("\n");<ESC>4hi
+imenu P-I&dioms.&print\ \"\.\.\.\\n\";           print "\n";<ESC>3hi
+imenu P-I&dioms.print&f\ (\"\.\.\.\\n\");        printf ("\n");<ESC>4hi
+amenu P-I&dioms.&subroutine                      <Esc>:call Perl_CodeFunction()<CR>3jA
+amenu P-I&dioms.open\ &input\ file               <Esc>:call Perl_CodeOpenRead()<CR>f'a
+amenu P-I&dioms.open\ &output\ file              <Esc>:call Perl_CodeOpenWrite()<CR>f'a
+amenu P-I&dioms.open\ pip&e                      <Esc>:call Perl_CodeOpenPipe()<CR>f'a
+
+amenu P-I&dioms.-SEP5-                           :
+
+ menu P-I&dioms.<STDIN>                          <Esc>a<STDIN>
+ menu P-I&dioms.<STDOUT>                         <Esc>a<STDOUT>
+ menu P-I&dioms.<STDERR>                         <Esc>a<STDERR>
+imenu P-I&dioms.<STDIN>                          <STDIN>
+imenu P-I&dioms.<STDOUT>                         <STDOUT>
+imenu P-I&dioms.<STDERR>                         <STDERR>
+
 	if s:Perl_CodeSnippets != ""
 		imenu P-I&dioms.-SEP6-                         :
-		amenu  P-&Idioms.read\ code\ snippet        <C-C>:call Perl_CodeSnippet("r")<CR>
-		amenu  P-&Idioms.write\ code\ snippet       <C-C>:call Perl_CodeSnippet("w")<CR>
-		vmenu  P-&Idioms.write\ code\ snippet       <C-C>:call Perl_CodeSnippet("wv")<CR>
-		amenu  P-&Idioms.edit\ code\ snippet        <C-C>:call Perl_CodeSnippet("e")<CR>
+		amenu <silent>  P-&Idioms.read\ code\ snippet        <C-C>:call Perl_CodeSnippet("r")<CR>
+		amenu <silent>  P-&Idioms.write\ code\ snippet       <C-C>:call Perl_CodeSnippet("w")<CR>
+		vmenu <silent>  P-&Idioms.write\ code\ snippet       <C-C>:call Perl_CodeSnippet("wv")<CR>
+		amenu <silent>  P-&Idioms.edit\ code\ snippet        <C-C>:call Perl_CodeSnippet("e")<CR>
 	endif
 imenu P-I&dioms.-SEP7-                         :
 "
 "---------- submenu : POSIX character classes --------------------------------------------
+"
+ menu P-CharC&ls.[:&alnum:]										<Esc>a[:alnum:]
+ menu P-CharC&ls.[:alp&ha:]										<Esc>a[:alpha:]
+ menu P-CharC&ls.[:asc&ii:]										<Esc>a[:ascii:]
+ menu P-CharC&ls.[:&cntrl:]										<Esc>a[:cntrl:]
+ menu P-CharC&ls.[:&digit:]										<Esc>a[:digit:]
+ menu P-CharC&ls.[:&graph:]										<Esc>a[:graph:]
+ menu P-CharC&ls.[:&lower:]										<Esc>a[:lower:]
+ menu P-CharC&ls.[:&print:]										<Esc>a[:print:]
+ menu P-CharC&ls.[:pu&nct:]										<Esc>a[:punct:]
+ menu P-CharC&ls.[:&space:]										<Esc>a[:space:]
+ menu P-CharC&ls.[:&upper:]										<Esc>a[:upper:]
+ menu P-CharC&ls.[:&word:]										<Esc>a[:word:]
+ menu P-CharC&ls.[:&xdigit:]									<Esc>a[:xdigit:]
 "
 imenu P-CharC&ls.[:&alnum:]										[:alnum:]
 imenu P-CharC&ls.[:alp&ha:]										[:alpha:]
@@ -241,6 +265,16 @@ imenu P-CharC&ls.[:&xdigit:]									[:xdigit:]
 "
 "---------- P-File-Tests-Menu ----------------------------------------------------------------------
 "
+ menu P-F&ile-Tests.exists															<Esc>a-e <Esc>a
+ menu P-F&ile-Tests.has\ zero\ size											<Esc>a-z <Esc>a
+ menu P-F&ile-Tests.has\ nonzero\ size									<Esc>a-s <Esc>a
+ menu P-F&ile-Tests.plain\ file													<Esc>a-f <Esc>a
+ menu P-F&ile-Tests.directory														<Esc>a-d <Esc>a
+ menu P-F&ile-Tests.symbolic\ link											<Esc>a-l <Esc>a
+ menu P-F&ile-Tests.named\ pipe													<Esc>a-p <Esc>a
+ menu P-F&ile-Tests.socket															<Esc>a-S <Esc>a
+ menu P-F&ile-Tests.block\ special\ file								<Esc>a-b <Esc>a
+ menu P-F&ile-Tests.character\ special\ file						<Esc>a-c <Esc>a
 imenu P-F&ile-Tests.exists															-e <Esc>a
 imenu P-F&ile-Tests.has\ zero\ size											-z <Esc>a
 imenu P-F&ile-Tests.has\ nonzero\ size									-s <Esc>a
@@ -251,25 +285,53 @@ imenu P-F&ile-Tests.named\ pipe													-p <Esc>a
 imenu P-F&ile-Tests.socket															-S <Esc>a
 imenu P-F&ile-Tests.block\ special\ file								-b <Esc>a
 imenu P-F&ile-Tests.character\ special\ file						-c <Esc>a
-imenu P-F&ile-Tests.-SEP1-															:
+"
+ menu P-F&ile-Tests.-SEP1-															:
+"
+ menu P-F&ile-Tests.readable\ by\ effective\ UID/GID		<Esc>a-r <Esc>a
+ menu P-F&ile-Tests.writable\ by\ effective\ UID/GID		<Esc>a-w <Esc>a
+ menu P-F&ile-Tests.executable\ by\ effective\ UID/GID	<Esc>a-x <Esc>a
+ menu P-F&ile-Tests.owned\ by\ effective\ UID						<Esc>a-o <Esc>a
 imenu P-F&ile-Tests.readable\ by\ effective\ UID/GID		-r <Esc>a
 imenu P-F&ile-Tests.writable\ by\ effective\ UID/GID		-w <Esc>a
 imenu P-F&ile-Tests.executable\ by\ effective\ UID/GID	-x <Esc>a
 imenu P-F&ile-Tests.owned\ by\ effective\ UID						-o <Esc>a
-imenu P-F&ile-Tests.-SEP2-																:
+"
+ menu P-F&ile-Tests.-SEP2-																:
+"
+ menu P-F&ile-Tests.readable\ by\ real\ UID/GID					<Esc>a-R <Esc>a
+ menu P-F&ile-Tests.writable\ by\ real\ UID/GID					<Esc>a-W <Esc>a
+ menu P-F&ile-Tests.executable\ by\ real\ UID/GID				<Esc>a-X <Esc>a
+ menu P-F&ile-Tests.owned\ by\ real\ UID								<Esc>a-O <Esc>a
+"
 imenu P-F&ile-Tests.readable\ by\ real\ UID/GID					-R <Esc>a
 imenu P-F&ile-Tests.writable\ by\ real\ UID/GID					-W <Esc>a
 imenu P-F&ile-Tests.executable\ by\ real\ UID/GID				-X <Esc>a
 imenu P-F&ile-Tests.owned\ by\ real\ UID								-O <Esc>a
-imenu P-F&ile-Tests.-SEP3-															:
+"
+ menu P-F&ile-Tests.-SEP3-															:
+"
+ menu P-F&ile-Tests.setuid\ bit\ set										<Esc>a-u <Esc>a
+ menu P-F&ile-Tests.setgid\ bit\ set										<Esc>a-g <Esc>a
+ menu P-F&ile-Tests.sticky\ bit\ set										<Esc>a-k <Esc>a
 imenu P-F&ile-Tests.setuid\ bit\ set										-u <Esc>a
 imenu P-F&ile-Tests.setgid\ bit\ set										-g <Esc>a
 imenu P-F&ile-Tests.sticky\ bit\ set										-k <Esc>a
+"
 imenu P-F&ile-Tests.-SEP4-															:
+"
+ menu P-F&ile-Tests.age\ since\ modification						<Esc>a-M <Esc>a
+ menu P-F&ile-Tests.age\ since\ last\ access						<Esc>a-A <Esc>a
+ menu P-F&ile-Tests.age\ since\ inode\ change						<Esc>a-C <Esc>a
 imenu P-F&ile-Tests.age\ since\ modification						-M <Esc>a
 imenu P-F&ile-Tests.age\ since\ last\ access						-A <Esc>a
 imenu P-F&ile-Tests.age\ since\ inode\ change						-C <Esc>a
+"
 imenu P-F&ile-Tests.-SEP5-															:
+"
+ menu P-F&ile-Tests.text\ file													<Esc>a-T <Esc>a
+ menu P-F&ile-Tests.binary\ file												<Esc>a-B <Esc>a
+ menu P-F&ile-Tests.handle\ opened\ to\ a\ tty					<Esc>a-t <Esc>a
 imenu P-F&ile-Tests.text\ file													-T <Esc>a
 imenu P-F&ile-Tests.binary\ file												-B <Esc>a
 imenu P-F&ile-Tests.handle\ opened\ to\ a\ tty					-t <Esc>a
@@ -277,6 +339,12 @@ imenu P-F&ile-Tests.handle\ opened\ to\ a\ tty					-t <Esc>a
 "---------- P-Special-Variables -------------------------------------------------------------
 "
 	"-------- submenu errors -------------------------------------------------
+	 menu P-Spec-&Var.&errors.$CHILD_ERROR      					<Esc>a$CHILD_ERROR
+	 menu P-Spec-&Var.&errors.$ERRNO            					<Esc>a$ERRNO
+	 menu P-Spec-&Var.&errors.$EVAL_ERROR       					<Esc>a$EVAL_ERROR
+	 menu P-Spec-&Var.&errors.$EXTENDED_OS_ERROR					<Esc>a$EXTENDED_OS_ERROR
+	 menu P-Spec-&Var.&errors.$OS_ERRNO         					<Esc>a$OS_ERRNO
+	 menu P-Spec-&Var.&errors.$WARNING          					<Esc>a$WARNING
 	imenu P-Spec-&Var.&errors.$CHILD_ERROR      					$CHILD_ERROR
 	imenu P-Spec-&Var.&errors.$ERRNO            					$ERRNO
 	imenu P-Spec-&Var.&errors.$EVAL_ERROR       					$EVAL_ERROR
@@ -285,6 +353,13 @@ imenu P-F&ile-Tests.handle\ opened\ to\ a\ tty					-t <Esc>a
 	imenu P-Spec-&Var.&errors.$WARNING          					$WARNING
 
 	"-------- submenu files -------------------------------------------------
+	 menu P-Spec-&Var.&files.$AUTOFLUSH            				<Esc>a$AUTOFLUSH
+	 menu P-Spec-&Var.&files.$OUTPUT_AUTOFLUSH     				<Esc>a$OUTPUT_AUTOFLUSH
+	 menu P-Spec-&Var.&files.$FORMAT_LINES_LEFT    				<Esc>a$FORMAT_LINES_LEFT
+	 menu P-Spec-&Var.&files.$FORMAT_LINES_PER_PAGE				<Esc>a$FORMAT_LINES_PER_PAGE
+	 menu P-Spec-&Var.&files.$FORMAT_NAME          				<Esc>a$FORMAT_NAME
+	 menu P-Spec-&Var.&files.$FORMAT_PAGE_NUMBER   				<Esc>a$FORMAT_PAGE_NUMBER
+	 menu P-Spec-&Var.&files.$FORMAT_TOP_NAME      				<Esc>a$FORMAT_TOP_NAME
 	imenu P-Spec-&Var.&files.$AUTOFLUSH            				$AUTOFLUSH
 	imenu P-Spec-&Var.&files.$OUTPUT_AUTOFLUSH     				$OUTPUT_AUTOFLUSH
 	imenu P-Spec-&Var.&files.$FORMAT_LINES_LEFT    				$FORMAT_LINES_LEFT
@@ -294,6 +369,12 @@ imenu P-F&ile-Tests.handle\ opened\ to\ a\ tty					-t <Esc>a
 	imenu P-Spec-&Var.&files.$FORMAT_TOP_NAME      				$FORMAT_TOP_NAME
 
 	"-------- submenu IDs -------------------------------------------------
+	 menu P-Spec-&Var.&IDs.$PID               						<Esc>a$PID
+	 menu P-Spec-&Var.&IDs.$PROCESS_ID        						<Esc>a$PROCESS_ID
+	 menu P-Spec-&Var.&IDs.$GID               						<Esc>a$GID
+	 menu P-Spec-&Var.&IDs.$REAL_GROUP_ID     						<Esc>a$REAL_GROUP_ID
+	 menu P-Spec-&Var.&IDs.$EGID              						<Esc>a$EGID
+	 menu P-Spec-&Var.&IDs.$EFFECTIVE_GROUP_ID						<Esc>a$EFFECTIVE_GROUP_ID
 	imenu P-Spec-&Var.&IDs.$PID               						$PID
 	imenu P-Spec-&Var.&IDs.$PROCESS_ID        						$PROCESS_ID
 	imenu P-Spec-&Var.&IDs.$GID               						$GID
@@ -302,9 +383,22 @@ imenu P-F&ile-Tests.handle\ opened\ to\ a\ tty					-t <Esc>a
 	imenu P-Spec-&Var.&IDs.$EFFECTIVE_GROUP_ID						$EFFECTIVE_GROUP_ID
 
 	"-------- submenu IO -------------------------------------------------
+	 menu P-Spec-&Var.I&O.$INPUT_LINE_NUMBER      				<Esc>a$INPUT_LINE_NUMBER
+	 menu P-Spec-&Var.I&O.$NR                     				<Esc>a$NR
 	imenu P-Spec-&Var.I&O.$INPUT_LINE_NUMBER      				$INPUT_LINE_NUMBER
 	imenu P-Spec-&Var.I&O.$NR                     				$NR
+	
 	imenu P-Spec-&Var.I&O.-SEP1-      		            :
+
+	 menu P-Spec-&Var.I&O.$INPUT_RECORD_SEPARATOR 				<Esc>a$INPUT_RECORD_SEPARATOR
+	 menu P-Spec-&Var.I&O.$RS                     				<Esc>a$RS
+	 menu P-Spec-&Var.I&O.$LIST_SEPARATOR         				<Esc>a$LIST_SEPARATOR
+	 menu P-Spec-&Var.I&O.$OUTPUT_FIELD_SEPARATOR 				<Esc>a$OUTPUT_FIELD_SEPARATOR
+	 menu P-Spec-&Var.I&O.$OFS                    				<Esc>a$OFS
+	 menu P-Spec-&Var.I&O.$OUTPUT_RECORD_SEPARATOR				<Esc>a$OUTPUT_RECORD_SEPARATOR
+	 menu P-Spec-&Var.I&O.$ORS                    				<Esc>a$ORS
+	 menu P-Spec-&Var.I&O.$SUBSCRIPT_SEPARATOR    				<Esc>a$SUBSCRIPT_SEPARATOR
+	 menu P-Spec-&Var.I&O.$SUBSEP                 				<Esc>a$SUBSEP
 	imenu P-Spec-&Var.I&O.$INPUT_RECORD_SEPARATOR 				$INPUT_RECORD_SEPARATOR
 	imenu P-Spec-&Var.I&O.$RS                     				$RS
 	imenu P-Spec-&Var.I&O.$LIST_SEPARATOR         				$LIST_SEPARATOR
@@ -316,6 +410,14 @@ imenu P-F&ile-Tests.handle\ opened\ to\ a\ tty					-t <Esc>a
 	imenu P-Spec-&Var.I&O.$SUBSEP                 				$SUBSEP
 
 	"-------- submenu regexp -------------------------------------------------
+	 menu P-Spec-&Var.&regexp.$digits                 		<Esc>a$digits
+	 menu P-Spec-&Var.&regexp.@LAST_MATCH_END         		<Esc>a@LAST_MATCH_END
+	 menu P-Spec-&Var.&regexp.@LAST_MATCH_START       		<Esc>a@LAST_MATCH_START
+	 menu P-Spec-&Var.&regexp.$LAST_PAREN_MATCH       		<Esc>a$LAST_PAREN_MATCH
+	 menu P-Spec-&Var.&regexp.$LAST_REGEXP_CODE_RESULT		<Esc>a$LAST_REGEXP_CODE_RESULT
+	 menu P-Spec-&Var.&regexp.$MATCH                  		<Esc>a$MATCH
+	 menu P-Spec-&Var.&regexp.$POSTMATCH              		<Esc>a$POSTMATCH
+	 menu P-Spec-&Var.&regexp.$PREMATCH               		<Esc>a$PREMATCH
 	imenu P-Spec-&Var.&regexp.$digits                 		$digits
 	imenu P-Spec-&Var.&regexp.@LAST_MATCH_END         		@LAST_MATCH_END
 	imenu P-Spec-&Var.&regexp.@LAST_MATCH_START       		@LAST_MATCH_START
@@ -325,6 +427,14 @@ imenu P-F&ile-Tests.handle\ opened\ to\ a\ tty					-t <Esc>a
 	imenu P-Spec-&Var.&regexp.$POSTMATCH              		$POSTMATCH
 	imenu P-Spec-&Var.&regexp.$PREMATCH               		$PREMATCH
 
+ menu P-Spec-&Var.$BASETIME      					<Esc>a$BASETIME
+ menu P-Spec-&Var.$PERL_VERSION  					<Esc>a$PERL_VERSION
+ menu P-Spec-&Var.$PROGRAM_NAME  					<Esc>a$PROGRAM_NAME
+ menu P-Spec-&Var.$OSNAME       					<Esc>a$OSNAME
+ menu P-Spec-&Var.$SYSTEM_FD_MAX 					<Esc>a$SYSTEM_FD_MAX
+ menu P-Spec-&Var.$ENV{\ }			 					<Esc>a$ENV{}<ESC>i
+ menu P-Spec-&Var.$INC{\ }			 					<Esc>a$INC{}<ESC>i
+ menu P-Spec-&Var.$SIG{\ }			 					<Esc>a$SIG{}<ESC>i
 imenu P-Spec-&Var.$BASETIME      					$BASETIME
 imenu P-Spec-&Var.$PERL_VERSION  					$PERL_VERSION
 imenu P-Spec-&Var.$PROGRAM_NAME  					$PROGRAM_NAME
@@ -335,6 +445,26 @@ imenu P-Spec-&Var.$INC{\ }			 					$INC{}<ESC>i
 imenu P-Spec-&Var.$SIG{\ }			 					$SIG{}<ESC>i
 	"
 	"---------- submenu : POSIX signals --------------------------------------
+	"
+	 menu P-Spec-&Var.POSIX\ signals.HUP 		<Esc>aHUP
+	 menu P-Spec-&Var.POSIX\ signals.INT 		<Esc>aINT
+	 menu P-Spec-&Var.POSIX\ signals.QUIT		<Esc>aQUIT
+	 menu P-Spec-&Var.POSIX\ signals.ILL 		<Esc>aILL
+	 menu P-Spec-&Var.POSIX\ signals.ABRT		<Esc>aABRT
+	 menu P-Spec-&Var.POSIX\ signals.FPE 		<Esc>aFPE
+	 menu P-Spec-&Var.POSIX\ signals.KILL		<Esc>aKILL
+	 menu P-Spec-&Var.POSIX\ signals.SEGV		<Esc>aSEGV
+	 menu P-Spec-&Var.POSIX\ signals.PIPE		<Esc>aPIPE
+	 menu P-Spec-&Var.POSIX\ signals.ALRM		<Esc>aALRM
+	 menu P-Spec-&Var.POSIX\ signals.TERM		<Esc>aTERM
+	 menu P-Spec-&Var.POSIX\ signals.USR1		<Esc>aUSR1
+	 menu P-Spec-&Var.POSIX\ signals.USR2		<Esc>aUSR2
+	 menu P-Spec-&Var.POSIX\ signals.CHLD		<Esc>aCHLD
+	 menu P-Spec-&Var.POSIX\ signals.CONT		<Esc>aCONT
+	 menu P-Spec-&Var.POSIX\ signals.STOP		<Esc>aSTOP
+	 menu P-Spec-&Var.POSIX\ signals.TSTP		<Esc>aTSTP
+	 menu P-Spec-&Var.POSIX\ signals.TTIN		<Esc>aTTIN
+	 menu P-Spec-&Var.POSIX\ signals.TTOU		<Esc>aTTOU
 	"
 	imenu P-Spec-&Var.POSIX\ signals.HUP 		HUP
 	imenu P-Spec-&Var.POSIX\ signals.INT 		INT
@@ -357,10 +487,14 @@ imenu P-Spec-&Var.$SIG{\ }			 					$SIG{}<ESC>i
 	imenu P-Spec-&Var.POSIX\ signals.TTOU		TTOU
 	"
 imenu P-Spec-&Var.-SEP2-      		              	      :
+
+ menu P-Spec-&Var.\'IGNORE\' 														<Esc>a'IGNORE'
+ menu P-Spec-&Var.\'DEFAULT\' 													<Esc>a'DEFAULT'
 imenu P-Spec-&Var.\'IGNORE\' 														'IGNORE'
 imenu P-Spec-&Var.\'DEFAULT\' 													'DEFAULT'
+
 imenu P-Spec-&Var.-SEP3-      		              	      :
-imenu P-Spec-&Var.use\ English; 												<ESC><ESC>^ouse English;
+ menu P-Spec-&Var.use\ English; 												<ESC><ESC>ouse English;
 
 "
 "---------- P-Run-Menu ----------------------------------------------------------------------
@@ -381,19 +515,17 @@ amenu P-&Run.update\ file,\ run\ &syntax\ check\ \ <Alt><F9>   <C-C>:call Perl_S
 "
 "   set execution right only for the user ( may be user root ! )
 "
-amenu P-&Run.make\ script\ e&xecutable            <C-C>:!chmod u+x %<CR>
-amenu P-&Run.&command\ line\ arguments            <C-C>:call Perl_Arguments()<CR>
-amenu P-&Run.-SEP2-      		              	      :
-amenu P-&Run.perldoc\ &module                     <C-C>:call Perl_perldoc_normal(0)<CR><CR>
-vmenu P-&Run.perldoc\ &module                     "zy<Esc>:call Perl_perldoc_visual(0)<CR><CR>
-amenu P-&Run.perldoc\ -f\ &function               <C-C>:call Perl_perldoc_normal(1)<CR><CR>
-vmenu P-&Run.perldoc\ -f\ &function               "zy<Esc>:call Perl_perldoc_visual(1)<CR><CR>
-amenu P-&Run.-SEP3-      		              	      :
-amenu P-&Run.hardcop&y\ all\ to\ FILENAME\.ps     <C-C>:call Perl_Hardcopy("n")<CR>
-vmenu P-&Run.hardcop&y\ part\ to\ FILENAME\.ps    <C-C>:call Perl_Hardcopy("v")<CR>
-imenu P-&Run.-SEP4-                               :
-amenu P-&Run.additional\ &hot\ keys               <C-C>:call Perl_HotKeys()<CR>
-amenu P-&Run.&about\ Perl-Support                 <C-C>:call Perl_Version()<CR>
+amenu <silent> P-&Run.make\ script\ e&xecutable                <C-C>:!chmod -c u+x %<CR>
+amenu <silent> P-&Run.command\ line\ &arguments                <C-C>:call Perl_Arguments()<CR>
+amenu          P-&Run.-SEP2-      		              	         :
+
+amenu <silent> P-&Run.read\ perl&doc                           <C-C>:call Perl_perldoc_dialog()<CR><CR>
+"
+amenu          P-&Run.-SEP3-      		              	         :
+amenu <silent> P-&Run.&hardcopy\ buffer\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>
+vmenu <silent> P-&Run.hard&copy\ part\ to\ FILENAME\.part\.ps  <C-C>:call Perl_Hardcopy("v")<CR>
+imenu          P-&Run.-SEP4-                                   :
+amenu <silent> P-&Run.se&ttings\ and\ hot\ keys                <C-C>:call Perl_Settings()<CR>
 "
 endfunction			" function Perl_InitMenu
 "
@@ -406,83 +538,100 @@ let s:Perl_CmdLineArgs  = ""           " command line arguments for Run-run; ini
 "
 "
 "------------------------------------------------------------------------------
-"  PERL File Prologue
-"------------------------------------------------------------------------------
-function! Perl_FilePrologue ()
-
-		let	File	= expand("%:t")				" name of the file in the current buffer without path
-    let @z=    "#!/usr/bin/perl -w\n"
-    let @z= @z."#===================================================================================\n"
-    let @z= @z."#\n"
-    let @z= @z."#         FILE:  ".File."\n"
-    let @z= @z."#\n"
-    let @z= @z."#        USAGE:  ./".File." \n"
-    let @z= @z."#\n"
-    let @z= @z."#  DESCRIPTION:  \n"
-    let @z= @z."#\n"
-    let @z= @z."#        FILES:  ---\n"
-    let @z= @z."#        NOTES:  ---\n"
-    let @z= @z."#       AUTHOR:  ".s:PERL_AuthorName."  (".s:PERL_AuthorRef.")\n"
-  if(s:PERL_Email!="")
-    let @z= @z."#        EMAIL:  ".s:PERL_Email."\n"
-	endif
-  if(s:PERL_Company!="")
-    let @z= @z."#      COMPANY:  ".s:PERL_Company."\n"
-	endif
-  if(s:PERL_CopyrightHolder!="")
-    let @z= @z.  "\n//#  COPYRIGHT:  ".s:PERL_CopyrightHolder
-    if(s:PERL_CopyrightYears=="")
-      let @z= @z. " , ". strftime("%Y")
-    else
-      let @z= @z. " , ". s:PERL_CopyrightYears
-    endif
-  endif
-    let @z= @z."#      VERSION:  1.0\n"
-    let @z= @z."#      CREATED:  ".strftime("%x - %X")."\n"
-    let @z= @z."#     REVISION:  ---\n"
-    let @z= @z."#===================================================================================\n"
-    let @z= @z."\nuse strict;"
-    let @z= @z."\n\n"
-    
-    put! z
-endfunction
-"
-"------------------------------------------------------------------------------
-"  P-Comments : Frame
-"------------------------------------------------------------------------------
-function! Perl_CommentFrame ()
-  let @z=   "#----------------------------------------------------------------------\n"
-  let @z=@z."#  \n"
-  let @z=@z."#----------------------------------------------------------------------\n"
-  put z
-endfunction
-"
-"------------------------------------------------------------------------------
-"  P-Comments : Function 
-"------------------------------------------------------------------------------
-function! Perl_CommentFunction ()
-  let @z=    "#===  FUNCTION  ====================================================================\n"
-  let @z= @z."#\n"
-  let @z= @z."#         NAME:  \n"
-  let @z= @z."#\n"
-  let @z= @z."#  DESCRIPTION:  \n"
-  let @z= @z."#\n"
-  let @z= @z."#       AUTHOR:  ".s:PERL_AuthorName."\n"
-  let @z= @z."#      CREATED:  ".strftime("%x - %X")."\n"
-  let @z= @z."#\n"
-  let @z= @z."#---- PARAMETER  -------------------------------------------------------------------\n"
-  let @z= @z."#        Number  Description\n"
-  let @z= @z."#           1 :  \n"
-  let @z= @z."#===================================================================================\n"
-  put z
-endfunction
-"
-"------------------------------------------------------------------------------
 "  P-Comments : classified comments
 "------------------------------------------------------------------------------
 function! Perl_CommentClassified (class)
-  	put = '# :'.a:class.':'.strftime(\"%x\").':'.s:PERL_AuthorRef.': '
+  	put = '# :'.a:class.':'.strftime(\"%x\").':'.s:Perl_AuthorRef.': '
 endfunction
+"
+"------------------------------------------------------------------------------
+"  P-Comments : Insert Template Files
+"------------------------------------------------------------------------------
+function! Perl_CommentTemplates (arg)
+
+	"----------------------------------------------------------------------
+	"  Perl templates
+	"----------------------------------------------------------------------
+	if a:arg=='frame'
+		let templatefile=s:Perl_Template_Directory.s:Perl_Template_Frame
+	endif
+
+	if a:arg=='function'
+		let templatefile=s:Perl_Template_Directory.s:Perl_Template_Function
+	endif
+
+	if a:arg=='header'
+		let templatefile=s:Perl_Template_Directory.s:Perl_Template_File
+	endif
+
+
+	if filereadable(templatefile)
+		let	length= line("$")
+		let	pos1  = line(".")+1
+		if  a:arg=='header' 
+			:goto 1
+			let	pos1  = 1
+			exe '0read '.templatefile
+		else
+			exe 'read '.templatefile
+		endif
+		let	length= line("$")-length
+		let	pos2  = pos1+length-1
+		"----------------------------------------------------------------------
+		"  frame blocks will be indented
+		"----------------------------------------------------------------------
+		if a:arg=='frame'
+			let	length	= length-1
+			silent exe "normal =".length."+"
+			let	length	= length+1
+		endif
+		"----------------------------------------------------------------------
+		"  substitute keywords
+		"----------------------------------------------------------------------
+		silent! exe pos1.','.pos2.' s/|FILENAME|/'.expand("%:t").'/g'
+		" the seperator (#) for the following substitute (s) may not appear 
+		" in the date representation
+		silent! exe pos1.','.pos2.' s#|DATE|#'.strftime("%x %X %Z").'#g'
+		silent! exe pos1.','.pos2.' s/|TIME|/'.strftime("%X").'/g'
+		silent! exe pos1.','.pos2.' s/|YEAR|/'.strftime("%Y").'/g'
+		silent! exe pos1.','.pos2.' s/|AUTHOR|/'.s:Perl_AuthorName.'/g'
+		silent! exe pos1.','.pos2.' s/|EMAIL|/'.s:Perl_Email.'/g'
+		silent! exe pos1.','.pos2.' s/|AUTHORREF|/'.s:Perl_AuthorRef.'/g'
+		silent! exe pos1.','.pos2.' s/|PROJECT|/'.s:Perl_Project.'/g'
+		silent! exe pos1.','.pos2.' s/|COMPANY|/'.s:Perl_Company.'/g'
+		silent! exe pos1.','.pos2.' s/|COPYRIGHTHOLDER|/'.s:Perl_CopyrightHolder.'/g'
+		"----------------------------------------------------------------------
+		"  Position the cursor
+		"----------------------------------------------------------------------
+		exe ':'.pos1
+		normal 0
+		let linenumber=search('|CURSOR|')
+		if linenumber >=pos1 && linenumber<=pos2
+			let pos1=match( getline(linenumber) ,"|CURSOR|")
+			if  matchend( getline(linenumber) ,"|CURSOR|") == match( getline(linenumber) ,"$" )
+				silent! s/|CURSOR|//
+				" this is an append like A
+				:startinsert!
+			else
+				silent  s/|CURSOR|//
+				call cursor(linenumber,pos1+1)
+				" this is an insert like i
+				:startinsert
+			endif
+		endif
+
+	else
+		echohl WarningMsg | echo 'template file '.templatefile.' does not exist or is not readable'| echohl None
+	endif
+	return
+endfunction    " ----------  end of function  Perl_CommentTemplates  ----------
+"
+"------------------------------------------------------------------------------
+"  P-Comments : vim modeline
+"------------------------------------------------------------------------------
+function! Perl_CommentVimModeline ()
+  	put = '# vim: set tabstop='.&tabstop.': set shiftwidth='.&shiftwidth.': '
+endfunction    " ----------  end of function Perl_CommentVimModeline  ----------
 "
 "------------------------------------------------------------------------------
 "  P-Statements : subroutine
@@ -492,9 +641,9 @@ function! Perl_CodeFunction ()
 	if identifier==""
 		let	identifier	= "f"
 	endif
-  let @z=    "sub ".identifier."\n{\n\tmy\t$par1\t= shift;\n\t\n\treturn ;\n}"
-  let @z= @z."\t# ----------  end of subroutine ".identifier."  ----------" 
-	  put z
+  let zz=    "sub ".identifier."\n{\n\tmy\t$par1\t= shift;\n\t\n\treturn ;\n}"
+  let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
+	put =zz
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -502,12 +651,14 @@ endfunction
 "------------------------------------------------------------------------------
 "
 function! Perl_DoWhile ()
-	let @z=    "do\n{\n\t\n}\nwhile (  );"
-  let @z= @z."\t\t\t\t# -----  end do-while  -----\n"
+	let zz=    "do\n{\n\t\n}\nwhile (  );"
+  let zz= zz."\t\t\t\t# -----  end do-while  -----\n"
+	put =zz
+	normal	=4+
 endfunction
 "
 "------------------------------------------------------------------------------
-"  PERL-Idioms : CodeOpenRead
+"  Perl-Idioms : CodeOpenRead
 "------------------------------------------------------------------------------
 function! Perl_CodeOpenRead ()
 
@@ -518,16 +669,17 @@ function! Perl_CodeOpenRead ()
 	
 	let filename=filehandle."_file_name"
 
-	let @z=    "my\t$".filename." = \'\';\t\t# input file name\n\n"
-	let @z= @z."open ( ".filehandle.", \'<\', $".filename." )\n"
-	let @z= @z."\tor die \"$0 : failed to open input file $".filename." : $!\\n\";\n\n\n"
-	let @z= @z."close ( ".filehandle." );\t\t\t# close input file\n"
+	let zz=    "my\t$".filename." = \'\';\t\t# input file name\n\n"
+	let zz= zz."open ( ".filehandle.", \'<\', $".filename." )\n"
+	let zz= zz."\tor die \"$0 : failed to open input file $".filename." : $!\\n\";\n\n\n"
+	let zz= zz."close ( ".filehandle." );\t\t\t# close input file\n"
 	exe ":imenu P-I&dioms.<".filehandle.">      <".filehandle."><ESC>a"
-	put z
+	put =zz
+	normal =6+
 endfunction
 "
 "------------------------------------------------------------------------------
-"  PERL-Idioms : CodeOpenWrite
+"  Perl-Idioms : CodeOpenWrite
 "------------------------------------------------------------------------------
 function! Perl_CodeOpenWrite ()
 
@@ -538,16 +690,17 @@ function! Perl_CodeOpenWrite ()
 	
 	let filename=filehandle."_file_name"
 
-	let @z=    "my\t$".filename." = \'\';\t\t# output file name\n\n"
-	let @z= @z."open ( ".filehandle.", \'>\', $".filename." )\n"
-	let @z= @z."\tor die \"$0 : failed to open output file $".filename." : $!\\n\";\n\n\n"
-	let @z= @z."close ( ".filehandle." );\t\t\t# close output file\n"
-	put z
+	let zz=    "my\t$".filename." = \'\';\t\t# output file name\n\n"
+	let zz= zz."open ( ".filehandle.", \'>\', $".filename." )\n"
+	let zz= zz."\tor die \"$0 : failed to open output file $".filename." : $!\\n\";\n\n\n"
+	let zz= zz."close ( ".filehandle." );\t\t\t# close output file\n"
+	put =zz
+	normal =6+
 	exe ":imenu P-I&dioms.print\\ ".filehandle."\\ \"\\\\n\";       print ".filehandle." \"\\n\";<ESC>3hi"
 endfunction
 "
 "------------------------------------------------------------------------------
-"  PERL-Idioms : CodeOpenPipe
+"  Perl-Idioms : CodeOpenPipe
 "------------------------------------------------------------------------------
 function! Perl_CodeOpenPipe ()
 
@@ -558,11 +711,12 @@ function! Perl_CodeOpenPipe ()
 	
 	let pipecommand=filehandle."_command"
 
-	let @z=    "my\t$".pipecommand." = \'\';\t\t# pipe command\n\n"
-	let @z= @z."open ( ".filehandle.", $".pipecommand." )\n"
-	let @z= @z."\tor die \"$0 : failed to open pipe > $".pipecommand." < : $!\\n\";\n\n\n"
-	let @z= @z."close ( ".filehandle." );\t\t\t# close pipe\n"
-	put z
+	let zz=    "my\t$".pipecommand." = \'\';\t\t# pipe command\n\n"
+	let zz= zz."open ( ".filehandle.", $".pipecommand." )\n"
+	let zz= zz."\tor die \"$0 : failed to open pipe > $".pipecommand." < : $!\\n\";\n\n\n"
+	let zz= zz."close ( ".filehandle." );\t\t\t# close pipe\n"
+	put =zz
+	normal =6+
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -575,9 +729,17 @@ function! Perl_CodeSnippet(arg1)
 		" 
 		if a:arg1 == "r"
 			let	l:snippetfile=browse(0,"read a code snippet",s:Perl_CodeSnippets,"")
-			if l:snippetfile != ""
+			if filereadable(l:snippetfile)
+				let	length= line("$")
 				:execute "read ".l:snippetfile
+				let	length= line("$")-length-1
+				if length>=0
+					silent exe "normal =".length."+"
+				endif
 			endif
+"			if l:snippetfile != ""
+"				:execute "read ".l:snippetfile
+"			endif
 		endif
 		"
 		" update current buffer / split window / edit snippet file
@@ -613,53 +775,74 @@ function! Perl_CodeSnippet(arg1)
 		echohl None
 	endif
 endfunction
+"
 "------------------------------------------------------------------------------
-"  PERL-Run : Perl_perldoc - normal mode
+"  Perl-Run : Perl_perldoc - dialog
 "------------------------------------------------------------------------------
-function! Perl_perldoc_normal (arg1)
-	let	l:name=inputdialog("perldoc function : ", "")
+function! Perl_perldoc_dialog()
+
+	let	item=inputdialog("perldoc function or mudule : ", "")
 	"------------------------------------------------------------------------------
 	"  replace buffer content with Perl documentation
 	"------------------------------------------------------------------------------
-	if a:arg1==0
-		exe ":new | %!perldoc    ".l:name
-	else
-		exe ":new | %!perldoc -f ".l:name
+	if item != ""
+		exe ":new | %!perldoc ".item
+		if line("$")==1
+			exe ":%!perldoc -f ".item
+		endif
+
+		set buftype=nofile
+		set noswapfile
 	endif
-	set buftype=nofile
-	set noswapfile
 endfunction
 "
 "------------------------------------------------------------------------------
-"  PERL-Run : Perl_perldoc - visual mode
+"  Perl-Run : Perl_perldoc - dialog
 "------------------------------------------------------------------------------
-function! Perl_perldoc_visual (arg1)
+function! Perl_perldoc_cursor()
+
+	let	item=expand("<cword>")				" word under the cursor 
+
+	if  item == ""
+		let	item=inputdialog("perldoc function or mudule : ", "")
+	endif
 	"------------------------------------------------------------------------------
 	"  replace buffer content with Perl documentation
 	"------------------------------------------------------------------------------
-	if a:arg1==0
-		exe ":new | %!perldoc    ".@z
-	else
-		exe ":new | %!perldoc -f ".@z
+	if item != ""
+		exe ":new | %!perldoc ".item
+		if line("$")==1
+			exe ":%!perldoc -f ".item
+		endif
+		set buftype=nofile
+		set noswapfile
 	endif
-	set buftype=nofile
-	set noswapfile
 endfunction
 "
 "------------------------------------------------------------------------------
-"  run : hot keys
+"  Run : settings
 "------------------------------------------------------------------------------
-function! Perl_HotKeys ()
-	let hotkeylist =            "Additional hot keys\n"
-	let hotkeylist = hotkeylist."______________________________________________________\n\n"
-	let hotkeylist = hotkeylist."      F1  :  read perldoc for marked function name (Visual Mode)\n"
-	let hotkeylist = hotkeylist."Shift-F1  :  read perldoc for marked module name (Visual Mode)\n"
-	let hotkeylist = hotkeylist."      F2  :  update (save) file   \n"
-	let hotkeylist = hotkeylist."      F3  :  file open dialog     \n"
-	let hotkeylist = hotkeylist."      F6  :  open error window    \n"
-	let hotkeylist = hotkeylist."      F7  :  go to previous error \n"
-	let hotkeylist = hotkeylist."      F8  :  go to next error     \n"
-	let dummy=confirm( hotkeylist, "ok", 1, "Info" )
+function! Perl_Settings ()
+	let	settings =         "Perl-Support settings\n\n"
+	let settings = settings."______________________________________________________\n\n"
+	let settings = settings."Additional hot keys\n\n"
+	let settings = settings."Shift-F1  :  read perldoc (for word under cursor)\n"
+	let settings = settings." Ctrl-F9  :  update file, run script           \n"
+	let settings = settings."      F9  :  update file, run script with pager\n"
+	let settings = settings."  Alt-F9  :  update file, run syntax check     \n"
+	let settings = settings."______________________________________________________\n\n"
+	let settings = settings."author  :  ".s:Perl_AuthorName." (".s:Perl_AuthorRef.") ".s:Perl_Email."\n"
+	let settings = settings."company :  ".s:Perl_Company."\n"
+	let settings = settings."copyright holder :  ".s:Perl_CopyrightHolder."\n"
+	if(s:Perl_CopyrightHolder!="")
+		let settings = settings."copyright year(s) :  ".s:Perl_CopyrightYears."\n"
+	endif
+	let settings = settings."code snippet directory  :  ".s:Perl_CodeSnippets."\n"
+	let settings = settings."\n"
+	let settings = settings."\nMake changes in file bash-support.vim\n"
+	let	settings = settings."----------------------------------------------------------------------------------------\n"
+	let	settings = settings."Perl-Support, Version ".s:Perl_Version."  /  Dr.-Ing. Fritz Mehner  /  mehner@fh-swf.de\n"
+	let dummy=confirm( settings, "ok", 1, "Info" )
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -680,7 +863,7 @@ function! Perl_SyntaxCheck ()
 	exe	":update"
 	exe	"set makeprg=perl"
 	" 
-	" match the PERL error messages (quickfix commands)
+	" match the Perl error messages (quickfix commands)
 	" errorformat will be reset by function Perl_Handle()
 	" 
 	" ignore any lines that didn't match one of the patterns
@@ -745,21 +928,20 @@ endfunction
 "------------------------------------------------------------------------------
 "
 let s:Perl_Active = -1														" state variable controlling the Perl-menus
-"
 function! Perl_CreateUnLoadMenuEntries ()
 	"
-	" C is now active and was former inactive -> 
+	" Perl is now active and was former inactive -> 
 	" Insert Tools.Unload and remove Tools.Load Menu
 	" protect the following submenu names against interpolation by using single qoutes (Mn)
 	"
 	if  s:Perl_Active == 1
-		exe "aunmenu ".s:Tools_menu_name.'.Load\ Perl\ Support'
-		exe "amenu   &".s:Tools_menu_name.'.Unload\ Perl\ Support  	<C-C>:call Perl_Handle()<CR>'
+		:aunmenu &Tools.Load\ Perl\ Support
+		exe 'amenu  <silent> 40.1160   &Tools.Unload\ Perl\ Support  	<C-C>:call Perl_Handle()<CR>'
 	else
 		" Perl is now inactive and was former active or in initial state -1 
 		if s:Perl_Active == 0
 			" Remove Tools.Unload if Perl was former inactive
-			exe "aunmenu ".s:Tools_menu_name.'.Unload\ Perl\ Support'
+			:aunmenu &Tools.Unload\ Perl\ Support
 		else
 			" Set initial state Perl_Active=-1 to inactive state Perl_Active=0
 			" This protects from removing Tools.Unload during initialization after
@@ -767,7 +949,9 @@ function! Perl_CreateUnLoadMenuEntries ()
 			let s:Perl_Active = 0
 			" Insert Tools.Load
 		endif
-		exe "amenu &".s:Tools_menu_name.'.Load\ Perl\ Support <C-C>:call Perl_Handle()<CR>'
+		exe 'amenu <silent> 40.1000 &Tools.-SEP100- : '
+		exe 'amenu <silent> 40.1160 &Tools.Load\ Perl\ Support <C-C>:call Perl_Handle()<CR>'
+		exe 'amenu <silent> &Tools.Load\ Perl\ Support <C-C>:call Perl_Handle()<CR>'
 	endif
 	"
 endfunction
@@ -800,3 +984,4 @@ if s:Perl_ShowMenues == "yes"
 	call Perl_Handle()											" load the menus
 endif
 "
+" vim:set tabstop=2: 
