@@ -22,7 +22,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  02.11.2004
+"       Revision:  09.12.2004
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -34,7 +34,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.3.2"
+let g:Perl_Version= "2.4"
 "        
 "###############################################################################################
 "
@@ -70,10 +70,12 @@ let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
 let s:Perl_Template_Frame          = 'perl-frame'
 let s:Perl_Template_Function       = 'perl-function-description'
-let s:Perl_Pager                   = 'less'
 let s:Perl_MenuHeader              = 'yes'
 let s:Perl_PerlModuleList          = root_dir.'plugin/perl-modules.list'
 let s:Perl_PerlModuleListGenerator = root_dir.'plugin/pmdesc3 -s -t36 > '.s:Perl_PerlModuleList
+let s:Perl_OutputGvim              = "vim"
+let s:Perl_XtermDefaults           = "-fa courier -fs 12 -geometry 80x24"
+let s:Perl_Debugger                = "perl"
 "
 "------------------------------------------------------------------------------
 "
@@ -99,10 +101,12 @@ call Perl_CheckGlobal("Perl_Template_File          ")
 call Perl_CheckGlobal("Perl_Template_Module        ")
 call Perl_CheckGlobal("Perl_Template_Frame         ")
 call Perl_CheckGlobal("Perl_Template_Function      ")
-call Perl_CheckGlobal("Perl_Pager                  ")
 call Perl_CheckGlobal("Perl_MenuHeader             ")
 call Perl_CheckGlobal("Perl_PerlModuleList         ")
 call Perl_CheckGlobal("Perl_PerlModuleListGenerator")
+call Perl_CheckGlobal("Perl_OutputGvim             ")
+call Perl_CheckGlobal("Perl_XtermDefaults          ")
+call Perl_CheckGlobal("Perl_Debugger               ")
 "
 "
 "------------------------------------------------------------------------------
@@ -114,6 +118,12 @@ let	s:Perl_POD_List='<CR>=over 2<CR><CR>=item *<CR><CR><CR><CR>=item *<CR><CR><C
 let	s:Perl_POD_html='<CR>=begin  html<CR><CR><CR><CR>=end    html  #  back to Perl<CR>'
 let	s:Perl_POD_man ='<CR>=begin  man<CR><CR><CR><CR>=end    man  #  back to Perl<CR>'
 let	s:Perl_POD_text='<CR>=begin  text<CR><CR><CR><CR>=end    text  #  back to Perl<CR>'
+"
+" set default geometry if not specified 
+" 
+if match( s:Perl_XtermDefaults, "-geometry\\s\\+\\d\\+x\\d\\+" ) < 0
+	let s:Perl_XtermDefaults	= s:Perl_XtermDefaults." -geometry 80x24"
+endif
 "
 function!	Perl_InitMenu ()
 	"
@@ -687,7 +697,7 @@ function!	Perl_InitMenu ()
 		exe "amenu          ".s:Perl_Root.'&POD.-SEP3-      		        :'
 		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ html\ \ (&4)   <Esc><C-C>:call Perl_POD("html")<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ man\ \ (&5)    <Esc><C-C>:call Perl_POD("man")<CR>'
-		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&6)   <Esc><C-C>:call Perl_POD("txt")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&6)   <Esc><C-C>:call Perl_POD("text")<CR>'
 		"
 		"---------- Run-Menu ----------------------------------------------------------------------
 		"
@@ -699,36 +709,43 @@ function!	Perl_InitMenu ()
 		"   run the script from the local directory 
 		"   ( the one which is being edited; other versions may exist elsewhere ! )
 		" 
-		exe "amenu ".s:Perl_Root.'&Run.update\ file,\ &run\ script<Tab><C-F9>            <C-C>:call Perl_Run(0)<CR>'
+		exe "amenu ".s:Perl_Root.'&Run.update,\ &run\ script<Tab><C-F9>   			         <C-C>:call Perl_Run()<CR>'
 		"
-		" The menu entry 'run with pager' will not appear if the following string is empty 
-		if s:Perl_Pager != ""
-			exe "amenu ".s:Perl_Root.'&Run.update\ file,\ run\ with\ &pager<Tab><F9>       <C-C>:call Perl_Run(1)<CR>'
-		endif
-		"   ( the one which is being edited; other versions may exist elsewhere ! )
-		" 
-		exe "amenu ".s:Perl_Root.'&Run.update\ file,\ &syntax\ check<Tab><A-F9>     <C-C>:call Perl_SyntaxCheck()<CR><CR>'
+		exe "amenu ".s:Perl_Root.'&Run.update,\ check\ &syntax<Tab><A-F9>       			   <C-C>:call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.cmd\.\ line\ &arg\.<Tab><S-F9>           <C-C>:call Perl_Arguments()<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.deb&ug<Tab><F9>                          <C-C>:call Perl_Debugger()<CR>'
 		"
 		"   set execution rights for user only ( user may be root ! )
 		"
 		if !has('win32')
-			exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ e&xecutable                <C-C>:call Perl_MakeScriptExecutable()<CR>'
+			exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ &executable              <C-C>:call Perl_MakeScriptExecutable()<CR>'
 		endif
-		exe "amenu <silent> ".s:Perl_Root.'&Run.command\ line\ &arguments                <C-C>:call Perl_Arguments()<CR>'
-		exe "amenu          ".s:Perl_Root.'&Run.-SEP2-      		              	         :'
+		exe "amenu          ".s:Perl_Root.'&Run.-SEP2-                           :'
 
-		exe "amenu <silent> ".s:Perl_Root.'&Run.read\ perl&doc<Tab><S-F1>                <C-C>:call Perl_perldoc("m")<CR><CR>'
-		exe "amenu <silent> ".s:Perl_Root.'&Run.show\ &installed\ Perl\ modules          <Esc><Esc>:call Perl_perldoc_show_module_list()<CR>'
-		exe "amenu <silent> ".s:Perl_Root.'&Run.&generate\ Perl\ module\ list            <C-C>:call Perl_perldoc_generate_module_list()<CR><CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.read\ perl&doc<Tab><S-F1>        <C-C>:call Perl_perldoc("m")<CR><CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.show\ &installed\ Perl\ modules  <Esc><Esc>:call Perl_perldoc_show_module_list()<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.&generate\ Perl\ module\ list    <C-C>:call Perl_perldoc_generate_module_list()<CR><CR>'
 		"
-		exe "amenu          ".s:Perl_Root.'&Run.-SEP4-      		              	         :'
-		exe "amenu <silent> ".s:Perl_Root.'&Run.hard&copy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>'
-		exe "vmenu <silent> ".s:Perl_Root.'&Run.hardc&opy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("v")<CR>'
-"		exe "amenu <silent> ".s:Perl_Root.'&Run.hard&copy\ buffer\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>'
-"		exe "vmenu <silent> ".s:Perl_Root.'&Run.hardc&opy\ part\ to\ FILENAME\.part\.ps  <C-C>:call Perl_Hardcopy("v")<CR>'
-		exe "imenu          ".s:Perl_Root.'&Run.-SEP5-                                   :'
-		exe "amenu <silent> ".s:Perl_Root.'&Run.s&ettings\ and\ hot\ keys                <C-C>:call Perl_Settings()<CR>'
+		exe "amenu          ".s:Perl_Root.'&Run.-SEP4-                           :'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.run\ perltid&y                   <C-C>:call Perl_Perltidy("n")<CR>'
+		exe "vmenu <silent> ".s:Perl_Root.'&Run.run\ perltid&y                   <C-C>:call Perl_Perltidy("v")<CR>'
+
+		exe "amenu          ".s:Perl_Root.'&Run.-SEP5-                           :'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.&hardcopy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>'
+		exe "vmenu <silent> ".s:Perl_Root.'&Run.&hardcopy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("v")<CR>'
+		exe "amenu          ".s:Perl_Root.'&Run.-SEP6-                           :'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.settings\ and\ hot\ &keys        <C-C>:call Perl_Settings()<CR>'
 		"
+		exe "amenu  <silent>  ".s:Perl_Root.'&Run.x&term\ size                             <C-C>:call Perl_XtermSize()<CR>'
+		if s:Perl_OutputGvim == "vim" 
+			exe "amenu  <silent>  ".s:Perl_Root.'&Run.output:\ VIM->&buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+		else
+			if s:Perl_OutputGvim == "buffer" 
+				exe "amenu  <silent>  ".s:Perl_Root.'&Run.output:\ BUFFER->&xterm->vim        <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+			else
+				exe "amenu  <silent>  ".s:Perl_Root.'&Run.output:\ XTERM->&vim->buffer          <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+			endif
+		endif
 		"
 	endif
 	"
@@ -738,23 +755,22 @@ endfunction			" function Perl_InitMenu
 "
 "
 "------------------------------------------------------------------------------
-"----- variables for internal use ----------------------------------------
+"-----   variables for internal use   -----------------------------------------
 "------------------------------------------------------------------------------
 "
-let s:Perl_CmdLineArgs  = ""          " command line arguments for Run-run; initially empty
-let s:Perl_Active       = -1					" state variable controlling the Perl-menus
+let s:Perl_Active       = -1				" state variable controlling the Perl-menus
 "
 "
 "------------------------------------------------------------------------------
 "  Input after a highlighted prompt
 "------------------------------------------------------------------------------
 function! Perl_Input ( promp, text )
-	echohl Search												" highlight prompt
-	call inputsave()										" preserve typeahead
-	let	retval=input( a:promp, a:text )	" read input
-	call inputrestore()									" restore typeahead
-	echohl None													" reset highlighting
-	return retval
+  echohl Search                       " highlight prompt
+  call inputsave()                    " preserve typeahead
+  let retval=input( a:promp, a:text ) " read input
+  call inputrestore()                 " restore typeahead
+  echohl None                         " reset highlighting
+  return retval
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -938,7 +954,7 @@ endfunction    " ----------  end of function  Perl_CommentTemplates  ----------
 "  Comments : vim modeline
 "------------------------------------------------------------------------------
 function! Perl_CommentVimModeline ()
-  	put = '# vim: set tabstop='.&tabstop.' shiftwidth='.&shiftwidth.': '
+	put = '# vim: set tabstop='.&tabstop.' shiftwidth='.&shiftwidth.': '
 endfunction    " ----------  end of function Perl_CommentVimModeline  ----------
 "
 "------------------------------------------------------------------------------
@@ -1056,7 +1072,7 @@ function! Perl_CodeSnippet(arg1)
 		if a:arg1 == "r"
 			let	l:snippetfile=browse(0,"read a code snippet",s:Perl_CodeSnippets,"")
 			if filereadable(l:snippetfile)
-				let	length= line("$")
+				let	linesread= line("$")
 				"
 				" Prevent the alternate buffer from being set to this files
 				let l:old_cpoptions	= &cpoptions
@@ -1064,9 +1080,9 @@ function! Perl_CodeSnippet(arg1)
 				:execute "read ".l:snippetfile
 				let &cpoptions	= l:old_cpoptions		" restore previous options
 				"
-				let	length= line("$")-length-1
-				if length>=0
-					silent exe "normal =".length."+"
+				let	linesread= line("$")-linesread-1
+				if linesread>=0 && match( l:snippetfile, '\.\(ni\|noindent\)$' ) < 0 
+					silent exe "normal =".linesread."+"
 				endif
 			endif
 		endif
@@ -1241,28 +1257,30 @@ function! Perl_Settings ()
 	let txt = txt." code snippet directory  :  ".s:Perl_CodeSnippets."\n"
 	let txt = txt."     template directory  :  ".s:Perl_Template_Directory."\n"
 	if g:Perl_Dictionary_File != ""
-		let ausgabe= substitute( g:Perl_Dictionary_File, ",", ",\n                         + ", "g" )
-		let txt = txt."      dictionary file(s) :  ".ausgabe."\n"
+		let ausgabe = substitute( g:Perl_Dictionary_File, ",", ",\n                         + ", "g" )
+		let txt     = txt."      dictionary file(s) :  ".ausgabe."\n"
 	endif
-	let txt = txt."                  pager  :  ".s:Perl_Pager."\n\n"
 	let txt = txt."    Additional hot keys\n\n"
 	let txt = txt."               Shift-F1  :  read perldoc (for word under cursor)\n"
 	let txt = txt."                Ctrl-F9  :  update file, run script           \n"
-	let txt = txt."                     F9  :  update file, run script with pager\n"
+	let txt = txt."                     F9  :  start Perl debugger               \n"
 	let txt = txt."                 Alt-F9  :  update file, run syntax check     \n\n"
-	let txt = txt."  command line arguments :  \"".s:Perl_CmdLineArgs."\"  (only Perl scripts)\n\n"
 	let txt = txt."_________________________________________________________________________\n"
 	let	txt = txt." Perl-Support, Version ".g:Perl_Version." / Dr.-Ing. Fritz Mehner / mehner@fh-swf.de\n\n"
 	echo txt
 endfunction
 "
 "------------------------------------------------------------------------------
-"  run : compile
+"  run : syntax check
 "------------------------------------------------------------------------------
+"
+let s:Perl_SyntaxCheckMsg       = ""
+"
 function! Perl_SyntaxCheck ()
+	let s:Perl_SyntaxCheckMsg = ""
 	exe	":cclose"
 	let	l:currentbuffer=bufname("%")
-	exe	":update"
+	silent exe	":update"
 	exe	"set makeprg=perl"
 	" 
 	" match the Perl error messages (quickfix commands)
@@ -1272,36 +1290,80 @@ function! Perl_SyntaxCheck ()
 	" 
 	exe	':setlocal errorformat=%m\ at\ %f\ line\ %l%.%#,%-G%.%#'
 	exe	"make -wc %"
-	exe	":botright cwindow"								
+	exe	":botright cwindow"
 	exe	':setlocal errorformat='
 	exe	"set makeprg=make"
 	"
 	" message in case of success
 	"
 	if l:currentbuffer ==  bufname("%")
-		redraw
-		echohl Search | echo l:currentbuffer." : Syntax is OK" | echohl None
-		nohlsearch						" delete unwanted highlighting (Vim bug?)
+		let s:Perl_SyntaxCheckMsg = l:currentbuffer." : Syntax is OK"
 	endif
 endfunction
+"
+function! Perl_SyntaxCheckMsg ()
+		echohl Search 
+		echo s:Perl_SyntaxCheckMsg
+		echohl None
+endfunction
+"
+"----------------------------------------------------------------------
+"  run : toggle output destination
+"----------------------------------------------------------------------
+function! Perl_Toggle_Gvim_Xterm ()
+	
+	if s:Perl_OutputGvim == "vim"
+		exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.output:\ VIM->&buffer->xterm'
+		exe "amenu    <silent>  ".s:Perl_Root.'&Run.output:\ BUFFER->&xterm->vim              <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+		let	s:Perl_OutputGvim	= "buffer"
+	else
+		if s:Perl_OutputGvim == "buffer"
+			exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.output:\ BUFFER->&xterm->vim'
+			exe "amenu    <silent>  ".s:Perl_Root.'&Run.output:\ XTERM->&vim->buffer             <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+			let	s:Perl_OutputGvim	= "xterm"
+		else
+			" ---------- output : xterm -> gvim
+			exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.output:\ XTERM->&vim->buffer'
+			exe "amenu    <silent>  ".s:Perl_Root.'&Run.output:\ VIM->&buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+			let	s:Perl_OutputGvim	= "vim"
+		endif
+	endif
+
+endfunction    " ----------  end of function Perl_Toggle_Gvim_Xterm  ----------
 "
 "------------------------------------------------------------------------------
 "  run : run
 "------------------------------------------------------------------------------
 "
-let s:Perl_OutputBufferName="Perl-Output"
-let s:Perl_OutputBufferNumber=-1
+let s:Perl_OutputBufferName   = "Perl-Output"
+let s:Perl_OutputBufferNumber = -1
 "
-function! Perl_Run (arg1)
+function! Perl_Run ()
 	"
-	let	l:currentbuffer	= bufname("%")
-	let l:currentdir		= getcwd()
-	silent call Perl_SyntaxCheck()
+	let	l:currentbuffer		= bufname("%")
+	let	l:currentbuffernr	= bufnr("%")
+	let l:currentdir			= getcwd()
+	let	l:arguments				= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
 	"
-	if l:currentbuffer ==  bufname("%")
+	silent exe ":update"
+	"
+	"------------------------------------------------------------------------------
+	"  run : run from the vim command line
+	"------------------------------------------------------------------------------
+	if s:Perl_OutputGvim == "vim"
 		"
-		let l:fullname=l:currentdir."/".l:currentbuffer
-		if a:arg1==0
+		exe "!./%".l:arguments
+		"
+	endif
+	"
+	"------------------------------------------------------------------------------
+	"  run : redirect output to an output buffer
+	"------------------------------------------------------------------------------
+	if s:Perl_OutputGvim == "buffer"
+		if l:currentbuffer ==  bufname("%")
+			"
+			let l:fullname=l:currentdir."/".l:currentbuffer
+			"
 			if bufloaded(s:Perl_OutputBufferName) != 0 && bufwinnr(s:Perl_OutputBufferNumber)!=-1 
 				exe bufwinnr(s:Perl_OutputBufferNumber) . "wincmd w"
 				" buffer number may have changed, e.g. after a 'save as' 
@@ -1319,32 +1381,90 @@ function! Perl_Run (arg1)
 			endif
 			"
 			setlocal	modifiable
-			silent exe ":update | %!".l:fullname." ".s:Perl_CmdLineArgs
+			silent exe ":update | %!".l:fullname.l:arguments
 			setlocal	nomodifiable
 			"
-			" stdout is empty
+			" stdout is empty / not empty
 			"
-
+			normal G
 			if line("$")==1 && col("$")==1
 				silent	exe ":bdelete"
-				echomsg "\"".l:currentbuffer." ".s:Perl_CmdLineArgs."\" run - nothing sent to stdout"
+			else
+				if winheight(winnr()) >= line("$")
+					exe bufwinnr(l:currentbuffernr) . "wincmd w"
+				endif
 			endif
-
-			if v:shell_error != 0
-				echo "\"".l:currentbuffer." ".s:Perl_CmdLineArgs."\" returned ".v:shell_error
-			endif
-			
-		else
-			exe		"update | !".l:fullname." ".s:Perl_CmdLineArgs." | ".s:Perl_Pager
 		endif
 	endif
+	"
+	"------------------------------------------------------------------------------
+	"  run : run in a xterm
+	"------------------------------------------------------------------------------
+	if s:Perl_OutputGvim == "xterm"
+		"
+		let script	= expand("%")
+		silent exe "!xterm -title ".script." ".s:Perl_XtermDefaults." -e $HOME/.vim/plugin/wrapper.sh ./".script.l:arguments.' &'
+		"
+	endif
+	"
+endfunction    " ----------  end of function Perl_Run  ----------
+"
+"------------------------------------------------------------------------------
+"  run : start debugger
+"------------------------------------------------------------------------------
+function! Perl_Debugger ()
+	"
+	silent exe	":update"
+	let	l:arguments				= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
+	"
+	" debugger is ' perl -d ... '
+	"
+	if s:Perl_Debugger == "perl"
+		silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d ./'.expand("%").l:arguments.' &'
+	endif
+	"
+	" debugger is 'ptkdb'
+	"
+	if s:Perl_Debugger == "ptkdb"
+		silent exe '!perl -d:ptkdb  ./'.expand("%").l:arguments.' &'
+	endif
+	"
+	" debugger is 'ddd'
+	"
+	if s:Perl_Debugger == "ddd"
+		silent exe '!ddd ./'.expand("%").l:arguments.' &'
+	endif
+	"
 endfunction
 "
 "------------------------------------------------------------------------------
 "  run : Arguments
 "------------------------------------------------------------------------------
 function! Perl_Arguments ()
-	let	s:Perl_CmdLineArgs= Perl_Input("command line arguments : ",s:Perl_CmdLineArgs)
+	let	prompt	= 'command line arguments for "'.expand("%").'" : '
+	if exists("b:Perl_CmdLineArgs")
+		let	b:Perl_CmdLineArgs= Perl_Input( prompt, b:Perl_CmdLineArgs )
+	else
+		let	b:Perl_CmdLineArgs= Perl_Input( prompt , "" )
+	endif
+endfunction
+"
+"------------------------------------------------------------------------------
+"  run : xterm geometry
+"------------------------------------------------------------------------------
+function! Perl_XtermSize ()
+	let regex	= '-geometry\s\+\d\+x\d\+'
+	let geom	= matchstr( s:Perl_XtermDefaults, regex )
+	let geom	= matchstr( geom, '\d\+x\d\+' )
+	let geom	= substitute( geom, 'x', ' ', "" )
+	let	answer= Perl_Input("   xterm size (COLUMNS LINES) : ", geom )
+	while match(answer, '^\s*\d\+\s\+\d\+\s*$' ) < 0
+		let	answer= Perl_Input(" + xterm size (COLUMNS LINES) : ", geom )
+	endwhile
+	let answer  = substitute( answer, '^\s\+', "", "" )		 				" remove leading whitespaces
+	let answer  = substitute( answer, '\s\+$', "", "" )						" remove trailing whitespaces
+	let answer  = substitute( answer, '\s\+', "x", "" )						" replace inner whitespaces
+	let s:Perl_XtermDefaults	= substitute( s:Perl_XtermDefaults, regex, "-geometry ".answer , "" )
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -1368,15 +1488,46 @@ endfunction
 "------------------------------------------------------------------------------
 function! Perl_POD (arg1)
 	let	filename	= expand("%:r").".".a:arg1
-	silent exe	"update | !pod2".a:arg1." ".expand("%")." > ".filename
+	silent exe	":update"
+	silent exe	":!pod2".a:arg1." ".expand("%")." > ".filename
 	echo  " '".getcwd()."/".filename."' generated"
+endfunction
+"
+"------------------------------------------------------------------------------
+"  run : perltidy
+"------------------------------------------------------------------------------
+function! Perl_Perltidy (arg1)
+	if !executable("perltidy")
+		echohl WarningMsg
+	  echo 'perltidy dos not exist or is not executable!'
+		echohl None
+		return
+	endif
+
+	silent exe	":update"
+	let	Sou		= expand("%")								" name of the file in the current buffer
+	" ----- normal mode ----------------
+	if a:arg1=="n"
+		let	pos1  = line(".")
+		silent exe	"%!perltidy"		
+		exe ':'.pos1
+		echo "file \"".Sou."\" reformatted"
+	endif
+	" ----- visual mode ----------------
+	if a:arg1=="v"
+		let	pos1	= line("'<")
+		let	pos2	= line("'>")
+		silent exe	pos1.",".pos2."!perltidy"
+		echo "file \"".Sou."\" (lines ".pos1."-".pos2.") reformatted"
+	endif
 endfunction
 "
 "------------------------------------------------------------------------------
 "  run : hardcopy
 "------------------------------------------------------------------------------
 function! Perl_Hardcopy (arg1)
-	let	Sou		= expand("%")								" name of the file in the current buffer
+	let target	= bufname("%")=='PERLDOC' ? '$HOME/' : './'
+	let	Sou			= target.expand("%")					" name of the file in the current buffer
 	" ----- normal mode ----------------
 	if a:arg1=="n"
 		silent exe	"hardcopy > ".Sou.".ps"		
@@ -1389,6 +1540,7 @@ function! Perl_Hardcopy (arg1)
 	endif
 endfunction
 "
+
 "------------------------------------------------------------------------------
 "	 Create the load/unload entry in the GVIM tool menu, depending on 
 "	 which script is already loaded
@@ -1474,7 +1626,6 @@ if has("autocmd")
 	" 
 	" =====  Perl POD module : set filetype to Perl  ==================================
 	autocmd BufNewFile,BufRead *.pod  set filetype=perl
-	" 
 	"
 endif " has("autocmd")
 "

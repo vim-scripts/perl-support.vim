@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.3.2) / Nov 05 2004
+README for perl-support.vim (Version 2.4) / Dec 10 2004
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -54,6 +54,23 @@ Restart gVim/Vim and look at the perlsupport help with
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.4
+---------------------------------------------------------------------------------------
++ One of three debuggers can be started with the hotkey F9.
++ Complete file or marked area can be reformatted with perltidy. 
++ Running a perl-script 
+  (1) The script can be run from the command line as usual.
+  (2) The output can be directed into a window with name "Perl-Output". 
+      The buffer and its content will disappear when closing the window. 
+      The buffer is reused when still open.
+  (3) The script can be run in an xterm (adjustable).
++ The new hotkey Shift-F9 and the menu entry "cmd. line arg." set command line
+  arguments for the current buffer (that is, each buffer can have its own arguments).
++ A code snippet with the file name extension "ni" or "noindent" will not be
+  indented on insertion.
++ Bug fixed (POD->Text)
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.3.2
@@ -160,6 +177,7 @@ ftplugin/perl.vim         A filetype plugin. Define hotkeys, create a local
 
 plugin/perl-support.vim   The Perl plugin for Vim/gVim.
 plugin/pmdesc3            Perl script; generates a list of all installed Perl modules
+plugin/wrapper.sh         The wrapper script for the use of an xterm.
 
 plugin/templates/perl-file-header           -+-  Perl template files 
 plugin/templates/perl-frame                  |   (see perlsupport.txt)

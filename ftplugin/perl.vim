@@ -3,7 +3,7 @@
 " Language   :  Perl
 " Plugin     :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  12.10.2004
+" Last Change:  26.11.2004
 "
 " -----------------------------------------------------------------
 "
@@ -31,12 +31,20 @@ endif
 "
  map    <buffer>  <silent>  <S-F1>             :call Perl_perldoc('c')<CR><CR>
 imap    <buffer>  <silent>  <S-F1>        <Esc>:call Perl_perldoc('c')<CR><CR>
- map    <buffer>  <silent>  <A-F9>             :call Perl_SyntaxCheck()<CR><CR>
-imap    <buffer>  <silent>  <A-F9>        <Esc>:call Perl_SyntaxCheck()<CR><CR>
- map    <buffer>  <silent>  <C-F9>             :call Perl_Run(0)<CR>
-imap    <buffer>  <silent>  <C-F9>        <Esc>:call Perl_Run(0)<CR>
- map    <buffer>  <silent>  <F9>               :call Perl_Run(1)<CR>
-imap    <buffer>  <silent>  <F9>          <Esc>:call Perl_Run(1)<CR>
+"
+ map    <buffer>  <silent>  <A-F9>             :call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>
+imap    <buffer>  <silent>  <A-F9>        <Esc>:call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>
+" 
+" <C-C> seems to be essential here:
+"
+ map    <buffer>            <C-F9>        <C-C>:call Perl_Run()<CR>
+imap    <buffer>            <C-F9>   <C-C><C-C>:call Perl_Run()<CR>
+"
+ map    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>
+imap    <buffer>  <silent>    <F9>   <C-C><C-C>:call Perl_Debugger()<CR>
+"
+ map    <buffer>  <silent>  <S-F9>               :call Perl_Arguments()<CR>
+imap    <buffer>  <silent>  <S-F9>          <Esc>:call Perl_Arguments()<CR>
 
 nmap    <buffer>  <silent>  <Leader>cl    A<Tab><Tab><Tab>#<Space>
 vmap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_MultiLineEndComments()<CR>
@@ -110,7 +118,8 @@ nmap    <buffer>  <silent>  <Leader>lw    a[:word:]
 nmap    <buffer>  <silent>  <Leader>lx    a[:xdigit:]
 
 if !has('win32')
-	nmap    <buffer>  <silent>  <Leader>rx    :call Perl_MakeScriptExecutable()<CR>
+  nmap    <buffer>  <silent>  <Leader>re    :call Perl_MakeScriptExecutable()<CR>
 endif
-nmap    <buffer>  <silent>  <Leader>rh    :call Perl_Hardcopy("n")<CR>
+ map    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("n")<CR>
+vmap    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("v")<CR>
 

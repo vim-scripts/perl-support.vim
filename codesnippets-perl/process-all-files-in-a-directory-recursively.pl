@@ -1,25 +1,25 @@
 
 use File::Find;                   # File::Find - Traverse a directory tree
 
-my	@directory_list	= ( '.' );    # directory_list used by File::Find::find()
+my  @directory_list   = ( '.' );  # directory_list used by File::Find::find()
 
-my	$files_processed	= 0;				# counts the files processed by process_file()
+my  $files_processed  = 0;        # counts the files processed by process_file()
 
 #-----------------------------------------------------------------------
 # Process a single file in a directory 
 #-----------------------------------------------------------------------
 sub process_file
 {
-	my	$filename      = $_;                # filename without directory
-	my	$filename_full = $File::Find::name; # filename with    directory
-	my	$directory     = $File::Find::dir;  # directory only
+  my  $filename      = $_;                # filename without directory
+  my  $filename_full = $File::Find::name; # filename with    directory
+  my  $directory     = $File::Find::dir;  # directory only
 
-	# print "$directory  :  $filename  :  $filename_full\n";
+  # print "$directory  :  $filename  :  $filename_full\n";
 
-	$files_processed++;
-	 
-	return ;
-}	# ----------  end of subroutine process_file  ----------
+  $files_processed++;
+   
+  return ;
+} # ----------  end of subroutine process_file  ----------
 
 
 #-----------------------------------------------------------------------

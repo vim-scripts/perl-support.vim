@@ -1,9 +1,10 @@
-*perlsupport.txt*          Perl Support              Last Change: Nov 05 2004
+*perlsupport.txt*          Perl Support              Last Change: Dec 10 2004
 
 Perl Support                                     *perl-support* *perlsupport*
-                           Plugin version 2.3.2
-                      for Vim version 6.0 and above
-                     Fritz Mehner  <mehner@fh-swf.de>
+
+                        Plugin version 2.4
+                  for Vim version 6.0 and above
+                 Fritz Mehner  <mehner@fh-swf.de>
 
 Write and run Perl scripts using menus and key mappings.
 
@@ -26,10 +27,16 @@ Write and run Perl scripts using menus and key mappings.
  1.8    Menu 'POD'                               |perlsupport-pod|
  1.9    Menu 'Run'                               |perlsupport-run|
  1.9.1   Run script                              |perlsupport-run-1|
- 1.9.2   Command line arguments                  |perlsupport-run-2|
- 1.9.3   Read perldoc                            |perlsupport-run-3|
- 1.9.4   Generate Perl module list               |perlsupport-run-4|
- 1.9.5   Show installed Perl modules             |perlsupport-run-5|
+ 1.9.2   Check syntax                            |perlsupport-run-2|
+ 1.9.3   Command line arguments                  |perlsupport-run-3|
+ 1.9.4   Debug                                   |perlsupport-run-4|
+ 1.9.5   Read perldoc                            |perlsupport-run-5|
+ 1.9.6   Generate Perl module list               |perlsupport-run-6|
+ 1.9.7   Show installed Perl modules             |perlsupport-run-7|
+ 1.9.8   Run perltidy                            |perlsupport-run-8|
+ 1.9.9   Hardcopy                                |perlsupport-run-9|
+ 1.9.10  Xterm size                              |perlsupport-run-10|
+ 1.9.11  Output                                  |perlsupport-run-11|
  2.    Usage without GUI                         |perlsupport-usage-vim|      
  3.    Hotkeys                                   |perlsupport-hotkeys|        
  4.    Customization and configuration           |perlsupport-custom|  
@@ -245,6 +252,13 @@ Insert a snippet:
 Select the appropriate file from the snippet directory ("read code snippet").
 The inserted lines will be indented.
 
+Indentation / no indentation
+----------------------------
+Code snippets are normally indented after insertion. To suppress indentation
+add the file extension "ni" or "noindent" to the snippet file name, e.g.
+
+  parameter_handling.pl.noindent
+
 ------------------------------------------------------------------------------
 1.3  MENU 'Idioms'                                        *perlsupport-idioms*
 ------------------------------------------------------------------------------
@@ -332,7 +346,12 @@ opend (but you will see a message).
 There is no file behind the window Perl-Output but the content can be saved 
 with a 'save as'.
 
-1.9.2  COMMAND LINE ARGUMENTS                              *perlsupport-run-2*
+1.9.2  CHECK SYNTAX                                        *perlsupport-run-2*
+-------------------
+The script is run as "perl -wc  xxx.pl" with most warnngs enabled to check the
+syntax. 
+
+1.9.3  COMMAND LINE ARGUMENTS                              *perlsupport-run-3*
 -----------------------------
 
 The entry 'command line arguments' calls an input dialog which asks for
@@ -341,7 +360,32 @@ is run by the 'run' entry. The arguments are kept until you change them.
 The arguments can contain pipes and redirections, e.g.
   " infile.txt | sort -rn > result.txt" 
 
-1.9.3  READ PERLDOC                                        *perlsupport-run-3*
+The arguments belong to the current buffer (that is, each buffer can have its 
+own arguments).
+If the buffer gets a new name with "save as" the arguments will now belong to
+the buffer with the new name.
+
+1.9.4  DEBUG                                               *perlsupport-run-4*
+------------
+Start a debugger with the menu entry Run->degug or with hotkey F9. One of three
+debuggers can be started. The preference can be set with the variable
+g:Perl_Debugger (possible values: 'perl', 'ptkdb', 'ddd' ). The default is
+'perl').
+
+(1) perl 
+The script will be run as 'perl -d my-script.pl my-arguments' in an xterm. 
+
+(2) ptkdb
+The debugger ptkdb will be started as an independent process. ptkdb is a Perl
+debugger using a Tk GUI. The module Devel::ptkdb and the Tk tool kit have to be
+installed.
+
+(3) ddd
+The data display debugger ddd is a graphical front end for GDB. It will be
+started as an independent process.
+ 
+
+1.9.5  READ PERLDOC                                        *perlsupport-run-5*
 -------------------
 
 If a (key-)word is under the cursor the entry 'read perldoc' tries to look up
@@ -352,7 +396,7 @@ a whitespace is under the cursor.  Search order:
  3. FAQs
 
 
-1.9.4  GENERATE PERL MODULE LIST                           *perlsupport-run-4*
+1.9.6  GENERATE PERL MODULE LIST                           *perlsupport-run-6*
 --------------------------------
 
 The entry 'Run -> generate Perl module list' generates a text file 
@@ -373,13 +417,62 @@ The generation may take a while.
 pmdesc3 has a POD included; see file doc/pmdesc3.txt.
 
 
-1.9.5  SHOW INSTALLED PERL MODULES                         *perlsupport-run-5*
+1.9.7  SHOW INSTALLED PERL MODULES                         *perlsupport-run-7*
 ----------------------------------
 
 The entry 'Run -> show installed Perl modules' loads the module list in a new
 window.  The full documentation for that module can be opened in a perldoc
 help window with the hot key <Shift-F1>.
 Looking up help with Shift-F1 works also in the perldoc help window.
+
+1.9.8  RUN PERLTIDY                                        *perlsupport-run-8*
+-------------------
+The buffer can be formatted with perltidy. If nothing is marked the whole
+buffer will be formatted. If a region is marked only this region will be
+formatted.
+Perltidy has a lot of options. It is recommended to use a .perltidyrc command
+file to define the preferred style (see 'man 1 perltidy').
+
+1.9.9  HARDCOPY                                            *perlsupport-run-9*
+---------------
+
+Generates a PostScript file from the whole buffer or from a marked region.
+
+1.9.10 XTERM SIZE                                         *perlsupport-run-10*
+-----------------
+
+The size of the xterm used for debugging (|perlsupport-run-4|) or for running
+the script (below) can be set by this menu entry. The default is 80 columns
+with 24 lines.  
+
+
+1.9.11 OUTPUT                                             *perlsupport-run-11*
+-------------
+
+Running a Perl script can be done in three ways:
+(1) The script can be run from the command line as usual.
+(2) The output can be directed into a window with name "Perl-Output". 
+    The buffer and its content will disappear when the window is closed and 
+    reused otherwise.
+(3) The script can be run in an xterm.
+
+The output method can be chosen with the menu entry 'Run->output: ...'.
+This menu has three states:
+ 
+  output: VIM->buffer->xterm
+  output: BUFFER->xterm->vim
+  output: XTERM->vim->buffer
+
+The first (uppercase) item shows the current method.  The default is 'vim'.
+This can be changed by setting the variable g:Perl_OutputGvim to another value.
+Possible values are 'vim', 'buffer' and 'xterm' .
+
+The xterm defaults can be set in .vimrc by the variable g:Perl_XtermDefaults .
+The default is "-fa courier -fs 12 -geometry 80x24" :
+  font name     : -fa courier
+  font size     : -fs 12
+  terminal size : -geometry 80x24
+See 'xterm -help' for more options.
 
 ==============================================================================
 2.  USAGE WITHOUT GUI  (Vim)                           *perlsupport-usage-vim*
@@ -481,7 +574,7 @@ The following hotkeys are defined in normal, visual and insert mode:
 
    Shift-F1   read perldoc  (for the word under the cursor)
     Ctrl-F9   run script
-         F9   run script with pager
+         F9   start a debugger
      Alt-F9   run syntax check
 
 These hotkeys are defined in the filetype plugin ~/.vim/ftplugin/perl.vim .
@@ -505,6 +598,7 @@ ftplugin/perl.vim         A filetype plugin. Define hotkeys, create a local
 
 plugin/perl-support.vim   The Perl plugin for Vim/gVim.
 plugin/pmdesc3            Perl script; generates a list of all installed Perl modules
+plugin/wrapper.sh         The wrapper script for the use of an xterm.
 
 plugin/templates/perl-file-header           -+-  Perl template files 
 plugin/templates/perl-frame                  |   (see section TEMPLATE FILES below).
@@ -557,7 +651,6 @@ g:Perl_Template_Frame          'perl-frame'
 g:Perl_Template_Function       'perl-function-description'
 
 g:Perl_CodeSnippets            root_dir.'codesnippets-perl/'
-g:Perl_Pager                   'less'
 g:Perl_LoadMenus               'yes'
 g:Perl_Dictionary_File         ''
 g:Perl_Root                    '&Perl.'
@@ -565,6 +658,9 @@ g:Perl_MenuHeader              'yes'
 
 g:Perl_PerlModuleList          root_dir.'plugin/perl-modules.list'
 g:Perl_PerlModuleListGenerator root_dir.'plugin/pmdesc3 -s -t36 > '.s:Perl_PerlModuleList
+g:Perl_OutputGvim              "vim"
+g:Perl_XtermDefaults           "-fa courier -fs 12 -geometry 80x24"
+g:Perl_Debugger                "perl"
 
 The variable root_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
@@ -585,9 +681,6 @@ The variable root_dir will automatically be set to one of the following values:
 2. group: Sets the template directory and the names of the template files (see below).
 
 3. group: g:Perl_CodeSnippets    : The name of the code snippet directory (see below).
-          g:Perl_Pager           : The name of the filter used when the output of a 
-                                   Perl script is run through a filter for paging 
-                                   through text.
           g:Perl_LoadMenus       : Load menus and mappings ("yes", "no") at startup.
           g:Perl_Dictionary_File : Path and filename of the Perl word list used for
                                    dictionary completion (see below).
@@ -597,8 +690,13 @@ The variable root_dir will automatically be set to one of the following values:
 
 4. group: g:Perl_PerlModuleList          : The name of the Perl module list (text file,
                                            see below).
-          g:Perl_PerlModuleListGenerator : The command line which starts the mudul list
+          g:Perl_PerlModuleListGenerator : The command line which starts the modul list
                                            generation.
+          g:Perl_OutputGvim      : when script is running output goes to the vim command
+                                   line ("vim"), to a buffer ("buffer") or to an
+                                   xterm ("xterm").
+          g:Perl_XtermDefaults   : the xterm defaults
+          g:Perl_Debugger        : the debugger called by F9 (perl, ptkdb, ddd).
 
 To override the defaults add appropriate assignments to .vimrc .
 Set at least some personal details into .vimrc by overriding some defaults.
@@ -674,10 +772,10 @@ entries. To enable this feature
 2) add the following lines to $HOME/.vimrc :
 
   "
-  "-------------------------------------------------------------------------------
+  "-----------------------------------------------------------------------------
   " taglist.vim : toggle the taglist window
   " taglist.vim : define the title texts for Perl
-  "-------------------------------------------------------------------------------
+  "-----------------------------------------------------------------------------
    noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
   inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
   
@@ -789,7 +887,7 @@ David Fishburn <fishburn@ianywhere.com> for the implementation of the
 Ryan Hennig <hennig@amazon.com> improved the install script.
 
 Aristotle, http://qs321.pair.com/~monkads/ is the author of the script pmdesc2
-  which is the base of the included script pmdesc3.
+  which is the base of the script pmdesc3.
 
 David Fishhburn contributed changes for the Windows platform and suggested to
   not let enter snippets and templates the list of alternate files.
