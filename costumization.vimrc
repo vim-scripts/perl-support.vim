@@ -3,15 +3,15 @@
 "==========  CUSTOMIZATION (vimrc)  ============================================
 "===============================================================================
 "
-set tabstop=2
-set shiftwidth=2
-set autowrite
 set autoread
-set incsearch
-set visualbell
-set nowrap
-set browsedir=current                    " Which directory to use for the file browser
+set autowrite
 set backupdir=$HOME/.vim.backupdir       " Don't forget to create this directory!
+set browsedir=current                    " Which directory to use for the file browser
+set incsearch
+set nowrap
+set shiftwidth=2
+set tabstop=2
+set visualbell
 "
 "
 "-------------------------------------------------------------------------------
@@ -107,9 +107,7 @@ set printoptions=left:8pc,right:3pc
 highlight Cursor guibg=Blue guifg=NONE
 "
 "-------------------------------------------------------------------------------
-" Insert header into new C/C++-files
 " Insert header into new PERL files
-" Insert header into new Bash files
 "-------------------------------------------------------------------------------
 if has("autocmd")
 	autocmd BufNewFile  *.\(pl\|pm\)         call Perl_CommentTemplates('header')

@@ -1,15 +1,40 @@
-README for perl-support.vim (Version 1.8) / May 31 2003
+README for perl-support.vim (Version 1.9) / 15.07.2003 
+
+
+  *  RELEASE NOTES 
+  *  FILES / INSTALLATION
+  *  CONFIGURATION
+  *  TEMPLATE FILES
+  *  SPEED UP TYPING
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 1.8
+  RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.9
+---------------------------------------------------------------------------------------
+
++ 58 key mappings for Vim without GUI. See perl-hot-keys.pdf (reference card).
+
++ A marked region can be surrounded by a for-, if-, do-while- , until-, ... 
+  statements (with indentation).
+
++ The Perl special variables have been added to the file word.list 
+  for  dictionary completion.
+
++ Vim doc added (file perlsupport.txt).
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.8
+---------------------------------------------------------------------------------------
 
 + Tag substitution rewritten (Some characters in a substitution text for a tag 
   prevented the tag from being substituted).
 
-=======================================================================================
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 1.7
-=======================================================================================
+---------------------------------------------------------------------------------------
 
 + Block comments are now read as templates or skeletons from files:
     frame Comment,  function description,  file header
@@ -27,14 +52,16 @@ README for perl-support.vim (Version 1.8) / May 31 2003
 
 
 =======================================================================================
-  FILES
+  FILES / INSTALLATION
 =======================================================================================
 
 README                                    this file
 
-perl-support.vim                          The Perl plugin for GVIM.
+perl-support.vim                          The Perl plugin for Vim/gVim.
                                           Copy this file to your local plugin directory:
+                                          
                                              $HOME/.vim/plugin/perl-support.vim
+
                                           Some configuration is needed (your name,
                                           Email, ... ; see section CONFIGURATION below).
 
@@ -43,7 +70,25 @@ templates/perl-file-header           -+-  Perl template files
 templates/perl-frame                  |   (see section TEMPLATE FILES below).
 templates/perl-function-description  _+
 
+doc/perlsupport.txt                       The help file.
+                                          Copy this file to your local Vim documentation
+                                          directory:
+                                          
+                                             $HOME/.vim/doc/perlsupport.txt
+                                          
+                                          Generate the local tags file with the following
+                                          command:
 
+                                             :helptags ~/.vim/doc
+
+                                          You can see an entry for the local help file 
+                                          when you do:
+
+                                             :help local-additions
+
+perl-hot-keys.pdf                         Reference card for the key mappings. 
+                                          The mappings can be used with the non-GUI Vim, 
+                                          because the menus are not available.
 
 -----------------------   -------------------------------------------------------------
                           The following files and extensions are for convenience only.
@@ -67,9 +112,9 @@ word.list                 A file with words used as dictionary for automatic wor
   CONFIGURATION
 =======================================================================================
 
-The file perl-support.vim contains the following configuration section. Use my configuration as
-an example and change what has to be changed in the file  perl-support.vim . The template files
-are described in the next section.
+The file perl-support.vim contains the following configuration section. Use my
+configuration as an example and change what has to be changed in the file
+perl-support.vim . The template files are described in the next section.
 
   "###############################################################################################
   "
@@ -92,7 +137,7 @@ are described in the next section.
   let s:Perl_CopyrightHolder = ""
   let s:Perl_CopyrightYears  = ""
   "
-  let s:Perl_ShowMenues      = "no"      " show menues immediately after loading this plugin (yes/no)
+  let s:Perl_ShowMenues      = "yes"      " show menues immediately after loading this plugin (yes/no)
   "
   "
   " The menu entries for code snippet support will not appear if the following string is empty 
@@ -130,19 +175,19 @@ are described in the next section.
 
 The comments which will be inserted by these menus entries are read from files:
 
-    +------------------------+----------------------------+-----------------------------+
-    |  menu entry            |  global variable           |  file (distribution set)    |
-    +------------------------+----------------------------+-----------------------------+
-    |  File Header           |  s:Perl_Template_File      |  perl-file-header           |
-    |  Frame Comment         |  s:Perl_Template_Frame     |  perl-frame                 |
-    |  Function Description  |  s:Perl_Template_Function  |  perl-function-description  |
-    +------------------------+----------------------------------------------------------+
++----------------------+--------------------------+---------------------------+
+| menu entry           | global variable          | file (distribution set)   |
++----------------------+--------------------------+---------------------------+
+| File Header          | s:Perl_Template_File     | perl-file-header          |
+| Frame Comment        | s:Perl_Template_Frame    | perl-frame                |
+| Function Description | s:Perl_Template_Function | perl-function-description |
++----------------------+------------------------------------------------------+
 
 The template files can be written or changed by the user to fulfill special
-requirements (layout for a project or workgroup already exists, file headers / blocks
-have to be prepared for a documentation tool, ... ).
-They can hold not only comments but a complete file skeleton if this is necessary.
-So you may want to lay out your own templates.
+requirements (layout for a project or workgroup already exists, file headers /
+blocks have to be prepared for a documentation tool, ... ).  They can hold not
+only comments but a complete file skeleton if this is necessary.  So you may
+want to lay out your own templates.
 
 The comments in these files do not have to be personalized but they can be.
 The text can contain the following tags which are replaced by the appropriate
@@ -179,12 +224,12 @@ The template files can actually be links pointing to existing templates.
 
 (2) gvim. Use tear off menus and
 
-(3) try 'Focus under mouse' as window behavior (No mouse click when the mouse pointer 
-    is back from the menu entry).
+(3) try 'Focus under mouse' as window behavior (No mouse click when the mouse
+    pointer is back from the menu entry).
 
-(4) Use Emulate3Buttons "on" (X11) even for a 3-button mouse. Pressing left and right
-    button at the same time without moving your fingers is faster then moving a finger
-    to the middle button (often a wheel).
+(4) Use Emulate3Buttons "on" (X11) even for a 3-button mouse. Pressing left and
+    right button at the same time without moving your fingers is faster then 
+    moving a finger to the middle button (often a wheel).
 
 =======================================================================================
 

@@ -1,0 +1,298 @@
+*perlsupport.txt*          Perl Support             Last Change: 15 July 2003
+
+Perl Support                                     *perl-support* *perlsupport*
+                            Plugin version 1.9
+                      for Vim version 6.0 and above
+                     Fritz Mehner  <mehner@fh-swf.de>
+
+Write and run Perl scripts using menus and hot keys (key mappings).
+
+|perlsupport-usage-gvim|     Usage with GUI 
+|perlsupport-usage-vim|      Usage without GUI
+|perlsupport-customization|  Customization an configuration
+|perlsupport-template-files| The Perl template files
+|perlsupport-release-notes|  Release Notes
+|perlsupport-credits|        Credits
+|add-local-help|             How to add this help file to vim's help
+
+
+==============================================================================
+USAGE with GUI  (gVim)                                *perlsupport-usage-gvim*
+==============================================================================
+
+If the menus are not visible call them with the entry "Load Perl Support"
+in the standard Tools-menu.
+
+
+Menu 'P-Comments'
+------------------
+Frame comments, file header comments and function descriptions are read as
+templates from the appropriate files (see |perlsupport-customization|).
+
+'code-comment' and 'comment->code' is for commenting/uncommenting 
+visually selected blocks.
+
+Menu 'P-Statements'
+--------------------
+Normal mode, insert mode: 
+The statements will be inserted below the current line.
+Visual mode:
+The highlighted area (complete lines) will be surrounded by a statement.
+
+Menu 'P-Idioms'
+--------------------
+All declarations beginning with 'my' and the multiline statements (subroutine,
+open input file / output file / pipe) will be inserted as a new line(s) below 
+the current one.
+Everything else will be inserted at the cursor position. 
+
+
+==============================================================================
+USAGE without GUI  (Vim)                              *perlsupport-usage-vim*
+==============================================================================
+
+The frequently used constructs can be inserted with key mappings:
+
+  -- Load / Unload Perl Support ------------
+
+  \lps    Load Perl Support    (The key mappings below are defined)
+  \ups    Unload Perl Support  (The key mappings below are undefined.)
+
+  -- Comments ------------------------------
+
+  \cl     Line End Comment             
+  \cf     Frame Comment                
+  \cu     Function Description         
+  \ch     File Header                  
+  \ckb    Keyword comment BUG          
+  \ckt    Keyword comment TODO         
+  \ckr    Keyword comment TRICKY       
+  \ckw    Keyword comment WARNING      
+  \ckn    Keyword comment New_Keyword  
+  \cc     code to comment              
+  \co     comment to code              
+  \cd     Date                         
+  \ct     Date & Time                  
+  \cv     vim modeline                 
+                                     
+  -- Statements ----------------------------
+
+  \ad     do { } while                 
+  \af     for { }                      
+  \ao     foreach { }                  
+  \ai     if { }                           
+  \ae     if { } else { }                  
+  \au     unless { }                       
+  \an     unless { } else { }              
+  \at     until { }                        
+  \aw     while { }                        
+
+  -- Idioms --------------------------------
+
+  \dm     my $;             
+  \dy     my $ = ;          
+  \d,     my ( $, $ );      
+  \d1     my @;             
+  \d2     my @ = (,,);      
+  \d3     my %;             
+  \d4     my % = (=>,=>,);  
+  \d5     my $regex_ = '';  
+  \d6     my $regex_ = qr//;
+  \d7     $ =~ m//          
+  \d8     $ =~ s///         
+  \d9     $ =~ tr///        
+  \dp     print "...\n";    
+  \df     printf ("...\n"); 
+  \ds     subroutine        
+  \di     open input file   
+  \do     open output file  
+  \de     open pipe         
+
+  -- POSIX Character Classes ---------------
+
+  \la     [:alnum:] 
+  \lh     [:alpha:] 
+  \li     [:ascii:] 
+  \lc     [:cntrl:] 
+  \ld     [:digit:] 
+  \lg     [:graph:] 
+  \ll     [:lower:] 
+  \lp     [:print:] 
+  \ln     [:punct:] 
+  \ls     [:space:] 
+  \lu     [:upper:] 
+  \lw     [:word:]   
+  \lx     [:xdigit:]
+
+  -- Run -----------------------------------
+
+  \rx     make script executable
+  \rh     hardcopy buffer to FILENAME.ps
+
+
+File perl-hot-keys.pdf contains a reference card for these key mappings.
+
+==============================================================================
+CUSTOMIZATION                                      *perlsupport-customization*
+==============================================================================
+
+The file perl-support.vim contains the following configuration section. Use my
+configuration as an example and change what has to be changed in the file
+perl-support.vim . The template files are described in the next section.
+
+  "###############################################################################################
+  "
+  "  Configuration  (use my configuration as an example)
+  "
+  "-------------------------------------------------------------------------------------------
+  "
+  "
+  "------------------------------------------------------------------------------------------
+  "   plugin variable          value                                     tag
+  "------------------------------------------------------------------------------------------
+  let s:Perl_AuthorName      = "Dr.-Ing. Fritz Mehner"                " |AUTHOR|
+  let s:Perl_AuthorRef       = "Mn"                                    " |AUTHORREF|
+  let s:Perl_Email           = "mehner@fh-swf.de"                      " |EMAIL|
+  let s:Perl_Company         = "FH Südwestfalen, Iserlohn"             " |COMPANY|   
+  let s:Perl_Project         = ""                                      " |PROJECT|
+  let s:Perl_CopyrightHolder = ""                                      " |COPYRIGHTHOLDER|
+  "
+  "
+  "  Copyright information. If the code has been developed over a period of years, 
+  "  each year must be stated. In a template file use a fixed year in the first position :
+  "  
+  "    '#     Copyright (C) 1998-|YEAR|  |COPYRIGHTHOLDER|'
+  "
+  "
+  let s:Perl_ShowMenues      = "yes"      " show menues immediately after loading this plugin (yes/no)
+  "
+  "
+  " The menu entries for code snippet support will not appear if the following string is empty 
+  " (Do not forget to create the directory if you want to use code snippets)
+  "
+  let s:Perl_CodeSnippets    = $HOME."/.vim/codesnippets-perl"   " Perl code snippets
+  "                                       
+  " The menu entrie 'run with pager' will not appear if the following string is empty 
+  "
+  let s:Perl_Pager           = "less"          " pager
+  "
+  "  
+  let s:Perl_Template_Directory    = $HOME."/.vim/plugin/templates/"
+  "                           
+  "                             ----- Perl template files ---- ( 1. set of templates ) ----
+  "                             
+  let s:Perl_Template_File         = "perl-file-header"
+  let s:Perl_Template_Frame        = "perl-frame"
+  let s:Perl_Template_Function     = "perl-function-description"
+  "
+  "-------------------------------------------------------------------------------------------
+  "  End of the configuration section
+  "###############################################################################################
+
+
+==============================================================================
+Template files                                    *perlsupport-template-files*
+==============================================================================
+
+3 menu entries generate block comments:
+
+    Frame Comment
+    Function Description
+    File Header
+
+The comments which will be inserted by these menus entries are read from files:
+
++----------------------+--------------------------+---------------------------+
+| menu entry           | global variable          | file (distribution set)   |
++----------------------+--------------------------+---------------------------+
+| File Header          | s:Perl_Template_File     | perl-file-header          |
+| Frame Comment        | s:Perl_Template_Frame    | perl-frame                |
+| Function Description | s:Perl_Template_Function | perl-function-description |
++----------------------+------------------------------------------------------+
+
+The template files can be written or changed by the user to fulfill special
+requirements (layout for a project or workgroup already exists, file headers /
+blocks have to be prepared for a documentation tool, ... ).  They can hold not
+only comments but a complete file skeleton if this is necessary.  So you may
+want to lay out your own templates.
+
+The comments in these files do not have to be personalized but they can be.
+The text can contain the following tags which are replaced by the appropriate
+information when the file is read in:
+
+    |AUTHOR|
+    |DATE|
+    |EMAIL|
+    |FILENAME|
+    |YEAR|
+
+    |AUTHORREF|
+    |COMPANY|
+    |COPYRIGHTHOLDER|
+    |PROJECT|
+    |TIME|
+
+    |CURSOR|
+
+Each tag can occur more than once. The tag |CURSOR| may appear only once.
+The tag |CURSOR| will be the cursor position after the block is read in.
+There is no need to use any of these tags, some or all can be missing.
+
+The template files can actually be links pointing to existing templates.
+
+
+
+==============================================================================
+Release Notes                                      *perlsupport-release-notes*
+==============================================================================
+  
+-------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.9
+-------------------------------------------------------------------------------
+
++ 58 key mappings for Vim without GUI. See perl-hot-keys.pdf (reference card).
+
++ A marked region can be surrounded by a for-, if, select- while- or until 
+  statement (with indentation).
+
++ The Perl special variables have been added to the file word.list 
+  for  dictionary completion.
+
++ Vim doc added (this file).
+
+-------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.8
+-------------------------------------------------------------------------------
+
++ Tag substitution rewritten (Some characters in a substitution text for a tag 
+  prevented the tag from being substituted).
+
+-------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.7
+-------------------------------------------------------------------------------
++ Block comments are now read as templates or skeletons from files:
+    frame Comment,  function description,  file header
+
++ These templates can contain tags like |FILENAME|, |AUTHOR| etc. which are
+  replaced after reading.
+
++ indentation: multiline inserts and code snippets will be indented after 
+  insertion.
+
++ Most menu entries are now also active in normal mode.
+
++ Reading the templates is done in one function which can be called in 
+  an autocmd.
+
++ Code cleanup: register z no longer used. Most function calls are silent now.
+
+
+
+==============================================================================
+CREDITS                                                  *perlsupport-credits*
+==============================================================================
+
+The errorformat is taken from the script perl.vim created by Lukas Zapletal 
+
+==============================================================================
+vim:tw=78:noet:ts=2:ft=help:norl:
