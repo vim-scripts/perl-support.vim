@@ -1,7 +1,7 @@
-*perlsupport.txt*          Perl Support            Last Change: June 26 2004
+*perlsupport.txt*          Perl Support              Last Change: Oct 04 2004
 
 Perl Support                                     *perl-support* *perlsupport*
-                            Plugin version 2.1
+                            Plugin version 2.2
                       for Vim version 6.0 and above
                      Fritz Mehner  <mehner@fh-swf.de>
 
@@ -71,15 +71,17 @@ Marking the 3 lines
 
 my  $x11       = 11;
 my  $x1111     = 1111;
+
 my  $x11111111 = 11111111;
 
 and choosing 'Line End Comm.' will yield 
 
 my  $x11       = 11;        # |
 my  $x1111     = 1111;      # 
+
 my  $x11111111 = 11111111;  # 
 
-The cursor position is marked by | .
+The cursor position is marked by | . Empty lines will be ignored.
 
 
 1.1.2 CODE TO COMMENT                                     *perlsupport-comm-2*
@@ -607,11 +609,11 @@ courses.
 The plugin taglist.vim (Author: Yegappan Lakshmanan) is a source code browser
 plugin for Vim and provides an overview of the structure of source code files
 and allows you to efficiently browse through source code files for different
-programming languages. It is based on  ctags.
+programming languages. It is based on  ctags (Exuberant Ctags, Darren Hiebert,
+http://ctags.sourceforge.net).  
 The file rc/customization.ctags is an extension for the configuration file of
-ctags (generates tag files for source code, see http://ctags.sourceforge.net).
-If appended to $HOME/.ctags (the initialization file for ctags) taglist can
-show the structure of the included POD as an table of content.
+ctags.  If appended to $HOME/.ctags (the initialization file for ctags)
+taglist can show the structure of the included POD as an table of content.
 
 The taglist navigation window for the module Eliza.pm starts like this:
 
@@ -642,19 +644,27 @@ The taglist navigation window for the module Eliza.pm starts like this:
           . . .
 
 Now you can navigate through the embedded POD with a mouse click on these
-entries. 
+entries. To enable this feature 
 
-To enable this feature 
+1) append rc/customization.ctags to $HOME/.ctags (or create this file)
 
- (1) append rc/customization.ctags to $HOME/.ctags (or create this file)
- (2) add the following lines to $HOME/.vimrc (for convenience) :
- 
-       nnoremap <silent> <F11> :Tlist<CR>
-       let tlist_perl_settings='perl;p:packages;s:subroutines;d:POD'
- 
- (3) restart vim/gvim
+2) add the following lines to $HOME/.vimrc :
 
-The hotkey F11 now toggles the taglist window.
+  "
+  "-------------------------------------------------------------------------------
+  " taglist.vim : toggle the taglist window
+  " taglist.vim : define the title texts for Perl
+  "-------------------------------------------------------------------------------
+   noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
+  inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
+  
+  let tlist_perl_settings='perl;p:packages;s:subroutines;d:POD'
+
+3) restart vim/gvim
+
+The two maps will toggle the taglist window (hotkey F11) in all editing modes.
+The assignment defines the headings for the Perl sections in the taglist window.  
+
 
 ==============================================================================
 5.  TEMPLATE FILES AND TAGS                            *perlsupport-tempfiles*
@@ -727,9 +737,12 @@ completion.  This feature is enabled by default. The default word list is
 
 If you want to use an additional list MyPerl.List put the following line into  .vimrc :
 
-  let g:Perl_Dictionary_File   = "$HOME/.vim/wordlists/perl.list,$HOME/.vim/wordlists/MyPerl.List"
+  let g:Perl_Dictionary_File   =  "$HOME/.vim/wordlists/perl.list,".
+                              \   "$HOME/.vim/wordlists/MyPerl.List"
 
-The right side is a comma separated list of files.
+The right side is a comma separated list of files. Note the point at the end
+of the first line (string concatenation) and the backslash in front of the 
+second line (continuation line). 
 You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
 
 
@@ -737,75 +750,7 @@ You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
 7.  RELEASE NOTES                                  *perlsupport-release-notes*
 ==============================================================================
   
----------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 2.1
----------------------------------------------------------------------------------------
-+ Installation simplified (just expand the zip-archive). 
-+ The generation of the module list is a magnitude faster.
-+ The version of a module is now shown in the module list. 
-+ The perl documentation (pod::perl*) appears in the module list.
-+ The dialog windows (GUI) have been replaced by more flexible command line inputs.
-+ User will now be asked before a snippet file will be overwritten.
-+ The undocumented and unnecessary hot key F12 has been removed.
-
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 2.0
-------------------------------------------------------------------------------
-+ New menu for regex-construction.
-+ New menu with POD items.
-+ A list of all installed Perl modules can be built and read in. 
-  The documentation for a module can be opened from this list.
-+ Extension to ctags+taglist shows POD table of content and enables navigation.
-+ Append aligned comments to all lines of a marked block.
-+ The root menu can be removed (default is not removed).
-+ Documentation improved.
-+ Bug fix (template file handling).
-+ Install script improved.
-
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 1.9.3
-------------------------------------------------------------------------------
-+ Documentation improved.
-+ Bug fix (template file handling)
-
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 1.9.2
-------------------------------------------------------------------------------
-+ Only one entry in the gVim root menu.
-+ All hotkeys are only defined for Perl files.
-+ Install script added.
-+ Customization improved. 
-+ Documentation improved.
-
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 1.9
-------------------------------------------------------------------------------
-+ 58 key mappings for Vim without GUI. See perl-hot-keys.pdf (reference card).
-+ A marked region can be surrounded by a for-, if-, do-while- , until-, ... 
-  statements (with indentation).
-+ The Perl special variables have been added to the file word.list 
-  for  dictionary completion.
-+ Vim doc added (file perlsupport.txt).
-
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 1.8
-------------------------------------------------------------------------------
-+ Tag substitution rewritten (Some characters in a substitution text for a tag 
-  prevented the tag from being substituted).
-
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 1.7
-------------------------------------------------------------------------------
-+ Block comments are now read as templates or skeletons from files:
-    frame Comment,  function description,  file header
-+ These templates can contain tags like |FILENAME|, |AUTHOR| etc. which are 
-  replaced  after reading.
-+ indentation: multiline inserts and code snippets will be indented after 
-  insertion.
-+ Most menu entries are now also active in normal mode.
-+ Reading the templates is done in one function which can be called in 
-  an autocmd.
-+ Code cleanup: register z no longer used. Most function calls are silent now.
+See file README.perlsupport .
 
 ==============================================================================
 8.  CREDITS                                              *perlsupport-credits*
@@ -821,6 +766,8 @@ Ryan Hennig <hennig@amazon.com> improved the install script.
 
 Aristotle, http://qs321.pair.com/~monkads/ is the author of the script pmdesc2
   which is the base of the included script pmdesc3.
+
+David Fishhburn contributed changes for the Windows plattform.
 
 ==============================================================================
 vim:tw=78:noet:ts=2:ft=help:norl:

@@ -3,7 +3,7 @@
 " Language   :  Perl
 " Plugin     :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  01.02.2004
+" Last Change:  04.10.2004
 "
 " -----------------------------------------------------------------
 "
@@ -108,6 +108,8 @@ nmap    <buffer>  <silent>  <Leader>ls    a[:space:]
 nmap    <buffer>  <silent>  <Leader>lu    a[:upper:]
 nmap    <buffer>  <silent>  <Leader>lw    a[:word:]
 nmap    <buffer>  <silent>  <Leader>lx    a[:xdigit:]
-nmap    <buffer>  <silent>  <Leader>rx    :!chmod -c u+x %<CR>
+if !has('win32')
+	nmap    <buffer>  <silent>  <Leader>rx    :!chmod -c u+x %<CR>
+endif
 nmap    <buffer>  <silent>  <Leader>rh    :call Perl_Hardcopy("n")<CR>
 

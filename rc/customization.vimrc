@@ -109,34 +109,6 @@ set printoptions=left:8pc,right:3pc
 
 highlight Cursor guibg=Blue guifg=NONE
 
-
-"-------------------------------------------------------------------------------
-" perl-support.vim
-"-------------------------------------------------------------------------------
-
-let g:Perl_AuthorName      = ""     
-let g:Perl_AuthorRef       = ""                         
-let g:Perl_Email           = ""            
-let g:Perl_Company         = ""    
-let g:Perl_Project         = ""
-let g:Perl_CopyrightHolder = ""
-
-let g:Perl_Dictionary_File =$HOME."/.vim/wordlists/perl.list"
-
-" ----------  Insert header into new PERL files  ----------
-if has("autocmd")
-	" 
-	" =====  Perl-script : insert header, write file, make it executable  =============
-	autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | :!chmod -c u+x %
-	" 
-	" =====  Perl module : insert hedaer, write file  =================================
-	autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!
-	" 
-	" =====  Perl POD module : set filetype to Perl  ==================================
-	autocmd BufNewFile,BufRead *.pod  set filetype=perl
-	"
-endif " has("autocmd")
-
 "
 "-------------------------------------------------------------------------------
 " taglist.vim : toggle the taglist window

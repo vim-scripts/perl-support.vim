@@ -21,9 +21,9 @@
 "
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
-let s:Perl_Version = "2.1"            " version number of this script; do not change
+let s:Perl_Version = "2.2"            " version number of this script; do not change
 "
-"       Revision:  26.06.2004
+"       Revision:  04.10.2004
 "        Created:  09.07.2001 - 12:21:33
 "
 "        License:  This program is free software; you can redistribute it and/or modify
@@ -36,10 +36,7 @@ let s:Perl_Version = "2.1"            " version number of this script; do not ch
 "                  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 "                  GNU General Public License for more details.
 "
-"        Credits:  Lukas Zapletal for the errorformat (taken from the script perl.vim).
-"                  David Fishburn <fishburn@ianywhere.com> for the implementation of the 
-"                  single root menu and several suggestions for improving the customization
-"                  and the documentation.
+"        Credits:  see perlsupport.txt
 "        
 "###############################################################################################
 "
@@ -50,8 +47,14 @@ let s:Perl_Version = "2.1"            " version number of this script; do not ch
 "  Key word completion is enabled by the filetype plugin 'perl.vim'
 "  g:Perl_Dictionary_File  must be global
 "          
+if has('win32')
+	let root_dir	= $VIM.'/vimfiles/'			" Windows
+else
+	let root_dir	= $HOME.'/.vim/'				" Linux/Unix
+endif
+"          
 if !exists("g:Perl_Dictionary_File")
-	let g:Perl_Dictionary_File       = $HOME.'/.vim/wordlists/perl.list'
+	let g:Perl_Dictionary_File       = root_dir.'wordlists/perl.list'
 endif
 "
 "  Modul global variables (with default values) which can be overridden.
@@ -65,17 +68,17 @@ let s:Perl_CopyrightHolder         = ''
 
 let s:Perl_Root                    = '&Perl.'
 let s:Perl_LoadMenus               = 'yes'
-let s:Perl_CodeSnippets            = $HOME.'/.vim/codesnippets-perl/'
-let s:Perl_Doc_Directory           = $HOME.'/.vim/doc/'
-let s:Perl_Template_Directory      = $HOME.'/.vim/plugin/templates/'
+let s:Perl_CodeSnippets            = root_dir.'codesnippets-perl/'
+let s:Perl_Doc_Directory           = root_dir.'doc/'
+let s:Perl_Template_Directory      = root_dir.'plugin/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
 let s:Perl_Template_Frame          = 'perl-frame'
 let s:Perl_Template_Function       = 'perl-function-description'
 let s:Perl_Pager                   = 'less'
 let s:Perl_MenuHeader              = 'yes'
-let	s:Perl_PerlModuleList          = $HOME.'/.vim/plugin/perl-modules.list'
-let	s:Perl_PerlModuleListGenerator = $HOME.'/.vim/plugin/pmdesc3 -s -t36 > '.s:Perl_PerlModuleList
+let	s:Perl_PerlModuleList          = root_dir.'plugin/perl-modules.list'
+let	s:Perl_PerlModuleListGenerator = root_dir.'plugin/pmdesc3 -s -t36 > '.s:Perl_PerlModuleList
 "
 "------------------------------------------------------------------------------
 "
@@ -714,7 +717,9 @@ function!	Perl_InitMenu ()
 		"
 		"   set execution rights for user only ( user may be root ! )
 		"
-		exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ e&xecutable                <C-C>:!chmod -c u+x %<CR>'
+		if !has('win32')
+			exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ e&xecutable                <C-C>:!chmod -c u+x %<CR>'
+		endif
 		exe "amenu <silent> ".s:Perl_Root.'&Run.command\ line\ &arguments                <C-C>:call Perl_Arguments()<CR>'
 		exe "amenu          ".s:Perl_Root.'&Run.-SEP2-      		              	         :'
 
@@ -760,14 +765,16 @@ endfunction
 "  Comments : multi line-end comments
 "------------------------------------------------------------------------------
 function! Perl_MultiLineEndComments ()
+	let pos0	= line("'<")
+	let pos1	= line("'>")
 	" ----- trim whitespaces -----
 	exe "'<,'>s/\s\*$//"
 	" ----- find the longest line -----
 	let	maxlength		= 0
-	let	linenumber	= line("'<")
+	let	linenumber	= pos0
 	normal '<
-	while linenumber <= line("'>")
-		if maxlength<virtcol("$")
+	while linenumber <= pos1
+		if  getline(".") !~ "^\\s*$"  && maxlength<virtcol("$")
 			let maxlength= virtcol("$")
 		endif
 		let linenumber=linenumber+1
@@ -776,19 +783,21 @@ function! Perl_MultiLineEndComments ()
 	let	maxlength	= maxlength-1
 	let	maxlength	= ((maxlength + &tabstop)/&tabstop)*&tabstop
 	" ----- fill lines with tabs -----
-	let	linenumber	= line("'<")
+	let	linenumber	= pos0
 	normal '<
-	while linenumber <= line("'>")
-		let ll		= virtcol("$")-1
-		let diff	= (maxlength-ll)/&tabstop
-		if ll%(&tabstop)!=0
-			let diff	= diff + 1
+	while linenumber <= pos1
+		if getline(".") !~ "^\\s*$"
+			let ll		= virtcol("$")-1
+			let diff	= (maxlength-ll)/&tabstop
+			if ll%(&tabstop)!=0
+				let diff	= diff + 1
+			endif
+			while diff>0
+				exe "normal	$A	"
+				let diff=diff-1
+			endwhile
+			exe "normal	$a# "
 		endif
-		while diff>0
-			exe "normal	$A	"
-			let diff=diff-1
-		endwhile
-		exe "normal	$a# "
 		let linenumber=linenumber+1
 		normal j
 	endwhile
@@ -1244,11 +1253,19 @@ function! Perl_Run (arg1)
 	let	l:currentbuffer=bufname("%")
 	call Perl_SyntaxCheck()
 	if l:currentbuffer ==  bufname("%")
-		if a:arg1==0
-			exe		"update | !./% ".s:Perl_CmdLineArgs
-		else
-			exe		"update | !./% ".s:Perl_CmdLineArgs." | ".s:Perl_Pager
-		endif
+		if has("unix")
+			if a:arg1==0
+				exe		"update | !./% ".s:Perl_CmdLineArgs
+			else
+				exe		"update | !./% ".s:Perl_CmdLineArgs." | ".s:Perl_Pager
+			endif
+		else " needed for Windows
+			if a:arg1==0
+				exe		"update | !  % ".s:Perl_CmdLineArgs
+			else
+				exe		"update | !  % ".s:Perl_CmdLineArgs." | ".s:Perl_Pager
+			endif
+		endif	
 	endif
 endfunction
 "
@@ -1287,7 +1304,8 @@ endfunction
 "  Look for a new perlsupport help file
 "------------------------------------------------------------------------------
 function! Perl_CheckNewDoc ()
-	if getftime( s:Perl_Doc_Directory.'perlsupport.txt' ) > getftime( s:Perl_Doc_Directory.'tags' )
+	if	getftime( s:Perl_Doc_Directory.'perlsupport.txt' ) > 
+		\	getftime( s:Perl_Doc_Directory.'tags' )
 		silent exe 'helptags '.s:Perl_Doc_Directory
 	endif
 endfunction
@@ -1366,7 +1384,11 @@ endif
 if has("autocmd")
 	" 
 	" =====  Perl-script : insert header, write file, make it executable  =============
-	autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | :!chmod -c u+x %
+	if has('win32')
+		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! 
+	else
+		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | :!chmod -c u+x %
+	endif
 	" 
 	" =====  Perl module : insert hedaer, write file  =================================
 	autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!
@@ -1377,14 +1399,14 @@ if has("autocmd")
 endif " has("autocmd")
 "
 "------------------------------------------------------------------------------
-"  Look for a new perlsupport help file
-"------------------------------------------------------------------------------
-silent call Perl_CheckNewDoc()
-"
-"------------------------------------------------------------------------------
 "  Key mappings : show / hide the perl-support menus
 "------------------------------------------------------------------------------
 nmap    <silent>  <Leader>lps             :call Perl_Handle()<CR>
 nmap    <silent>  <Leader>ups             :call Perl_Handle()<CR>
+"
+"------------------------------------------------------------------------------
+"  Look for a new perlsupport help file
+"------------------------------------------------------------------------------
+"call Perl_CheckNewDoc()
 "
 " vim:set tabstop=2: 
