@@ -1,0 +1,4 @@
+--maximum-line-length=96
+--opening-brace-on-new-line
+--nospace-for-semicolon
+--indent-columns=2

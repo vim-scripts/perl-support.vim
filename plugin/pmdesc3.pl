@@ -17,12 +17,15 @@
 #                29.01.2005 
 #                - Look for a description in the DESCRIPTION section if no
 #                  NAME section is found.
+#                16.04.2005
+#                - Adaption for MS Windows.
+#         TODO:  Replace UNIX sort pipe.
 #                 
 #===================================================================================
 
 package pmdesc3;
 
-$VERSION=1.2.1;                   # update POD at the end of this file
+$VERSION=1.2.2;                   # update POD at the end of this file
 
 require 5.6.1;
 
@@ -46,7 +49,7 @@ sub usage {
   print <<EOT;
 Usage:   pmdesc3 [-h] [-s] [-t ddd] [-v dd] [--] [dir [dir [dir [...]]]]
 Options:  -h         print this message
-          -s         sort output
+          -s         sort output (not under Windows)
           -t ddd     name column has width ddd (1-3 digits); default 36
           -v  dd     version column has width ddd (1-3 digits); default 10
           If no directories given, searches:
@@ -163,6 +166,7 @@ $options{v} = "10" unless $options{v};
 #  option -s  :  install an output filter to sort the module list
 #---------------------------------------------------------------------------
 if ($options{s}) {
+	usage() if $^O eq "MSWin32";
   if (open(ME, "-|")) {
     $/ = "";
     while (<ME>) {
@@ -176,56 +180,112 @@ if ($options{s}) {
 #---------------------------------------------------------------------------
 #  process 
 #---------------------------------------------------------------------------
-        
-for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
-  find({
-    wanted => sub {
-      return unless /\.p(?:m|od)\z/ && -f;
+# 
+# :WARNING:15.04.2005:Mn: under Windows descending into subdirs will be
+# suppressed by the the preprocessing part of the following call to find
+# :TODO:16.04.2005:Mn: remove code doubling
+# 
+if ( $^O ne "MSWin32" ) {                       # ----- UNIX, Linux, ...
 
-      #---------------------------------------------------------------------
-      #  return from function if there exists a pod-file for this module
-      #---------------------------------------------------------------------
-      my $pod = $_;
-      my $pm  = $_;
-      if ( m/\.pm\z/ )
-      {
-        $pod  =~ s/\.pm\z/\.pod/; 
-        return if -f $pod;
-      }
+	for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
+		find({
+				wanted => sub {
+					return unless /\.p(?:m|od)\z/ && -f;
 
-      my $module  = get_module_name($File::Find::name, $inc_dir);
-      my $version;
-      if ( /\.pod\z/ )
-      {
-        $pm =~ s/\.pod\z/\.pm/; 
-        #-------------------------------------------------------------------
-        #  try to find the version from the pm-file
-        #-------------------------------------------------------------------
-        if ( -f $pm )
-        {
-          local $_;
-          $version = MM->parse_version($pm) || "";
-          $version = undef unless $version =~ /$rgx_version/;
-        }
-      }
-      else
-      {
-        $version = get_module_version($_);
-      }
-      my $desc = get_module_description($_);
+					#---------------------------------------------------------------------
+					#  return from function if there exists a pod-file for this module
+					#---------------------------------------------------------------------
+					my $pod = $_;
+					my $pm  = $_;
+					if ( m/\.pm\z/ )
+					{
+						$pod  =~ s/\.pm\z/\.pod/; 
+						return if -f $pod;
+					}
 
-      $version = defined $version ? " ($version)" : " (n/a)";
-      $desc    = defined $desc    ? " $desc"      : " <description not available>";
+					my $module  = get_module_name($File::Find::name, $inc_dir);
+					my $version;
+					if ( /\.pod\z/ )
+					{
+						$pm =~ s/\.pod\z/\.pm/; 
+						#-------------------------------------------------------------------
+						#  try to find the version from the pm-file
+						#-------------------------------------------------------------------
+						if ( -f $pm )
+						{
+							local $_;
+							$version = MM->parse_version($pm) || "";
+							$version = undef unless $version =~ /$rgx_version/;
+						}
+					}
+					else
+					{
+						$version = get_module_version($_);
+					}
+					my $desc = get_module_description($_);
 
-      printf("%-${options{t}}s%-${options{v}}s%-s\n", $module, $version, $desc ); 
+					$version = defined $version ? " ($version)" : " (n/a)";
+					$desc    = defined $desc    ? " $desc"      : " <description not available>";
 
-    },
-    preprocess => sub {
-      my ($dev, $inode) = stat $File::Find::dir or return;
-      $visited{"$dev:$inode"}++ ? () : @_;
-    },
-  },
-  $inc_dir);
+					printf("%-${options{t}}s%-${options{v}}s%-s\n", $module, $version, $desc ); 
+
+				},
+
+				preprocess => sub {
+					my ($dev, $inode) = stat $File::Find::dir or return;
+					$visited{"$dev:$inode"}++ ? () : @_;
+				},
+			},
+			$inc_dir);
+	}
+}
+else {                                          # ----- MS Windows
+	for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
+		find({
+				wanted => sub {
+					return unless /\.p(?:m|od)\z/ && -f;
+
+					#---------------------------------------------------------------------
+					#  return from function if there exists a pod-file for this module
+					#---------------------------------------------------------------------
+					my $pod = $_;
+					my $pm  = $_;
+					if ( m/\.pm\z/ )
+					{
+						$pod  =~ s/\.pm\z/\.pod/; 
+						return if -f $pod;
+					}
+
+					my $module  = get_module_name($File::Find::name, $inc_dir);
+					my $version;
+					if ( /\.pod\z/ )
+					{
+						$pm =~ s/\.pod\z/\.pm/; 
+						#-------------------------------------------------------------------
+						#  try to find the version from the pm-file
+						#-------------------------------------------------------------------
+						if ( -f $pm )
+						{
+							local $_;
+							$version = MM->parse_version($pm) || "";
+							$version = undef unless $version =~ /$rgx_version/;
+						}
+					}
+					else
+					{
+						$version = get_module_version($_);
+					}
+					my $desc = get_module_description($_);
+
+					$version = defined $version ? " ($version)" : " (n/a)";
+					$desc    = defined $desc    ? " $desc"      : " <description not available>";
+
+					printf("%-${options{t}}s%-${options{v}}s%-s\n", $module, $version, $desc ); 
+
+				},
+			},
+			$inc_dir);
+	}
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -247,7 +307,7 @@ pmdesc3 ~/perllib
   pmdesc3 [-h] [-s] [-t ddd] [-v dd] [--] [dir [dir [dir [...]]]]
 
   OPTIONS:  -h     : print help message; show search path
-            -s     : sort output
+            -s     : sort output (not under Windows)
             -t ddd : name column has width ddd (1-3 digits); default 36
             -v  dd : version column has width dd (1-2 digits); default 10
 
@@ -303,7 +363,7 @@ pmdesc2 is at least one magnitude faster than pmdesc.
 
 =head1 VERSION
 
-1.2.1
+1.2.2
 
 =cut
 

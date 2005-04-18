@@ -22,7 +22,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  26.02.2005
+"       Revision:  16.04.2005
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -34,23 +34,36 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.4.1"
+let g:Perl_Version= "2.5"
 "        
 "###############################################################################################
 "
 "  Global variables (with default values) which can be overridden.
+"          
+" Platform specific items:
+" - root directory
+" - characters that must be escaped for filenames
+" 
+let	s:MSWIN =		has("win16") || has("win32")     || has("win32") || 
+							\ has("win64") || has("win32unix") || has("win95")
+" 
+if	s:MSWIN
+	"
+	let s:root_dir	  = $VIM.'\vimfiles\'
+  let s:escfilename = ''
+	"
+else
+	"
+	let s:root_dir	  = $HOME.'/.vim/'
+  let s:escfilename = ' \%#[]'
+	"
+endif
 "
 "  Key word completion is enabled by the filetype plugin 'perl.vim'
 "  g:Perl_Dictionary_File  must be global
 "          
-if has('win32')
-	let root_dir	= $VIM.'/vimfiles/'			" Windows
-else
-	let root_dir	= $HOME.'/.vim/'				" Linux/Unix
-endif
-"          
 if !exists("g:Perl_Dictionary_File")
-	let g:Perl_Dictionary_File       = root_dir.'wordlists/perl.list'
+	let g:Perl_Dictionary_File       = s:root_dir.'wordlists/perl.list'
 endif
 "
 "  Modul global variables (with default values) which can be overridden.
@@ -64,15 +77,15 @@ let s:Perl_CopyrightHolder         = ''
 
 let s:Perl_Root                    = '&Perl.'
 let s:Perl_LoadMenus               = 'yes'
-let s:Perl_CodeSnippets            = root_dir.'codesnippets-perl/'
-let s:Perl_Template_Directory      = root_dir.'plugin/templates/'
+let s:Perl_CodeSnippets            = s:root_dir.'codesnippets-perl/'
+let s:Perl_Template_Directory      = s:root_dir.'plugin/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
 let s:Perl_Template_Frame          = 'perl-frame'
 let s:Perl_Template_Function       = 'perl-function-description'
 let s:Perl_MenuHeader              = 'yes'
-let s:Perl_PerlModuleList          = root_dir.'plugin/perl-modules.list'
-let s:Perl_PerlModuleListGenerator = root_dir.'plugin/pmdesc3 -s -t36 > '.s:Perl_PerlModuleList
+let s:Perl_PerlModuleList          = s:root_dir.'plugin/perl-modules.list'
+let s:Perl_PerlModuleListGenerator = s:root_dir.'plugin/pmdesc3.pl'
 let s:Perl_OutputGvim              = "vim"
 let s:Perl_XtermDefaults           = "-fa courier -fs 12 -geometry 80x24"
 let s:Perl_Debugger                = "perl"
@@ -111,7 +124,6 @@ call Perl_CheckGlobal("Perl_XtermDefaults          ")
 call Perl_CheckGlobal("Perl_Debugger               ")
 call Perl_CheckGlobal("Perl_ProfilerTimestamp      ")
 call Perl_CheckGlobal("Perl_LineEndCommColDefault  ")
-"
 "
 "------------------------------------------------------------------------------
 "  Perl Menu Initialization
@@ -722,7 +734,7 @@ function!	Perl_InitMenu ()
 		"
 		"   set execution rights for user only ( user may be root ! )
 		"
-		if !has('win32')
+		if !s:MSWIN
 			exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ &executable              <C-C>:call Perl_MakeScriptExecutable()<CR>'
 		endif
 		exe "amenu          ".s:Perl_Root.'&Run.-SEP2-                           :'
@@ -743,7 +755,9 @@ function!	Perl_InitMenu ()
 		exe "amenu          ".s:Perl_Root.'&Run.-SEP6-                           :'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.settings\ and\ hot\ &keys        <C-C>:call Perl_Settings()<CR>'
 		"
-		exe "amenu  <silent>  ".s:Perl_Root.'&Run.x&term\ size                             <C-C>:call Perl_XtermSize()<CR>'
+		if	!s:MSWIN
+			exe "amenu  <silent>  ".s:Perl_Root.'&Run.x&term\ size                             <C-C>:call Perl_XtermSize()<CR>'
+		endif
 		if s:Perl_OutputGvim == "vim" 
 			exe "amenu  <silent>  ".s:Perl_Root.'&Run.output:\ VIM->&buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
 		else
@@ -851,7 +865,7 @@ function! Perl_MultiLineEndComments ()
 		let linenumber=linenumber+1
 		normal j
 	endwhile
-	" ----- back to the beginof the marked block -----
+	" ----- back to the begin of the marked block -----
 	normal '<
 endfunction		" ---------- end of function  Perl_MultiLineEndComments  ----------
 "
@@ -1169,9 +1183,11 @@ endfunction		" ---------- end of function  Perl_CodeSnippet  ----------
 "  Perl-Run : Perl_perldoc - lookup word under the cursor or ask
 "------------------------------------------------------------------------------
 "
-let s:Perl_PerldocBufferName   = "PERLDOC"
+let s:Perl_PerldocBufferName       = "PERLDOC"
 let s:Perl_PerldocHelpBufferNumber = -1
 let s:Perl_PerldocModulelistBuffer = -1
+let s:Perl_PerldocSearchWord       = ""
+let s:Perl_PerldocTry              = "module"
 "
 function! Perl_perldoc()
 
@@ -1180,13 +1196,7 @@ function! Perl_perldoc()
 		normal 0
 		let	item=expand("<cWORD>")				" WORD under the cursor 
 	else
-		" try to look up the documentation for the module in a use statement
-		let	item= matchstr( getline("."), '^\s*use\s\+\S\+' ) 
-		let	item= substitute( item, '^\s*use\s\+', '', '' ) 
-		let	item= substitute( item, ',$', '', '' ) 
-		if item == ""
-			let	item=expand("<cword>")				" word under the cursor 
-		endif
+		let	item=expand("<cword>")				" word under the cursor 
 	endif
 	if  item == ""
 		let	item=Perl_Input("perldoc - module, function or FAQ keyword : ", "")
@@ -1222,21 +1232,63 @@ function! Perl_perldoc()
 			let delete_perldoc_errors	= " 2>/dev/null"
 		endif
 		setlocal	modifiable
-		silent exe ":%!perldoc ".item.delete_perldoc_errors
-		if v:shell_error != 0
-			redraw!
+		"
+		" controll repeated search
+		"
+		if item == s:Perl_PerldocSearchWord
+			" last item : search ring :
+			if s:Perl_PerldocTry == 'module'
+				let next  = 'function'
+			endif
+			if s:Perl_PerldocTry == 'function'
+				let next  = 'faq'
+			endif
+			if s:Perl_PerldocTry == 'faq'
+				let next  = 'module'
+			endif
+			let s:Perl_PerldocTry = next
+		else
+			" new item :
+			let s:Perl_PerldocSearchWord	= item
+			let s:Perl_PerldocTry         = 'module'
+		endif
+		"
+		" module documentation
+		if s:Perl_PerldocTry == 'module'
+			silent exe ":%!perldoc ".item.delete_perldoc_errors
+			if v:shell_error != 0
+				redraw!
+				let s:Perl_PerldocTry         = 'function'
+			endif
+		endif
+		"
+		" function documentation
+		if s:Perl_PerldocTry == 'function'
 			silent exe ":%!perldoc -f ".item.delete_perldoc_errors
 			if v:shell_error != 0
 				redraw!
-				silent exe ":%!perldoc -q ".item.delete_perldoc_errors
-				if v:shell_error != 0
-					redraw!
-					let zz=   "No documentation found for perl module, perl function or perl FAQ keyword\n"
-					let zz=zz."  '".item."'  "
-					silent put!	=zz
-					normal	2jdd$
-				endif
+				let s:Perl_PerldocTry         = 'faq'
 			endif
+		endif
+		"
+		" FAQ documentation
+		if s:Perl_PerldocTry == 'faq'
+			silent exe ":%!perldoc -q ".item.delete_perldoc_errors
+			if v:shell_error != 0
+				redraw!
+				let s:Perl_PerldocTry         = 'error'
+			endif
+		endif
+		"
+		" no documentation found
+		if s:Perl_PerldocTry == 'error'
+			redraw!
+			let zz=   "No documentation found for perl module, perl function or perl FAQ keyword\n"
+			let zz=zz."  '".item."'  "
+			silent put!	=zz
+			normal	2jdd$
+			let s:Perl_PerldocTry         = 'module'
+			let s:Perl_PerldocSearchWord	= ""
 		endif
 
 		setlocal nomodifiable
@@ -1276,7 +1328,12 @@ function! Perl_perldoc_generate_module_list()
 	echohl Search
 	echo " ... generating Perl module list ... " 
 	setlocal modifiable
-	silent exe ":!".s:Perl_PerlModuleListGenerator
+	if	s:MSWIN
+		silent exe ":!".s:Perl_PerlModuleListGenerator." > ".s:Perl_PerlModuleList
+		silent exe ":!sort ".s:Perl_PerlModuleList." /O ".s:Perl_PerlModuleList
+	else
+		silent exe ":!".s:Perl_PerlModuleListGenerator." -s > ".s:Perl_PerlModuleList
+	endif
 	setlocal nomodifiable
 	echo " DONE " 
 	echohl None
@@ -1319,17 +1376,37 @@ let s:Perl_SyntaxCheckMsg       = ""
 function! Perl_SyntaxCheck ()
 	let s:Perl_SyntaxCheckMsg = ""
 	exe	":cclose"
-	let	l:currentbuffer=bufname("%")
+	let l:currentdir			= getcwd()
+	let	l:currentbuffer   = bufname("%")
+	let l:fullname				= l:currentdir."/".l:currentbuffer
 	silent exe	":update"
-	exe	"set makeprg=perl"
+	"
+	" avoid filtering the Perl output if the file name does not contain blanks:
 	" 
-	" match the Perl error messages (quickfix commands)
-	" errorformat will be reset by function Perl_Handle()
-	" 
-	" ignore any lines that didn't match one of the patterns
-	" 
-	exe	':setlocal errorformat=%m\ at\ %f\ line\ %l%.%#,%-G%.%#'
-	exe	"make -wc %"
+	if match( l:fullname, " " ) < 0
+		exe	"set makeprg=perl\\ -cw\\ $*"
+		" 
+		" Errorformat from compiler/perl.vim (VIM distribution).
+		"
+		exe ':setlocal errorformat=
+		    \%-G%.%#had\ compilation\ errors.,
+        \%-G%.%#syntax\ OK,
+        \%m\ at\ %f\ line\ %l.,
+        \%+A%.%#\ at\ %f\ line\ %l\\,%.%#,
+        \%+C%.%#'
+	else
+		let l:fullname				= escape( l:fullname, s:escfilename )
+		"
+		" Use tools/efm_perl.pl from the VIM distribution.
+		"	This wrapper can handle filenames containing blanks.
+		" Errorformat from tools/efm_perl.pl .
+		" 
+		exe	"set makeprg=".s:root_dir."plugin/efm_perl.pl\\ -c\\ $*"
+		exe ':setlocal errorformat=%f:%l:%m'
+	endif
+
+	silent exe	":make ".l:fullname
+
 	exe	":botright cwindow"
 	exe	':setlocal errorformat='
 	exe	"set makeprg=make"
@@ -1386,17 +1463,28 @@ function! Perl_Run ()
 	let l:currentdir			= getcwd()
 	let	l:arguments				= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
 	let	l:currentbuffer		= bufname("%")
-	let l:fullname				=l:currentdir."/".l:currentbuffer
+	let l:fullname				= l:currentdir."/".l:currentbuffer
+	" escape whitespaces
+	let l:fullname				= escape( l:fullname, s:escfilename )
 	"
 	silent exe ":update"
 	silent exe ":cclose"
+	"
+	if	s:MSWIN
+		let l:arguments	= substitute( l:arguments, '^\s\+', ' ', '' )
+		let l:arguments	= substitute( l:arguments, '\s\+', "\" \"", 'g')
+	endif
 	"
 	"------------------------------------------------------------------------------
 	"  run : run from the vim command line
 	"------------------------------------------------------------------------------
 	if s:Perl_OutputGvim == "vim"
 		"
-		exe "!".l:fullname.l:arguments
+		if	s:MSWIN
+			exe "!perl \"".l:fullname."\" \"".l:arguments."\""
+		else
+			exe "!".l:fullname.l:arguments
+		endif
 		"
 	endif
 	"
@@ -1427,7 +1515,12 @@ function! Perl_Run ()
 			" run script 
 			"
 			setlocal	modifiable
-			silent exe ":update | %!".l:fullname.l:arguments
+			silent exe ":update"
+			if	s:MSWIN
+				exe "%!perl \"".l:fullname.l:arguments."\""
+			else
+				exe "%!".l:fullname.l:arguments
+			endif
 			setlocal	nomodifiable
 			"
 			" stdout is empty / not empty
@@ -1444,11 +1537,16 @@ function! Perl_Run ()
 	endif
 	"
 	"------------------------------------------------------------------------------
-	"  run : run in a xterm
+	"  run : run in a detached xterm  (not available for MS Windows)
 	"------------------------------------------------------------------------------
 	if s:Perl_OutputGvim == "xterm"
 		"
-		silent exe "!xterm -title ".l:currentbuffer." ".s:Perl_XtermDefaults." -e $HOME/.vim/plugin/wrapper.sh ".l:fullname.l:arguments.' &'
+		if	s:MSWIN
+			" same as "vim"
+			exe "!perl \"".l:fullname."\" \"".l:arguments."\""
+		else
+			silent exe "!xterm -title ".l:fullname." ".s:Perl_XtermDefaults." -e ".s:root_dir."plugin/wrapper.sh ".l:fullname.l:arguments.' &'
+		endif
 		"
 	endif
 	"
@@ -1460,24 +1558,33 @@ endfunction    " ----------  end of function Perl_Run  ----------
 function! Perl_Debugger ()
 	"
 	silent exe	":update"
-	let	l:arguments				= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
+	let	l:arguments	= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
+	let	Sou					= escape( expand("%"), s:escfilename ) 
 	"
 	" debugger is ' perl -d ... '
 	"
 	if s:Perl_Debugger == "perl"
-		silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d ./'.expand("%").l:arguments.' &'
+		if	s:MSWIN
+			silent exe "!perl -d \"".Sou.l:arguments."\""
+		else
+			silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d ./'.Sou.l:arguments.' &'
+		endif
 	endif
 	"
 	" debugger is 'ptkdb'
 	"
 	if s:Perl_Debugger == "ptkdb"
-		silent exe '!perl -d:ptkdb  ./'.expand("%").l:arguments.' &'
+		if	s:MSWIN
+			silent exe "!perl -d:ptkdb \"".Sou.l:arguments."\""
+		else
+			silent exe '!perl -d:ptkdb  ./'.Sou.l:arguments.' &'
+		endif
 	endif
 	"
-	" debugger is 'ddd'
+	" debugger is 'ddd'  (not available for MS Windows)
 	"
-	if s:Perl_Debugger == "ddd"
-		silent exe '!ddd ./'.expand("%").l:arguments.' &'
+	if s:Perl_Debugger == "ddd" && !s:MSWIN
+		silent exe '!ddd ./'.Sou.l:arguments.' &'
 	endif
 	"
 endfunction		" ---------- end of function  Perl_Debugger  ----------
@@ -1486,7 +1593,13 @@ endfunction		" ---------- end of function  Perl_Debugger  ----------
 "  run : Arguments
 "------------------------------------------------------------------------------
 function! Perl_Arguments ()
-	let	prompt	= 'command line arguments for "'.expand("%").'" : '
+	let filename = escape(expand("%"),s:escfilename)
+  if filename == ""
+		redraw
+		echohl WarningMsg | echo " no file name " | echohl None
+		return
+  endif
+	let	prompt   = 'command line arguments for "'.filename.'" : '
 	if exists("b:Perl_CmdLineArgs")
 		let	b:Perl_CmdLineArgs= Perl_Input( prompt, b:Perl_CmdLineArgs )
 	else
@@ -1516,14 +1629,15 @@ endfunction		" ---------- end of function  Perl_XtermSize  ----------
 "  run : make script executable
 "------------------------------------------------------------------------------
 function! Perl_MakeScriptExecutable ()
-	silent exe "!chmod u+x %"
+	let	filename	= escape( expand("%"), s:escfilename )
+	silent exe "!chmod u+x ".filename
 	redraw
 	if v:shell_error
 		echohl WarningMsg
-	  echo 'Could not make '.expand("%").' executable !'
+	  echo 'Could not make "'.filename.'" executable !'
 	else
 		echohl Search
-	  echo 'Made '.expand("%").' executable.'
+	  echo 'Made "'.filename.'" executable.'
 	endif
 	echohl None
 endfunction		" ---------- end of function  Perl_MakeScriptExecutable  ----------
@@ -1532,7 +1646,8 @@ endfunction		" ---------- end of function  Perl_MakeScriptExecutable  ----------
 "  run : POD -> html / man / text
 "------------------------------------------------------------------------------
 function! Perl_POD (arg1)
-	let	filename	= expand("%:r").".".a:arg1
+	let	filename	= escape( expand("%:r"), s:escfilename )
+	let	filename	= filename.".".a:arg1
 	silent exe	":update"
 	silent exe	":!pod2".a:arg1." ".expand("%")." > ".filename
 	echo  " '".getcwd()."/".filename."' generated"
@@ -1578,7 +1693,7 @@ let	s:Perl_ProfileOutput  	= 'smallprof.out'
 let	s:Perl_TimestampFormat 	= '%y%m%d.%H%M%S'
 	
 function! Perl_Smallprof ()
-	let	Sou		= expand("%")								" name of the file in the current buffer
+	let	Sou		= escape( expand("%"), s:escfilename ) " name of the file in the current buffer
 	if &filetype != "perl"
 		echohl WarningMsg | echo Sou.' seems not to be a Perl file' | echohl None
 		return
@@ -1627,7 +1742,8 @@ function! Perl_SaveWithTimestamp ()
 		echohl WarningMsg | echo " no file name " | echohl None
 		return
   endif
-	let	Sou	 	= expand("%").".".strftime(s:Perl_TimestampFormat)
+	let	Sou		= escape( expand("%"), s:escfilename ) " name of the file in the current buffer
+	let	Sou	 	= Sou.".".strftime(s:Perl_TimestampFormat)
 	exe ":write ".Sou
 	echohl Search | echo Sou.' written ' | echohl None
 endfunction		" ---------- end of function  Perl_SaveWithTimestamp  ----------
@@ -1636,8 +1752,14 @@ endfunction		" ---------- end of function  Perl_SaveWithTimestamp  ----------
 "  run : hardcopy
 "------------------------------------------------------------------------------
 function! Perl_Hardcopy (arg1)
+	let Sou	= expand("%")	
+  if Sou == ""
+		redraw
+		echohl WarningMsg | echo " no file name " | echohl None
+		return
+  endif
 	let target	= bufname("%")==s:Perl_PerldocBufferName ? '$HOME/' : './'
-	let	Sou			= target.expand("%")					" name of the file in the current buffer
+	let	Sou			= target.expand("%")
 	" ----- normal mode ----------------
 	if a:arg1=="n"
 		silent exe	"hardcopy > ".Sou.".ps"		
@@ -1725,7 +1847,7 @@ endif
 if has("autocmd")
 	" 
 	" =====  Perl-script : insert header, write file, make it executable  =============
-	if has('win32')
+	if s:MSWIN
 		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! 
 	else
 		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | call Perl_MakeScriptExecutable()

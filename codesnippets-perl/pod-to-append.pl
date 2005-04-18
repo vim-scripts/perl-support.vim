@@ -6,7 +6,7 @@
 
 =head1 NAME
 
-  module name  -  short description
+module name  -  short description
 
 =head1 SYNOPSIS
 

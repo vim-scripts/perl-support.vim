@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.4.1) / Feb 26 2005
+README for perl-support.vim (Version 2.5) / April 16 2005
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -12,14 +12,14 @@ README for perl-support.vim (Version 2.4.1) / Feb 26 2005
 
 The subdirectories in the zip archive  perl-support.zip  mirror the directory
 structure which is needed below the local installation directory $HOME/.vim/
-or $VIM/vimfiles (on the Windows platforms).
+or $VIM\vimfiles (on the Windows platforms).
 
 (1) Copy the zip archive  perl-support.zip to $HOME/.vim and run
 
       unzip perl-support.zip
 
     If you have already an older version of perl-support and you have modified the
-    template files you may want to save your templates first or copy the files from the 
+    template files you may want to save your templates first or copy the files from the
     archive by hand.
 
 (2) Set at least some personal details into .vimrc by overriding some defaults.
@@ -28,15 +28,19 @@ or $VIM/vimfiles (on the Windows platforms).
       let g:Perl_AuthorName      = 'Dr.-Ing. Fritz Mehner'     
       let g:Perl_AuthorRef       = 'Mn'                         
       let g:Perl_Email           = 'mehner@fh-swf.de'            
-      let g:Perl_Company         = 'FH Südwestfalen, Iserlohn'    
+      let g:Perl_Company         = 'FH SÃ¼dwestfalen, Iserlohn'    
+
+    The files customization.vimrc and customization.gvimrc are replacements or 
+    extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
+    You may want to use parts of them. The files are documented. 
 
 There are a lot of features and options which can be used and influenced:
 
   *  use of template files and tags
   *  using and managing personal code snippets
-  *  perl dictionary for keyword completion
-  *  the perl module list
-  *  reading Perl documentation with inegrated calls to perldoc
+  *  Perl dictionary for keyword completion
+  *  the Perl module list
+  *  reading Perl documentation with integrated calls to perldoc
   *  removing the root menu
 
 Restart gVim/Vim generate the help tags 
@@ -49,7 +53,7 @@ and look at the perlsupport help with
 
              +-----------------------------------------------+
              | +-------------------------------------------+ |
-             | |    ** Please read the documentation **    | |
+             | |    ** PLEASE READ THE DOCUMENTATION **    | |
              | |    Actions differ for different modes!    | |
              | +-------------------------------------------+ |
              +-----------------------------------------------+
@@ -58,6 +62,14 @@ and look at the perlsupport help with
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.5
+---------------------------------------------------------------------------------------
++ Windows support. Most features are now available under Windows.
++ Spaces in path and file names are now possible (Windows and UNIX).
++ Reading documentation with perldoc improved.
++ Minor bugs fixed and improvements.
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.4.1
@@ -117,7 +129,7 @@ and look at the perlsupport help with
 + Installation simplified. 
 + The generation of the module list is a magnitude faster.
 + The version of a module is now shown in the module list. 
-+ The perl documentation (pod::perl*) appears in the module list.
++ The Perl documentation (pod::perl*) appears in the module list.
 + The dialog windows (GUI) have been replaced by more flexible command line inputs.
 + User will now be asked before a snippet file will be overwritten.
 + The undocumented and unnecessary hot key F12 has been removed.
@@ -188,7 +200,8 @@ ftplugin/perl.vim         A filetype plugin. Define hotkeys, create a local
                           dictionary for each Perl file.
 
 plugin/perl-support.vim   The Perl plugin for Vim/gVim.
-plugin/pmdesc3            Perl script; generates a list of all installed Perl modules
+plugin/pmdesc3.pl         Perl script; generates a list of all installed Perl modules
+plugin/efm_perl.pl        Perl script; Reformats the error messages of the Perl interpreter
 plugin/wrapper.sh         The wrapper script for the use of an xterm.
 
 plugin/templates/perl-file-header           -+-  Perl template files 
@@ -215,6 +228,9 @@ rc/customization.gvimrc   Additional settings I use in  .gvimrc:
 rc/customization.ctags    Additional settings I use in  .ctags to enable navigation
                           through POD with the plugin taglist.vim.
 
+rc/customization.perltidyrc  Additional settings I use in  .perltidyrc to enable 
+                             customize perltidy.
+
 doc/perl-hot-keys.pdf     Reference card for the key mappings. 
                           The mappings can be used with the non-GUI Vim, 
                           because the menus are not available.
@@ -225,8 +241,8 @@ doc/pmdesc3.text          The man page for pmdesc3.
   ADDITIONAL TIPS
 =======================================================================================
 
-(1) You may want to use a central hidden directory for all your backup files on your
-    LINUX/UNIX system :
+(1) You may want to use a central hidden directory for all your backup files (see also
+    rc/customization.vimrc ):
 
     1.1 Add the following line to .vimrc (see also rc/customization.vimrc ):
 
@@ -258,8 +274,6 @@ doc/pmdesc3.text          The man page for pmdesc3.
 =======================================================================================
   CREDITS
 =======================================================================================
-
-Lukas Zapletal for the errorformat (taken from the script perl.vim).
 
 David Fishburn <fishburn@ianywhere.com> for the implementation of the 
   single root menu and several suggestions for improving the customization

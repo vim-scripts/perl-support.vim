@@ -3,11 +3,24 @@
 "==========  load example vimrc from the distribution  =========================
 "===============================================================================
 "
-" runtime vimrc_example.vim
+runtime vimrc_example.vim
 "
 "===============================================================================
 "==========  CUSTOMIZATION (vimrc)  ============================================
 "===============================================================================
+"
+" Platform specific items:
+" - backup directory (has to be created manually)
+" 
+if	has("win16") || has("win32")     || has("win32") || 
+	\ has("win64") || has("win32unix") || has("win95")
+	"
+	runtime	mswin.vim
+"	set backupdir   =$VIM\vimfiles\backupdir
+else
+"	set backupdir   =$HOME/.vim.backupdir 
+endif
+"
 " shift down   : change window focus to lower one
 " shift up     : change window focus to upper one
 " shift left   : change window focus to one on left
@@ -20,7 +33,6 @@ nmap <s-right>  <c-w>l
 "
 set autoread                          " read open files again when changed outside Vim
 set autowrite                         " write a modified buffer on each :next , ...
-set backupdir  =$HOME/.vim.backupdir  " directory for the backup files
 set browsedir  =current               " which directory to use for the file browser
 set incsearch                         " use incremental search
 set nowrap                            " do not wrap lines
@@ -31,12 +43,13 @@ set visualbell                        " visual bell instead of beeping
 "-------------------------------------------------------------------------------
 "  some additional hot keys
 "-------------------------------------------------------------------------------
-"     F2  -  write file without confirmation
-"     F3  -  call file explorer Ex
-"     F4  -  show tag under curser in the preview window (tagfile must exist!)
-"     F6  -  list all errors           
-"     F7  -  display previous error
-"     F8  -  display next error   
+"    F2   -  write file without confirmation
+"    F3   -  call file explorer Ex
+"    F4   -  show tag under curser in the preview window (tagfile must exist!)
+"    F6   -  list all errors           
+"    F7   -  display previous error
+"    F8   -  display next error   
+"    F12  -  toggle line numbers
 "  S-Tab  -  Fast switching between buffers (see below)
 "    C-q  -  Leave the editor with Ctrl-q (see below)
 "-------------------------------------------------------------------------------
@@ -47,6 +60,7 @@ nmap  <silent> <F4>    :exe ":ptag ".expand("<cword>")<CR>
 map   <silent> <F6>    :copen<CR>
 map   <silent> <F7>    :cp<CR>
 map   <silent> <F8>    :cn<CR>
+map   <silent> <F12>   :let &number=1-&number<CR>
 "
 imap  <silent> <F2>    <Esc>:write<CR>
 imap  <silent> <F3>    <Esc>:Explore<CR>
@@ -54,6 +68,7 @@ imap  <silent> <F4>    <Esc>:exe ":ptag ".expand("<cword>")<CR>
 imap  <silent> <F6>    <Esc>:copen<CR>
 imap  <silent> <F7>    <Esc>:cp<CR>
 imap  <silent> <F8>    <Esc>:cn<CR>
+imap  <silent> <F12>   :let &number=1-&number<CR>
 "
 "-------------------------------------------------------------------------------
 " Fast switching between buffers

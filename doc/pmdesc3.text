@@ -11,7 +11,7 @@ DESCRIPTION
       pmdesc3 [-h] [-s] [-t ddd] [-v dd] [--] [dir [dir [dir [...]]]]
 
       OPTIONS:  -h     : print help message; show search path
-                -s     : sort output
+                -s     : sort output (not under Windows)
                 -t ddd : name column has width ddd (1-3 digits); default 36
                 -v  dd : version column has width dd (1-2 digits); default 10
 
@@ -56,5 +56,5 @@ NOTES
     pmdesc2 is at least one magnitude faster than pmdesc.
 
 VERSION
-    1.2.1
+    1.2.2
 
