@@ -8,8 +8,7 @@ my  $files_processed  = 0;        # counts the files processed by process_file()
 #-----------------------------------------------------------------------
 # Process a single file in a directory 
 #-----------------------------------------------------------------------
-sub process_file
-{
+sub process_file {
   my  $filename      = $_;                # filename without directory
   my  $filename_full = $File::Find::name; # filename with    directory
   my  $directory     = $File::Find::dir;  # directory only

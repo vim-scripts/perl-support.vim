@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.5) / April 16 2005
+README for perl-support.vim (Version 2.6) / July 01 2005
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -62,6 +62,16 @@ and look at the perlsupport help with
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.6
+---------------------------------------------------------------------------------------
++ blocks: opening brace not on a new line (adjustable for backward compatibility).
++ output into buffer: cursor goes to top of file.
++ trailing ^M in perldoc window will be removed (UNIX/Linux).
++ Vim (without GUI): new key mappings: all entries in the run menu do have mappings now.
++ Vim (without GUI): perldoc can be read with hotkeys \h and \rp .
++ Vim (without GUI): perldoc displays docs using plain text converter.
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.5

@@ -1,59 +1,60 @@
-*perlsupport.txt*          Perl Support            Last Change: April 16 2005
+*perlsupport.txt*          Perl Support            Last Change:  July 01 2005
 
 Perl Support                                     *perl-support* *perlsupport*
 
-                        Plugin version 2.5
+                        Plugin version 2.6
                   for Vim version 6.0 and above
                  Fritz Mehner  <mehner@fh-swf.de>
 
 Write and run Perl scripts using menus and key mappings.
 
- 1.    Usage with GUI                            |perlsupport-usage-gvim|
- 1.1    Menu 'Comments'                          |perlsupport-comm|
- 1.1.1   Append aligned comments                 |perlsupport-comm-1|
- 1.1.2   Code to comment                         |perlsupport-comm-2|
- 1.1.3   Comment to code                         |perlsupport-comm-3|
- 1.1.4   Frame comments, file header, ...        |perlsupport-comm-4|
- 1.1.5   KEYWORD + comment                       |perlsupport-comm-5|
- 1.2    Menu 'Statements'                        |perlsupport-stat|
- 1.2.1   Normal mode, insert mode                |perlsupport-stat-1|
- 1.2.2   Visual mode                             |perlsupport-stat-2|
- 1.2.3   Code snippets                           |perlsupport-stat-3|
- 1.3    Menu 'Idioms'                            |perlsupport-idioms|
- 1.4    Menu 'Regex'                             |perlsupport-regex|
- 1.5    Menu 'CharCls'                           |perlsupport-charcls|
- 1.6    Menu 'File-Tests'                        |perlsupport-filetests|
- 1.7    Menu 'Spec-Var'                          |perlsupport-specvar|
- 1.8    Menu 'POD'                               |perlsupport-pod|
- 1.9    Menu 'Run'                               |perlsupport-run|
- 1.9.1   Run script                              |perlsupport-run-1|
- 1.9.2   Check syntax                            |perlsupport-run-2|
- 1.9.3   Command line arguments                  |perlsupport-run-3|
- 1.9.4   Debug                                   |perlsupport-run-4|
- 1.9.5   Read perldoc                            |perlsupport-run-5|
- 1.9.6   Generate Perl module list               |perlsupport-run-6|
- 1.9.7   Show installed Perl modules             |perlsupport-run-7|
- 1.9.8   Run perltidy                            |perlsupport-run-8|
- 1.9.9   Run SmallProf                           |perlsupport-run-9|
- 1.9.10  Save buffer with timestamp              |perlsupport-run-10|
- 1.9.11  Hardcopy                                |perlsupport-run-11|
- 1.9.12  Xterm size                              |perlsupport-run-12|
- 1.9.13  Output                                  |perlsupport-run-13|
- 2.    Usage without GUI                         |perlsupport-usage-vim|
- 3.    Hotkeys                                   |perlsupport-hotkeys|
- 4.    Customization and configuration           |perlsupport-custom|
- 4.1    Files                                    |perlsupport-custom-1|
- 4.2    Global variables                         |perlsupport-custom-2|
- 4.3    The root menu                            |perlsupport-custom-3|
- 4.4    Navigate through PODs                    |perlsupport-custom-4|
- 5.    Template files and tags                   |perlsupport-tempfiles|
- 5.1    Template files                           |perlsupport-tempfiles-1|
- 5.2    Tags                                     |perlsupport-tempfiles-2|
- 6.    Perl Dictionary                           |perlsupport-dictionary|
- 7.    Release Notes                             |perlsupport-release-notes|
- 8.    Credits                                   |perlsupport-credits|
+ 1.      Usage with GUI                            |perlsupport-usage-gvim|
+ 1.1      Menu 'Comments'                          |perlsupport-comm|
+ 1.1.1     Append aligned comments                 |perlsupport-comm-1|
+ 1.1.2     Code to comment                         |perlsupport-comm-2|
+ 1.1.3     Comment to code                         |perlsupport-comm-3|
+ 1.1.4     Frame comments, file header, ...        |perlsupport-comm-4|
+ 1.1.5     KEYWORD + comment                       |perlsupport-comm-5|
+ 1.2      Menu 'Statements'                        |perlsupport-stat|
+ 1.2.1     Normal mode, insert mode                |perlsupport-stat-1|
+ 1.2.2     Visual mode                             |perlsupport-stat-2|
+ 1.2.3     Code snippets                           |perlsupport-stat-3|
+ 1.3      Menu 'Idioms'                            |perlsupport-idioms|
+ 1.4      Menu 'Regex'                             |perlsupport-regex|
+ 1.5      Menu 'CharCls'                           |perlsupport-charcls|
+ 1.6      Menu 'File-Tests'                        |perlsupport-filetests|
+ 1.7      Menu 'Spec-Var'                          |perlsupport-specvar|
+ 1.8      Menu 'POD'                               |perlsupport-pod|
+ 1.9      Menu 'Run'                               |perlsupport-run|
+ 1.9.1     Run script                              |perlsupport-run-1|
+ 1.9.2     Check syntax                            |perlsupport-run-2|
+ 1.9.3     Command line arguments                  |perlsupport-run-3|
+ 1.9.4     Debug                                   |perlsupport-run-4|
+ 1.9.5     Read perldoc                            |perlsupport-run-5|
+ 1.9.6     Generate Perl module list               |perlsupport-run-6|
+ 1.9.7     Show installed Perl modules             |perlsupport-run-7|
+ 1.9.8     Run perltidy                            |perlsupport-run-8|
+ 1.9.9     Run SmallProf                           |perlsupport-run-9|
+ 1.9.10    Save buffer with timestamp              |perlsupport-run-10|
+ 1.9.11    Hardcopy                                |perlsupport-run-11|
+ 1.9.12    Xterm size                              |perlsupport-run-12|
+ 1.9.13    Change Output Destination               |perlsupport-run-13|
+ 2.      Usage without GUI                         |perlsupport-usage-vim|
+ 3.      Hotkeys                                   |perlsupport-hotkeys|
+ 4.      Customization and configuration           |perlsupport-custom|
+ 4.1      Files                                    |perlsupport-custom-1|
+ 4.2      Global variables                         |perlsupport-custom-2|
+ 4.3      The root menu                            |perlsupport-custom-3|
+ 4.4      Navigate through PODs                    |perlsupport-custom-4|
+ 5.      Template files and tags                   |perlsupport-tempfiles|
+ 5.1      Template files                           |perlsupport-tempfiles-1|
+ 5.2      Tags                                     |perlsupport-tempfiles-2|
+ 6.      Perl Dictionary                           |perlsupport-dictionary|
+ 7.      Troubleshooting                           |perlsupport-troubleshooting|
+ 8.      Release Notes                             |perlsupport-release-notes|
+ 9.      Credits                                   |perlsupport-credits|
 
-       How to add this help file to vim's help   |add-local-help|
+         How to add this help file to vim's help   |add-local-help|
 
 
 ==============================================================================
@@ -164,10 +165,16 @@ Usually not meant for the final documentation.
 An empty statement will be inserted and properly indented. The entry 'if{}'
 will insert an if-statement:
 
-if (  )
-{
+if (  ) {
 }
 
+The opening curly brace is on the same line as the keyword introducing it.  To
+place the brace on a new line set the appropriate global variable in .vimrc :
+
+  let g:Perl_BraceOnNewLine     = "yes"   
+
+The default values is "no".  This flag applies to all structural blocks,
+including subroutines. 
 
 1.2.2  VISUAL MODE.                                       *perlsupport-stat-2*
 -------------------
@@ -178,12 +185,11 @@ xxxxx
 xxxxx
 
 can be surrounded by one of the following statements ( '|'
-marks the cursor positon):
+marks the cursor positon after insertion):
 
   +----------------------------------------------------------+
   |                                                          |
-  |  do                                                      |
-  |  {                                                       |
+  |  do {                                                    |
   |    xxxxx                                                 |
   |    xxxxx                                                 |
   |  }                                                       |
@@ -191,38 +197,32 @@ marks the cursor positon):
   |                                                          |
   +------------------+---------------------------------------+
   |                  |                                       |
-  |  for ( |; ;  )   |  foreach | (  )                       |
-  |  {               |  {                                    |
+  |  for ( |; ;  ) { |  foreach | (  ) {                     |
   |    xxxxx         |    xxxxx                              |
   |    xxxxx         |    xxxxx                              |
   |  }               |  }       # -----  end foreach  -----  |
   |                  |                                       |
   +------------------+---------------------------------------+
   |                  |                                       |
-  |  if ( | )        |  if ( | )                             |
-  |  {               |  {                                    |
+  |  if ( | ) {      |  if ( | ) {                           |
   |    xxxxx         |    xxxxx                              |
   |    xxxxx         |    xxxxx                              |
   |  }               |  }                                    |
-  |                  |  else                                 |
-  |                  |  {                                    |
+  |                  |  else {                               |
   |                  |  }                                    |
   |                  |                                       |
   +------------------+---------------------------------------+
   |                  |                                       |
-  |  unless ( | )    |  unless ( | )                         |
-  |  {               |  {                                    |
+  |  unless ( | ) {  |  unless ( | ) {                       |
   |    xxxxx         |    xxxxx                              |
   |    xxxxx         |    xxxxx                              |
   |  }               |  }                                    |
-  |                  |  else                                 |
-  |                  |  {                                    |
+  |                  |  else {                               |
   |                  |  }                                    |
   |                  |                                       |
   +------------------+---------------------------------------+
   |                  |                                       |
-  |  until ( | )     |  while ( | )                          |
-  |  {               |  {                                    |
+  |  until ( | ) {   |  while ( | ) {                        |
   |    xxxxx         |    xxxxx                              |
   |    xxxxx         |    xxxxx                              |
   |  }               |  }       # -----  end while  -----    |
@@ -404,6 +404,8 @@ The data display debugger ddd is a graphical front end for GDB. It will be
 started as an independent process.
 The debugger ddd is not available under Windows.
 
+The debugger starts in an separate xterm or is a separate GUI-application
+(e.g. ddd).  This feature is therefore not available for Vim.
 
 1.9.5  READ PERLDOC                                        *perlsupport-run-5*
 -------------------
@@ -448,8 +450,9 @@ pmdesc3.pl has a POD included; see file doc/pmdesc3.text .
 
 The entry 'Run -> show installed Perl modules' loads the module list in a new
 window.  The full documentation for that module can be opened in a perldoc
-help window with the hot key <Shift-F1>.
+help window using the hot keys <Shift-F1>, \h or \rp .
 Looking up help with Shift-F1 works also in the perldoc help window.
+Vim (without GUI): only \h and \rp are working.
 
 1.9.8  RUN PERLTIDY                                        *perlsupport-run-8*
 -------------------
@@ -503,8 +506,8 @@ with 24 lines.
 This feature is not available under Windows.
 
 
-1.9.13 OUTPUT                                             *perlsupport-run-13*
--------------
+1.9.13 CHANGE OUTPUT DESTINATION                          *perlsupport-run-13*
+--------------------------------
 
 Running a Perl script can be done in three ways:
 (1) The script can be run from the command line as usual.
@@ -523,6 +526,9 @@ This menu has three states:
 The first (uppercase) item shows the current method.  The default is 'vim'.
 This can be changed by setting the variable g:Perl_OutputGvim to another value.
 Possible values are 'vim', 'buffer' and 'xterm' .
+
+Vim (non-GUI) : The output destination can be toggled between (1) and (2)
+                using the hotkey \ro .  
 
 The xterm defaults can be set in .vimrc by the variable g:Perl_XtermDefaults .
 The default is "-fa courier -fs 12 -geometry 80x24" :
@@ -613,9 +619,27 @@ card).
 
   -- Run -----------------------------------
 
-  \rx     make script executable
-  \rh     hardcopy buffer to FILENAME.ps
+  \rr     update file, run script             see |perlsupport-run-1|
+  \rs     update file, check syntax           see |perlsupport-run-2|
+  \ra     set command line argument           see |perlsupport-run-3|
+  \rd     start debugger                      see |perlsupport-run-4|
+  \re     make script executable (*)
+  \rp     read perldoc                        see |perlsupport-run-5|
+  \ri     show installed Perl modules         see |perlsupport-run-6|
+  \rg     generation Perl module list         see |perlsupport-run-7|
+  \ry     run perltidy                        see |perlsupport-run-8|
+  \rm     run SmallProf                       see |perlsupport-run-9|
+  \rt     save buffer with timestamp          see |perlsupport-run-10|
+  \rh     hardcopy buffer to FILENAME.ps      see |perlsupport-run-11|
+  \rk     settings and hotkeys 
+  \rx     set xterm size (*)                  see |perlsupport-run-12|
+  \ro     change output destination           see |perlsupport-run-13|
 
+  -- Help ----------------------------------
+
+  \h      read perldoc                        see |perlsupport-run-5|
+
+(*) Linux/UNIX only
 
 File perl-hot-keys.pdf contains a reference card for these key mappings.
 Multiline inserts and code snippets will be indented after insertion.
@@ -636,6 +660,10 @@ The following hotkeys are defined in normal, visual and insert mode:
    Shift-F9   set command line arguments (buffer related)
 
 These hotkeys are defined in the filetype plugin ~/.vim/ftplugin/perl.vim .
+
+Note for xterm users (Vim without GUI): The function key combinations
+Shift-Fx, Alt-Fx and Ctrl-Fx do not work. F9 is also not working to prevent
+unintentional use.  Use hotkeys instead |perlsupport-usage-vim|.
 
 ==============================================================================
 4.  CUSTOMIZATION                                         *perlsupport-custom*
@@ -725,6 +753,7 @@ g:Perl_XtermDefaults           "-fa courier -fs 12 -geometry 80x24"
 g:Perl_Debugger                "perl"
 g:Perl_ProfilerTimestamp       "no"
 g:Perl_LineEndCommColDefault   49
+g:Perl_BraceOnNewLine          "no"
 
 The variable root_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
@@ -763,6 +792,7 @@ The variable root_dir will automatically be set to one of the following values:
           g:Perl_Debugger        : the debugger called by F9 (perl, ptkdb, ddd).
           g:Perl_ProfilerTimestamp      : add time stamp to the profiler buffer name
           g:Perl_LineEndCommColDefault  : default starting column for line end comments 
+          g:Perl_BraceOnNewLine         : opening brace (not) on a new line
 
 To override the defaults add appropriate assignments to .vimrc .
 Set at least some personal details into .vimrc by overriding some defaults.
@@ -935,13 +965,34 @@ You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
 
 
 ==============================================================================
-7.  RELEASE NOTES                                  *perlsupport-release-notes*
+7.  TROUBLESHOOTING                              *perlsupport-troubleshooting*
+==============================================================================
+
+* Script not executable.
+  - Script executable from the command line ?
+  - Perl installation correct ?
+  - PATH variable correct ?
+  - Script executable ?
+  - Syntax correct ?
+  - Necessary modules installed ?
+
+* Some plugin features not present (e.g. hotkeys).
+  - File type plugin $HOME/.vim/ftplugin/perl.vim exists ?
+
+* Some hotkeys do not work.
+  - The hotkeys might be in use by your graphical desktop environment.
+    Under KDE Ctrl-F9 is the hotkey which let you switch to the 9. desktop.
+    The key settings can usually be redefined.
+    
+
+==============================================================================
+8.  RELEASE NOTES                                  *perlsupport-release-notes*
 ==============================================================================
 
 See file README.perlsupport .
 
 ==============================================================================
-8.  CREDITS                                              *perlsupport-credits*
+9.  CREDITS                                              *perlsupport-credits*
 ==============================================================================
 
 David Fishburn <fishburn@ianywhere.com> for the implementation of the
@@ -953,7 +1004,7 @@ Ryan Hennig <hennig@amazon.com> improved the install script.
 Aristotle, http://qs321.pair.com/~monkads/ is the author of the script pmdesc2
   which is the base of the script pmdesc3.pl.
 
-David Fishhburn contributed changes for the Windows platform and suggested to
+David Fishburn contributed changes for the Windows platform and suggested to
   not let enter snippets and templates the list of alternate files.
 
 ==============================================================================

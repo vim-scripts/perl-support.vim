@@ -3,7 +3,7 @@
 " Language   :  Perl
 " Plugin     :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  07.02.2005
+" Last Change:  01.07.2005
 "
 " -----------------------------------------------------------------
 "
@@ -25,22 +25,28 @@ endif
 " ---------- Key mappings  -------------------------------------
 "
 "   Ctrl-F9   run script
-"        F9   run script with pager
 "    Alt-F9   run syntax check
+"        F9   run script with pager
 "
- map    <buffer>  <silent>  <A-F9>             :call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>
-imap    <buffer>  <silent>  <A-F9>        <Esc>:call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>
-" 
-" <C-C> seems to be essential here:
-"
- map    <buffer>            <C-F9>        <C-C>:call Perl_Run()<CR>
-imap    <buffer>            <C-F9>   <C-C><C-C>:call Perl_Run()<CR>
-"
- map    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>
-imap    <buffer>  <silent>    <F9>   <C-C><C-C>:call Perl_Debugger()<CR>
-"
- map    <buffer>  <silent>  <S-F9>               :call Perl_Arguments()<CR>
-imap    <buffer>  <silent>  <S-F9>          <Esc>:call Perl_Arguments()<CR>
+" Vim : shifted keys are mapped to their unshifted key !!!
+"  
+if has("gui_running")
+  "
+   map    <buffer>  <silent>  <A-F9>             :call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
+  imap    <buffer>  <silent>  <A-F9>        <Esc>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
+  " 
+  " <C-C> seems to be essential here:
+  "
+   map    <buffer>            <C-F9>        <C-C>:call Perl_Run()<CR>
+  imap    <buffer>            <C-F9>   <C-C><C-C>:call Perl_Run()<CR>
+  "
+   map    <buffer>  <silent>  <S-F9>             :call Perl_Arguments()<CR>
+  imap    <buffer>  <silent>  <S-F9>        <Esc>:call Perl_Arguments()<CR>
+  "
+   map    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>
+  imap    <buffer>  <silent>    <F9>   <C-C><C-C>:call Perl_Debugger()<CR>
+  "
+endif
 
 nmap    <buffer>  <silent>  <Leader>cl    A<Tab><Tab><Tab>#<Space>
 vmap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_MultiLineEndComments()<CR>
@@ -112,10 +118,35 @@ nmap    <buffer>  <silent>  <Leader>ls    a[:space:]
 nmap    <buffer>  <silent>  <Leader>lu    a[:upper:]
 nmap    <buffer>  <silent>  <Leader>lw    a[:word:]
 nmap    <buffer>  <silent>  <Leader>lx    a[:xdigit:]
-
-if !has('win32')
+"
+ map    <buffer>  <silent>  <Leader>rr    <Esc>:call Perl_Run()<CR>
+ map    <buffer>  <silent>  <Leader>rs    <Esc>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
+ map    <buffer>  <silent>  <Leader>ra    <Esc>:call Perl_Arguments()<CR>
+if has("gui_running")    " starts an xterm
+   map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>:redraw!<CR>
+endif
+"
+if has("unix")
   nmap    <buffer>  <silent>  <Leader>re    :call Perl_MakeScriptExecutable()<CR>
 endif
+"
+ map              <silent>  <Leader>rp    <Esc>:call Perl_perldoc()<CR>
+"
+ map    <buffer>  <silent>  <Leader>ri    <Esc>:call Perl_perldoc_show_module_list()<CR>
+ map    <buffer>  <silent>  <Leader>rg    <Esc>:call Perl_perldoc_generate_module_list()<CR>:redraw!<CR>
+"
+ map    <buffer>  <silent>  <Leader>ry    <Esc>:call Perl_Perltidy("n")<CR>
+vmap    <buffer>  <silent>  <Leader>ry    <Esc>:call Perl_Perltidy("v")<CR>
+"
+ map    <buffer>  <silent>  <Leader>rm    <Esc>:call Perl_Smallprof()<CR>
+ map    <buffer>  <silent>  <Leader>rt    <C-C>:call Perl_SaveWithTimestamp()<CR>
  map    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("n")<CR>
 vmap    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("v")<CR>
-
+"
+ map    <buffer>  <silent>  <Leader>rk    <Esc>:call Perl_Settings()<CR>
+if has("gui_running") && has("unix")
+	 map    <buffer>  <silent>  <Leader>rx    <Esc>:call Perl_XtermSize()<CR>
+endif
+"
+ map    <buffer>  <silent>  <Leader>ro    <Esc>:call Perl_Toggle_Gvim_Xterm()<CR>
+"
