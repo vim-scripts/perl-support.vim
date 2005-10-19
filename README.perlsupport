@@ -1,10 +1,19 @@
-README for perl-support.vim (Version 2.6) / July 01 2005
+README for perl-support.vim (Version 2.7) / Oct 19 2005
 
   *  INSTALLATION
   *  RELEASE NOTES 
   *  FILES
   *  ADDITIONAL TIPS
   *  CREDITS
+
+perl-support.vim implements a Perl-IDE for Vim/gVim.  It is written to
+considerably speed up writing code in a consistent style.
+This is done by inserting complete statements, comments, idioms, code snippets,
+templates, comments and POD documentation.  Reading perldoc is integrated.
+Syntax checking, running a script, starting a debugger and a profiler can be
+done by a keystroke.
+There a many additional hints and options which can improve speed and comfort
+when writing Perl. Please read the documentation.
 
 =======================================================================================
   INSTALLATION
@@ -42,6 +51,7 @@ There are a lot of features and options which can be used and influenced:
   *  the Perl module list
   *  reading Perl documentation with integrated calls to perldoc
   *  removing the root menu
+  *  using additional plugins
 
 Restart gVim/Vim generate the help tags 
 
@@ -51,17 +61,28 @@ and look at the perlsupport help with
 
   :help perlsupport 
 
-             +-----------------------------------------------+
-             | +-------------------------------------------+ |
-             | |    ** PLEASE READ THE DOCUMENTATION **    | |
-             | |    Actions differ for different modes!    | |
-             | +-------------------------------------------+ |
-             +-----------------------------------------------+
+               +-----------------------------------------------+
+               | +-------------------------------------------+ |
+               | |    ** PLEASE READ THE DOCUMENTATION **    | |
+               | |    Actions differ for different modes!    | |
+               | +-------------------------------------------+ |
+               +-----------------------------------------------+
 
 
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.7
+---------------------------------------------------------------------------------------
++ POD: "invisible POD" added (as suggested in Conway's book "Perl Best Practices").
++ POD: sequence insertion improved; '<E>' added; '=for' added.
++ <S-F1> (read perldoc) now works only for filetype 'perl' .
++ Some idioms improved (e.g. opening files, subroutine stub).
++ Added ':' to the keyword characters; recognizes tokens like 'Net::Cmd' as one keyword.
++ Perltidy integration made safer.
++ Starting an xterm was not possible with some installations (bugfix).
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.6
@@ -296,6 +317,9 @@ Aristotle, http://qs321.pair.com/~monkads/ is the author of the script pmdesc2
 
 David Fishhburn contributed changes for the Windows platform and suggested to not let
   enter snippets and templates the list of alternate files.
+
+The two files pod-template-application.pl and pod-template-module.pl are taken from 
+  Damian Conway's book "Perl Best Practices".
 
 
 =======================================================================================

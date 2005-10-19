@@ -1,3 +1,24 @@
+continue
+else
+elseif
+foreach
+goto
+last
+locked
+lvalue
+method
+next
+redo
+unless
+until
+while
+
+AUTOLOAD
+BEGIN
+CHECK
+END
+INIT
+
 accept
 alarm
 atan2
@@ -14,7 +35,6 @@ chroot
 close
 closedir
 connect
-continue
 crypt
 dbmclose
 dbmopen
@@ -66,7 +86,6 @@ getsockname
 getsockopt
 glob
 gmtime
-goto
 grep
 import
 index
@@ -74,7 +93,6 @@ ioctl
 join
 keys
 kill
-last
 lcfirst
 length
 link
@@ -87,7 +105,6 @@ msgctl
 msgget
 msgrcv
 msgsnd
-next
 open
 opendir
 pack
@@ -105,7 +122,6 @@ readline
 readlink
 readpipe
 recv
-redo
 rename
 require
 reset
@@ -237,3 +253,12 @@ space
 upper
 word
 xdigit
+
+__DATA__
+__END__
+__FILE__
+__LINE__
+__PACKAGE__
+
+SUPER
+UNIVERSAL

@@ -10,35 +10,39 @@ runtime vimrc_example.vim
 "===============================================================================
 "
 " Platform specific items:
-" - backup directory (has to be created manually)
-" 
-if	has("win16") || has("win32")     || has("win32") || 
-	\ has("win64") || has("win32unix") || has("win95")
-	"
-	runtime	mswin.vim
-"	set backupdir   =$VIM\vimfiles\backupdir
+" - central backup directory (has to be created)
+" - default dictionary
+" Uncomment your choice.  
+if  has("win16") || has("win32")     || has("win64") || 
+  \ has("win95") || has("win32unix") 
+    "
+"    runtime mswin.vim
+"    set backupdir =$VIM\vimfiles\backupdir
+"    set dictionary=$VIM\vimfiles\wordlists/german.list
 else
-"	set backupdir   =$HOME/.vim.backupdir 
+"    set backupdir =$HOME/.vim.backupdir
+"    set dictionary=$HOME/.vim/wordlists/german.list
 endif
 "
-" shift down   : change window focus to lower one
-" shift up     : change window focus to upper one
-" shift left   : change window focus to one on left
-" shift right  : change window focus to one on right
+"-------------------------------------------------------------------------------
+" Use of dictionaries
+"-------------------------------------------------------------------------------
 "
-nmap <s-down>   <c-w>j
-nmap <s-up>     <c-w>k
-nmap <s-left>   <c-w>h
-nmap <s-right>  <c-w>l
+set complete+=k           " scan the files given with the 'dictionary' option
 "
-set autoread                          " read open files again when changed outside Vim
-set autowrite                         " write a modified buffer on each :next , ...
-set browsedir  =current               " which directory to use for the file browser
-set incsearch                         " use incremental search
-set nowrap                            " do not wrap lines
-set shiftwidth =2                     " number of spaces to use for each step of indent
-set tabstop    =2                     " number of spaces that a <Tab> in the file counts for
-set visualbell                        " visual bell instead of beeping
+"-------------------------------------------------------------------------------
+" Various settings
+"-------------------------------------------------------------------------------
+"
+set autoread              " read open files again when changed outside Vim
+set autowrite             " write a modified buffer on each :next , ...
+set browsedir  =current   " which directory to use for the file browser
+set incsearch             " use incremental search
+set nowrap                " do not wrap lines
+set shiftwidth =2         " number of spaces to use for each step of indent
+set tabstop    =2         " number of spaces that a <Tab> in the file counts for
+set visualbell            " visual bell instead of beeping
+"
 "
 "-------------------------------------------------------------------------------
 "  some additional hot keys
@@ -73,12 +77,13 @@ imap  <silent> <F12>   :let &number=1-&number<CR>
 "-------------------------------------------------------------------------------
 " Fast switching between buffers
 " The current buffer will be saved before switching to the next one.
+" Choose :bprevious or :bnext
 "-------------------------------------------------------------------------------
 "
  map  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && 
-     \                  &modified <CR> :write<CR> :endif<CR>:bprevious<CR>
+     \                  &modified <CR> :write<CR> :endif<CR>:bnext<CR>
 imap  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && 
-     \                  &modified <CR> :write<CR> :endif<CR>:bprevious<CR>
+     \                  &modified <CR> :write<CR> :endif<CR>:bnext<CR>
 "
 "-------------------------------------------------------------------------------
 " Leave the editor with Ctrl-q : Write all changed buffers and exit Vim
@@ -91,17 +96,6 @@ nmap  <C-q>    :wqa<CR>
 if has("autocmd")
   autocmd BufEnter * :lcd %:p:h
 endif " has("autocmd")
-"
-"-------------------------------------------------------------------------------
-" Use of dictionaries
-" 
-" dictionary : List of file names that are used to lookup words
-"              for keyword completion commands
-"   complete : search the files defined by the 'dictionary' option
-"-------------------------------------------------------------------------------
-"
-set dictionary=$HOME/.vim/wordlists/german.list
-set complete+=k
 "
 "-------------------------------------------------------------------------------
 " Filename completion
@@ -122,11 +116,10 @@ set printoptions=left:8pc,right:3pc
 "-------------------------------------------------------------------------------
 " perl-support.vim
 "-------------------------------------------------------------------------------
-let g:Perl_AuthorName   = 'Dr.-Ing. Fritz Mehner'
-let g:Perl_AuthorRef    = 'Mn'
-let g:Perl_Email        = 'mehner@fh-swf.de'
-let g:Perl_Company      = 'FH Südwestfalen, Iserlohn'
-let g:Perl_Debugger     = "perl"
+let g:Perl_AuthorName        = 'Dr.-Ing. Fritz Mehner'
+let g:Perl_AuthorRef         = 'Mn'
+let g:Perl_Company           = 'FH Südwestfalen, Iserlohn'
+let g:Perl_Email             = 'mehner@fh-swf.de'
 "                         
 "-------------------------------------------------------------------------------
 " taglist.vim : toggle the taglist window

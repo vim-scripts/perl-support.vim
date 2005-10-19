@@ -1,23 +1,23 @@
 NAME
-    pmdesc3 - Find versions and descriptions of installed perl modules and
-    PODs
+    pmdesc3 - Find and list name, version and description of all installed
+    perl modules and PODs
 
 SYNOPSIS
-    pmdesc3
+            pmdesc3.pl
 
-    pmdesc3 ~/perllib
+            pmdesc3.pl ~/perllib
 
 DESCRIPTION
-      pmdesc3 [-h] [-s] [-t ddd] [-v dd] [--] [dir [dir [dir [...]]]]
+      pmdesc3.pl [-h] [-s] [-t ddd] [-v dd] [--] [dir [dir [dir [...]]]]
 
       OPTIONS:  -h     : print help message; show search path
                 -s     : sort output (not under Windows)
                 -t ddd : name column has width ddd (1-3 digits); default 36
                 -v  dd : version column has width dd (1-2 digits); default 10
 
-    Find versions and descriptions of installed Perl Modules and PODs. If no
-    directories given, searches @INC . The first column of the output (see
-    below) can be used as module name or FAQ-name for perldoc.
+    Find name, version and description of all installed Perl modules and
+    PODs. If no directories given, searches @INC . The first column of the
+    output (see below) can be used as module name or FAQ-name for perldoc.
 
     Some modules are split into a pm-file and an accompanying pod-file. The
     version number is always taken from the pm-file.
@@ -26,7 +26,7 @@ DESCRIPTION
     characters (prevents slurping in big amount of faulty docs).
 
     Output
-      The output looks like that:
+      The output looks like this:
 
          ...
       IO::Socket         (1.28)  Object interface to socket communications
@@ -41,20 +41,29 @@ DESCRIPTION
       at least one blank.
 
 REQUIREMENTS
-    ExtUtils::MakeMaker, File::Find, Getopt::Std
+      ExtUtils::MakeMaker, File::Find, Getopt::Std
+
+BUGS AND LIMITATIONS
+      The command line switch -s (sort) is not available under non-UNIX
+      operating systems. An additional shell sort command can be used.
+
+      There are no known bugs in this module.
+
+      Please report problems to Fritz Mehner, mehner@fh-swf.de .
 
 AUTHORS
-      Tom Christiansen, tchrist@perl.com (pmdesc)
-      Aristotle, http://qs321.pair.com/~monkads/ (pmdesc2)
-      Fritz Mehner, mehner@fh-swf.de (pmdesc3)
+        Tom Christiansen, tchrist@perl.com (pmdesc)
+        Aristotle, http://qs321.pair.com/~monkads/ (pmdesc2)
+        Fritz Mehner, mehner@fh-swf.de (pmdesc3.pl)
 
 NOTES
-    pmdesc3 is based on pmdesc2 (Aristotle,
-    http://qs321.pair.com/~monkads/). pmdesc3 adds extensions and bugfixes.
+      pmdesc3.pl is based on pmdesc2 (Aristotle,
+      http://qs321.pair.com/~monkads/). pmdesc3.pl adds extensions and
+      bugfixes.
 
-    pmdesc2 is based on pmdesc (Perl Cookbook, 1. Ed., recipe 12.19).
-    pmdesc2 is at least one magnitude faster than pmdesc.
+      pmdesc2 is based on pmdesc (Perl Cookbook, 1. Ed., recipe 12.19).
+      pmdesc2 is at least one magnitude faster than pmdesc.
 
 VERSION
-    1.2.2
+      1.2.2
 

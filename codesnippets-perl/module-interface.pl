@@ -1,6 +1,9 @@
 
 package PackageName;   
 
+use strict;
+use warnings;
+
 #=======================================================================
 #  MODULE INTERFACE
 #=======================================================================
@@ -10,7 +13,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 use Exporter;
 @ISA         = qw(Exporter);
 
-$VERSION     = 1.00;                            # Version number
+$VERSION     = 0.01;                            # Version number
 
 # Symbols to be exported by default
 @EXPORT      = qw();

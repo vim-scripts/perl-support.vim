@@ -4,4 +4,7 @@
 --regex-perl=/^=head2[[:space:]]*(.+)$/. \1/d,pod/
 --regex-perl=/^=head3[[:space:]]*(.+)$/\.\. \1/d,pod/
 --regex-perl=/^=head4[[:space:]]*(.+)$/\.\.\. \1/d,pod/
+--regex-perl=/^=for[[:space:]]+([^:]+):(.*)$/*\1:\2/d,pod/
+--regex-perl=/^__END__$/__END__/l,labels/
+--regex-perl=/^__DATA__$/__DATA__/l,labels/
 

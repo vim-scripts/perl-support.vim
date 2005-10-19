@@ -3,9 +3,9 @@
 " Language   :  Perl
 " Plugin     :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  01.07.2005
+" Last Change:  30.09.2005
 "
-" -----------------------------------------------------------------
+" ----------------------------------------------------------------------------
 "
 " Only do this when not done yet for this buffer
 " 
@@ -14,7 +14,22 @@ if exists("b:did_PERL_ftplugin")
 endif
 let b:did_PERL_ftplugin = 1
 "
-" ---------- Perl dictionary -----------------------------------
+"
+" ---------- tabulator / shiftwidth ------------------------------------------
+"  Set tabulator and shift width to 4 conforming to the Perl Style Guide.
+"  Uncomment the next two lines to force these settings for all files with
+"  filetype 'perl' .
+"  
+setlocal	tabstop=4
+setlocal	shiftwidth=4
+"
+" ---------- Add ':' to the keyword characters -------------------------------
+"            Tokens like 'File::Find' are recognized as 
+"            one keyword
+" 
+setlocal iskeyword+=:
+"
+" ---------- Perl dictionary -------------------------------------------------
 " This will enable keyword completion for Perl
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
 "
@@ -22,7 +37,7 @@ if exists("g:Perl_Dictionary_File")
     silent! exec 'setlocal dictionary+='.g:Perl_Dictionary_File
 endif    
 "
-" ---------- Key mappings  -------------------------------------
+" ---------- Key mappings  ---------------------------------------------------
 "
 "   Ctrl-F9   run script
 "    Alt-F9   run syntax check
@@ -37,8 +52,8 @@ if has("gui_running")
   " 
   " <C-C> seems to be essential here:
   "
-   map    <buffer>            <C-F9>        <C-C>:call Perl_Run()<CR>
-  imap    <buffer>            <C-F9>   <C-C><C-C>:call Perl_Run()<CR>
+   map    <buffer>  <silent>  <C-F9>        <C-C>:call Perl_Run()<CR>
+  imap    <buffer>  <silent>  <C-F9>   <C-C><C-C>:call Perl_Run()<CR>
   "
    map    <buffer>  <silent>  <S-F9>             :call Perl_Arguments()<CR>
   imap    <buffer>  <silent>  <S-F9>        <Esc>:call Perl_Arguments()<CR>
@@ -46,6 +61,8 @@ if has("gui_running")
    map    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>
   imap    <buffer>  <silent>    <F9>   <C-C><C-C>:call Perl_Debugger()<CR>
   "
+   map    <buffer>  <silent>  <S-F1>             :call Perl_perldoc()<CR><CR>
+  imap    <buffer>  <silent>  <S-F1>        <Esc>:call Perl_perldoc()<CR><CR>
 endif
 
 nmap    <buffer>  <silent>  <Leader>cl    A<Tab><Tab><Tab>#<Space>
@@ -130,7 +147,8 @@ if has("unix")
   nmap    <buffer>  <silent>  <Leader>re    :call Perl_MakeScriptExecutable()<CR>
 endif
 "
- map              <silent>  <Leader>rp    <Esc>:call Perl_perldoc()<CR>
+ map    <buffer>  <silent>  <Leader>rp    <Esc>:call Perl_perldoc()<CR>
+ map    <buffer>  <silent>  <Leader>h     <Esc>:call Perl_perldoc()<CR>
 "
  map    <buffer>  <silent>  <Leader>ri    <Esc>:call Perl_perldoc_show_module_list()<CR>
  map    <buffer>  <silent>  <Leader>rg    <Esc>:call Perl_perldoc_generate_module_list()<CR>:redraw!<CR>

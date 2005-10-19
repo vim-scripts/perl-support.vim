@@ -2,28 +2,25 @@
 "
 "       Filename:  perl-support.vim
 "
-"    Description:  Write, compile and run Perl-scripts using menus and key mappings.
+"    Description:  perl-support.vim implements a Perl-IDE for Vim/gVim.  It is
+"                  written to considerably speed up writing code in a consistent
+"                  style.
+"                  This is done by inserting complete statements, comments,
+"                  idioms, code snippets, templates, comments and POD
+"                  documentation.  Reading perldoc is integrated.  Syntax
+"                  checking, running a script, starting a debugger and a
+"                  profiler can be done by a keystroke.  
+"                  There a many additional hints and options which can improve
+"                  speed and comfort when writing Perl. Please read the
+"                  documentation.
 "
-"       Features:  - insert various types of comments
-"                  - insert complete but empty statements (e.g. 'if {} else {}' )
-"                  - insert often used code snippets (e.g. declarations, 
-"                    the opening of files, .. )
-"                  - insert the names of file tests, character classes, 
-"                    special Perl-variables and POSIX-signals
-"                  - read, write, maintain your own code snippets in a separate
-"                    directory
-"                  - run scripts or run syntax check from within the editor
-"                  - show compilation errors in a quickfix window; navigate with hotkeys 
-"                  - read perldoc for functions, modules and FAQs
-"                  - run perltidy / a debugger / a profiler
-"                 
-"  Configuration:  There are some personal details which should be configured 
+"  Configuration:  There are at least some personal details which should be configured 
 "                  (see the files README.perlsupport and perlsupport.txt).
 "
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  01.07.2005
+"       Revision:  19.10.2005
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -35,7 +32,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.6"
+let g:Perl_Version= "2.7"
 "        
 "###############################################################################################
 "
@@ -45,8 +42,8 @@ let g:Perl_Version= "2.6"
 " - root directory
 " - characters that must be escaped for filenames
 " 
-let	s:MSWIN =		has("win16") || has("win32")     || has("win32") || 
-							\ has("win64") || has("win32unix") || has("win95")
+let	s:MSWIN =		has("win16") || has("win32")     || has("win64") || 
+							\ has("win95") || has("win32unix")
 " 
 if	s:MSWIN
 	"
@@ -133,6 +130,7 @@ call Perl_CheckGlobal("Perl_BraceOnNewLine         ")
 "------------------------------------------------------------------------------
 "
 let	s:Perl_POD_cut ='<CR>=pod  <CR><CR><CR><CR>=cut  #  back to Perl<CR>'
+let	s:Perl_POD_for ='<CR>=for  <CR><CR>=cut  #  back to Perl<CR>'
 let	s:Perl_POD_List='<CR>=over 2<CR><CR>=item *<CR><CR><CR><CR>=item *<CR><CR><CR><CR>=back  #  back to Perl<CR><CR>'
 let	s:Perl_POD_html='<CR>=begin  html<CR><CR><CR><CR>=end    html  #  back to Perl<CR>'
 let	s:Perl_POD_man ='<CR>=begin  man<CR><CR><CR><CR>=end    man  #  back to Perl<CR>'
@@ -204,11 +202,12 @@ function!	Perl_InitMenu ()
 			exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.-Sep0-      :'
 		endif
 		"
-		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&BUG          <Esc><Esc>$<Esc>:call Perl_CommentClassified("BUG")     <CR>kJA'
-		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&TODO         <Esc><Esc>$<Esc>:call Perl_CommentClassified("TODO")    <CR>kJA'
-		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.T&RICKY       <Esc><Esc>$<Esc>:call Perl_CommentClassified("TRICKY")  <CR>kJA'
-		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&WARNING      <Esc><Esc>$<Esc>:call Perl_CommentClassified("WARNING") <CR>kJA'
-		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&new\ keyword <Esc><Esc>$<Esc>:call Perl_CommentClassified("")        <CR>kJf:a'
+		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&BUG          <Esc><Esc>$<Esc>:call Perl_CommentClassified("BUG")       <CR>kJA'
+		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&TODO         <Esc><Esc>$<Esc>:call Perl_CommentClassified("TODO")      <CR>kJA'
+		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.T&RICKY       <Esc><Esc>$<Esc>:call Perl_CommentClassified("TRICKY")    <CR>kJA'
+		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&WARNING      <Esc><Esc>$<Esc>:call Perl_CommentClassified("WARNING")   <CR>kJA'
+		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.W&ORKAROUND   <Esc><Esc>$<Esc>:call Perl_CommentClassified("WORKAROUND")<CR>kJA'
+		exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&new\ keyword <Esc><Esc>$<Esc>:call Perl_CommentClassified("")          <CR>kJf:a'
 		"
 		"
 		"----- Submenu :  Tags  ----------------------------------------------------------
@@ -324,14 +323,15 @@ function!	Perl_InitMenu ()
 		exe "imenu ".s:Perl_Root.'I&dioms.(&8)\ $\ =~\ s///             $ =~ s///<Esc>F$a'
 		exe "imenu ".s:Perl_Root.'I&dioms.(&9)\ $\ =~\ tr///            $ =~ tr///<Esc>F$a'
 		exe " menu ".s:Perl_Root.'I&dioms.-SEP4-                        :'
+		exe "amenu ".s:Perl_Root.'I&dioms.&subroutine                   <Esc><Esc>:call Perl_Subroutine("a")<CR>A'
+		exe "vmenu ".s:Perl_Root.'I&dioms.&subroutine                   <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a'
 		exe " menu ".s:Perl_Root.'I&dioms.&print\ \"\.\.\.\\n\";        <Esc>aprint "\n";<ESC>3hi'
 		exe " menu ".s:Perl_Root.'I&dioms.print&f\ (\"\.\.\.\\n\");     <Esc>aprintf ("\n");<ESC>4hi'
 		exe "imenu ".s:Perl_Root.'I&dioms.&print\ \"\.\.\.\\n\";        print "\n";<ESC>3hi'
 		exe "imenu ".s:Perl_Root.'I&dioms.print&f\ (\"\.\.\.\\n\");     printf ("\n");<ESC>4hi'
-		exe "amenu ".s:Perl_Root.'I&dioms.&subroutine                   <Esc><Esc>:call Perl_CodeFunction()<CR>A'
-		exe "amenu ".s:Perl_Root.'I&dioms.open\ &input\ file            <Esc><Esc>:call Perl_CodeOpenRead()<CR>a'
-		exe "amenu ".s:Perl_Root.'I&dioms.open\ &output\ file           <Esc><Esc>:call Perl_CodeOpenWrite()<CR>a'
-		exe "amenu ".s:Perl_Root.'I&dioms.open\ pip&e                   <Esc><Esc>:call Perl_CodeOpenPipe()<CR>a'
+		exe "amenu ".s:Perl_Root.'I&dioms.open\ &input\ file            <Esc><Esc>:call Perl_OpenInputFile()<CR>a'
+		exe "amenu ".s:Perl_Root.'I&dioms.open\ &output\ file           <Esc><Esc>:call Perl_OpenOutputFile()<CR>a'
+		exe "amenu ".s:Perl_Root.'I&dioms.open\ pip&e                   <Esc><Esc>:call Perl_OpenPipe()<CR>a'
 		exe "amenu ".s:Perl_Root.'I&dioms.-SEP5-                        :'
 		exe " menu ".s:Perl_Root.'I&dioms.<STDIN>                       <Esc>a<STDIN>'
 		exe " menu ".s:Perl_Root.'I&dioms.<STDOUT>                      <Esc>a<STDOUT>'
@@ -706,7 +706,7 @@ function!	Perl_InitMenu ()
 		exe "imenu ".s:Perl_Root."Spec-&Var.\'IGNORE\' 						'IGNORE'"
 		exe "imenu ".s:Perl_Root."Spec-&Var.\'DEFAULT\' 					'DEFAULT'"
 		exe "imenu ".s:Perl_Root.'Spec-&Var.-SEP3-      		      :'
-		exe "amenu ".s:Perl_Root.'Spec-&Var.use\ English; 				<ESC><ESC>ouse English;'
+		exe "amenu ".s:Perl_Root.'Spec-&Var.use\ English; 				<ESC><ESC>ouse English qw( -no_match_vars );'
 		"
 		"---------- POD-Menu ----------------------------------------------------------------------
 		"
@@ -717,38 +717,50 @@ function!	Perl_InitMenu ()
 		"
 		exe "amenu ".s:Perl_Root.'&POD.=&pod\ /\ =cut            <Esc><Esc>o'.s:Perl_POD_cut.'<Esc>3kA'
 		exe "amenu ".s:Perl_Root.'&POD.=c&ut                     <Esc><Esc>o<CR>=cut<CR><CR><Esc>A'
+		exe "amenu ".s:Perl_Root.'&POD.=fo&r\ /\ =cut            <Esc><Esc>o'.s:Perl_POD_for.'<Esc>3kA'
 		exe "amenu ".s:Perl_Root.'&POD.=begin\ &html\ /\ =end    <Esc><Esc>o'.s:Perl_POD_html.'<Esc>3kA'
 		exe "amenu ".s:Perl_Root.'&POD.=begin\ &man\ /\ =end     <Esc><Esc>o'.s:Perl_POD_man.'<Esc>3kA'
 		exe "amenu ".s:Perl_Root.'&POD.=begin\ &text\ /\ =end    <Esc><Esc>o'.s:Perl_POD_text.'<Esc>3kA'
 		exe "amenu ".s:Perl_Root.'&POD.=head&1                   <Esc><Esc>o<CR>=head1 <CR><Esc>kA'
 		exe "amenu ".s:Perl_Root.'&POD.=head&2                   <Esc><Esc>o<CR>=head2 <CR><Esc>kA'
 		exe "amenu ".s:Perl_Root.'&POD.=head&3                   <Esc><Esc>o<CR>=head3 <CR><Esc>kA'
-		exe "amenu ".s:Perl_Root.'&POD.-Sep1-                         :'
+		exe "amenu ".s:Perl_Root.'&POD.-Sep1-                    :'
 		exe "amenu ".s:Perl_Root.'&POD.=&over\ \.\.\ =back       <Esc><Esc>o'.s:Perl_POD_List.'<Esc>8kA'
 		exe "amenu ".s:Perl_Root.'&POD.=item\ &*                 <Esc><Esc>o<CR>=item *<CR><CR><CR><Esc>kA'
-		exe "amenu ".s:Perl_Root.'&POD.-Sep2-                   :'
+		exe "amenu ".s:Perl_Root.'&POD.-Sep2-                    :'
+		"
+		if s:Perl_MenuHeader == "yes"
+			exe "amenu ".s:Perl_Root.'&POD.in&visible\ POD.invisible\ POD<Tab>Perl     <Esc>'
+			exe "amenu ".s:Perl_Root.'&POD.in&visible\ POD.-Sep0-        :'
+		endif
+		exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Improvement   <Esc><C-C>:call Perl_InvisiblePOD("Improvement")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Optimization  <Esc><C-C>:call Perl_InvisiblePOD("Optimization")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Rationale     <Esc><C-C>:call Perl_InvisiblePOD("Rationale")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Workaround    <Esc><C-C>:call Perl_InvisiblePOD("Workaround")<CR>'
+		exe "amenu ".s:Perl_Root.'&POD.-Sep3-                    :'
 		"
 		"---------- submenu : Sequences --------------------------------------
 		"
-		exe "amenu ".s:Perl_Root.'&POD.&B<><Tab>bold                    <Esc>iB<><Esc>i'
-		exe "amenu ".s:Perl_Root.'&POD.&C<><Tab>literal                 <Esc>iC<><Esc>i'
-		exe "amenu ".s:Perl_Root.'&POD.&F<><Tab>filename                <Esc>iF<><Esc>i'
-		exe "amenu ".s:Perl_Root.'&POD.&I<><Tab>italic                  <Esc>iI<><Esc>i'
-		exe "amenu ".s:Perl_Root.'&POD.&L<><Tab>link                    <Esc>iL<><Esc>i'
-		exe "amenu ".s:Perl_Root.'&POD.&S<>\ \ nonbr\.\ spaces          <Esc>iS<><Esc>i'
-		exe "amenu ".s:Perl_Root.'&POD.&X<><Tab>index                   <Esc>iX<><Esc>i'
-		"
-		exe "amenu ".s:Perl_Root.'&POD.&Z<><Tab>zero-width              <Esc>iZ<><Esc>a'
+		exe "amenu ".s:Perl_Root.'&POD.&B<><Tab>bold             <Esc><Esc>aB<><Esc>i'
+		exe "amenu ".s:Perl_Root.'&POD.&C<><Tab>literal          <Esc><Esc>aC<><Esc>i'
+		exe "amenu ".s:Perl_Root.'&POD.&E<><Tab>escape           <Esc><Esc>aE<><Esc>i'
+		exe "amenu ".s:Perl_Root.'&POD.&F<><Tab>filename         <Esc><Esc>aF<><Esc>i'
+		exe "amenu ".s:Perl_Root.'&POD.&I<><Tab>italic           <Esc><Esc>aI<><Esc>i'
+		exe "amenu ".s:Perl_Root.'&POD.&L<><Tab>link             <Esc><Esc>aL<\|><Esc>hi'
+		exe "amenu ".s:Perl_Root.'&POD.&S<>\ \ nonbr\.\ spaces   <Esc><Esc>aS<><Esc>i'
+		exe "amenu ".s:Perl_Root.'&POD.&X<><Tab>index            <Esc><Esc>aX<><Esc>i'
+		exe "amenu ".s:Perl_Root.'&POD.&Z<><Tab>zero-width       <Esc>aZ<><Esc>a'
 		"
 		exe "vmenu ".s:Perl_Root.'&POD.&B<><Tab>bold                    sB<><Esc>P2l'
 		exe "vmenu ".s:Perl_Root.'&POD.&C<><Tab>literal                 sC<><Esc>P2l'
+		exe "vmenu ".s:Perl_Root.'&POD.&E<><Tab>escape                  sE<><Esc>P2l'
 		exe "vmenu ".s:Perl_Root.'&POD.&F<><Tab>filename                sF<><Esc>P2l'
 		exe "vmenu ".s:Perl_Root.'&POD.&I<><Tab>italic                  sI<><Esc>P2l'
-		exe "vmenu ".s:Perl_Root.'&POD.&L<><Tab>link                    sL<><Esc>P2l'
+		exe "vmenu ".s:Perl_Root.'&POD.&L<><Tab>link                    sL<\|><Esc>hPl'
 		exe "vmenu ".s:Perl_Root.'&POD.&S<>\ \ nonbr\.\ spaces          sS<><Esc>P2l'
 		exe "vmenu ".s:Perl_Root.'&POD.&X<><Tab>index                   sX<><Esc>P2l'
 
-		exe "amenu          ".s:Perl_Root.'&POD.-SEP3-      		        :'
+		exe "amenu          ".s:Perl_Root.'&POD.-SEP4-      		        :'
 		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ html\ \ (&4)   <Esc><C-C>:call Perl_POD("html")<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ man\ \ (&5)    <Esc><C-C>:call Perl_POD("man")<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&6)   <Esc><C-C>:call Perl_POD("text")<CR>'
@@ -763,7 +775,7 @@ function!	Perl_InitMenu ()
 		"   run the script from the local directory 
 		"   ( the one which is being edited; other versions may exist elsewhere ! )
 		" 
-		exe "amenu ".s:Perl_Root.'&Run.update,\ &run\ script<Tab><C-F9>   			         <C-C>:call Perl_Run()<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.update,\ &run\ script<Tab><C-F9>   			         <C-C>:call Perl_Run()<CR>'
 		"
 		exe "amenu ".s:Perl_Root.'&Run.update,\ check\ &syntax<Tab><A-F9>       			   <C-C>:call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.cmd\.\ line\ &arg\.<Tab><S-F9>           <C-C>:call Perl_Arguments()<CR>'
@@ -1046,20 +1058,49 @@ endfunction    " ----------  end of function Perl_CommentVimModeline  ----------
 "------------------------------------------------------------------------------
 "  Statements : subroutine
 "------------------------------------------------------------------------------
-function! Perl_CodeFunction ()
+function! Perl_Subroutine (arg1)
 	let	identifier=Perl_Input("subroutine name : ", "" )
-	if s:Perl_BraceOnNewLine == "no"
-		let zz=    "sub ".identifier." {\n\tmy\t$par1\t= shift;\n\t\n\treturn ;\n}"
-		let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
-		put =zz
-		normal 2j
-	else
-		let zz=    "sub ".identifier."\n{\n\tmy\t$par1\t= shift;\n\t\n\treturn ;\n}"
-		let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
-		put =zz
-		normal 3j
+	"
+	" ----- normal mode ----------------
+	if a:arg1=="a" 
+		if s:Perl_BraceOnNewLine == "no"
+			let zz=    "sub ".identifier." {\n\tmy\t($par1)\t= @_;\n\t\n\treturn ;\n}"
+			let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
+			put =zz
+			normal 2j
+		else
+			let zz=    "sub ".identifier."\n{\n\tmy\t($par1)\t= @_;\n\t\n\treturn ;\n}"
+			let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
+			put =zz
+			normal 3j
+		endif
 	endif
-endfunction		" ---------- end of function  Perl_CodeFunction  ----------
+	"
+	" ----- visual mode ----------------
+	if a:arg1=="v" 
+		if s:Perl_BraceOnNewLine == "no"
+			let zz=    "sub ".identifier." {\n\tmy\t($par1)\t= @_;"
+			:'<put! =zz
+			let zz=    "\treturn ;\n}"
+			let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
+			:'>put =zz
+			:'<-3
+			let zz=    identifier."();\n\n"
+			:put =zz
+			:exe "normal =".(line("'>")-line(".")+2)."+"
+		else
+			let zz=    "sub ".identifier."\n{\n\tmy\t($par1)\t= @_;"
+			:'<put! =zz
+			let zz=    "\treturn ;\n}"
+			let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
+			:'>put =zz
+			:'<-4
+			let zz=    identifier."();\n\n"
+			:put =zz
+			:exe "normal =".(line("'>")-line(".")+2)."+"
+		endif
+	endif
+endfunction		" ---------- end of function  Perl_Subroutine  ----------
 "
 "------------------------------------------------------------------------------
 "  Statements : do-while
@@ -1100,7 +1141,7 @@ endfunction		" ---------- end of function  Perl_DoWhile  ----------
 "------------------------------------------------------------------------------
 "  Perl-Idioms : CodeOpenRead
 "------------------------------------------------------------------------------
-function! Perl_CodeOpenRead ()
+function! Perl_OpenInputFile ()
 
 	let	filehandle=Perl_Input("input file handle : ", "INFILE")
 	
@@ -1112,18 +1153,21 @@ function! Perl_CodeOpenRead ()
 
 	let zz=    "my\t$".filename." = \'\';\t\t# input file name\n\n"
 	let zz= zz."open ( ".filehandle.", \'<\', $".filename." )\n"
-	let zz= zz."\tor die \"$0 : failed to open input file $".filename." : $!\\n\";\n\n\n"
-	let zz= zz."close ( ".filehandle." );\t\t\t# close input file\n"
+	let zz= zz."\tor die  \"$0 : failed to open  input file $".filename." : $!\\n\";\n\n\n"
+	let zz= zz."close ( ".filehandle." )\n"
+	let zz= zz."\tor warn \"$0 : failed to close input file $".filename." : $!\\n\";\n\n\n"
+	exe " menu ".s:Perl_Root.'I&dioms.<'.filehandle.'>     i<'.filehandle.'><ESC>'
+	exe "vmenu ".s:Perl_Root.'I&dioms.<'.filehandle.'>     s<'.filehandle.'><ESC>'
 	exe "imenu ".s:Perl_Root.'I&dioms.<'.filehandle.'>      <'.filehandle.'><ESC>a'
 	put =zz
 	normal =6+
 	normal f'
-endfunction		" ---------- end of function  Perl_CodeOpenRead  ----------
+endfunction		" ---------- end of function  Perl_OpenInputFile  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Idioms : CodeOpenWrite
 "------------------------------------------------------------------------------
-function! Perl_CodeOpenWrite ()
+function! Perl_OpenOutputFile ()
 
 	let	filehandle=Perl_Input("output file handle : ", "OUTFILE")
 	
@@ -1135,18 +1179,20 @@ function! Perl_CodeOpenWrite ()
 
 	let zz=    "my\t$".filename." = \'\';\t\t# output file name\n\n"
 	let zz= zz."open ( ".filehandle.", \'>\', $".filename." )\n"
-	let zz= zz."\tor die \"$0 : failed to open output file $".filename." : $!\\n\";\n\n\n"
-	let zz= zz."close ( ".filehandle." );\t\t\t# close output file\n"
+	let zz= zz."\tor die  \"$0 : failed to open  output file $".filename." : $!\\n\";\n\n\n"
+	let zz= zz."close ( ".filehandle." )\n"
+	let zz= zz."\tor warn \"$0 : failed to close output file $".filename." : $!\\n\";\n\n\n"
 	put =zz
 	normal =6+
+	exe " menu ".s:Perl_Root.'I&dioms.print\ '.filehandle.'\ "\\n";   iprint '.filehandle.' "\n";<ESC>3hi'
 	exe "imenu ".s:Perl_Root.'I&dioms.print\ '.filehandle.'\ "\\n";    print '.filehandle.' "\n";<ESC>3hi'
 	normal f'
-endfunction		" ---------- end of function  Perl_CodeOpenWrite  ----------
+endfunction		" ---------- end of function  Perl_OpenOutputFile  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Idioms : CodeOpenPipe
 "------------------------------------------------------------------------------
-function! Perl_CodeOpenPipe ()
+function! Perl_OpenPipe ()
 
 	let	filehandle=Perl_Input("pipe handle : ", "PIPE")
 
@@ -1158,12 +1204,13 @@ function! Perl_CodeOpenPipe ()
 
 	let zz=    "my\t$".pipecommand." = \'\';\t\t# pipe command\n\n"
 	let zz= zz."open ( ".filehandle.", $".pipecommand." )\n"
-	let zz= zz."\tor die \"$0 : failed to open pipe > $".pipecommand." < : $!\\n\";\n\n\n"
-	let zz= zz."close ( ".filehandle." );\t\t\t# close pipe\n"
+	let zz= zz."\tor die  \"$0 : failed to open  pipe > $".pipecommand." < : $!\\n\";\n\n\n"
+	let zz= zz."close ( ".filehandle." )\n"
+	let zz= zz."\tor warn \"$0 : failed to close pipe > $".pipecommand." < : $!\\n\";\n\n\n"
 	put =zz
 	normal =6+
 	normal f'
-endfunction		" ---------- end of function  Perl_CodeOpenPipe  ----------
+endfunction		" ---------- end of function  Perl_OpenPipe  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Idioms : read / edit code snippet
@@ -1277,7 +1324,8 @@ function! Perl_perldoc()
 			setlocal buftype=nofile
 			setlocal noswapfile
 			setlocal bufhidden=delete
-			setlocal filetype=help
+			setlocal filetype=perl		" allows repeated use of <S-F1>
+			setlocal syntax=OFF
 		endif
 		"
 		" search order:  library module --> builtin function --> FAQ keyword
@@ -1374,7 +1422,8 @@ function! Perl_perldoc_show_module_list()
 		silent exe "view ".s:Perl_PerlModuleList
 		let s:Perl_PerldocModulelistBuffer=bufnr("%")
 		setlocal nomodifiable
-		setlocal filetype=help
+		setlocal filetype=perl
+		setlocal syntax=none
 	endif
 	normal gg
 	redraw
@@ -1401,28 +1450,30 @@ function! Perl_perldoc_generate_module_list()
 	setlocal nomodifiable
 	echo " DONE " 
 	echohl None
-endfunction		" ---------- end of function  Perl_perldoc_generate_module_list  ----------
+endfunction		" ---------- end of tion  Perl_perldoc_generate_module_list  ----------
 "
 "------------------------------------------------------------------------------
 "  Run : settings
 "------------------------------------------------------------------------------
 function! Perl_Settings ()
 	let	txt =     "  Perl-Support settings\n\n"
-	let txt = txt."            author name  :  ".s:Perl_AuthorName."\n"
-	let txt = txt."               initials  :  ".s:Perl_AuthorRef."\n"
-	let txt = txt."                  email  :  ".s:Perl_Email."\n"
-	let txt = txt."                company  :  ".s:Perl_Company."\n"
-	let txt = txt."                project  :  ".s:Perl_Project."\n"
-	let txt = txt."       copyright holder  :  ".s:Perl_CopyrightHolder."\n"
+	let txt = txt.'            author name  :  "'.s:Perl_AuthorName."\"\n"
+	let txt = txt.'               initials  :  "'.s:Perl_AuthorRef."\"\n"
+	let txt = txt.'                  email  :  "'.s:Perl_Email."\"\n"
+	let txt = txt.'                company  :  "'.s:Perl_Company."\"\n"
+	let txt = txt.'                project  :  "'.s:Perl_Project."\"\n"
+	let txt = txt.'       copyright holder  :  "'.s:Perl_CopyrightHolder."\"\n"
 	let txt = txt." code snippet directory  :  ".s:Perl_CodeSnippets."\n"
 	let txt = txt."     template directory  :  ".s:Perl_Template_Directory."\n"
 	if g:Perl_Dictionary_File != ""
-		let ausgabe = substitute( g:Perl_Dictionary_File, ",", ",\n                         + ", "g" )
+		let ausgabe = substitute( g:Perl_Dictionary_File, ",", ",\n                          + ", "g" )
 		let txt     = txt."      dictionary file(s) :  ".ausgabe."\n"
 	endif
+	let txt = txt."   current output dest.  :  ".s:Perl_OutputGvim."\n"
+	let txt = txt."\n"
 	let txt = txt."    Additional hot keys\n\n"
 	let txt = txt."               Shift-F1  :  read perldoc (for word under cursor)\n"
-  let txt = txt."                     F9  :  start a debugger          \n"
+  let txt = txt."                     F9  :  start a debugger (".s:Perl_Debugger.")\n"
   let txt = txt."                 Alt-F9  :  run syntax check          \n"
   let txt = txt."                Ctrl-F9  :  run script                \n"
   let txt = txt."               Shift-F9  :  set command line arguments\n"
@@ -1495,27 +1546,35 @@ endfunction		" ---------- end of function  Perl_SyntaxCheckMsg  ----------
 "----------------------------------------------------------------------
 function! Perl_Toggle_Gvim_Xterm ()
 
-	if s:Perl_OutputGvim == "vim"
-		if has("gui_running")
-			exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm'
-			exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim              <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
-		endif
-		let	s:Perl_OutputGvim	= "buffer"
-	else
-		if s:Perl_OutputGvim == "buffer"
+	if has("gui_running")
+		if s:Perl_OutputGvim == "vim"
 			if has("gui_running")
-				exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim'
-				exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer             <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
-				let	s:Perl_OutputGvim	= "xterm"
+				exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm'
+				exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim              <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+			endif
+			let	s:Perl_OutputGvim	= "buffer"
+		else
+			if s:Perl_OutputGvim == "buffer"
+				if has("gui_running")
+					exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim'
+					exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer             <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+					let	s:Perl_OutputGvim	= "xterm"
+				else
+					let	s:Perl_OutputGvim	= "vim"
+				endif
 			else
+				" ---------- output : xterm -> gvim
+				if has("gui_running")
+					exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer'
+					exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+				endif
 				let	s:Perl_OutputGvim	= "vim"
 			endif
+		endif
+	else
+		if s:Perl_OutputGvim == "vim"
+			let	s:Perl_OutputGvim	= "buffer"
 		else
-			" ---------- output : xterm -> gvim
-			if has("gui_running")
-				exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer'
-				exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
-			endif
 			let	s:Perl_OutputGvim	= "vim"
 		endif
 	endif
@@ -1616,7 +1675,7 @@ function! Perl_Run ()
 			" same as "vim"
 			exe "!perl \"".l:fullname."\" \"".l:arguments."\""
 		else
-			silent exe "!xterm -title ".l:fullname." ".s:Perl_XtermDefaults." -e ".s:root_dir."plugin/wrapper.sh ".l:fullname.l:arguments.' &'
+			silent exe '!xterm -title '.l:fullname.' '.s:Perl_XtermDefaults.' -e '.s:root_dir.'plugin/wrapper.sh '.l:fullname.l:arguments
 		endif
 		"
 	endif
@@ -1725,36 +1784,93 @@ function! Perl_POD (arg1)
 endfunction		" ---------- end of function  Perl_POD  ----------
 "
 "------------------------------------------------------------------------------
+"  POD : invisible PODs
+"------------------------------------------------------------------------------
+function! Perl_InvisiblePOD (arg1)
+	let	zz =    "\n=for ".a:arg1.": <keyword>"
+	let	zz = zz."\n<single paragraph>\n"
+	let	zz = zz."\n=cut  #  back to Perl\n"
+	let	zz = zz."\n"
+	put =zz
+	normal j2W
+endfunction		" ---------- end of function  Perl_POD  ----------
+"
+"------------------------------------------------------------------------------
 "  run : perltidy
 "------------------------------------------------------------------------------
+"
+let	s:Perl_perltidy_startscript_executable = 'no'
+let	s:Perl_perltidy_module_executable      = 'no'
+
 function! Perl_Perltidy (arg1)
-	if !executable("perltidy")
-		echohl WarningMsg
-	  echo 'perltidy dos not exist or is not executable!'
-		echohl None
-		return
-	endif
 
 	let	Sou		= expand("%")								" name of the file in the current buffer
 	if &filetype != "perl"
 		echohl WarningMsg | echo Sou.' seems not to be a Perl file' | echohl None
 		return
 	endif
-	silent exe	":update"
+	"
+	" check if perltidy start script is executable
+	" 
+	if s:Perl_perltidy_startscript_executable == 'no'
+		if !executable("perltidy")
+			echohl WarningMsg
+			echo 'perltidy does not exist or is not executable!'
+			echohl None
+			return
+		else
+			let	s:Perl_perltidy_startscript_executable	= 'yes'
+		endif
+	endif
+	"
+	" check if perltidy module is executable 
+	" WORKAROUND: after upgrading Perl the module will no longer be found
+	" 
+	if s:Perl_perltidy_module_executable == 'no'
+		let perltidy_version = system("perltidy -v")
+		if match( perltidy_version, 'copyright\c' )      >= 0 &&
+		\  match( perltidy_version, 'Steve\s\+Hancock' ) >= 0 
+			let	s:Perl_perltidy_module_executable	= 'yes'
+		else
+			echohl WarningMsg
+			echo 'The module Perl::Tidy can not be found! Please reinstall perltidy.'
+			echohl None
+			return
+		endif
+	endif
 	" ----- normal mode ----------------
 	if a:arg1=="n"
+		if C_Input("reformat whole file [y/n/Esc] : ", "" ) != "y"
+			return
+		endif
+		silent exe	":update"
 		let	pos1  = line(".")
-		silent exe	"%!perltidy"		
+		if	s:MSWIN
+			silent exe	"%!perltidy"		
+		else
+			silent exe	"%!perltidy 2>/dev/null"		
+		endif
 		exe ':'.pos1
-		echo "file \"".Sou."\" reformatted"
+		echo "File \"".Sou."\" reformatted."
 	endif
 	" ----- visual mode ----------------
 	if a:arg1=="v"
 		let	pos1	= line("'<")
 		let	pos2	= line("'>")
-		silent exe	pos1.",".pos2."!perltidy"
-		echo "file \"".Sou."\" (lines ".pos1."-".pos2.") reformatted"
+		if	s:MSWIN
+			silent exe	pos1.",".pos2."!perltidy"
+		else
+			silent exe	pos1.",".pos2."!perltidy 2>/dev/null"
+		endif
+		echo "File \"".Sou."\" (lines ".pos1."-".pos2.") reformatted."
 	endif
+  "
+	if filereadable("perltidy.ERR")
+		echohl WarningMsg
+	  echo 'Perltidy detected an error when processing file "'.Sou.'". Please see file perltidy.ERR' 
+		echohl None
+	endif
+	"
 endfunction		" ---------- end of function  Perl_Perltidy  ----------
 "
 "------------------------------------------------------------------------------
@@ -1821,6 +1937,8 @@ endfunction		" ---------- end of function  Perl_SaveWithTimestamp  ----------
 "
 "------------------------------------------------------------------------------
 "  run : hardcopy
+"    MSWIN : a printer dialog is displayed
+"    other : print PostScript to file
 "------------------------------------------------------------------------------
 function! Perl_Hardcopy (arg1)
 	let Sou	= expand("%")	
@@ -1834,12 +1952,16 @@ function! Perl_Hardcopy (arg1)
 	" ----- normal mode ----------------
 	if a:arg1=="n"
 		silent exe	"hardcopy > ".Sou.".ps"		
-		echo "file \"".Sou."\" printed to \"".Sou.".ps\""
+		if	!s:MSWIN
+			echo "file \"".Sou."\" printed to \"".Sou.".ps\""
+		endif
 	endif
 	" ----- visual mode ----------------
 	if a:arg1=="v"
 		silent exe	"*hardcopy > ".Sou.".ps"		
-		echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
+		if	!s:MSWIN
+			echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
+		endif
 	endif
 endfunction		" ---------- end of function  Perl_Hardcopy  ----------
 "
@@ -1938,11 +2060,5 @@ endif " has("autocmd")
 nmap    <silent>  <Leader>lps             :call Perl_Handle()<CR>
 nmap    <silent>  <Leader>ups             :call Perl_Handle()<CR>
 "
-if has("gui_running")
-   map              <silent>  <S-F1>             :call Perl_perldoc()<CR><CR>
-  imap              <silent>  <S-F1>        <Esc>:call Perl_perldoc()<CR><CR>
-endif
-"
- map              <silent>  <Leader>h    <Esc>:call Perl_perldoc()<CR>
 "
 " vim:set tabstop=2: 
