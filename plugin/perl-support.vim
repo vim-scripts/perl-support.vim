@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  19.10.2005
+"       Revision:  31.10.2005
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -32,7 +32,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.7"
+let g:Perl_Version= "2.8"
 "        
 "###############################################################################################
 "
@@ -90,6 +90,7 @@ let s:Perl_Debugger                = "perl"
 let s:Perl_ProfilerTimestamp       = "no"
 let s:Perl_LineEndCommColDefault   = 49
 let s:Perl_BraceOnNewLine          = "no"
+let s:Perl_PodcheckerWarnings      = "yes"
 "
 "------------------------------------------------------------------------------
 "
@@ -124,6 +125,7 @@ call Perl_CheckGlobal("Perl_Debugger               ")
 call Perl_CheckGlobal("Perl_ProfilerTimestamp      ")
 call Perl_CheckGlobal("Perl_LineEndCommColDefault  ")
 call Perl_CheckGlobal("Perl_BraceOnNewLine         ")
+call Perl_CheckGlobal("Perl_PodcheckerWarnings     ")
 "
 "------------------------------------------------------------------------------
 "  Perl Menu Initialization
@@ -761,9 +763,10 @@ function!	Perl_InitMenu ()
 		exe "vmenu ".s:Perl_Root.'&POD.&X<><Tab>index                   sX<><Esc>P2l'
 
 		exe "amenu          ".s:Perl_Root.'&POD.-SEP4-      		        :'
-		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ html\ \ (&4)   <Esc><C-C>:call Perl_POD("html")<CR>'
-		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ man\ \ (&5)    <Esc><C-C>:call Perl_POD("man")<CR>'
-		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&6)   <Esc><C-C>:call Perl_POD("text")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.run\ podchecker\ \ (&4) <Esc><C-C>:call Perl_PodCheck()<CR>:redraw<CR>:call Perl_PodCheckMsg()<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ html\ \ (&5)   <Esc><C-C>:call Perl_POD("html")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ man\ \ (&6)    <Esc><C-C>:call Perl_POD("man")<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&7)   <Esc><C-C>:call Perl_POD("text")<CR>'
 		"
 		"---------- Run-Menu ----------------------------------------------------------------------
 		"
@@ -775,7 +778,7 @@ function!	Perl_InitMenu ()
 		"   run the script from the local directory 
 		"   ( the one which is being edited; other versions may exist elsewhere ! )
 		" 
-		exe "amenu <silent> ".s:Perl_Root.'&Run.update,\ &run\ script<Tab><C-F9>   			         <C-C>:call Perl_Run()<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.update,\ &run\ script<Tab><C-F9>   			 <C-C>:call Perl_Run()<CR>'
 		"
 		exe "amenu ".s:Perl_Root.'&Run.update,\ check\ &syntax<Tab><A-F9>       			   <C-C>:call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.cmd\.\ line\ &arg\.<Tab><S-F9>           <C-C>:call Perl_Arguments()<CR>'
@@ -1606,6 +1609,10 @@ function! Perl_Run ()
 		let l:arguments	= substitute( l:arguments, '\s\+', "\" \"", 'g')
 	endif
 	"
+	if !s:MSWIN && !executable(l:fullname) 
+		call Perl_MakeScriptExecutable ()
+	endif
+	"
 	"------------------------------------------------------------------------------
 	"  run : run from the vim command line
 	"------------------------------------------------------------------------------
@@ -1773,6 +1780,50 @@ function! Perl_MakeScriptExecutable ()
 endfunction		" ---------- end of function  Perl_MakeScriptExecutable  ----------
 "
 "------------------------------------------------------------------------------
+"  run POD checker
+"------------------------------------------------------------------------------
+"
+let s:Perl_PodCheckMsg       = ""
+"
+function! Perl_PodCheck ()
+	let s:Perl_PodCheckMsg = ""
+	exe	":cclose"
+	let l:currentdir			= getcwd()
+	let	l:currentbuffer   = bufname("%")
+	let l:fullname				= l:currentdir."/".l:currentbuffer
+	silent exe	":update"
+	"
+	let l:fullname				= escape( l:fullname, s:escfilename )
+	"
+	if s:Perl_PodcheckerWarnings == "no"
+		let PodcheckerWarnings	= '-nowarnings '
+	else
+		let PodcheckerWarnings	= '-warnings '
+	endif
+	exe	"set makeprg=podchecker"
+	exe ':setlocal errorformat=***\ %m\ at\ line\ %l\ in\ file\ %f'
+	silent exe	":make ".PodcheckerWarnings.l:fullname
+
+	exe	":botright cwindow"
+	exe	':setlocal errorformat='
+	exe	"set makeprg=make"
+	"
+	" message in case of success
+	"
+	if l:currentbuffer ==  bufname("%")
+		let s:Perl_PodCheckMsg = l:currentbuffer." : POD syntax is OK"
+		return 0
+	endif
+	return 1
+endfunction		" ---------- end of function  Perl_PodCheck  ----------
+"
+function! Perl_PodCheckMsg ()
+		echohl Search 
+		echo s:Perl_PodCheckMsg
+		echohl None
+endfunction		" ---------- end of function  Perl_PodCheckMsg  ----------
+"
+"------------------------------------------------------------------------------
 "  run : POD -> html / man / text
 "------------------------------------------------------------------------------
 function! Perl_POD (arg1)
@@ -1891,33 +1942,35 @@ function! Perl_Smallprof ()
 	silent exe	"!perl -d:SmallProf ".Sou
 	"
 	if v:shell_error
+		redraw
 		echohl WarningMsg | echo 'Could not execute "perl -d:SmallProf '.Sou.'"' | echohl None
-	else
-		"
-		let currentbuffer	= s:Perl_ProfileOutput
-		if s:Perl_ProfilerTimestamp=="yes"
-			let currentbuffer=currentbuffer.".".strftime(s:Perl_TimestampFormat)
-			call rename( s:Perl_ProfileOutput, currentbuffer )
-		endif
-		echohl Search | echo 'file "'.Sou.'" profiled' | echohl None
-		if filereadable(currentbuffer) 
-			let currentbuffernr=bufnr(currentbuffer)
-			if currentbuffernr==-1          " buffer not open
-				exe	":botright new"
-				exe	":edit +set\\ autoread ".currentbuffer
-			else
-				if bufwinnr(currentbuffernr)!=-1		" window open ?
-					exe  bufwinnr(currentbuffernr) . "wincmd w"
-				else
-					:botright new
-					exe ":buffer ".currentbuffer
-				endif
-			endif
-			normal gg
-		else
-			echohl WarningMsg | echo currentbuffer.' (profiling results) not readable!' | echohl None
-		endif
+		return
 	endif
+		"
+	let currentbuffer	= s:Perl_ProfileOutput
+	if s:Perl_ProfilerTimestamp=="yes"
+		let currentbuffer=currentbuffer.".".strftime(s:Perl_TimestampFormat)
+		call rename( s:Perl_ProfileOutput, currentbuffer )
+	endif
+	echohl Search | echo 'file "'.Sou.'" profiled' | echohl None
+	if filereadable(currentbuffer) 
+		let currentbuffernr=bufnr(currentbuffer)
+		if currentbuffernr==-1          " buffer not open
+			exe	":botright new"
+			exe	":edit +set\\ autoread ".currentbuffer
+		else
+			if bufwinnr(currentbuffernr)!=-1		" window open ?
+				exe  bufwinnr(currentbuffernr) . "wincmd w"
+			else
+				:botright new
+				exe ":buffer ".currentbuffer
+			endif
+		endif
+		normal gg
+	else
+		echohl WarningMsg | echo currentbuffer.' (profiling results) not readable!' | echohl None
+	endif
+
 endfunction		" ---------- end of function  Perl_Smallprof  ----------
 "
 "------------------------------------------------------------------------------

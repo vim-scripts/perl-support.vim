@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                      Oct 19 2005
+*perlsupport.txt*                Perl Support                      Oct 31 2005
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 2.7
+                              Plugin version 2.8
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -28,6 +28,7 @@ Write and run Perl scripts using menus and key mappings.
  1.7      Menu 'Spec-Var'                 |perlsupport-specvar|
  1.8      Menu 'POD'                      |perlsupport-pod|
  1.8.1    Menu 'invisible POD'            |perlsupport-pod-invisible|
+ 1.8.2    Run podchecker                  |perlsupport-podchecker|
  1.9      Menu 'Run'                      |perlsupport-run|
  1.9.1     Run script                     |perlsupport-run-script|
  1.9.2     Check syntax                   |perlsupport-syntax-check|
@@ -405,6 +406,19 @@ The <keyword> is a short explanation which makes navigation with taglist
 easier. See |perlsupport-custom-navigate|.
 Please note the colon after the "formatter name". It is needed for parsing
 this construct.
+
+1.8.2  RUN PODCHECKER                                 *perlsupport-podchecker*
+---------------------
+
+The current buffer will be run through the application podchecker to check the
+syntax of the embedded POD or of a POD format documentation file (see
+podchecker(1) and Pod::Checker).
+Podchecker always reports errors. Printing warnings can be turned on and off
+with the options -warnings/-nowarning . The default is to print warnings.  To
+turn the warnings of put the following line in the file .vimrc :
+ 
+  let g:Perl_PodcheckerWarnings      = "no"
+
 
 ------------------------------------------------------------------------------
 1.9  MENU 'Run'                                              *perlsupport-run*
@@ -820,6 +834,7 @@ g:Perl_Debugger                "perl"
 g:Perl_ProfilerTimestamp       "no"
 g:Perl_LineEndCommColDefault   49
 g:Perl_BraceOnNewLine          "no"
+g:Perl_PodcheckerWarnings      "yes"
 
 The variable root_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
@@ -859,6 +874,7 @@ The variable root_dir will automatically be set to one of the following values:
           g:Perl_ProfilerTimestamp      : add time stamp to the profiler buffer name
           g:Perl_LineEndCommColDefault  : default starting column for line end comments 
           g:Perl_BraceOnNewLine         : opening brace (not) on a new line
+          g:Perl_PodcheckerWarnings     : podchecker warnings on/off
 
 To override the defaults add appropriate assignments to .vimrc .
 Set at least some personal details into .vimrc by overriding some defaults.

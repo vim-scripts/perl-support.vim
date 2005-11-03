@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.7) / Oct 19 2005
+README for perl-support.vim (Version 2.8) / Oct 31 2005
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -72,6 +72,14 @@ and look at the perlsupport help with
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.8
+---------------------------------------------------------------------------------------
++ Podchecker integrated. Runs like a compiler. Opens a quickfix error window.
++ Script will be made executable before running it (e.g. after a "Save As...").
++ Many blanks in 2 POD templates removes which garbled the resulting documents (bugfix).
++ Message now visible if SmallProf is not runable (bugfix).
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.7
