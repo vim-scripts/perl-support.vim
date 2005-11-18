@@ -3,7 +3,7 @@
 " Language   :  Perl
 " Plugin     :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  30.09.2005
+" Last Change:  06.11.2005
 "
 " ----------------------------------------------------------------------------
 "
@@ -37,14 +37,21 @@ if exists("g:Perl_Dictionary_File")
     silent! exec 'setlocal dictionary+='.g:Perl_Dictionary_File
 endif    
 "
-" ---------- Key mappings  ---------------------------------------------------
+" ---------- Brace handling --------------------------------------------------
+"  
+let s:Perl_BraceOnNewLine          = "no"
+if exists('g:Perl_BraceOnNewLine')
+	let s:Perl_BraceOnNewLine=g:Perl_BraceOnNewLine
+endif
+"
+" ---------- Key mappings : function keys ------------------------------------
 "
 "   Ctrl-F9   run script
 "    Alt-F9   run syntax check
 "        F9   run script with pager
 "
-" Vim : shifted keys are mapped to their unshifted key !!!
-"  
+" Vim (non-GUI) : shifted keys are mapped to their unshifted key !!!
+" 
 if has("gui_running")
   "
    map    <buffer>  <silent>  <A-F9>             :call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
@@ -65,6 +72,9 @@ if has("gui_running")
   imap    <buffer>  <silent>  <S-F1>        <Esc>:call Perl_perldoc()<CR><CR>
 endif
 
+"
+" ---------- Key mappings : menu entries -------------------------------------
+"
 nmap    <buffer>  <silent>  <Leader>cl    A<Tab><Tab><Tab>#<Space>
 vmap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_MultiLineEndComments()<CR>
 nmap    <buffer>  <silent>  <Leader>cf    :call Perl_CommentTemplates('frame')<CR>
@@ -82,27 +92,53 @@ nmap    <buffer>  <silent>  <Leader>cd    i<C-R>=strftime("%x")<CR>
 nmap    <buffer>  <silent>  <Leader>ct    i<C-R>=strftime("%x %X %Z")<CR>
 nmap    <buffer>  <silent>  <Leader>cv    :call Perl_CommentVimModeline()<CR>
 
-nmap    <buffer>  <silent>  <Leader>ad    :call Perl_DoWhile('a')<CR><Esc>4jf(la
-nmap    <buffer>  <silent>  <Leader>af    ofor ( ; ;  )<CR>{<CR>}<Esc>2kf;i
-nmap    <buffer>  <silent>  <Leader>ao    oforeach  (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>2kF(hi
-nmap    <buffer>  <silent>  <Leader>ai    oif (  )<CR>{<CR>}<Esc>2kf(la
-nmap    <buffer>  <silent>  <Leader>ae    oif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la
-nmap    <buffer>  <silent>  <Leader>au    ounless (  )<CR>{<CR>}<Esc>2kf(la
-nmap    <buffer>  <silent>  <Leader>an    ounless (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la
-nmap    <buffer>  <silent>  <Leader>at    ountil (  )<CR>{<CR>}<Esc>2kf(la
-nmap    <buffer>  <silent>  <Leader>aw    owhile (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>2kF(la
-nmap    <buffer>  <silent>  <Leader>a{    o{<CR>}<Esc>ko
+if s:Perl_BraceOnNewLine  == "no"
+	nmap    <buffer>  <silent>  <Leader>ad    :call Perl_DoWhile("a")<CR><Esc>3jf(la
+	nmap    <buffer>  <silent>  <Leader>af    ofor ( ; ;  ) {<CR>}<Esc>kf;i
+	nmap    <buffer>  <silent>  <Leader>ao    oforeach  (  ) {<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>kF(hi
+	nmap    <buffer>  <silent>  <Leader>ai    oif (  ) {<CR>}<Esc>kf(la
+	nmap    <buffer>  <silent>  <Leader>ae    oif (  ) {<CR>}<CR>else {<CR>}<Esc>3kf(la
+	nmap    <buffer>  <silent>  <Leader>au    ounless (  ) {<CR>}<Esc>kf(la
+	nmap    <buffer>  <silent>  <Leader>an    ounless (  ) {<CR>}<CR>else {<CR>}<Esc>3kf(la
+	nmap    <buffer>  <silent>  <Leader>at    ountil (  ) {<CR>}<Esc>kf(la
+	nmap    <buffer>  <silent>  <Leader>aw    owhile (  ) {<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>kF(la
+	nmap    <buffer>  <silent>  <Leader>a{    o{<CR>}<Esc>O
 
-vmap    <buffer>  <silent>  <Leader>ad    <Esc><Esc>:call Perl_DoWhile('v')<CR><Esc>f(la
-vmap    <buffer>  <silent>  <Leader>af    DOfor ( ; ;  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f;i
-vmap    <buffer>  <silent>  <Leader>ao    DOforeach  (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(hi
-vmap    <buffer>  <silent>  <Leader>ai    DOif (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
-vmap    <buffer>  <silent>  <Leader>ae    DOif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>3kP2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
-vmap    <buffer>  <silent>  <Leader>au    DOunless (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
-vmap    <buffer>  <silent>  <Leader>an    DOunless (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>3kP2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
-vmap    <buffer>  <silent>  <Leader>at    DOuntil (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
-vmap    <buffer>  <silent>  <Leader>aw    DOwhile (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
-vmap    <buffer>  <silent>  <Leader>a{    DO{<CR>}<Esc>Pk<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f;i
+	vmap    <buffer>  <silent>  <Leader>ad    <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la
+	vmap    <buffer>  <silent>  <Leader>af    DOfor ( ; ;  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f;i"
+	vmap    <buffer>  <silent>  <Leader>ao    DOforeach  (  ) {<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(hi"
+	vmap    <buffer>  <silent>  <Leader>ai    DOif (  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
+	vmap    <buffer>  <silent>  <Leader>ae    DOif (  ) {<CR>}<CR>else {<CR>}<Esc>2kPk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
+	vmap    <buffer>  <silent>  <Leader>au    DOunless (  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
+	vmap    <buffer>  <silent>  <Leader>an    DOunless (  ) {<CR>}<CR>else {<CR>}<Esc>2kPk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
+	vmap    <buffer>  <silent>  <Leader>at    DOuntil (  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
+	vmap    <buffer>  <silent>  <Leader>aw    DOwhile (  ) {<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
+	vmap    <buffer>  <silent>  <Leader>a{    DO{<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>"
+	"
+else   "" s:Perl_BraceOnNewLine  == "no"
+	"
+	nmap    <buffer>  <silent>  <Leader>ad    :call Perl_DoWhile('a')<CR><Esc>4jf(la
+	nmap    <buffer>  <silent>  <Leader>af    ofor ( ; ;  )<CR>{<CR>}<Esc>2kf;i
+	nmap    <buffer>  <silent>  <Leader>ao    oforeach  (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>2kF(hi
+	nmap    <buffer>  <silent>  <Leader>ai    oif (  )<CR>{<CR>}<Esc>2kf(la
+	nmap    <buffer>  <silent>  <Leader>ae    oif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la
+	nmap    <buffer>  <silent>  <Leader>au    ounless (  )<CR>{<CR>}<Esc>2kf(la
+	nmap    <buffer>  <silent>  <Leader>an    ounless (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la
+	nmap    <buffer>  <silent>  <Leader>at    ountil (  )<CR>{<CR>}<Esc>2kf(la
+	nmap    <buffer>  <silent>  <Leader>aw    owhile (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>2kF(la
+	nmap    <buffer>  <silent>  <Leader>a{    o{<CR>}<Esc>ko
+
+	vmap    <buffer>  <silent>  <Leader>ad    <Esc><Esc>:call Perl_DoWhile('v')<CR><Esc>f(la
+	vmap    <buffer>  <silent>  <Leader>af    DOfor ( ; ;  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f;i
+	vmap    <buffer>  <silent>  <Leader>ao    DOforeach  (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(hi
+	vmap    <buffer>  <silent>  <Leader>ai    DOif (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+	vmap    <buffer>  <silent>  <Leader>ae    DOif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>3kP2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+	vmap    <buffer>  <silent>  <Leader>au    DOunless (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+	vmap    <buffer>  <silent>  <Leader>an    DOunless (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>3kP2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+	vmap    <buffer>  <silent>  <Leader>at    DOuntil (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+	vmap    <buffer>  <silent>  <Leader>aw    DOwhile (  )<CR>{<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+	vmap    <buffer>  <silent>  <Leader>a{    DO{<CR>}<Esc>Pk<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f;i
+endif
 
 nmap    <buffer>  <silent>  <Leader>dm    omy<Tab>$;<Esc>i
 nmap    <buffer>  <silent>  <Leader>dy    omy<Tab>$<Tab>= ;<Esc>F$a
@@ -118,10 +154,12 @@ nmap    <buffer>  <silent>  <Leader>d8    <Esc>a$ =~ s///<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>d9    <Esc>a$ =~ tr///<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>dp    <Esc>aprint "\n";<ESC>3hi
 nmap    <buffer>  <silent>  <Leader>df    <Esc>aprintf ("\n");<ESC>4hi
-nmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_CodeFunction()<CR>
-nmap    <buffer>  <silent>  <Leader>di    <Esc><Esc>:call Perl_CodeOpenRead()<CR>
-nmap    <buffer>  <silent>  <Leader>do    <Esc><Esc>:call Perl_CodeOpenWrite()<CR>
-nmap    <buffer>  <silent>  <Leader>de    <Esc><Esc>:call Perl_CodeOpenPipe()<CR>
+nmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("a")<CR>
+vmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a
+nmap    <buffer>  <silent>  <Leader>di    <Esc><Esc>:call Perl_OpenInputFile()<CR>a
+nmap    <buffer>  <silent>  <Leader>do    <Esc><Esc>:call Perl_OpenOutputFile()<CR>a
+nmap    <buffer>  <silent>  <Leader>de    <Esc><Esc>:call Perl_OpenPipe()<CR>a
+"
 nmap    <buffer>  <silent>  <Leader>la    a[:alnum:]
 nmap    <buffer>  <silent>  <Leader>lh    a[:alpha:]
 nmap    <buffer>  <silent>  <Leader>li    a[:ascii:]

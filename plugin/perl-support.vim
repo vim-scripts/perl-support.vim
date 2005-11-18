@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  31.10.2005
+"       Revision:  17.11.2005
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -32,7 +32,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.8"
+let g:Perl_Version= "2.8.1"
 "        
 "###############################################################################################
 "
@@ -255,10 +255,10 @@ function!	Perl_InitMenu ()
 			exe "amenu ".s:Perl_Root.'St&atements.&while\ \{\ \}                   <Esc><Esc>owhile (  ) {<CR>}<Tab><Tab><Tab><Tab># -----  end while  -----<Esc>kF(la'
 			exe "amenu ".s:Perl_Root.'St&atements.&\{\ \}                          <Esc><Esc>o{<CR>}<Esc>O'
 			"
-			exe "vmenu ".s:Perl_Root.'St&atements.&do\ \{\ \}\ while               <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la'
-			exe "vmenu ".s:Perl_Root."St&atements.&for\\ \{\\ \}                   DOfor ( ; ;  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f;i"
-			exe "vmenu ".s:Perl_Root."St&atements.f&oreach\\ \{\\ \}               DOforeach  (  ) {<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(hi"
-			exe "vmenu ".s:Perl_Root."St&atements.&if\\ \{\\ \}		                 DOif (  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
+			exe "vmenu ".s:Perl_Root.'St&atements.&do\ \{\ \}\ while                  <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la'
+			exe "vmenu ".s:Perl_Root."St&atements.&for\\ \{\\ \}                      DOfor ( ; ;  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f;i"
+			exe "vmenu ".s:Perl_Root."St&atements.f&oreach\\ \{\\ \}                  DOforeach  (  ) {<CR>}<Tab><Tab><Tab><Tab># -----  end foreach  -----<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(hi"
+			exe "vmenu ".s:Perl_Root."St&atements.&if\\ \{\\ \}		                    DOif (  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
 			exe "vmenu ".s:Perl_Root."St&atements.if\\ \{\\ \}\\ &else\\ \{\\ \}      DOif (  ) {<CR>}<CR>else {<CR>}<Esc>2kPk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
 			exe "vmenu ".s:Perl_Root."St&atements.&unless\\ \{\\ \}                   DOunless (  ) {<CR>}<Esc>Pk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
 			exe "vmenu ".s:Perl_Root."St&atements.u&nless\\ \{\\ \}\\ else\\ \{\\ \}  DOunless (  ) {<CR>}<CR>else {<CR>}<Esc>2kPk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f(la"
@@ -808,15 +808,15 @@ function!	Perl_InitMenu ()
 		exe "amenu <silent> ".s:Perl_Root.'&Run.settings\ and\ hot\ &keys        <C-C>:call Perl_Settings()<CR>'
 		"
 		if	!s:MSWIN
-			exe "amenu  <silent>  ".s:Perl_Root.'&Run.&xterm\ size                             <C-C>:call Perl_XtermSize()<CR>'
+			exe "amenu  <silent>  ".s:Perl_Root.'&Run.&xterm\ size                          <C-C>:call Perl_XtermSize()<CR>'
 		endif
 		if s:Perl_OutputGvim == "vim" 
-			exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+			exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm          <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
 		else
 			if s:Perl_OutputGvim == "buffer" 
 				exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim        <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
 			else
-				exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer          <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+				exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer        <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
 			endif
 		endif
 		"
@@ -877,6 +877,7 @@ endfunction		" ---------- end of function  Perl_LineEndComment  ----------
 "
 "------------------------------------------------------------------------------
 "  Comments : multi line-end comments
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_MultiLineEndComments ()
   if !exists("b:Perl_LineEndCommentColumn")
@@ -923,6 +924,7 @@ endfunction		" ---------- end of function  Perl_MultiLineEndComments  ----------
 "
 "------------------------------------------------------------------------------
 "  Comments : classified comments
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_CommentClassified (class)
   	put = '# :'.a:class.':'.strftime(\"%x\").':'.s:Perl_AuthorRef.': '
@@ -963,6 +965,7 @@ endfunction    " ----------  end of function  Perl_SubstituteTag  ----------
 "
 "------------------------------------------------------------------------------
 "  Comments : Insert Template Files
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_CommentTemplates (arg)
 
@@ -1053,6 +1056,7 @@ endfunction    " ----------  end of function  Perl_CommentTemplates  ----------
 "
 "------------------------------------------------------------------------------
 "  Comments : vim modeline
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_CommentVimModeline ()
 	put = '# vim: set tabstop='.&tabstop.' shiftwidth='.&shiftwidth.': '
@@ -1107,6 +1111,7 @@ endfunction		" ---------- end of function  Perl_Subroutine  ----------
 "
 "------------------------------------------------------------------------------
 "  Statements : do-while
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 "
 function! Perl_DoWhile (arg)
@@ -1286,6 +1291,7 @@ endfunction		" ---------- end of function  Perl_CodeSnippet  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Run : Perl_perldoc - lookup word under the cursor or ask
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 "
 let s:Perl_PerldocBufferName       = "PERLDOC"
@@ -1409,6 +1415,7 @@ endfunction		" ---------- end of function  Perl_perldoc  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl-Run : Perl_perldoc - show module list
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_perldoc_show_module_list()
 	if !filereadable(s:Perl_PerlModuleList)
@@ -1439,6 +1446,7 @@ endfunction		" ---------- end of function  Perl_perldoc_show_module_list  ------
 "
 "------------------------------------------------------------------------------
 "  Perl-Run : Perl_perldoc - generate module list
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_perldoc_generate_module_list()
 	echohl Search
@@ -1457,6 +1465,7 @@ endfunction		" ---------- end of tion  Perl_perldoc_generate_module_list  ------
 "
 "------------------------------------------------------------------------------
 "  Run : settings
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_Settings ()
 	let	txt =     "  Perl-Support settings\n\n"
@@ -1487,6 +1496,7 @@ endfunction		" ---------- end of function  Perl_Settings  ----------
 "
 "------------------------------------------------------------------------------
 "  run : syntax check
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 "
 let s:Perl_SyntaxCheckMsg       = ""
@@ -1519,7 +1529,7 @@ function! Perl_SyntaxCheck ()
 		"	This wrapper can handle filenames containing blanks.
 		" Errorformat from tools/efm_perl.pl .
 		" 
-		exe	"set makeprg=".s:root_dir."plugin/efm_perl.pl\\ -c\\ $*"
+		exe	"set makeprg=".s:root_dir."plugin/efm_perl.pl\\ -c\\ "
 		exe ':setlocal errorformat=%f:%l:%m'
 	endif
 
@@ -1538,6 +1548,7 @@ function! Perl_SyntaxCheck ()
 	return 1
 endfunction		" ---------- end of function  Perl_SyntaxCheck  ----------
 "
+"  Also called in the filetype plugin perl.vim
 function! Perl_SyntaxCheckMsg ()
 		echohl Search 
 		echo s:Perl_SyntaxCheckMsg
@@ -1546,6 +1557,7 @@ endfunction		" ---------- end of function  Perl_SyntaxCheckMsg  ----------
 "
 "----------------------------------------------------------------------
 "  run : toggle output destination
+"  Also called in the filetype plugin perl.vim
 "----------------------------------------------------------------------
 function! Perl_Toggle_Gvim_Xterm ()
 
@@ -1586,6 +1598,7 @@ endfunction    " ----------  end of function Perl_Toggle_Gvim_Xterm  ----------
 "
 "------------------------------------------------------------------------------
 "  run : run
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 "
 let s:Perl_OutputBufferName   = "Perl-Output"
@@ -1609,9 +1622,7 @@ function! Perl_Run ()
 		let l:arguments	= substitute( l:arguments, '\s\+', "\" \"", 'g')
 	endif
 	"
-	if !s:MSWIN && !executable(l:fullname) 
-		call Perl_MakeScriptExecutable ()
-	endif
+	call Perl_MakeScriptExecutable ()
 	"
 	"------------------------------------------------------------------------------
 	"  run : run from the vim command line
@@ -1619,7 +1630,7 @@ function! Perl_Run ()
 	if s:Perl_OutputGvim == "vim"
 		"
 		if	s:MSWIN
-			exe "!perl \"".l:fullname."\" \"".l:arguments."\""
+			exe "!perl \"".l:fullname." ".l:arguments."\""
 		else
 			exe "!".l:fullname.l:arguments
 		endif
@@ -1680,7 +1691,7 @@ function! Perl_Run ()
 		"
 		if	s:MSWIN
 			" same as "vim"
-			exe "!perl \"".l:fullname."\" \"".l:arguments."\""
+			exe "!perl \"".l:fullname." ".l:arguments."\""
 		else
 			silent exe '!xterm -title '.l:fullname.' '.s:Perl_XtermDefaults.' -e '.s:root_dir.'plugin/wrapper.sh '.l:fullname.l:arguments
 		endif
@@ -1691,6 +1702,7 @@ endfunction    " ----------  end of function Perl_Run  ----------
 "
 "------------------------------------------------------------------------------
 "  run : start debugger
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_Debugger ()
 	"
@@ -1728,6 +1740,7 @@ endfunction		" ---------- end of function  Perl_Debugger  ----------
 "
 "------------------------------------------------------------------------------
 "  run : Arguments
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_Arguments ()
 	let filename = escape(expand("%"),s:escfilename)
@@ -1746,6 +1759,7 @@ endfunction		" ---------- end of function  Perl_Arguments  ----------
 "
 "------------------------------------------------------------------------------
 "  run : xterm geometry
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_XtermSize ()
 	let regex	= '-geometry\s\+\d\+x\d\+'
@@ -1764,19 +1778,23 @@ endfunction		" ---------- end of function  Perl_XtermSize  ----------
 "
 "------------------------------------------------------------------------------
 "  run : make script executable
+"  Also called in the filetype plugin perl.vim
+"  Only on systems where execute permission is implemented
 "------------------------------------------------------------------------------
 function! Perl_MakeScriptExecutable ()
-	let	filename	= escape( expand("%"), s:escfilename )
-	silent exe "!chmod u+x ".filename
-	redraw
-	if v:shell_error
-		echohl WarningMsg
-	  echo 'Could not make "'.filename.'" executable !'
-	else
-		echohl Search
-	  echo 'Made "'.filename.'" executable.'
+	let	filename	= escape( expand("%:p"), s:escfilename )
+	if executable(filename) == 0									" not executable
+		silent exe "!chmod u+x ".filename
+		redraw
+		if v:shell_error
+			echohl WarningMsg
+			echo 'Could not make "'.filename.'" executable !'
+		else
+			echohl Search
+			echo 'Made "'.filename.'" executable.'
+		endif
+		echohl None
 	endif
-	echohl None
 endfunction		" ---------- end of function  Perl_MakeScriptExecutable  ----------
 "
 "------------------------------------------------------------------------------
@@ -1848,6 +1866,7 @@ endfunction		" ---------- end of function  Perl_POD  ----------
 "
 "------------------------------------------------------------------------------
 "  run : perltidy
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 "
 let	s:Perl_perltidy_startscript_executable = 'no'
@@ -1926,6 +1945,7 @@ endfunction		" ---------- end of function  Perl_Perltidy  ----------
 "
 "------------------------------------------------------------------------------
 "  run : SmallProf
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 let	s:Perl_ProfileOutput  	= 'smallprof.out'
 let	s:Perl_TimestampFormat 	= '%y%m%d.%H%M%S'
@@ -1975,6 +1995,7 @@ endfunction		" ---------- end of function  Perl_Smallprof  ----------
 "
 "------------------------------------------------------------------------------
 "  run : Save buffer with timestamp
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_SaveWithTimestamp ()
   if expand("%") == ""
@@ -1992,6 +2013,7 @@ endfunction		" ---------- end of function  Perl_SaveWithTimestamp  ----------
 "  run : hardcopy
 "    MSWIN : a printer dialog is displayed
 "    other : print PostScript to file
+"  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_Hardcopy (arg1)
 	let Sou	= expand("%")	
@@ -2093,11 +2115,8 @@ endif
 if has("autocmd")
 	" 
 	" =====  Perl-script : insert header, write file, make it executable  =============
-	if s:MSWIN
-		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! 
-	else
-		autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | call Perl_MakeScriptExecutable()
-	endif
+	"
+	autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | call Perl_MakeScriptExecutable()
 	" 
 	" =====  Perl module : insert header, write file  =================================
 	autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!

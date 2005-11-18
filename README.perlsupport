@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.8) / Oct 31 2005
+README for perl-support.vim (Version 2.8.1) / Nov 17 2005
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -11,8 +11,8 @@ considerably speed up writing code in a consistent style.
 This is done by inserting complete statements, comments, idioms, code snippets,
 templates, comments and POD documentation.  Reading perldoc is integrated.
 Syntax checking, running a script, starting a debugger and a profiler can be
-done by a keystroke.
-There a many additional hints and options which can improve speed and comfort
+done with a keystroke.
+There are many additional hints and options which can improve speed and comfort
 when writing Perl. Please read the documentation.
 
 =======================================================================================
@@ -72,6 +72,13 @@ and look at the perlsupport help with
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.8.1
+---------------------------------------------------------------------------------------
++ Bugfix: Some key mappings not working/not properly working (Thanks to Edward Wijaya).
++ Bugfix: Unnecessary message 'Made file executable' removed (Thanks to Edward Wijaya).
++ Bugfix: Wrong quoting for script arguments fixed; Windows only (Thanks to Norin Raad).
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.8
