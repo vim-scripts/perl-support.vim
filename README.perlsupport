@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.8.1) / Nov 17 2005
+README for perl-support.vim (Version 2.8.2) / Nov 23 2005
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -74,9 +74,14 @@ and look at the perlsupport help with
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.8.2
+---------------------------------------------------------------------------------------
++ Bugfix: Starting perltidy called a wrong function.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.8.1
 ---------------------------------------------------------------------------------------
-+ Bugfix: Some key mappings not working/not properly working (Thanks to Edward Wijaya).
++ Bugfix: Some key mappings did not work/not work properly (Thanks to Edward Wijaya).
 + Bugfix: Unnecessary message 'Made file executable' removed (Thanks to Edward Wijaya).
 + Bugfix: Wrong quoting for script arguments fixed; Windows only (Thanks to Norin Raad).
 

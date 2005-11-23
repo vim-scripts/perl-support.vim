@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                      Nov 08 2005
+*perlsupport.txt*                Perl Support                      Nov 23 2005
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plugin version 2.8.1
+                             Plugin version 2.8.2
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 

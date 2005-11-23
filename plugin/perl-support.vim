@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  17.11.2005
+"       Revision:  21.11.2005
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -32,7 +32,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.8.1"
+let g:Perl_Version= "2.8.2"
 "        
 "###############################################################################################
 "
@@ -1910,7 +1910,7 @@ function! Perl_Perltidy (arg1)
 	endif
 	" ----- normal mode ----------------
 	if a:arg1=="n"
-		if C_Input("reformat whole file [y/n/Esc] : ", "" ) != "y"
+		if Perl_Input("reformat whole file [y/n/Esc] : ", "" ) != "y"
 			return
 		endif
 		silent exe	":update"
