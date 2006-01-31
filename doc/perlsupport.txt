@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                      Nov 23 2005
+*perlsupport.txt*                Perl Support                      Jan 13 2006
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plugin version 2.8.2
+                              Plugin version 2.9
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -45,10 +45,12 @@ improve speed and comfort when writing Perl.
  1.9.7     Show installed Perl modules    |perlsupport-module-list|
  1.9.8     Run perltidy                   |perlsupport-perltidy|
  1.9.9     Run SmallProf                  |perlsupport-profile|
- 1.9.10    Save buffer with timestamp     |perlsupport-timestamp|
- 1.9.11    Hardcopy                       |perlsupport-hardcopy|
- 1.9.12    Xterm size                     |perlsupport-xterm|
- 1.9.13    Change Output Destination      |perlsupport-output|
+ 1.9.10    Run perlcritic                 |perlsupport-perlcritic|
+ 1.9.11    Save buffer with timestamp     |perlsupport-timestamp|
+ 1.9.12    Hardcopy                       |perlsupport-hardcopy|
+ 1.9.13    Xterm size                     |perlsupport-xterm|
+ 1.9.14    Change Output Destination      |perlsupport-output|
+ 1.10    Help                             |perlsupport-help|
  2.      Usage without GUI                |perlsupport-usage-vim|
  3.      Hotkeys                          |perlsupport-hotkeys|
  4.      Customization and configuration  |perlsupport-customization|
@@ -68,7 +70,6 @@ improve speed and comfort when writing Perl.
 
  How to add this help file to vim's help  |add-local-help|
 
-
 ==============================================================================
 1.  USAGE WITH GUI  (gVim)                            *perlsupport-usage-gvim*
 ==============================================================================
@@ -84,7 +85,6 @@ See also |perlsupport-custom-root|.
 
 1.1.1 APPEND ALIGNED COMMENTS TO CONSECUTIVE LINES  *perlsupport-aligned-comm*
 --------------------------------------------------
-
 In NORMAL MODE the menu entry
  'Line End Comm.'
 will append a comment to the current line.
@@ -118,7 +118,6 @@ buffer related.
 
 1.1.2 CODE TO COMMENT                               *perlsupport-code-to-comm*
 ---------------------
-
 A marked block will be changed into
 
 #my $x11       = 11;
@@ -131,7 +130,6 @@ marked.
 
 1.1.3 COMMENT TO CODE                               *perlsupport-comm-to-code*
 ---------------------
-
 A marked block
 
 #my $x1        = 1;
@@ -152,14 +150,12 @@ marked.
 
 1.1.4  COMMENT TEMPLATES                          *perlsupport-comm-templates*
 ------------------------
-
 Frame comments, function descriptions and file header comments are read as
 templates from the appropriate files (see |perlsupport-tempfiles|).
 
 
 1.1.5 KEYWORD+comment                              *perlsupport-comm-keywords*
 ---------------------
-
 Preliminary line end comments to document (and find again) places where work
 will be resumed shortly, like
 
@@ -173,7 +169,6 @@ Usually not meant for the final documentation.
 
 1.2.1  NORMAL MODE, INSERT MODE.                   *perlsupport-stat-norm-ins*
 --------------------------------
-
 An empty statement will be inserted and properly indented. The entry 'if{}'
 will insert an if-statement:
 
@@ -190,7 +185,6 @@ including subroutines.
 
 1.2.2  VISUAL MODE.                                  *perlsupport-stat-visual*
 -------------------
-
 The highlighted area
 
 xxxxx
@@ -253,7 +247,6 @@ The whole statement will be indented after insertion.
 
 1.2.3  CODE SNIPPETS                                *perlsupport-stat-snippets*
 --------------------
-
 Code snippets are pieces of code which are kept in separate files in a special
 directory. File names are used to identify the snippets.
 The snippet directory has to be created by the user
@@ -289,7 +282,6 @@ add the file extension "ni" or "noindent" to the snippet file name, e.g.
 
 1.3.1  STUB SUBROUTINE                                  *perlsupport-stub-sub*
 ----------------------
-
 In normal mode the entry 'subroutine' asks for a subroutine name and creates a
 stub subroutine with one parameter:
 
@@ -330,24 +322,25 @@ Everything else will be inserted at the cursor position.
 The entries 'open input file', 'open output file' and 'open pipe' ask for the
 name of a file handle. After the insertion of the statements
 
-  my  $INFILE_file_name = '';   # input file name
-
-  open ( INFILE, '<', $INFILE_file_name )
-  or die  "$0 : failed to open  input file $INFILE_file_name : $!\n";
-
-  close ( INFILE )
-    or warn "$0 : failed to close input file $INFILE_file_name : $!\n";
+  my  $INFILE_file_name = '';     # input file name
+  
+  open  my $INFILE, '<', $INFILE_file_name
+      or die  "$0 : failed to open  input file $INFILE_file_name : $!\n";
+  
+  
+  close  $INFILE
+      or warn "$0 : failed to close input file $INFILE_file_name : $!\n";
 
 the 'Idioms'-menu will be extended with an entry for the new handle:
 
-  <INFILE>
+  <$INFILE>
 
-After the insertion of the statements for a output file the 'Idioms'-menu will
-be extended by a new print statement for the new handle, e.g.
+After the insertion of the statements for an output file the 'Idioms'-menu
+will be extended by a new print statement for the new handle, e.g.
 
-  print OUTFILE "\n";
+  print $OUTFILE "\n";
 
-Multiline inserts and code snippets will be indented after insertion.
+Multi-line inserts will be indented after insertion.
 
 ------------------------------------------------------------------------------
 1.4  MENU 'Regex'                                          *perlsupport-regex*
@@ -415,7 +408,6 @@ this construct.
 
 1.8.2  RUN PODCHECKER                                 *perlsupport-podchecker*
 ---------------------
-
 The current buffer will be run through the application podchecker to check the
 syntax of the embedded POD or of a POD format documentation file (see
 podchecker(1) and Pod::Checker).
@@ -453,7 +445,6 @@ This script has to be executable under UNIX.
 
 1.9.3  COMMAND LINE ARGUMENTS                       *perlsupport-cmdline-args*
 -----------------------------
-
 The entry 'command line arguments' calls an input dialog which asks for
 command line arguments. These arguments are forwarded to the script which
 is run by the 'run' entry. The arguments are kept until you change them.
@@ -491,7 +482,6 @@ The debugger starts in an separate xterm or is a separate GUI-application
 
 1.9.5  READ PERLDOC                                  *perlsupport-perldoc*
 -------------------
-
 If a (key-)word is under the cursor the entry 'read perldoc' tries to look up
 the Perl documentation for this word using perldoc.  If a whitespace is under
 the cursor the user will be asked for a keyword.  Search order:
@@ -508,7 +498,6 @@ module descriptions have POD errors!).
 
 1.9.6  GENERATE PERL MODULE LIST          *perlsupport-module-list-generation*
 --------------------------------
-
 The entry 'Run -> generate Perl module list' generates a text file
 (default: $HOME/.vim/plugin/perl-modules.list ) which contains one line for
 each Perl module installed on your machine:
@@ -529,7 +518,6 @@ pmdesc3.pl has a POD included; see file doc/pmdesc3.text .
 
 1.9.7  SHOW INSTALLED PERL MODULES                  *perlsupport-module-list*
 ----------------------------------
-
 The entry 'Run -> show installed Perl modules' loads the module list in a new
 window.  The full documentation for that module can be opened in a perldoc
 help window using the hot keys <Shift-F1>, \h or \rp .
@@ -561,9 +549,70 @@ shown here):
 These variables can be put in a file called .smallprof in the current
 directory. See the module documentation for more information.
 
-1.9.10 SAVE BUFFER WITH TIMESTAMP                      *perlsupport-timestamp*
----------------------------------
+1.9.10 RUN PERLCRITIC                                 *perlsupport-perlcritic*
+---------------------
+"perlcritic" is a Perl source code analyzer.  It is the executable front-end
+to the Perl::Critic engine, which attempts to identify awkward, hard to read,
+error-prone, or unconventional constructs in your code.  Most of the rules are
+based on Damian Conway's book Perl Best Practices (PBP). 
+When run from the menu the current buffer will be saved and run through
+perlcritic. The reported violations will be displayed in a separate quickfix
+error window. There are three formats:
 
+FORMAT 1  (one line; short)
+
+	file | line | column | brief description
+
+ Example:
+  test.pl|23 col 1| Code before warnings are enabled
+
+FORMAT 2  (one line; default)
+
+	file | line | column | brief description | explanation or page number in PBP
+
+ Example:
+  test.pl|23 col 1| Code before warnings are enabled. See page 431 of PBP
+
+FORMAT 3  (multi-line)
+
+	file | line | column | brief description
+	policy
+	explanation or page number in PBP
+	full diagnostic
+
+ Example:
+  test.pl|23 col 1|  Code before warnings are enabled
+  || [Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings]
+  || See page 431 of PBP.
+  ||     Using warnings is probably the single most effective way to improve the
+  ||     quality of your code. This policy requires that the `'use warnings''
+  ||     statement must come before any other statements except `package',
+  ||     `require', and other `use' statements. Thus, all the code in the entire
+  ||     package will be affected.
+  || 
+
+Format 2 is the default.  This can be changed by setting the variable
+g:Perl_Perlcritic in .vimrc to another value (1-3):
+
+  let g:Perl_PerlcriticFormat = 3
+
+Format 3 may be your choice if you do not have a copy of PBP at hand.  It
+produces a lot of output.
+
+The default configuration file for perlcritic is '.perlcriticrc'. perlcritic
+will look for this file in the current directory first, and then in your home
+directory.  See the manual for more information ('man perlcritic' or
+'perlcritic -man') especially how to influence the policies.
+
+Consider using maps like 
+  imap  <silent> <F7>    <Esc>:cp<CR>
+  imap  <silent> <F8>    <Esc>:cn<CR>
+in your .vimrc file to jump over the error locations and make navigation
+easier (see also file customization.vimrc |perlsupport-custom-files|).
+
+
+1.9.11 SAVE BUFFER WITH TIMESTAMP                      *perlsupport-timestamp*
+---------------------------------
 Save the current buffer into a new file. The filename gets a trailing
 timestamp.  The format is YYYYMMDD-HHMMSS.
 This feature can be used to comfortably save different profiling results
@@ -575,24 +624,36 @@ enable this feature put the following line into .vimrc :
 
 The default value is "no".
 
-1.9.11 HARDCOPY                                         *perlsupport-hardcopy*
+1.9.12 HARDCOPY                                         *perlsupport-hardcopy*
 ---------------
-
 Generates a PostScript file from the whole buffer or from a marked region.
 On a MS-Windows system a printer dialog is displayed.
 
-1.9.12 XTERM SIZE                                          *perlsupport-xterm*
------------------
+The print header contains date and time for the current locale. The definition
+used is
+ 
+  let s:Perl_Printheader = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 
+The current locale can be overwritten by changing the language, e.g. 
+
+  :language C
+
+or by setting a global variable in the file .vimrc , e.g. :
+
+  let g:Perl_Printheader = "%<%f%h%m%<  %=%{strftime('%x %X')}     SEITE %N"
+
+See :h printheader and :h strftime()  for more details. 
+
+1.9.13 XTERM SIZE                                          *perlsupport-xterm*
+-----------------
 The size of the xterm used for debugging (|perlsupport-run-debug|) or for
 running the script (below) can be set by this menu entry. The default is 80
 columns with 24 lines.
 This feature is not available under MS-Windows.
 
 
-1.9.13 CHANGE OUTPUT DESTINATION                          *perlsupport-output*
+1.9.14 CHANGE OUTPUT DESTINATION                          *perlsupport-output*
 --------------------------------
-
 Running a Perl script can be done in three ways:
 (1) The script can be run from the command line as usual.
 (2) The output can be directed into a window with name "Perl-Output".
@@ -620,6 +681,14 @@ The default is "-fa courier -fs 12 -geometry 80x24" :
   font size     : -fs 12
   terminal size : -geometry 80x24
 See 'xterm -help' for more options. Xterms are not available under MS-Windows.
+
+------------------------------------------------------------------------------
+1.10  'help'                                                *perlsupport-help*
+------------------------------------------------------------------------------
+
+The root menu entry 'help' shows this plugin help in a help window.  The help
+tags must have been generated with
+  :helptags ~/.vim/doc
 
 ==============================================================================
 2.  USAGE WITHOUT GUI  (Vim)                           *perlsupport-usage-vim*
@@ -690,6 +759,7 @@ card).
   \la     [:alnum:]
   \lh     [:alpha:]
   \li     [:ascii:]
+  \lb     [:blank:]
   \lc     [:cntrl:]
   \ld     [:digit:]
   \lg     [:graph:]
@@ -713,6 +783,7 @@ card).
   \rg     generation Perl module list         see |perlsupport-module-list-generation|
   \ry     run perltidy                        see |perlsupport-perltidy| 
   \rm     run SmallProf                       see |perlsupport-profile|  
+  \rc     run perlcritic                      see |perlsupport-perlcritic|  
   \rt     save buffer with timestamp          see |perlsupport-timestamp|
   \rh     hardcopy buffer to FILENAME.ps      see |perlsupport-hardcopy| 
   \rk     settings and hotkeys 
@@ -726,9 +797,9 @@ card).
 (*) Linux/UNIX only
 
 File perl-hot-keys.pdf contains a reference card for these key mappings.
-Multiline inserts and code snippets will be indented after insertion.
+Mult-iline inserts and code snippets will be indented after insertion.
 
-The hotkeys are defined in the filetype plugin perl.vim (part of this
+The hotkeys are defined in the file type plugin perl.vim (part of this
 perl-support plugin package).
 
 ==============================================================================
@@ -743,7 +814,7 @@ The following hotkeys are defined in normal, visual and insert mode:
     Ctrl-F9   run script
    Shift-F9   set command line arguments (buffer related)
 
-These hotkeys are defined in the filetype plugin ~/.vim/ftplugin/perl.vim .
+These hotkeys are defined in the file type plugin ~/.vim/ftplugin/perl.vim .
 
 Note for xterm users (Vim without GUI): The function key combinations
 Shift-Fx, Alt-Fx and Ctrl-Fx do not work. F9 is also not working to prevent
@@ -763,11 +834,12 @@ codesnippets-perl/*       Some Perl code snippets as a starting point.
 
 doc/perlsupport.txt       The help file for the local online help.
 
-ftplugin/perl.vim         A filetype plugin. Define hotkeys, create a local
+ftplugin/perl.vim         A file type plugin. Define hotkeys, create a local
                           dictionary for each Perl file.
 
 plugin/perl-support.vim   The Perl plugin for Vim/gVim.
-plugin/efm_perl.pl        Perl script; reformats the error messages of the Perl interpreter
+plugin/efm_perl.pl        Perl script; reformats the error messages of the 
+                          Perl interpreter
 plugin/pmdesc3.pl         Perl script; generates a list of all installed Perl modules
 plugin/wrapper.sh         The wrapper script for the use of an xterm.
 
@@ -841,6 +913,7 @@ g:Perl_ProfilerTimestamp       "no"
 g:Perl_LineEndCommColDefault   49
 g:Perl_BraceOnNewLine          "no"
 g:Perl_PodcheckerWarnings      "yes"
+g:Perl_PerlcriticFormat        2
 
 The variable root_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
@@ -870,17 +943,18 @@ The variable root_dir will automatically be set to one of the following values:
 
 4. group: g:Perl_PerlModuleList          : The name of the Perl module list (text file,
                                            see below).
-          g:Perl_PerlModuleListGenerator : The command line which starts the modul list
-                                           generation.
-          g:Perl_OutputGvim      : when script is running output goes to the vim command
-                                   line ("vim"), to a buffer ("buffer") or to an
-                                   xterm ("xterm").
-          g:Perl_XtermDefaults   : the xterm defaults
-          g:Perl_Debugger        : the debugger called by F9 (perl, ptkdb, ddd).
-          g:Perl_ProfilerTimestamp      : add time stamp to the profiler buffer name
-          g:Perl_LineEndCommColDefault  : default starting column for line end comments 
-          g:Perl_BraceOnNewLine         : opening brace (not) on a new line
-          g:Perl_PodcheckerWarnings     : podchecker warnings on/off
+          g:Perl_PerlModuleListGenerator : The command line which starts the
+                                           module list generation.
+          g:Perl_OutputGvim              : when script is running output goes to the vim
+                                           command line ("vim"), to a buffer ("buffer")
+                                           or to an xterm ("xterm").
+          g:Perl_XtermDefaults           : the xterm defaults
+          g:Perl_Debugger                : the debugger called by F9 (perl, ptkdb, ddd).
+          g:Perl_ProfilerTimestamp       : add time stamp to the profiler buffer name
+          g:Perl_LineEndCommColDefault   : default starting column for line end comments
+          g:Perl_BraceOnNewLine          : opening brace (not) on a new line
+          g:Perl_PodcheckerWarnings      : podchecker warnings on/off
+          g:Perl_PerlcriticFormat        : perlcritic error format
 
 To override the defaults add appropriate assignments to .vimrc .
 Set at least some personal details into .vimrc by overriding some defaults.
@@ -979,12 +1053,12 @@ You may therefore want not to use __END__ in your own modules.
 ------------------------------------------------------------------------------
 
 The Perl Style Guide recommends a tabulator setting of 4. You can force this
-setting for all files with filetype 'perl' by uncommenting the two lines
+setting for all files with file type 'perl' by uncommenting the two lines
 
   "setlocal tabstop=4
   "setlocal shiftwidth=4
 
-in the filetype plugin ~/.vim/ftplugin/perl.vim . 
+in the file type plugin ~/.vim/ftplugin/perl.vim . 
 
 ==============================================================================
 5.  TEMPLATE FILES AND TAGS                            *perlsupport-tempfiles*
@@ -993,6 +1067,7 @@ in the filetype plugin ~/.vim/ftplugin/perl.vim .
 ------------------------------------------------------------------------------
 5.1  TEMPLATE FILES 
 ------------------------------------------------------------------------------
+
 Four menu entries generate block comments:
 
     Perl -> Comments -> Frame Comm.
@@ -1013,7 +1088,7 @@ File Header (.pm)       perl-module-header            g:Perl_Template_Module
 ------------------------------------------------------------------------------
 
 The template files can be written or changed by the user to fulfill special
-requirements (layout for a project or workgroup already exists, file headers /
+requirements (layout for a project or work group already exists, file headers /
 blocks have to be prepared for a documentation tool, ... ).  They can hold not
 only comments but a complete file skeleton if this is necessary.  So you may
 want to lay out your own templates.
@@ -1021,6 +1096,7 @@ want to lay out your own templates.
 ------------------------------------------------------------------------------
 5.2  TAGS                                                   *perlsupport-tags*
 ------------------------------------------------------------------------------
+
 The comments in these files do not have to be personalized but they can.
 The text can contain the following tags which are replaced by the appropriate
 information when the file is read in:
@@ -1112,6 +1188,7 @@ Configuration files:
   likely you have updated Perl and the module can now longer be found. The
   easiest remedy is to reinstall perltidy. Check the installation with the 
   command "perltidy -v" from the command line.
+    
 
 ==============================================================================
 9.  RELEASE NOTES                                  *perlsupport-release-notes*
@@ -1137,7 +1214,6 @@ David Fishburn contributed changes for the Windows platform and suggested to
 
 The code snippet files pod-template-application.pl and pod-template-module.pl
   are taken from Damian Conway's book "Perl Best Practices".
-
 
 ==============================================================================
 vim:tw=78:noet:ts=2:ft=help:norl:

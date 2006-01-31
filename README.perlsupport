@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.8.2) / Nov 23 2005
+README for perl-support.vim (Version 2.9) / Jan 27 2006
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -74,14 +74,25 @@ and look at the perlsupport help with
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.9
+---------------------------------------------------------------------------------------
++ perlcritic integrated. Runs like a compiler. Opens a quickfix error window.
++ Help menu entry added (plugin help).
++ A hardcopy shows date and time in the header line.
++ open file/pipe idioms according to Conway's "Perl Best Practices".
++ POSIX class [:blank:] added.
++ Bugfix: Wrong cursor positon in hash idiom.
++ Plugin can be used with autocompletion for (, [, and { .
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.8.2
 ---------------------------------------------------------------------------------------
-+ Bugfix: Starting perltidy called a wrong function.
++ Bugfix: Starting perltidy calls a wrong function (Thanks to Greg Ferguson).
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.8.1
 ---------------------------------------------------------------------------------------
-+ Bugfix: Some key mappings did not work/not work properly (Thanks to Edward Wijaya).
++ Bugfix: Some key mappings not working/not properly working (Thanks to Edward Wijaya).
 + Bugfix: Unnecessary message 'Made file executable' removed (Thanks to Edward Wijaya).
 + Bugfix: Wrong quoting for script arguments fixed; Windows only (Thanks to Norin Raad).
 
