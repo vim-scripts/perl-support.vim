@@ -3,7 +3,7 @@
 " Language   :  Perl
 " Plugin     :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  26.01.2006
+" Last Change:  18.02.2006
 "
 " ----------------------------------------------------------------------------
 "
@@ -154,6 +154,7 @@ nmap    <buffer>  <silent>  <Leader>lx    a]:xdigit:]<Esc>F]r[f]'
  map    <buffer>  <silent>  <Leader>rr    <Esc>:call Perl_Run()<CR>
  map    <buffer>  <silent>  <Leader>rs    <Esc>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
  map    <buffer>  <silent>  <Leader>ra    <Esc>:call Perl_Arguments()<CR>
+ map    <buffer>  <silent>  <Leader>rw    <Esc>:call Perl_PerlSwitches()<CR>
 if has("gui_running")    " starts an xterm
    map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>:redraw!<CR>
 endif

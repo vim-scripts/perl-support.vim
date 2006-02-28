@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 2.9) / Jan 27 2006
+README for perl-support.vim (Version 2.9.1) / Feb 18 2006
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -72,6 +72,16 @@ and look at the perlsupport help with
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.9.1
+---------------------------------------------------------------------------------------
++ New menu entry for setting perl command line switches (Thanks to Adam MacKinnon).
++ For files with extension 't' (Perl test files) the filetype is set to 'perl'. This
+  allows syntax checking, reading help, and checking with perlcritic.
++ There is a new comment template file 'perl-test-header' which will be
+  inserted at the beginning of a new test file (extension 't').
++ Comment after some POD directives removed (podchecker showed errors).
 
 ---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 2.9

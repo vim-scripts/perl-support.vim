@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                      Jan 13 2006
+*perlsupport.txt*                Perl Support                      Feb 18 2006
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 2.9
+                             Plugin version 2.9.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -39,17 +39,18 @@ improve speed and comfort when writing Perl.
  1.9.1     Run script                     |perlsupport-run-script|
  1.9.2     Check syntax                   |perlsupport-syntax-check|
  1.9.3     Command line arguments         |perlsupport-cmdline-args|
- 1.9.4     Debug                          |perlsupport-run-debug|
- 1.9.5     Read perldoc                   |perlsupport-perldoc|
- 1.9.6     Generate Perl module list      |perlsupport-module-list-generation|
- 1.9.7     Show installed Perl modules    |perlsupport-module-list|
- 1.9.8     Run perltidy                   |perlsupport-perltidy|
- 1.9.9     Run SmallProf                  |perlsupport-profile|
- 1.9.10    Run perlcritic                 |perlsupport-perlcritic|
- 1.9.11    Save buffer with timestamp     |perlsupport-timestamp|
- 1.9.12    Hardcopy                       |perlsupport-hardcopy|
- 1.9.13    Xterm size                     |perlsupport-xterm|
- 1.9.14    Change Output Destination      |perlsupport-output|
+ 1.9.4     Perl commnad line switches     |perlsupport-perl-switches|
+ 1.9.5     Debug                          |perlsupport-run-debug|
+ 1.9.6     Read perldoc                   |perlsupport-perldoc|
+ 1.9.7     Generate Perl module list      |perlsupport-module-list-generation|
+ 1.9.8     Show installed Perl modules    |perlsupport-module-list|
+ 1.9.9     Run perltidy                   |perlsupport-perltidy|
+ 1.9.10    Run SmallProf                  |perlsupport-profile|
+ 1.9.11    Run perlcritic                 |perlsupport-perlcritic|
+ 1.9.12    Save buffer with timestamp     |perlsupport-timestamp|
+ 1.9.13    Hardcopy                       |perlsupport-hardcopy|
+ 1.9.14    Xterm size                     |perlsupport-xterm|
+ 1.9.15    Change Output Destination      |perlsupport-output|
  1.10    Help                             |perlsupport-help|
  2.      Usage without GUI                |perlsupport-usage-vim|
  3.      Hotkeys                          |perlsupport-hotkeys|
@@ -376,7 +377,7 @@ Most entries insert POD commands below the cursor position, e.g.
 
 
 
-  =cut  #  back to Perl
+  =cut
 
 The entries 'POD->html', 'POD->man', 'POD->text' call the appropriate
 translator which will generate the desired document from the current buffer.
@@ -392,7 +393,7 @@ Conway's book "Perl Best Practices", e.g.
   =for Improvement: <keyword>
   <single paragraph>
 
-  =cut  #  back to Perl
+  =cut
 
 The text in the single paragraph will be ignored by the compiler and by a POD
 formatter. This can be used to embed extended pieces of internal
@@ -424,13 +425,9 @@ turn the warnings of put the following line in the file .vimrc :
 
 1.9.1  RUN SCRIPT                                     *perlsupport-run-script*
 -----------------
-Running a Perl-script opens a window with name "Perl-Output" to display the
-script output. The buffer and its content will disappear when closing the
-window. If this window remains open it will be used for the next runs.
-If the script doesn't produce shell output the output window will not be
-opened (but you will see a message).
-There is no file behind the window Perl-Output but the content can be saved
-with a 'save as'.
+Run the script in the current buffer.  The output destination can be chosen
+with the menu entry 'Run->output: ...' (see |perlsupport-output|).  There are
+3 choices: VIM command line, seperate output buffer and xterm.
 
 1.9.2  CHECK SYNTAX                                 *perlsupport-syntax-check*
 -------------------
@@ -457,7 +454,20 @@ own arguments). The input dialog has a history.
 If the buffer gets a new name with "save as" the arguments will now belong to
 the buffer with the new name.
 
-1.9.4  DEBUG                                           *perlsupport-run-debug*
+1.9.4  PERL COMMAND LINE SWITCHES                  *perlsupport-perl-switches*
+---------------------------------
+The entry 'perl switches' calls an input dialog which asks for command line
+switches for the perl interpreter. These arguments are forwarded to the call
+of the script which is run by the 'run' entry. The switches are kept until you
+change them.
+
+The switches belong to the current buffer (that is, each buffer can have its
+own switches). The input dialog has a history.
+
+If the buffer gets a new name with "save as" the switches will now belong to
+the buffer with the new name.
+
+1.9.5  DEBUG                                           *perlsupport-run-debug*
 ------------
 Start a debugger with the menu entry Run->debug or with hotkey F9. One of three
 debuggers can be started. The preference can be set with the variable
@@ -480,7 +490,7 @@ The debugger ddd is not available under MS-Windows.
 The debugger starts in an separate xterm or is a separate GUI-application
 (e.g. ddd).  This feature is therefore not available for Vim.
 
-1.9.5  READ PERLDOC                                  *perlsupport-perldoc*
+1.9.6  READ PERLDOC                                  *perlsupport-perldoc*
 -------------------
 If a (key-)word is under the cursor the entry 'read perldoc' tries to look up
 the Perl documentation for this word using perldoc.  If a whitespace is under
@@ -496,7 +506,7 @@ On a UNIX platform errors produced by perldoc will be suppressed (a few
 module descriptions have POD errors!). 
 
 
-1.9.6  GENERATE PERL MODULE LIST          *perlsupport-module-list-generation*
+1.9.7  GENERATE PERL MODULE LIST          *perlsupport-module-list-generation*
 --------------------------------
 The entry 'Run -> generate Perl module list' generates a text file
 (default: $HOME/.vim/plugin/perl-modules.list ) which contains one line for
@@ -516,7 +526,7 @@ This script has to be executable under UNIX. The generation may take a while.
 pmdesc3.pl has a POD included; see file doc/pmdesc3.text .
 
 
-1.9.7  SHOW INSTALLED PERL MODULES                  *perlsupport-module-list*
+1.9.8  SHOW INSTALLED PERL MODULES                  *perlsupport-module-list*
 ----------------------------------
 The entry 'Run -> show installed Perl modules' loads the module list in a new
 window.  The full documentation for that module can be opened in a perldoc
@@ -524,7 +534,7 @@ help window using the hot keys <Shift-F1>, \h or \rp .
 Looking up help with Shift-F1 works also in the perldoc help window.
 Vim (without GUI): only \h and \rp are working.
 
-1.9.8  RUN PERLTIDY                                     *perlsupport-perltidy*
+1.9.9  RUN PERLTIDY                                     *perlsupport-perltidy*
 -------------------
 The buffer can be formatted with perltidy. If nothing is marked the whole
 buffer will be formatted. If a region is marked only this region will be
@@ -533,8 +543,8 @@ Perltidy has a lot of options. It is recommended to use a .perltidyrc
 initialization file to define the preferred style (see 'man 1 perltidy').
 See also |perlsupport-troubleshooting|.
 
-1.9.9  RUN SMALLPROF                                     *perlsupport-profile*
---------------------
+1.9.10  RUN SMALLPROF                                    *perlsupport-profile*
+---------------------
 Profile the script in the current buffer using the profiler  Devel::SmallProf
 (the module has to be installed, of course).  The results will go to the file
 smallprof.out in the current directory. This file will be opened automatically.
@@ -549,7 +559,7 @@ shown here):
 These variables can be put in a file called .smallprof in the current
 directory. See the module documentation for more information.
 
-1.9.10 RUN PERLCRITIC                                 *perlsupport-perlcritic*
+1.9.11 RUN PERLCRITIC                                 *perlsupport-perlcritic*
 ---------------------
 "perlcritic" is a Perl source code analyzer.  It is the executable front-end
 to the Perl::Critic engine, which attempts to identify awkward, hard to read,
@@ -611,7 +621,7 @@ in your .vimrc file to jump over the error locations and make navigation
 easier (see also file customization.vimrc |perlsupport-custom-files|).
 
 
-1.9.11 SAVE BUFFER WITH TIMESTAMP                      *perlsupport-timestamp*
+1.9.12 SAVE BUFFER WITH TIMESTAMP                      *perlsupport-timestamp*
 ---------------------------------
 Save the current buffer into a new file. The filename gets a trailing
 timestamp.  The format is YYYYMMDD-HHMMSS.
@@ -624,7 +634,7 @@ enable this feature put the following line into .vimrc :
 
 The default value is "no".
 
-1.9.12 HARDCOPY                                         *perlsupport-hardcopy*
+1.9.13 HARDCOPY                                         *perlsupport-hardcopy*
 ---------------
 Generates a PostScript file from the whole buffer or from a marked region.
 On a MS-Windows system a printer dialog is displayed.
@@ -644,7 +654,7 @@ or by setting a global variable in the file .vimrc , e.g. :
 
 See :h printheader and :h strftime()  for more details. 
 
-1.9.13 XTERM SIZE                                          *perlsupport-xterm*
+1.9.14 XTERM SIZE                                          *perlsupport-xterm*
 -----------------
 The size of the xterm used for debugging (|perlsupport-run-debug|) or for
 running the script (below) can be set by this menu entry. The default is 80
@@ -652,13 +662,17 @@ columns with 24 lines.
 This feature is not available under MS-Windows.
 
 
-1.9.14 CHANGE OUTPUT DESTINATION                          *perlsupport-output*
+1.9.15 CHANGE OUTPUT DESTINATION                          *perlsupport-output*
 --------------------------------
 Running a Perl script can be done in three ways:
 (1) The script can be run from the command line as usual.
 (2) The output can be directed into a window with name "Perl-Output".
     The buffer and its content will disappear when the window is closed and
-    reused otherwise.
+    reused otherwise. If this window remains open it will be used for the next
+    runs. If the script doesn't produce shell output the output window will 
+    not be opened (but you will see a message).
+    There is no file behind the window Perl-Output but the content can be 
+    saved with a 'save as'.
 (3) The script can be run in an xterm.
 
 The output method can be chosen with the menu entry 'Run->output: ...'.
@@ -708,7 +722,9 @@ card).
   \cl     Line End Comment
   \cf     Frame Comment
   \cu     Function Description
-  \ch     File Header
+  \ch     File Header (*.pl)
+  \ce     File Header (*.pm)
+  \ca     File Header (*.t)
   \ckb    Keyword comment BUG
   \ckt    Keyword comment TODO
   \ckr    Keyword comment TRICKY
@@ -776,6 +792,7 @@ card).
   \rr     update file, run script             see |perlsupport-run-script|
   \rs     update file, check syntax           see |perlsupport-syntax-check|
   \ra     set command line argument           see |perlsupport-cmdline-args|
+  \rw     set Perl command line switches      see |perlsupport-perl-switches|
   \rd     start debugger                      see |perlsupport-run-debug|
   \re     make script executable (*)
   \rp     read perldoc                        see |perlsupport-perldoc|  
@@ -895,6 +912,7 @@ g:Perl_CopyrightHolder         ""                          |COPYRIGHTHOLDER|
 g:Perl_Template_Directory      root_dir.'plugin/templates/'
 g:Perl_Template_File           'perl-file-header'
 g:Perl_Template_Module         'perl-module-header'
+g:Perl_Template_Test           'perl-test-header'
 g:Perl_Template_Frame          'perl-frame'
 g:Perl_Template_Function       'perl-function-description'
 
@@ -1085,6 +1103,7 @@ Frame Comment           perl-frame                    g:Perl_Template_Frame
 Function Description    perl-function-description     g:Perl_Template_Function
 File Header (.pl)       perl-file-header              g:Perl_Template_File
 File Header (.pm)       perl-module-header            g:Perl_Template_Module
+File Header (.t)        perl-test-header              g:Perl_Template_Test
 ------------------------------------------------------------------------------
 
 The template files can be written or changed by the user to fulfill special

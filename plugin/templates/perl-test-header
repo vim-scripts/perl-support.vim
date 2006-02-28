@@ -1,0 +1,23 @@
+#
+#===============================================================================
+#
+#         FILE:  |FILENAME|
+#
+#  DESCRIPTION:  |CURSOR|
+#
+#        FILES:  ---
+#         BUGS:  ---
+#        NOTES:  ---
+#       AUTHOR:  |AUTHOR| (|AUTHORREF|), <|EMAIL|>
+#      COMPANY:  |COMPANY|
+#      VERSION:  1.0
+#      CREATED:  |DATE|
+#     REVISION:  ---
+#===============================================================================
+
+use strict;
+use warnings;
+
+use Test::More tests => 1;                      # last test to print
+
+

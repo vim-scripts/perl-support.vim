@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  26.01.2006
+"       Revision:  21.02.2006
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -32,7 +32,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.9pre"
+let g:Perl_Version= "2.9.1"
 "        
 "###############################################################################################
 "
@@ -79,6 +79,7 @@ let s:Perl_CodeSnippets            = s:plugin_dir.'codesnippets-perl/'
 let s:Perl_Template_Directory      = s:plugin_dir.'plugin/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
+let s:Perl_Template_Test           = 'perl-test-header'
 let s:Perl_Template_Frame          = 'perl-frame'
 let s:Perl_Template_Function       = 'perl-function-description'
 let s:Perl_MenuHeader              = 'yes'
@@ -129,6 +130,7 @@ call Perl_CheckGlobal("Perl_Template_File          ")
 call Perl_CheckGlobal("Perl_Template_Frame         ")
 call Perl_CheckGlobal("Perl_Template_Function      ")
 call Perl_CheckGlobal("Perl_Template_Module        ")
+call Perl_CheckGlobal("Perl_Template_Test          ")
 call Perl_CheckGlobal("Perl_XtermDefaults          ")
 "
 let s:Perl_PerlcriticMsg     = ""
@@ -139,9 +141,9 @@ let s:Perl_SyntaxCheckMsg    = ""
 "  Perl Menu Initialization
 "------------------------------------------------------------------------------
 "
-let	s:Perl_POD_cut ='<CR>=pod  <CR><CR><CR><CR>=cut  #  back to Perl<CR>'
-let	s:Perl_POD_for ='<CR>=for  <CR><CR>=cut  #  back to Perl<CR>'
-let	s:Perl_POD_List='<CR>=over 2<CR><CR>=item *<CR><CR><CR><CR>=item *<CR><CR><CR><CR>=back  #  back to Perl<CR><CR>'
+let	s:Perl_POD_cut ='<CR>=pod  <CR><CR><CR><CR>=cut<CR>'
+let	s:Perl_POD_for ='<CR>=for  <CR><CR>=cut<CR>'
+let	s:Perl_POD_List='<CR>=over 2<CR><CR>=item *<CR><CR><CR><CR>=item *<CR><CR><CR><CR>=back<CR><CR>'
 let	s:Perl_POD_html='<CR>=begin  html<CR><CR><CR><CR>=end    html  #  back to Perl<CR>'
 let	s:Perl_POD_man ='<CR>=begin  man<CR><CR><CR><CR>=end    man  #  back to Perl<CR>'
 let	s:Perl_POD_text='<CR>=begin  text<CR><CR><CR><CR>=end    text  #  back to Perl<CR>'
@@ -190,7 +192,8 @@ function!	Perl_InitMenu ()
 		exe "amenu <silent>  ".s:Perl_Root.'&Comments.&Frame\ Comm\.            <Esc><Esc>:call Perl_CommentTemplates("frame")<CR>'
 		exe "amenu <silent>  ".s:Perl_Root.'&Comments.F&unction\ Descr\.        <Esc><Esc>:call Perl_CommentTemplates("function")<CR>'
 		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ &Header\ (\.pl)     <Esc><Esc>:call Perl_CommentTemplates("header")<CR>'
-		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ Header\ (\.&pm)     <Esc><Esc>:call Perl_CommentTemplates("module")<CR>'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ H&eader\ (\.pm)     <Esc><Esc>:call Perl_CommentTemplates("module")<CR>'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ He&ader\ (\.t)      <Esc><Esc>:call Perl_CommentTemplates("test")<CR>'
 
 		exe "amenu ".s:Perl_Root.'&Comments.-SEP1-                     :'
 		"
@@ -772,6 +775,7 @@ function!	Perl_InitMenu ()
 		"
 		exe "amenu ".s:Perl_Root.'&Run.update,\ check\ &syntax<Tab><A-F9>       			   <C-C>:call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.cmd\.\ line\ &arg\.<Tab><S-F9>           <C-C>:call Perl_Arguments()<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'&Run.perl\ s&witches                          <C-C>:call Perl_PerlSwitches()<CR>'
 		exe "amenu <silent> ".s:Perl_Root.'&Run.start\ &debugger<Tab><F9>                <C-C>:call Perl_Debugger()<CR>'
 		"
 		"   set execution rights for user only ( user may be root ! )
@@ -839,6 +843,8 @@ function! Perl_Input ( promp, text )
   call inputsave()                    " preserve typeahead
   let retval=input( a:promp, a:text ) " read input
   call inputrestore()                 " restore typeahead
+	let retval	= substitute( retval, '^\s\+', '', '' )
+	let retval	= substitute( retval, '\s\+$', '', '' )
   echohl None                         " reset highlighting
   return retval
 endfunction		" ---------- end of function  Perl_Input  ----------
@@ -985,13 +991,17 @@ function! Perl_CommentTemplates (arg)
 		let templatefile=s:Perl_Template_Directory.s:Perl_Template_Module
 	endif
 
+	if a:arg=='test'
+		let templatefile=s:Perl_Template_Directory.s:Perl_Template_Test
+	endif
+
 
 	if filereadable(templatefile)
 		let	length= line("$")
 		let	pos1  = line(".")+1
 		let l:old_cpoptions	= &cpoptions " Prevent the alternate buffer from being set to this files
 		setlocal cpoptions-=a
-		if  a:arg=='header'|| a:arg=='module' 
+		if a:arg=='header' || a:arg=='module' || a:arg=='test'
 			:goto 1
 			let	pos1  = 1
 			exe '0read '.templatefile
@@ -1064,6 +1074,10 @@ endfunction    " ----------  end of function Perl_CommentVimModeline  ----------
 "------------------------------------------------------------------------------
 function! Perl_Subroutine (arg1)
 	let	identifier=Perl_Input("subroutine name : ", "" )
+	"
+	if identifier==""
+		return
+	endif
 	"
 	" ----- normal mode ----------------
 	if a:arg1=="a" 
@@ -1577,7 +1591,6 @@ endfunction		" ---------- end of function  Perl_Settings  ----------
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 "
-"
 function! Perl_SyntaxCheck ()
 	let s:Perl_SyntaxCheckMsg = ""
 	exe	":cclose"
@@ -1674,6 +1687,25 @@ function! Perl_Toggle_Gvim_Xterm ()
 endfunction    " ----------  end of function Perl_Toggle_Gvim_Xterm  ----------
 "
 "------------------------------------------------------------------------------
+"  run : Perl_PerlSwitches
+"  Also called in the filetype plugin perl.vim
+"------------------------------------------------------------------------------
+function! Perl_PerlSwitches ()
+	let filename = escape(expand("%"),s:escfilename)
+  if filename == ""
+		redraw
+		echohl WarningMsg | echo " no file name " | echohl None
+		return
+  endif
+	let	prompt   = 'perl command line switches for "'.filename.'" : '
+	if exists("b:Perl_Switches")
+		let	b:Perl_Switches= Perl_Input( prompt, b:Perl_Switches )
+	else
+		let	b:Perl_Switches= Perl_Input( prompt , "" )
+	endif
+endfunction		" ---------- end of function  Perl_PerlSwitches  ----------
+"
+"------------------------------------------------------------------------------
 "  run : run
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
@@ -1683,9 +1715,19 @@ let s:Perl_OutputBufferNumber = -1
 "
 function! Perl_Run ()
 	"
+	if &filetype != "perl"
+		echohl WarningMsg | echo expand("%").' seems not to be a Perl file' | echohl None
+		return
+	endif
+	let buffername	= expand("%")
+	if fnamemodify( s:Perl_PerlModuleList, ":p:t" ) == buffername || s:Perl_PerldocBufferName == buffername
+		return
+	endif
+	"
 	let	l:currentbuffernr	= bufnr("%")
 	let l:currentdir			= getcwd()
 	let	l:arguments				= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
+	let	l:switches				= exists("b:Perl_Switches") ? b:Perl_Switches.' ' : ""
 	let	l:currentbuffer		= bufname("%")
 	let l:fullname				= l:currentdir."/".l:currentbuffer
 	" escape whitespaces
@@ -1697,9 +1739,9 @@ function! Perl_Run ()
 	if	s:MSWIN
 		let l:arguments	= substitute( l:arguments, '^\s\+', ' ', '' )
 		let l:arguments	= substitute( l:arguments, '\s\+', "\" \"", 'g')
+		let l:switches	= substitute( l:switches, '^\s\+', ' ', '' )
+		let l:switches	= substitute( l:switches, '\s\+', "\" \"", 'g')
 	endif
-	"
-	call Perl_MakeScriptExecutable ()
 	"
 	"------------------------------------------------------------------------------
 	"  run : run from the vim command line
@@ -1707,9 +1749,9 @@ function! Perl_Run ()
 	if s:Perl_OutputGvim == "vim"
 		"
 		if	s:MSWIN
-			exe "!perl \"".l:fullname." ".l:arguments."\""
+			exe "!perl \"".l:switches.l:fullname." ".l:arguments."\""
 		else
-			exe "!".l:fullname.l:arguments
+			exe "!perl ".l:switches.l:fullname.l:arguments
 		endif
 		"
 	endif
@@ -1743,9 +1785,9 @@ function! Perl_Run ()
 			setlocal	modifiable
 			silent exe ":update"
 			if	s:MSWIN
-				exe "%!perl \"".l:fullname.l:arguments."\""
+				exe "%!perl \"".l:switches.l:fullname.l:arguments."\""
 			else
-				exe "%!".l:fullname.l:arguments
+				exe "%!perl ".l:switches.l:fullname.l:arguments
 			endif
 			setlocal	nomodifiable
 			"
@@ -1768,9 +1810,9 @@ function! Perl_Run ()
 		"
 		if	s:MSWIN
 			" same as "vim"
-			exe "!perl \"".l:fullname." ".l:arguments."\""
+			exe "!perl \"".l:switches.l:fullname." ".l:arguments."\""
 		else
-			silent exe '!xterm -title '.l:fullname.' '.s:Perl_XtermDefaults.' -e '.s:plugin_dir.'plugin/wrapper.sh '.l:fullname.l:arguments
+			silent exe '!xterm -title '.l:fullname.' '.s:Perl_XtermDefaults.' -e '.s:plugin_dir.'plugin/wrapper.sh perl '.l:switches.l:fullname.l:arguments
 		endif
 		"
 	endif
@@ -1847,8 +1889,6 @@ function! Perl_XtermSize ()
 	while match(answer, '^\s*\d\+\s\+\d\+\s*$' ) < 0
 		let	answer= Perl_Input(" + xterm size (COLUMNS LINES) : ", geom )
 	endwhile
-	let answer  = substitute( answer, '^\s\+', "", "" )		 				" remove leading whitespaces
-	let answer  = substitute( answer, '\s\+$', "", "" )						" remove trailing whitespaces
 	let answer  = substitute( answer, '\s\+', "x", "" )						" replace inner whitespaces
 	let s:Perl_XtermDefaults	= substitute( s:Perl_XtermDefaults, regex, "-geometry ".answer , "" )
 endfunction		" ---------- end of function  Perl_XtermSize  ----------
@@ -1933,9 +1973,7 @@ endfunction		" ---------- end of function  Perl_POD  ----------
 "------------------------------------------------------------------------------
 function! Perl_InvisiblePOD (arg1)
 	let	zz =    "\n=for ".a:arg1.": <keyword>"
-	let	zz = zz."\n<single paragraph>\n"
-	let	zz = zz."\n=cut  #  back to Perl\n"
-	let	zz = zz."\n"
+	let	zz = zz."\n<single paragraph>\n\n=cut\n\n"
 	put =zz
 	normal j2W
 endfunction		" ---------- end of function  Perl_POD  ----------
@@ -2291,13 +2329,17 @@ if has("autocmd")
 	" 
 	" =====  Perl-script : insert header, write file, make it executable  =============
 	"
-	autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! | call Perl_MakeScriptExecutable()
+	autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! 
 	" 
-	" =====  Perl module : insert header, write file  =================================
+	" =====  Perl module      : insert header, write file  =============================
+	" =====  Perl test module : set filetype to Perl       =============================
 	autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!
+	autocmd BufNewFile  *.t   call Perl_CommentTemplates('test') | :w!
 	" 
-	" =====  Perl POD module : set filetype to Perl  ==================================
+	" =====  Perl POD module  : set filetype to Perl  ==================================
+	" =====  Perl test module : set filetype to Perl  ==================================
 	autocmd BufNewFile,BufRead *.pod  set filetype=perl
+	autocmd BufNewFile,BufRead *.t  set filetype=perl
 	"
 endif " has("autocmd")
 "

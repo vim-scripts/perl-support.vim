@@ -7,11 +7,11 @@
 <body>
 <h2>PERLSUPPORT</h2>
 <pre>
-<b class="vimtag">*<a name="perlsupport.txt">perlsupport.txt</a>*</b>                Perl Support                      Jan 13 2006
+<b class="vimtag">*<a name="perlsupport.txt">perlsupport.txt</a>*</b>                Perl Support                      Feb 18 2006
 
 Perl Support                                      <b class="vimtag">*<a name="perl-support">perl-support</a>*</b> <b class="vimtag">*<a name="perlsupport">perlsupport</a>*</b>
 
-                              Plugin version 2.9
+                             Plugin version 2.9.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <code class="special">&lt;mehner@fh-swf.de&gt;</code>
 
@@ -48,17 +48,18 @@ improve speed and comfort when writing Perl.
  1.9.1     Run script                     |<a href="perlsupport.html#perlsupport-run-script">perlsupport-run-script</a>|
  1.9.2     Check syntax                   |<a href="perlsupport.html#perlsupport-syntax-check">perlsupport-syntax-check</a>|
  1.9.3     Command line arguments         |<a href="perlsupport.html#perlsupport-cmdline-args">perlsupport-cmdline-args</a>|
- 1.9.4     Debug                          |<a href="perlsupport.html#perlsupport-run-debug">perlsupport-run-debug</a>|
- 1.9.5     Read perldoc                   |<a href="perlsupport.html#perlsupport-perldoc">perlsupport-perldoc</a>|
- 1.9.6     Generate Perl module list      |<a href="perlsupport.html#perlsupport-module-list-generation">perlsupport-module-list-generation</a>|
- 1.9.7     Show installed Perl modules    |<a href="perlsupport.html#perlsupport-module-list">perlsupport-module-list</a>|
- 1.9.8     Run perltidy                   |<a href="perlsupport.html#perlsupport-perltidy">perlsupport-perltidy</a>|
- 1.9.9     Run SmallProf                  |<a href="perlsupport.html#perlsupport-profile">perlsupport-profile</a>|
- 1.9.10    Run perlcritic                 |<a href="perlsupport.html#perlsupport-perlcritic">perlsupport-perlcritic</a>|
- 1.9.11    Save buffer with timestamp     |<a href="perlsupport.html#perlsupport-timestamp">perlsupport-timestamp</a>|
- 1.9.12    Hardcopy                       |<a href="perlsupport.html#perlsupport-hardcopy">perlsupport-hardcopy</a>|
- 1.9.13    Xterm size                     |<a href="perlsupport.html#perlsupport-xterm">perlsupport-xterm</a>|
- 1.9.14    Change Output Destination      |<a href="perlsupport.html#perlsupport-output">perlsupport-output</a>|
+ 1.9.4     Perl commnad line switches     |<a href="perlsupport.html#perlsupport-perl-switches">perlsupport-perl-switches</a>|
+ 1.9.5     Debug                          |<a href="perlsupport.html#perlsupport-run-debug">perlsupport-run-debug</a>|
+ 1.9.6     Read perldoc                   |<a href="perlsupport.html#perlsupport-perldoc">perlsupport-perldoc</a>|
+ 1.9.7     Generate Perl module list      |<a href="perlsupport.html#perlsupport-module-list-generation">perlsupport-module-list-generation</a>|
+ 1.9.8     Show installed Perl modules    |<a href="perlsupport.html#perlsupport-module-list">perlsupport-module-list</a>|
+ 1.9.9     Run perltidy                   |<a href="perlsupport.html#perlsupport-perltidy">perlsupport-perltidy</a>|
+ 1.9.10    Run SmallProf                  |<a href="perlsupport.html#perlsupport-profile">perlsupport-profile</a>|
+ 1.9.11    Run perlcritic                 |<a href="perlsupport.html#perlsupport-perlcritic">perlsupport-perlcritic</a>|
+ 1.9.12    Save buffer with timestamp     |<a href="perlsupport.html#perlsupport-timestamp">perlsupport-timestamp</a>|
+ 1.9.13    Hardcopy                       |<a href="perlsupport.html#perlsupport-hardcopy">perlsupport-hardcopy</a>|
+ 1.9.14    Xterm size                     |<a href="perlsupport.html#perlsupport-xterm">perlsupport-xterm</a>|
+ 1.9.15    Change Output Destination      |<a href="perlsupport.html#perlsupport-output">perlsupport-output</a>|
  1.10    Help                             |<a href="perlsupport.html#perlsupport-help">perlsupport-help</a>|
  2.      Usage without GUI                |<a href="perlsupport.html#perlsupport-usage-vim">perlsupport-usage-vim</a>|
  3.      Hotkeys                          |<a href="perlsupport.html#perlsupport-hotkeys">perlsupport-hotkeys</a>|
@@ -358,7 +359,7 @@ Most entries insert POD commands below the cursor position, e.g.
 
 
 
-  =cut  #  back to Perl
+  =cut
 
 The entries 'POD-&gt;html', 'POD-&gt;man', 'POD-&gt;text' call the appropriate
 translator which will generate the desired document from the current buffer.
@@ -373,7 +374,7 @@ Conway's book "Perl Best Practices", e.g.
   =for Improvement: <code class="special">&lt;keyword&gt;</code>
   <code class="special">&lt;single paragraph&gt;</code>
 
-  =cut  #  back to Perl
+  =cut
 
 The text in the single paragraph will be ignored by the compiler and by a POD
 formatter. This can be used to embed extended pieces of internal
@@ -401,13 +402,9 @@ turn the warnings of put the following line in the file .vimrc :
 </pre><hr><pre>1.9  MENU 'Run'                                              <b class="vimtag">*<a name="perlsupport-run">perlsupport-run</a>*</b>
 </pre><hr><pre>
 1.9.1  RUN SCRIPT                                     <b class="vimtag">*<a name="perlsupport-run-script">perlsupport-run-script</a>*</b>
-</pre><hr><pre>Running a Perl-script opens a window with name "Perl-Output" to display the
-script output. The buffer and its content will disappear when closing the
-window. If this window remains open it will be used for the next runs.
-If the script doesn't produce shell output the output window will not be
-opened (but you will see a message).
-There is no file behind the window Perl-Output but the content can be saved
-with a 'save as'.
+</pre><hr><pre>Run the script in the current buffer.  The output destination can be chosen
+with the menu entry 'Run-&gt;output: ...' (see |<a href="perlsupport.html#perlsupport-output">perlsupport-output</a>|).  There are
+3 choices: VIM command line, seperate output buffer and xterm.
 
 1.9.2  CHECK SYNTAX                                 <b class="vimtag">*<a name="perlsupport-syntax-check">perlsupport-syntax-check</a>*</b>
 </pre><hr><pre>The script is run as "perl -wc  xxx.pl" with most warnings enabled to check the
@@ -432,7 +429,19 @@ own arguments). The input dialog has a history.
 If the buffer gets a new name with "save as" the arguments will now belong to
 the buffer with the new name.
 
-1.9.4  DEBUG                                           <b class="vimtag">*<a name="perlsupport-run-debug">perlsupport-run-debug</a>*</b>
+1.9.4  PERL COMMAND LINE SWITCHES                  <b class="vimtag">*<a name="perlsupport-perl-switches">perlsupport-perl-switches</a>*</b>
+</pre><hr><pre>The entry 'perl switches' calls an input dialog which asks for command line
+switches for the perl interpreter. These arguments are forwarded to the call
+of the script which is run by the 'run' entry. The switches are kept until you
+change them.
+
+The switches belong to the current buffer (that is, each buffer can have its
+own switches). The input dialog has a history.
+
+If the buffer gets a new name with "save as" the switches will now belong to
+the buffer with the new name.
+
+1.9.5  DEBUG                                           <b class="vimtag">*<a name="perlsupport-run-debug">perlsupport-run-debug</a>*</b>
 </pre><hr><pre>Start a debugger with the menu entry Run-&gt;debug or with hotkey F9. One of three
 debuggers can be started. The preference can be set with the variable
 g:Perl_Debugger (possible values: 'perl', 'ptkdb', 'ddd' ). The default is
@@ -454,7 +463,7 @@ The debugger ddd is not available under MS-Windows.
 The debugger starts in an separate xterm or is a separate GUI-application
 (e.g. ddd).  This feature is therefore not available for Vim.
 
-1.9.5  READ PERLDOC                                  <b class="vimtag">*<a name="perlsupport-perldoc">perlsupport-perldoc</a>*</b>
+1.9.6  READ PERLDOC                                  <b class="vimtag">*<a name="perlsupport-perldoc">perlsupport-perldoc</a>*</b>
 </pre><hr><pre>If a (key-)word is under the cursor the entry 'read perldoc' tries to look up
 the Perl documentation for this word using perldoc.  If a whitespace is under
 the cursor the user will be asked for a keyword.  Search order:
@@ -469,7 +478,7 @@ On a UNIX platform errors produced by perldoc will be suppressed (a few
 module descriptions have POD errors!).
 
 
-1.9.6  GENERATE PERL MODULE LIST          <b class="vimtag">*<a name="perlsupport-module-list-generation">perlsupport-module-list-generation</a>*</b>
+1.9.7  GENERATE PERL MODULE LIST          <b class="vimtag">*<a name="perlsupport-module-list-generation">perlsupport-module-list-generation</a>*</b>
 </pre><hr><pre>The entry 'Run -&gt; generate Perl module list' generates a text file
 (default: $HOME/.vim/plugin/perl-modules.list ) which contains one line for
 each Perl module installed on your machine:
@@ -488,14 +497,14 @@ This script has to be executable under UNIX. The generation may take a while.
 pmdesc3.pl has a POD included; see file doc/pmdesc3.text .
 
 
-1.9.7  SHOW INSTALLED PERL MODULES                  <b class="vimtag">*<a name="perlsupport-module-list">perlsupport-module-list</a>*</b>
+1.9.8  SHOW INSTALLED PERL MODULES                  <b class="vimtag">*<a name="perlsupport-module-list">perlsupport-module-list</a>*</b>
 </pre><hr><pre>The entry 'Run -&gt; show installed Perl modules' loads the module list in a new
 window.  The full documentation for that module can be opened in a perldoc
 help window using the hot keys <code class="special">&lt;Shift-F1&gt;</code>, \h or \rp .
 Looking up help with Shift-F1 works also in the perldoc help window.
 Vim (without GUI): only \h and \rp are working.
 
-1.9.8  RUN PERLTIDY                                     <b class="vimtag">*<a name="perlsupport-perltidy">perlsupport-perltidy</a>*</b>
+1.9.9  RUN PERLTIDY                                     <b class="vimtag">*<a name="perlsupport-perltidy">perlsupport-perltidy</a>*</b>
 </pre><hr><pre>The buffer can be formatted with perltidy. If nothing is marked the whole
 buffer will be formatted. If a region is marked only this region will be
 formatted.
@@ -503,7 +512,7 @@ Perltidy has a lot of options. It is recommended to use a .perltidyrc
 initialization file to define the preferred style (see 'man 1 perltidy').
 See also |<a href="perlsupport.html#perlsupport-troubleshooting">perlsupport-troubleshooting</a>|.
 
-1.9.9  RUN SMALLPROF                                     <b class="vimtag">*<a name="perlsupport-profile">perlsupport-profile</a>*</b>
+1.9.10  RUN SMALLPROF                                    <b class="vimtag">*<a name="perlsupport-profile">perlsupport-profile</a>*</b>
 </pre><hr><pre>Profile the script in the current buffer using the profiler  Devel::SmallProf
 (the module has to be installed, of course).  The results will go to the file
 smallprof.out in the current directory. This file will be opened automatically.
@@ -518,7 +527,7 @@ shown here):
 These variables can be put in a file called .smallprof in the current
 directory. See the module documentation for more information.
 
-1.9.10 RUN PERLCRITIC                                 <b class="vimtag">*<a name="perlsupport-perlcritic">perlsupport-perlcritic</a>*</b>
+1.9.11 RUN PERLCRITIC                                 <b class="vimtag">*<a name="perlsupport-perlcritic">perlsupport-perlcritic</a>*</b>
 </pre><hr><pre>"perlcritic" is a Perl source code analyzer.  It is the executable front-end
 to the Perl::Critic engine, which attempts to identify awkward, hard to read,
 error-prone, or unconventional constructs in your code.  Most of the rules are
@@ -579,7 +588,7 @@ in your .vimrc file to jump over the error locations and make navigation
 easier (see also file customization.vimrc |<a href="perlsupport.html#perlsupport-custom-files">perlsupport-custom-files</a>|).
 
 
-1.9.11 SAVE BUFFER WITH TIMESTAMP                      <b class="vimtag">*<a name="perlsupport-timestamp">perlsupport-timestamp</a>*</b>
+1.9.12 SAVE BUFFER WITH TIMESTAMP                      <b class="vimtag">*<a name="perlsupport-timestamp">perlsupport-timestamp</a>*</b>
 </pre><hr><pre>Save the current buffer into a new file. The filename gets a trailing
 timestamp.  The format is YYYYMMDD-HHMMSS.
 This feature can be used to comfortably save different profiling results
@@ -591,7 +600,7 @@ enable this feature put the following line into .vimrc :
 
 The default value is "no".
 
-1.9.12 HARDCOPY                                         <b class="vimtag">*<a name="perlsupport-hardcopy">perlsupport-hardcopy</a>*</b>
+1.9.13 HARDCOPY                                         <b class="vimtag">*<a name="perlsupport-hardcopy">perlsupport-hardcopy</a>*</b>
 </pre><hr><pre>Generates a PostScript file from the whole buffer or from a marked region.
 On a MS-Windows system a printer dialog is displayed.
 
@@ -610,19 +619,23 @@ or by setting a global variable in the file .vimrc , e.g. :
 
 See :h printheader and :h strftime()  for more details.
 
-1.9.13 XTERM SIZE                                          <b class="vimtag">*<a name="perlsupport-xterm">perlsupport-xterm</a>*</b>
+1.9.14 XTERM SIZE                                          <b class="vimtag">*<a name="perlsupport-xterm">perlsupport-xterm</a>*</b>
 </pre><hr><pre>The size of the xterm used for debugging (|<a href="perlsupport.html#perlsupport-run-debug">perlsupport-run-debug</a>|) or for
 running the script (below) can be set by this menu entry. The default is 80
 columns with 24 lines.
 This feature is not available under MS-Windows.
 
 
-1.9.14 CHANGE OUTPUT DESTINATION                          <b class="vimtag">*<a name="perlsupport-output">perlsupport-output</a>*</b>
+1.9.15 CHANGE OUTPUT DESTINATION                          <b class="vimtag">*<a name="perlsupport-output">perlsupport-output</a>*</b>
 </pre><hr><pre>Running a Perl script can be done in three ways:
 (1) The script can be run from the command line as usual.
 (2) The output can be directed into a window with name "Perl-Output".
     The buffer and its content will disappear when the window is closed and
-    reused otherwise.
+    reused otherwise. If this window remains open it will be used for the next
+    runs. If the script doesn't produce shell output the output window will
+    not be opened (but you will see a message).
+    There is no file behind the window Perl-Output but the content can be
+    saved with a 'save as'.
 (3) The script can be run in an xterm.
 
 The output method can be chosen with the menu entry 'Run-&gt;output: ...'.
@@ -668,7 +681,9 @@ card).
   \cl     Line End Comment
   \cf     Frame Comment
   \cu     Function Description
-  \ch     File Header
+  \ch     File Header (*.pl)
+  \ce     File Header (*.pm)
+  \ca     File Header (*.t)
   \ckb    Keyword comment BUG
   \ckt    Keyword comment TODO
   \ckr    Keyword comment TRICKY
@@ -736,6 +751,7 @@ card).
   \rr     update file, run script             see |<a href="perlsupport.html#perlsupport-run-script">perlsupport-run-script</a>|
   \rs     update file, check syntax           see |<a href="perlsupport.html#perlsupport-syntax-check">perlsupport-syntax-check</a>|
   \ra     set command line argument           see |<a href="perlsupport.html#perlsupport-cmdline-args">perlsupport-cmdline-args</a>|
+  \rw     set Perl command line switches      see |<a href="perlsupport.html#perlsupport-perl-switches">perlsupport-perl-switches</a>|
   \rd     start debugger                      see |<a href="perlsupport.html#perlsupport-run-debug">perlsupport-run-debug</a>|
   \re     make script executable (*)
   \rp     read perldoc                        see |<a href="perlsupport.html#perlsupport-perldoc">perlsupport-perldoc</a>|
@@ -844,6 +860,7 @@ g:Perl_CopyrightHolder         ""                          |<code class="badlink
 g:Perl_Template_Directory      root_dir.'plugin/templates/'
 g:Perl_Template_File           'perl-file-header'
 g:Perl_Template_Module         'perl-module-header'
+g:Perl_Template_Test           'perl-test-header'
 g:Perl_Template_Frame          'perl-frame'
 g:Perl_Template_Function       'perl-function-description'
 
@@ -1021,6 +1038,7 @@ template files:
 Function Description    perl-function-description     g:Perl_Template_Function
 File Header (.pl)       perl-file-header              g:Perl_Template_File
 File Header (.pm)       perl-module-header            g:Perl_Template_Module
+File Header (.t)        perl-test-header              g:Perl_Template_Test
 </pre><hr><pre>
 The template files can be written or changed by the user to fulfill special
 requirements (layout for a project or work group already exists, file headers /
@@ -1140,6 +1158,6 @@ The code snippet files pod-template-application.pl and pod-template-module.pl
 
 </pre><hr><pre>vim:tw=78:noet:ts=2:ft=help:norl:
 </pre>
-<p><i>Generated by vim2html on Fr Jan 13 19:31:47 CET 2006</i></p>
+<p><i>Generated by vim2html on Sa Feb 18 15:24:28 CET 2006</i></p>
 </body>
 </html>
