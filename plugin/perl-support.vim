@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  21.02.2006
+"       Revision:  05.04.2006
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -32,7 +32,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.9.1"
+let g:Perl_Version= "2.9.2"
 "        
 "###############################################################################################
 "
@@ -80,6 +80,7 @@ let s:Perl_Template_Directory      = s:plugin_dir.'plugin/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
 let s:Perl_Template_Test           = 'perl-test-header'
+let s:Perl_Template_Pod 	         = 'perl-pod'
 let s:Perl_Template_Frame          = 'perl-frame'
 let s:Perl_Template_Function       = 'perl-function-description'
 let s:Perl_MenuHeader              = 'yes'
@@ -92,7 +93,7 @@ let s:Perl_ProfilerTimestamp       = "no"
 let s:Perl_LineEndCommColDefault   = 49
 let s:Perl_BraceOnNewLine          = "no"
 let s:Perl_PodcheckerWarnings      = "yes"
-let s:Perl_PerlcriticFormat        = 2
+let s:Perl_PerlcriticFormat        = 3
 let s:Perl_Printheader             = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 "
 "------------------------------------------------------------------------------
@@ -131,6 +132,7 @@ call Perl_CheckGlobal("Perl_Template_Frame         ")
 call Perl_CheckGlobal("Perl_Template_Function      ")
 call Perl_CheckGlobal("Perl_Template_Module        ")
 call Perl_CheckGlobal("Perl_Template_Test          ")
+call Perl_CheckGlobal("Perl_Template_Pod           ")
 call Perl_CheckGlobal("Perl_XtermDefaults          ")
 "
 let s:Perl_PerlcriticMsg     = ""
@@ -182,7 +184,7 @@ function!	Perl_InitMenu ()
 		"---------- Comments-Menu ----------------------------------------------------------------------
 		"
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'&Comments.Comments<Tab>Perl     <Esc>'
+			exe "amenu ".s:Perl_Root.'&Comments.&Comments<Tab>Perl     <Esc>'
 			exe "amenu ".s:Perl_Root.'&Comments.-Sep0-        :'
 		endif
 
@@ -194,6 +196,7 @@ function!	Perl_InitMenu ()
 		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ &Header\ (\.pl)     <Esc><Esc>:call Perl_CommentTemplates("header")<CR>'
 		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ H&eader\ (\.pm)     <Esc><Esc>:call Perl_CommentTemplates("module")<CR>'
 		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ He&ader\ (\.t)      <Esc><Esc>:call Perl_CommentTemplates("test")<CR>'
+""		exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ Heade&r\ (\.pod)    <Esc><Esc>:call Perl_CommentTemplates("pod")<CR>'
 
 		exe "amenu ".s:Perl_Root.'&Comments.-SEP1-                     :'
 		"
@@ -255,7 +258,7 @@ function!	Perl_InitMenu ()
 		"---------- Statements-Menu ----------------------------------------------------------------------
 
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'St&atements.Statements<Tab>Perl     <Esc>'
+			exe "amenu ".s:Perl_Root.'St&atements.St&atements<Tab>Perl     <Esc>'
 			exe "amenu ".s:Perl_Root.'St&atements.-Sep0-        :'
 		endif
 		"
@@ -293,7 +296,7 @@ function!	Perl_InitMenu ()
 		"---------- submenu : idioms -------------------------------------------------------------
 		"
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'I&dioms.Idioms<Tab>Perl    <Esc>'
+			exe "amenu ".s:Perl_Root.'I&dioms.I&dioms<Tab>Perl    <Esc>'
 			exe "amenu ".s:Perl_Root.'I&dioms.-Sep0-       :'
 		endif
 		"
@@ -318,10 +321,10 @@ function!	Perl_InitMenu ()
 		exe " menu ".s:Perl_Root.'I&dioms.-SEP4-                        :'
 		exe "amenu ".s:Perl_Root.'I&dioms.&subroutine                   <Esc><Esc>:call Perl_Subroutine("a")<CR>A'
 		exe "vmenu ".s:Perl_Root.'I&dioms.&subroutine                   <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a'
-		exe " menu ".s:Perl_Root.'I&dioms.&print\ \"\.\.\.\\n\";        <Esc>aprint "\n";<ESC>3hi'
-		exe " menu ".s:Perl_Root.'I&dioms.print&f\ \"\.\.\.\\n\";       <Esc>aprintf "\n";<ESC>3hi'
-		exe "imenu ".s:Perl_Root.'I&dioms.&print\ \"\.\.\.\\n\";        print "\n";<ESC>3hi'
-		exe "imenu ".s:Perl_Root.'I&dioms.print&f\ \"\.\.\.\\n\";       printf "\n";<ESC>3hi'
+		exe " menu ".s:Perl_Root.'I&dioms.&print\ \"\.\.\.\\n\";        <Esc>aprint x\nx;<ESC>hr"3hr"a'
+		exe "imenu ".s:Perl_Root.'I&dioms.&print\ \"\.\.\.\\n\";              print x\nx;<ESC>hr"3hr"a'
+		exe " menu ".s:Perl_Root.'I&dioms.print&f\ \"\.\.\.\\n\";       <Esc>aprintf x\nx;<ESC>hr"3hr"a'
+		exe "imenu ".s:Perl_Root.'I&dioms.print&f\ \"\.\.\.\\n\";             printf x\nx;<ESC>hr"3hr"a'
 		exe "amenu ".s:Perl_Root.'I&dioms.open\ &input\ file            <Esc><Esc>:call Perl_OpenInputFile()<CR>a'
 		exe "amenu ".s:Perl_Root.'I&dioms.open\ &output\ file           <Esc><Esc>:call Perl_OpenOutputFile()<CR>a'
 		exe "amenu ".s:Perl_Root.'I&dioms.open\ pip&e                   <Esc><Esc>:call Perl_OpenPipe()<CR>a'
@@ -337,7 +340,7 @@ function!	Perl_InitMenu ()
 		"---------- submenu : Regular Expression Suport  -----------------------------------------
 		"
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'Rege&x.Regex<Tab>Perl      <Esc>'
+			exe "amenu ".s:Perl_Root.'Rege&x.Rege&x<Tab>Perl      <Esc>'
 			exe "amenu ".s:Perl_Root.'Rege&x.-Sep0-         :'
 		endif
 		"
@@ -410,7 +413,7 @@ function!	Perl_InitMenu ()
 		"---------- submenu : POSIX character classes --------------------------------------------
 		"
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'CharC&ls.CharCls<Tab>Perl   <Esc>'
+			exe "amenu ".s:Perl_Root.'CharC&ls.CharC&ls<Tab>Perl   <Esc>'
 			exe "amenu ".s:Perl_Root.'CharC&ls.-Sep0-      :'
 		endif
 		"
@@ -448,7 +451,7 @@ function!	Perl_InitMenu ()
 		"---------- File-Tests-Menu ----------------------------------------------------------------------
 		"
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'F&ile-Tests.File-Tests<Tab>Perl             <Esc>'
+			exe "amenu ".s:Perl_Root.'F&ile-Tests.F&ile-Tests<Tab>Perl             <Esc>'
 			exe "amenu ".s:Perl_Root.'F&ile-Tests.-Sep0-                          :'
 		endif
 		"
@@ -519,7 +522,7 @@ function!	Perl_InitMenu ()
 		"---------- Special-Variables -------------------------------------------------------------
 		"
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'Spec-&Var.Spec-Var<Tab>Perl      <Esc>'
+			exe "amenu ".s:Perl_Root.'Spec-&Var.Spec-&Var<Tab>Perl      <Esc>'
 			exe "amenu ".s:Perl_Root.'Spec-&Var.-Sep0-         :'
 		endif
 		"
@@ -701,12 +704,12 @@ function!	Perl_InitMenu ()
 		exe "imenu ".s:Perl_Root."Spec-&Var.\'IGNORE\' 						'IGNORE'"
 		exe "imenu ".s:Perl_Root."Spec-&Var.\'DEFAULT\' 					'DEFAULT'"
 		exe "imenu ".s:Perl_Root.'Spec-&Var.-SEP3-      		      :'
-		exe "amenu ".s:Perl_Root.'Spec-&Var.use\ English; 				<ESC><ESC>ouse English qw( -no_match_vars );'
+		exe "amenu ".s:Perl_Root.'Spec-&Var.use\ English; 				<ESC><ESC>ouse English qw) -no_match_vars );<ESC>2F)r(f;'
 		"
 		"---------- POD-Menu ----------------------------------------------------------------------
 		"
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'&POD.POD<Tab>Perl           <Esc>'
+			exe "amenu ".s:Perl_Root.'&POD.&POD<Tab>Perl           <Esc>'
 			exe "amenu ".s:Perl_Root.'&POD.-Sep0-                 :'
 		endif
 		"
@@ -764,7 +767,7 @@ function!	Perl_InitMenu ()
 		"---------- Run-Menu ----------------------------------------------------------------------
 		"
 		if s:Perl_MenuHeader == "yes"
-			exe "amenu ".s:Perl_Root.'&Run.Run<Tab>Perl                   <Esc>'
+			exe "amenu ".s:Perl_Root.'&Run.&Run<Tab>Perl                   <Esc>'
 			exe "amenu ".s:Perl_Root.'&Run.-Sep0-                         :'
 		endif
 		"
@@ -821,7 +824,7 @@ function!	Perl_InitMenu ()
 	"----- Menu : help  ----------------------------------------------------------------------------
 	"===============================================================================================
 	"
-	exe "menu  <silent>  ".s:Perl_Root.'&help         <C-C><C-C>:call Perl_HelpPerlsupport()<CR>'
+	exe "menu  <silent>  ".s:Perl_Root.'&help\ \(plugin\)        <C-C><C-C>:call Perl_HelpPerlsupport()<CR>'
 	"
 	"--------------------------------------------------------------------------------------------
 	"
@@ -995,13 +998,17 @@ function! Perl_CommentTemplates (arg)
 		let templatefile=s:Perl_Template_Directory.s:Perl_Template_Test
 	endif
 
+	if a:arg=='pod'
+		let templatefile=s:Perl_Template_Directory.s:Perl_Template_Pod
+	endif
+
 
 	if filereadable(templatefile)
 		let	length= line("$")
 		let	pos1  = line(".")+1
 		let l:old_cpoptions	= &cpoptions " Prevent the alternate buffer from being set to this files
 		setlocal cpoptions-=a
-		if a:arg=='header' || a:arg=='module' || a:arg=='test'
+		if a:arg=='header' || a:arg=='module' || a:arg=='test' || a:arg=='pod'
 			:goto 1
 			let	pos1  = 1
 			exe '0read '.templatefile
@@ -1284,8 +1291,8 @@ function! Perl_OpenOutputFile ()
 	let zz= zz."\tor warn \"$0 : failed to close output file $".filename." : $!\\n\";\n\n\n"
 	put =zz
 	normal =6+
-	exe " menu ".s:Perl_Root.'I&dioms.print\ $'.filehandle.'\ "\\n";   iprint $'.filehandle.' "\n";<ESC>3hi'
-	exe "imenu ".s:Perl_Root.'I&dioms.print\ $'.filehandle.'\ "\\n";    print $'.filehandle.' "\n";<ESC>3hi'
+	exe " menu ".s:Perl_Root.'I&dioms.print\ {$'.filehandle.'}\ "\\n";   iprint }$'.filehandle.'} x\nx;<ESC>2F}r{f}2lr"3lr"2hi'
+	exe "imenu ".s:Perl_Root.'I&dioms.print\ {$'.filehandle.'}\ "\\n";    print }$'.filehandle.'} x\nx;<ESC>2F}r{f}2lr"3lr"2hi'
 	normal f'
 endfunction		" ---------- end of function  Perl_OpenOutputFile  ----------
 "
@@ -1309,6 +1316,9 @@ function! Perl_OpenPipe ()
 	let zz= zz."\tor warn \"$0 : failed to close pipe > $".pipecommand." < : $!\\n\";\n\n\n"
 	put =zz
 	normal =6+
+"	exe " menu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>     i<$'.filehandle.'><ESC>'
+"	exe "vmenu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>     s<$'.filehandle.'><ESC>'
+"	exe "imenu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>      <$'.filehandle.'><ESC>a'
 	normal f'
 endfunction		" ---------- end of function  Perl_OpenPipe  ----------
 "
@@ -1634,6 +1644,9 @@ function! Perl_SyntaxCheck ()
 	if l:currentbuffer ==  bufname("%")
 		let s:Perl_SyntaxCheckMsg = l:currentbuffer." : Syntax is OK"
 		return 0
+	else
+		setlocal wrap
+		setlocal linebreak
 	endif
 	return 1
 endfunction		" ---------- end of function  Perl_SyntaxCheck  ----------
@@ -1852,7 +1865,14 @@ function! Perl_Debugger ()
 	" debugger is 'ddd'  (not available for MS Windows)
 	"
 	if s:Perl_Debugger == "ddd" && !s:MSWIN
-		silent exe '!ddd ./'.Sou.l:arguments.' &'
+		if !executable("ddd")
+			echohl WarningMsg
+			echo 'ddd does not exist or is not executable!'
+			echohl None
+			return
+		else
+			silent exe '!ddd ./'.Sou.l:arguments.' &'
+		endif
 	endif
 	"
 endfunction		" ---------- end of function  Perl_Debugger  ----------
@@ -2108,11 +2128,11 @@ function! Perl_Smallprof ()
 endfunction		" ---------- end of function  Perl_Smallprof  ----------
 "
 "------------------------------------------------------------------------------
-"  run : perlcritic
+"  run : perlcritic (version 0.15)
 "------------------------------------------------------------------------------
-	
+"	
 function! Perl_Perlcritic ()
-	let	l:currentbuffer = escape( expand("%"), s:escfilename ) " name of the file in the current buffer
+	let	l:currentbuffer = escape( expand("%"), s:escfilename )
 	if &filetype != "perl"
 		echohl WarningMsg | echo l:currentbuffer.' seems not to be a Perl file' | echohl None
 		return
@@ -2127,48 +2147,80 @@ function! Perl_Perlcritic ()
 	let l:fullname				= l:currentdir."/".l:currentbuffer
 	silent exe	":update"
 	"
-	if s:Perl_PerlcriticFormat < 1 || s:Perl_PerlcriticFormat > 3
-		let	s:Perl_PerlcriticFormat	= 2
+	" Set the default for an invalid verbosity level.
+	"
+	if s:Perl_PerlcriticFormat < 1 || s:Perl_PerlcriticFormat > 9
+		let	s:Perl_PerlcriticFormat	= 3
 	endif
 	"
 	"	All formats consist of 2 parts: 
 	"	 1. the perlcritic message format
-	"	 2. the trailing 
-	"        %+A%.%#\ at\ %f\ line\ %l%.%#
-	"	 which captures errors from inside perlcritic
+	"	 2. the trailing    '%+A%.%#\ at\ %f\ line\ %l%.%#'
+	"	Part 1 rebuilds the original perlcritic message. This is done to make
+	"	parsing of the messages easier.
+	"	Part 2 captures errors from inside perlcritic if any.
+	"	Some verbosity levels are treated equal to give quickfix the filename. 
 	"	
+	" --------------------------------------------------------------------------
 	" Format 1: 
-	"     file | line | column | brief description
 	"
 	if s:Perl_PerlcriticFormat == 1
-		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\\\n\"
+		:set makeprg=perlcritic\ -verbose\ 1
 		:setlocal errorformat=
 					\%f:%l:%c:%m\,
 					\%+A%.%#\ at\ %f\ line\ %l%.%#
 	endif
-	
-	" Format 2  (default): 
-	"     file | line | column | brief description | explanation or page number in PBP
-	"     
-	if s:Perl_PerlcriticFormat == 2
-		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\.\ \\%e\\\n\"
-		:setlocal errorformat=
-					\%f:%l:%c:%m\,
-					\%+A%.%#\ at\ %f\ line\ %l%.%#
-	endif
-	
-	" Format 3: 
-	"     file | line | column | brief description
-	"     policy
-	"     explanation or page number in PBP
-	"     full diagnostic
+	"	
+	" --------------------------------------------------------------------------
+	" Format 2,3  (default): 
 	"
-	if s:Perl_PerlcriticFormat == 3
-		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\\n\\%m\\\n[\\%p]\\\n\\%e\.\\\n\\%d\\\n\"
+	if s:Perl_PerlcriticFormat==2 || s:Perl_PerlcriticFormat==3
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\.\ \\%e\ (Severity:\ \\%s)\\\n\"
 		:setlocal errorformat=
-					\%A%f:%l:%c:%.%#,%+C[%.%#]\,
+					\%f:%l:%c:%m\,
 					\%+A%.%#\ at\ %f\ line\ %l%.%#
 	endif
+	"	
+	" --------------------------------------------------------------------------
+	" Format 4,5 : 
+	"
+	if s:Perl_PerlcriticFormat==4 || s:Perl_PerlcriticFormat==5
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%m\ near\ '\\%r'\.\ (Severity:\ \\%s)\\\n\"
+		:setlocal errorformat=
+					\%f:%m\,
+					\%+A%.%#\ at\ %f\ line\ %l%.%#
+	endif
+	"	
+	" --------------------------------------------------------------------------
+	" Format 6,7 : 
+	"
+	if s:Perl_PerlcriticFormat==6 || s:Perl_PerlcriticFormat==7
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\ near\ '\\%r'\.\ \\%e\ (Severity:\ \\%s)\\\n\"
+		:setlocal errorformat=
+					\%f:%l:%c:%m\,
+					\%+A%.%#\ at\ %f\ line\ %l%.%#
+	endif
+	"	
+	" --------------------------------------------------------------------------
+	" Format 8 : 
+	"
+	if s:Perl_PerlcriticFormat==8
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m\ near\ '\\%r'\.\ \\%e\ (Severity:\ \\%s)\\\n\"
+		:setlocal errorformat=
+					\%f:%l:%c:%m\,
+					\%+A%.%#\ at\ %f\ line\ %l%.%#
+	endif
+	"	
+	" --------------------------------------------------------------------------
+	" Format 9 : 
+	"
+	if s:Perl_PerlcriticFormat==9
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m\ near\ '\\%r'\.\ \\%e\ (Severity:\ \\%s)\\\n\\%d\\\n\"
+		:setlocal errorformat=
+					\%f:%l:%c:%m\,
+					\%+A%.%#\ at\ %f\ line\ %l%.%#
+	endif
+	" --------------------------------------------------------------------------
 	"
 	silent exe ':make '.l:fullname
 	"
@@ -2180,6 +2232,9 @@ function! Perl_Perlcritic ()
 	"
 	if l:currentbuffer ==  bufname("%")
 		let s:Perl_PerlcriticMsg= l:currentbuffer." : no critique "
+	else
+		setlocal wrap
+		setlocal linebreak
 	endif
 
 endfunction		" ---------- end of function  Perl_Perlcritic  ----------
@@ -2338,7 +2393,8 @@ if has("autocmd")
 	" 
 	" =====  Perl POD module  : set filetype to Perl  ==================================
 	" =====  Perl test module : set filetype to Perl  ==================================
-	autocmd BufNewFile,BufRead *.pod  set filetype=perl
+	autocmd BufRead            *.pod  set filetype=perl
+	autocmd BufNewFile         *.pod  set filetype=perl | call Perl_CommentTemplates('pod') | :w!
 	autocmd BufNewFile,BufRead *.t  set filetype=perl
 	"
 endif " has("autocmd")

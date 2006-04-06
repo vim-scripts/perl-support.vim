@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  Perl
-" Plugin     :  perl-support.vim
+" Plugin     :  perl-support.vim (version 3.12)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  18.02.2006
+" Last Change:  03.04.2006
 "
 " ----------------------------------------------------------------------------
 "
@@ -20,8 +20,8 @@ let b:did_PERL_ftplugin = 1
 "  Uncomment the next two lines to force these settings for all files with
 "  filetype 'perl' .
 "  
-setlocal	tabstop=4
-setlocal	shiftwidth=4
+setlocal  tabstop=4
+setlocal  shiftwidth=4
 "
 " ---------- Add ':' to the keyword characters -------------------------------
 "            Tokens like 'File::Find' are recognized as 
@@ -41,7 +41,7 @@ endif
 "  
 let s:Perl_BraceOnNewLine          = "no"
 if exists('g:Perl_BraceOnNewLine')
-	let s:Perl_BraceOnNewLine=g:Perl_BraceOnNewLine
+  let s:Perl_BraceOnNewLine=g:Perl_BraceOnNewLine
 endif
 "
 " ---------- Key mappings : function keys ------------------------------------
@@ -81,6 +81,7 @@ nmap    <buffer>  <silent>  <Leader>cf    :call Perl_CommentTemplates('frame')<C
 nmap    <buffer>  <silent>  <Leader>cu    :call Perl_CommentTemplates('function')<CR>
 nmap    <buffer>  <silent>  <Leader>ch    :call Perl_CommentTemplates('header')<CR>
 nmap    <buffer>  <silent>  <Leader>ce    :call Perl_CommentTemplates('module')<CR>
+nmap    <buffer>  <silent>  <Leader>ca    :call Perl_CommentTemplates('test')<CR>
 nmap    <buffer>  <silent>  <Leader>ckb   $<Esc>:call Perl_CommentClassified("BUG")     <CR>kJA
 nmap    <buffer>  <silent>  <Leader>ckt   $<Esc>:call Perl_CommentClassified("TODO")    <CR>kJA
 nmap    <buffer>  <silent>  <Leader>ckr   $<Esc>:call Perl_CommentClassified("TRICKY")  <CR>kJA
@@ -129,7 +130,7 @@ nmap    <buffer>  <silent>  <Leader>d7    <Esc>a$ =~ m//xm<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>d8    <Esc>a$ =~ s///xm<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>d9    <Esc>a$ =~ tr///xm<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>dp    <Esc>aprint "\n";<ESC>3hi
-nmap    <buffer>  <silent>  <Leader>df    <Esc>aprintf ("\n");<ESC>4hi
+nmap    <buffer>  <silent>  <Leader>df    <Esc>aprintf x\nx;<ESC>hr"3hr"a
 nmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("a")<CR>
 vmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a
 nmap    <buffer>  <silent>  <Leader>di    <Esc><Esc>:call Perl_OpenInputFile()<CR>a
@@ -156,7 +157,8 @@ nmap    <buffer>  <silent>  <Leader>lx    a]:xdigit:]<Esc>F]r[f]'
  map    <buffer>  <silent>  <Leader>ra    <Esc>:call Perl_Arguments()<CR>
  map    <buffer>  <silent>  <Leader>rw    <Esc>:call Perl_PerlSwitches()<CR>
 if has("gui_running")    " starts an xterm
-   map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>:redraw!<CR>
+""   map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>:redraw!<CR>
+   map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>
 endif
 "
 if has("unix")
@@ -180,8 +182,9 @@ vmap    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("v")<CR>
 "
  map    <buffer>  <silent>  <Leader>rk    <Esc>:call Perl_Settings()<CR>
 if has("gui_running") && has("unix")
-	 map    <buffer>  <silent>  <Leader>rx    <Esc>:call Perl_XtermSize()<CR>
+   map    <buffer>  <silent>  <Leader>rx    <Esc>:call Perl_XtermSize()<CR>
 endif
 "
  map    <buffer>  <silent>  <Leader>ro    <Esc>:call Perl_Toggle_Gvim_Xterm()<CR>
+"
 "
