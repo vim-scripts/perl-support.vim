@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                      Apr 06 2006
+*perlsupport.txt*                Perl Support                      Apr 15 2006
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plugin version 2.9.2
+                              Plugin version 3.0
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -277,6 +277,9 @@ add the file extension "ni" or "noindent" to the snippet file name, e.g.
 
   parameter_handling.pl.noindent
 
+There are some snippets belonging to this plugin package. These are examples.
+Add yor own.
+
 ------------------------------------------------------------------------------
 1.3  MENU 'Idioms'                                        *perlsupport-idioms*
 ------------------------------------------------------------------------------
@@ -477,8 +480,8 @@ the buffer with the new name.
 
 1.9.5  DEBUG                                           *perlsupport-run-debug*
 ------------
-Start a debugger with the menu entry Run->debug or with hotkey F9. One of three
-debuggers can be started. The preference can be set with the variable
+Start a debugger from the menu entry Run->debug, with hotkey \rd or F9. One of
+three debuggers can be started. The preference can be set with the variable
 g:Perl_Debugger (possible values: 'perl', 'ptkdb', 'ddd' ). The default is
 'perl').
 
@@ -496,7 +499,13 @@ started as an independent process.
 The debugger ddd is not available under MS-Windows.
 
 The debugger starts in an separate xterm or is a separate GUI-application
-(e.g. ddd).  This feature is therefore not available for Vim.
+(e.g. ddd). 
+
+Debugging without GUI
+---------------------
+The hotkey \rd or F9 can be used to start the debugger inside the vim window.
+The script will be run with 'perl -d my-script.pl my-arguments'.
+
 
 1.9.6  READ PERLDOC                                  *perlsupport-perldoc*
 -------------------
@@ -585,25 +594,25 @@ There are six formats (see the perlcritic documentation for details):
 
 VERBOSITY 1 :
 
-	file | line | column | brief description
+  file | line | column | brief description
 
 VERBOSITY 2, 3  (default) :
 
-	filename | line | column 
+  filename | line | column 
     | brief description 
     | explanation or page number in PBP
     | severity level 
 
 VERBOSITY 4, 5 :
 
-	filename 
+  filename 
     | brief description 
     | the string of source code that caused the violation
     | severity level 
 
 VERBOSITY 6, 7 :
 
-	file | line | column 
+  file | line | column 
     | brief description 
     | The string of source code that caused the violation 
     | explanation or page number in PBP 
@@ -611,7 +620,7 @@ VERBOSITY 6, 7 :
 
 VERBOSITY 8 :
 
-	file | line | column 
+  file | line | column 
     | name of the Policy module that created the violation
     | brief description 
     | The string of source code that caused the violation 
@@ -620,7 +629,7 @@ VERBOSITY 8 :
 
 VERBOSITY 9
 
-	file | line | column 
+  file | line | column 
     | name of the Policy module that created the violation
     | brief description 
     | The string of source code that caused the violation 
@@ -962,6 +971,7 @@ g:Perl_ProfilerTimestamp       "no"
 g:Perl_LineEndCommColDefault   49
 g:Perl_BraceOnNewLine          "no"
 g:Perl_PodcheckerWarnings      "yes"
+g:Perl_Printheader             "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 g:Perl_PerlcriticFormat        3
 
 The variable root_dir will automatically be set to one of the following values:
@@ -1003,6 +1013,7 @@ The variable root_dir will automatically be set to one of the following values:
           g:Perl_LineEndCommColDefault   : default starting column for line end comments
           g:Perl_BraceOnNewLine          : opening brace (not) on a new line
           g:Perl_PodcheckerWarnings      : podchecker warnings on/off
+          g:Perl_Printheader             : hardcopy header format 
           g:Perl_PerlcriticFormat        : perlcritic error format
 
 To override the defaults add appropriate assignments to .vimrc .
@@ -1146,6 +1157,9 @@ want to lay out your own templates.
 
 The file 'perl-pod' contains a file header and a skeleton for a pod file.
 This skeleton will be automatically included when a new pod file is opened.
+
+The templates belonging to this plugin package are suggestions. You may want
+to create your own templates.
 
 ------------------------------------------------------------------------------
 5.2  TAGS                                                   *perlsupport-tags*

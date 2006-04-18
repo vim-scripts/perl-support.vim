@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  Perl
-" Plugin     :  perl-support.vim (version 3.12)
+" Plugin     :  perl-support.vim (version 4.0)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  03.04.2006
+" Last Change:  15.04.2006
 "
 " ----------------------------------------------------------------------------
 "
@@ -48,7 +48,7 @@ endif
 "
 "   Ctrl-F9   run script
 "    Alt-F9   run syntax check
-"        F9   run script with pager
+"  Shift-F9   set command line arguments
 "
 " Vim (non-GUI) : shifted keys are mapped to their unshifted key !!!
 " 
@@ -65,12 +65,10 @@ if has("gui_running")
    map    <buffer>  <silent>  <S-F9>             :call Perl_Arguments()<CR>
   imap    <buffer>  <silent>  <S-F9>        <Esc>:call Perl_Arguments()<CR>
   "
-   map    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>
-  imap    <buffer>  <silent>    <F9>   <C-C><C-C>:call Perl_Debugger()<CR>
-  "
    map    <buffer>  <silent>  <S-F1>             :call Perl_perldoc()<CR><CR>
   imap    <buffer>  <silent>  <S-F1>        <Esc>:call Perl_perldoc()<CR><CR>
 endif
+"
 
 "
 " ---------- Key mappings : menu entries -------------------------------------
@@ -94,7 +92,7 @@ nmap    <buffer>  <silent>  <Leader>cd    i<C-R>=strftime("%x")<CR>
 nmap    <buffer>  <silent>  <Leader>ct    i<C-R>=strftime("%x %X %Z")<CR>
 nmap    <buffer>  <silent>  <Leader>cv    :call Perl_CommentVimModeline()<CR>
 
-nmap    <buffer>  <silent>  <Leader>ad    :call Perl_DoWhile("a")<CR><Esc>3jf(la
+nmap    <buffer>  <silent>  <Leader>ad    :call Perl_DoWhile("a")<CR><Esc>f(la
 nmap    <buffer>  <silent>  <Leader>af    :call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i
 nmap    <buffer>  <silent>  <Leader>ao    :call Perl_StatBlock( "a", "foreach  (  ) {\n}", "" )<CR>f(hi
 nmap    <buffer>  <silent>  <Leader>ai    :call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la
@@ -103,7 +101,7 @@ nmap    <buffer>  <silent>  <Leader>au    :call Perl_StatBlock( "a", "unless (  
 nmap    <buffer>  <silent>  <Leader>an    :call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la
 nmap    <buffer>  <silent>  <Leader>at    :call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la
 nmap    <buffer>  <silent>  <Leader>aw    :call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la
-nmap    <buffer>  <silent>  <Leader>a{    :call Perl_Block("a")<CR>jO
+nmap    <buffer>  <silent>  <Leader>a{    :call Perl_Block("a")<CR>o
 
 vmap    <buffer>  <silent>  <Leader>ad    <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la
 vmap    <buffer>  <silent>  <Leader>af    <Esc><Esc>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i
@@ -131,7 +129,7 @@ nmap    <buffer>  <silent>  <Leader>d8    <Esc>a$ =~ s///xm<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>d9    <Esc>a$ =~ tr///xm<Esc>F$a
 nmap    <buffer>  <silent>  <Leader>dp    <Esc>aprint "\n";<ESC>3hi
 nmap    <buffer>  <silent>  <Leader>df    <Esc>aprintf x\nx;<ESC>hr"3hr"a
-nmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("a")<CR>
+nmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("a")<CR>A
 vmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a
 nmap    <buffer>  <silent>  <Leader>di    <Esc><Esc>:call Perl_OpenInputFile()<CR>a
 nmap    <buffer>  <silent>  <Leader>do    <Esc><Esc>:call Perl_OpenOutputFile()<CR>a
@@ -152,13 +150,19 @@ nmap    <buffer>  <silent>  <Leader>lu    a]:upper:]<Esc>F]r[f]'
 nmap    <buffer>  <silent>  <Leader>lw    a]:word:]<Esc>F]r[f]'
 nmap    <buffer>  <silent>  <Leader>lx    a]:xdigit:]<Esc>F]r[f]'
 "
- map    <buffer>  <silent>  <Leader>rr    <Esc>:call Perl_Run()<CR>
- map    <buffer>  <silent>  <Leader>rs    <Esc>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
- map    <buffer>  <silent>  <Leader>ra    <Esc>:call Perl_Arguments()<CR>
- map    <buffer>  <silent>  <Leader>rw    <Esc>:call Perl_PerlSwitches()<CR>
-if has("gui_running")    " starts an xterm
-""   map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>:redraw!<CR>
-   map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>
+map    <buffer>  <silent>  <Leader>rr    <Esc>:call Perl_Run()<CR>
+map    <buffer>  <silent>  <Leader>rs    <Esc>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
+map    <buffer>  <silent>  <Leader>ra    <Esc>:call Perl_Arguments()<CR>
+map    <buffer>  <silent>  <Leader>rw    <Esc>:call Perl_PerlSwitches()<CR>
+"
+if has("gui_running")
+  map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>
+  map    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>
+ imap    <buffer>  <silent>    <F9>   <C-C><C-C>:call Perl_Debugger()<CR>
+else
+  map    <buffer>  <silent>  <Leader>rd    <Esc>:call Perl_Debugger()<CR>:redraw!<CR>
+  map    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>:redraw!<CR>
+ imap    <buffer>  <silent>    <F9>   <C-C><C-C>:call Perl_Debugger()<CR>:redraw!<CR>
 endif
 "
 if has("unix")

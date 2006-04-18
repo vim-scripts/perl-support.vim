@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  05.04.2006
+"       Revision:  18.04.2006
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -32,7 +32,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "2.9.2"
+let g:Perl_Version= "3.0"
 "        
 "###############################################################################################
 "
@@ -262,27 +262,27 @@ function!	Perl_InitMenu ()
 			exe "amenu ".s:Perl_Root.'St&atements.-Sep0-        :'
 		endif
 		"
-		exe "amenu ".s:Perl_Root.'St&atements.&do\ \{\ \}\ while               <Esc><Esc>:call Perl_DoWhile("a")<CR><Esc>3jf(la'
-		exe "amenu ".s:Perl_Root.'St&atements.&for\ \{\ \}                     <Esc><Esc>:call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i'
-		exe "amenu ".s:Perl_Root.'St&atements.f&oreach\ \{\ \}                 <Esc><Esc>:call Perl_StatBlock( "a", "foreach  (  ) {\n}", "" )<CR>f(hi'
-		exe "amenu ".s:Perl_Root.'St&atements.&if\ \{\ \}		                   <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
-		exe "amenu ".s:Perl_Root.'St&atements.if\ \{\ \}\ &else\ \{\ \}        <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
-		exe "amenu ".s:Perl_Root.'St&atements.&unless\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la'
-		exe "amenu ".s:Perl_Root.'St&atements.u&nless\ \{\ \}\ else\ \{\ \}    <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la'
-		exe "amenu ".s:Perl_Root.'St&atements.un&til\ \{\ \}                   <Esc><Esc>:call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la'
-		exe "amenu ".s:Perl_Root.'St&atements.&while\ \{\ \}                   <Esc><Esc>:call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la'
-		exe "amenu ".s:Perl_Root.'St&atements.&\{\ \}                     		 <Esc><Esc>:call Perl_Block("a")<CR>jO'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.&do\ \{\ \}\ while              <Esc><Esc>:call Perl_DoWhile("a")<CR><Esc>f(la'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.&for\ \{\ \}                    <Esc><Esc>:call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.f&oreach\ \{\ \}                <Esc><Esc>:call Perl_StatBlock( "a", "foreach  (  ) {\n}", "" )<CR>f(hi'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.&if\ \{\ \}		                 <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.if\ \{\ \}\ &else\ \{\ \}       <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.&unless\ \{\ \}                 <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.u&nless\ \{\ \}\ else\ \{\ \}   <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.un&til\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.&while\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la'
+		exe "amenu <silent> ".s:Perl_Root.'St&atements.&\{\ \}                     		 <Esc><Esc>:call Perl_Block("a")<CR>o'
 		"
-		exe "vmenu ".s:Perl_Root.'St&atements.&do\ \{\ \}\ while               <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la'
-		exe "vmenu ".s:Perl_Root.'St&atements.&for\ \{\ \}                     <Esc><Esc>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i'
-		exe "vmenu ".s:Perl_Root.'St&atements.f&oreach\ \{\ \}                 <Esc><Esc>:call Perl_StatBlock( "v", "foreach  (  ) {", "}" )<CR>f(hi'
-		exe "vmenu ".s:Perl_Root.'St&atements.&if\ \{\ \}		                   <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la'
-		exe "vmenu ".s:Perl_Root.'St&atements.if\ \{\ \}\ &else\ \{\ \}        <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la'
-		exe "vmenu ".s:Perl_Root.'St&atements.&unless\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}" )<CR>f(la'
-		exe "vmenu ".s:Perl_Root.'St&atements.u&nless\ \{\ \}\ else\ \{\ \}    <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}\nelse {\n}" )<CR>f(la'
-		exe "vmenu ".s:Perl_Root.'St&atements.un&til\ \{\ \}                   <Esc><Esc>:call Perl_StatBlock( "v", "until (  ) {", "}" )<CR>f(la'
-		exe "vmenu ".s:Perl_Root.'St&atements.&while\ \{\ \}                   <Esc><Esc>:call Perl_StatBlock( "v", "while (  ) {", "}" )<CR>f(la'
-		exe "vmenu ".s:Perl_Root.'St&atements.&\{\ \}                   	     <Esc><Esc>:call Perl_Block("v")<CR>'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.&do\ \{\ \}\ while              <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.&for\ \{\ \}                    <Esc><Esc>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.f&oreach\ \{\ \}                <Esc><Esc>:call Perl_StatBlock( "v", "foreach  (  ) {", "}" )<CR>f(hi'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.&if\ \{\ \}		                 <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.if\ \{\ \}\ &else\ \{\ \}       <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.&unless\ \{\ \}                 <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}" )<CR>f(la'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.u&nless\ \{\ \}\ else\ \{\ \}   <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}\nelse {\n}" )<CR>f(la'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.un&til\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "v", "until (  ) {", "}" )<CR>f(la'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.&while\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "v", "while (  ) {", "}" )<CR>f(la'
+		exe "vmenu <silent> ".s:Perl_Root.'St&atements.&\{\ \}                   	     <Esc><Esc>:call Perl_Block("v")<CR>'
 		"
 		" The menu entries for code snippet support will not appear if the following string is empty 
 		if s:Perl_CodeSnippets != ""
@@ -1092,12 +1092,20 @@ function! Perl_Subroutine (arg1)
 			let zz=    "sub ".identifier." {\n\tmy\t($par1)\t= @_;\n\t\n\treturn ;\n}"
 			let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
 			put =zz
-			normal 2j
+			if v:version<700
+				normal 2j
+			else
+				normal 2k
+			endif
 		else
 			let zz=    "sub ".identifier."\n{\n\tmy\t($par1)\t= @_;\n\t\n\treturn ;\n}"
 			let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
 			put =zz
-			normal 3j
+			if v:version<700
+				normal 3j
+			else
+				normal 2k
+			endif
 		endif
 	endif
 	"
@@ -1112,6 +1120,9 @@ function! Perl_Subroutine (arg1)
 			:'<-3
 			let zz=    identifier."();\n\n"
 			:put =zz
+			if v:version >= 700
+				normal k
+			endif
 			:exe "normal =".(line("'>")-line(".")+2)."+"
 		else
 			let zz=    "sub ".identifier."\n{\n\tmy\t($par1)\t= @_;"
@@ -1122,6 +1133,9 @@ function! Perl_Subroutine (arg1)
 			:'<-4
 			let zz=    identifier."();\n\n"
 			:put =zz
+			if v:version >= 700
+				normal k
+			endif
 			:exe "normal =".(line("'>")-line(".")+2)."+"
 		endif
 	endif
@@ -1139,12 +1153,20 @@ function! Perl_DoWhile (arg)
 			let zz=    "do {\n\t\n}\nwhile (  );"
 			let zz= zz."\t\t\t\t# -----  end do-while  -----\n"
 			put =zz
-			normal	=3+
+			if v:version<700
+				normal	=3+3j
+			else
+				normal	=3-3j
+			endif
 		else
 			let zz=    "do\n{\n\t\n}\nwhile (  );"
 			let zz= zz."\t\t\t\t# -----  end do-while  -----\n"
 			put =zz
-			normal	=4+
+			if v:version<700
+				normal	=4+4j
+			else
+				normal	=4-4j
+			endif
 		endif
 	endif
 
@@ -1191,7 +1213,11 @@ function! Perl_StatBlock ( mode, stmt1, stmt2)
 	if a:mode=='a'
 		let zz=    part1
 		put =zz
-		:exe "normal =".cr1."+"
+		if v:version<700
+			:exe "normal =".cr1."+"
+		else
+			:exe "normal =".cr1."-"
+		endif
 	endif
 
 	if a:mode=='v'
@@ -1211,7 +1237,9 @@ function! Perl_StatBlock ( mode, stmt1, stmt2)
 		let zz=  part2
 		:'>put =zz
 		if cr2>0
-			:exe "normal ".cr2."j"
+			if v:version<700
+				:exe "normal ".cr2."j"
+			endif
 		endif
 		let cr1	= cr1+cr2+2+line("'>")-line("'<")
 		:exe "normal =".cr1."-"
@@ -1225,13 +1253,18 @@ function! Perl_Block (arg)
 
 	if a:arg=='a'
 		if match(getline(line(".")), '^\s*$' ) < 0
-			""			exe "normal o{\r}"
 			let zz=    "{\n\}"
 			:put =zz
-			:normal =2+
+			if v:version < 700
+				normal =+
+			else
+				normal =-
+			endif
 		else
-			:s/^\s*$/{\r}/ |normal =-
+			:s/^\s*$/{\r}/ 
+			normal =-
 		endif
+		"
 	endif
 	
 	if a:arg=='v'
@@ -1267,7 +1300,11 @@ function! Perl_OpenInputFile ()
 	exe "vmenu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>     s<$'.filehandle.'><ESC>'
 	exe "imenu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>      <$'.filehandle.'><ESC>a'
 	put =zz
-	normal =6+
+	if v:version < 700
+		normal =6+
+	else
+		normal =9-
+	endif
 	normal f'
 endfunction		" ---------- end of function  Perl_OpenInputFile  ----------
 "
@@ -1290,7 +1327,11 @@ function! Perl_OpenOutputFile ()
 	let zz= zz.'close  $'.filehandle."\n"
 	let zz= zz."\tor warn \"$0 : failed to close output file $".filename." : $!\\n\";\n\n\n"
 	put =zz
-	normal =6+
+	if v:version < 700
+		normal =6+
+	else
+		normal =9-
+	endif
 	exe " menu ".s:Perl_Root.'I&dioms.print\ {$'.filehandle.'}\ "\\n";   iprint }$'.filehandle.'} x\nx;<ESC>2F}r{f}2lr"3lr"2hi'
 	exe "imenu ".s:Perl_Root.'I&dioms.print\ {$'.filehandle.'}\ "\\n";    print }$'.filehandle.'} x\nx;<ESC>2F}r{f}2lr"3lr"2hi'
 	normal f'
@@ -1315,7 +1356,11 @@ function! Perl_OpenPipe ()
 	let zz= zz.'close  $'.filehandle."\n"
 	let zz= zz."\tor warn \"$0 : failed to close pipe > $".pipecommand." < : $!\\n\";\n\n\n"
 	put =zz
-	normal =6+
+	if v:version < 700
+		normal =6+
+	else
+		normal =9-
+	endif
 "	exe " menu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>     i<$'.filehandle.'><ESC>'
 "	exe "vmenu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>     s<$'.filehandle.'><ESC>'
 "	exe "imenu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>      <$'.filehandle.'><ESC>a'
@@ -1842,37 +1887,50 @@ function! Perl_Debugger ()
 	let	l:arguments	= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
 	let	Sou					= escape( expand("%"), s:escfilename ) 
 	"
+	if	s:MSWIN
+		let l:arguments	= substitute( l:arguments, '^\s\+', ' ', '' )
+		let l:arguments	= substitute( l:arguments, '\s\+', "\" \"", 'g')
+	endif
+	"
 	" debugger is ' perl -d ... '
 	"
 	if s:Perl_Debugger == "perl"
 		if	s:MSWIN
 			silent exe "!perl -d \"".Sou.l:arguments."\""
 		else
-			silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d ./'.Sou.l:arguments.' &'
+			if has("gui_running")
+				silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d ./'.Sou.l:arguments.' &'
+			else
+				silent exe '!clear; perl -d ./'.Sou.l:arguments
+			endif
 		endif
 	endif
 	"
-	" debugger is 'ptkdb'
-	"
-	if s:Perl_Debugger == "ptkdb"
-		if	s:MSWIN
-			silent exe "!perl -d:ptkdb \"".Sou.l:arguments."\""
-		else
-			silent exe '!perl -d:ptkdb  ./'.Sou.l:arguments.' &'
+	if has("gui_running")
+		"
+		" grapical debugger is 'ptkdb', uses a PerlTk interface 
+		"
+		if s:Perl_Debugger == "ptkdb"
+			if	s:MSWIN
+				silent exe "!perl -d:ptkdb \"".Sou.l:arguments."\""
+			else
+				silent exe '!perl -d:ptkdb  ./'.Sou.l:arguments.' &'
+			endif
 		endif
-	endif
-	"
-	" debugger is 'ddd'  (not available for MS Windows)
-	"
-	if s:Perl_Debugger == "ddd" && !s:MSWIN
-		if !executable("ddd")
-			echohl WarningMsg
-			echo 'ddd does not exist or is not executable!'
-			echohl None
-			return
-		else
-			silent exe '!ddd ./'.Sou.l:arguments.' &'
+		"
+		" debugger is 'ddd'  (not available for MS Windows); graphical front-end for GDB 
+		"
+		if s:Perl_Debugger == "ddd" && !s:MSWIN
+			if !executable("ddd")
+				echohl WarningMsg
+				echo 'ddd does not exist or is not executable!'
+				echohl None
+				return
+			else
+				silent exe '!ddd ./'.Sou.l:arguments.' &'
+			endif
 		endif
+		"
 	endif
 	"
 endfunction		" ---------- end of function  Perl_Debugger  ----------
@@ -1995,7 +2053,11 @@ function! Perl_InvisiblePOD (arg1)
 	let	zz =    "\n=for ".a:arg1.": <keyword>"
 	let	zz = zz."\n<single paragraph>\n\n=cut\n\n"
 	put =zz
-	normal j2W
+	if v:version < 700
+		normal j2W
+	else
+		normal 4k2W
+	endif
 endfunction		" ---------- end of function  Perl_POD  ----------
 "
 "------------------------------------------------------------------------------
@@ -2295,7 +2357,6 @@ function! Perl_Hardcopy (arg1)
 	exe  ':set printheader='.escape( old_printheader, ' %' )
 endfunction		" ---------- end of function  Perl_Hardcopy  ----------
 "
-"
 "------------------------------------------------------------------------------
 "  run : help perlsupport 
 "------------------------------------------------------------------------------
@@ -2307,7 +2368,7 @@ function! Perl_HelpPerlsupport ()
 		:help perlsupport
 	endtry
 endfunction    " ----------  end of function Perl_HelpPerlsupport ----------
-
+"
 "------------------------------------------------------------------------------
 "	 Create the load/unload entry in the GVIM tool menu, depending on 
 "	 which script is already loaded
@@ -2396,6 +2457,9 @@ if has("autocmd")
 	autocmd BufRead            *.pod  set filetype=perl
 	autocmd BufNewFile         *.pod  set filetype=perl | call Perl_CommentTemplates('pod') | :w!
 	autocmd BufNewFile,BufRead *.t  set filetype=perl
+	"
+	" Wrap error descriptions in the quickfix window.
+	autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak 
 	"
 endif " has("autocmd")
 "

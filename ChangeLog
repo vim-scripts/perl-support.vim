@@ -1,0 +1,200 @@
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.0
+---------------------------------------------------------------------------------------
++ Adaption for Vim 7.
++ The hotkey \rd now also starts the debugger (perl -d ..) if vim is running without GUI.
++ Debugger starts correctly for scripts with command line arguments (Windows only).
++ Minor bugfixes and improvements.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.9.2
+---------------------------------------------------------------------------------------
++ Adaption for 'perlcritic', version 0.15 .
++ New template file for POD documentation files.
++ Minor bugs fixed and improvements.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.9.1
+---------------------------------------------------------------------------------------
++ New menu entry for setting perl command line switches (Thanks to Adam MacKinnon).
++ For files with extension 't' (Perl test files) the filetype is set to 'perl'. This
+  allows syntax checking, reading help, and checking with perlcritic.
++ There is a new comment template file 'perl-test-header' which will be
+  inserted at the beginning of a new test file (extension 't').
++ Comment after some POD directives removed (podchecker showed errors).
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.9
+---------------------------------------------------------------------------------------
++ perlcritic integrated. Runs like a compiler. Opens a quickfix error window.
++ Help menu entry added (plugin help).
++ A hardcopy shows date and time in the header line.
++ open file/pipe idioms according to Conway's "Perl Best Practices".
++ POSIX class [:blank:] added.
++ Bugfix: Wrong cursor positon in hash idiom.
++ Plugin can be used with autocompletion for (, [, and { .
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.8.2
+---------------------------------------------------------------------------------------
++ Bugfix: Starting perltidy calls a wrong function (Thanks to Greg Ferguson).
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.8.1
+---------------------------------------------------------------------------------------
++ Bugfix: Some key mappings not working/not properly working (Thanks to Edward Wijaya).
++ Bugfix: Unnecessary message 'Made file executable' removed (Thanks to Edward Wijaya).
++ Bugfix: Wrong quoting for script arguments fixed; Windows only (Thanks to Norin Raad).
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.8
+---------------------------------------------------------------------------------------
++ Podchecker integrated. Runs like a compiler. Opens a quickfix error window.
++ Script will be made executable before running it (e.g. after a "Save As...").
++ Many blanks in 2 POD templates removes which garbled the resulting documents (bugfix).
++ Message now visible if SmallProf is not runable (bugfix).
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.7
+---------------------------------------------------------------------------------------
++ POD: "invisible POD" added (as suggested in Conway's book "Perl Best Practices").
++ POD: sequence insertion improved; '<E>' added; '=for' added.
++ <S-F1> (read perldoc) now works only for filetype 'perl' .
++ Some idioms improved (e.g. opening files, subroutine stub).
++ Added ':' to the keyword characters; recognizes tokens like 'Net::Cmd' as one keyword.
++ Perltidy integration made safer.
++ Starting an xterm was not possible with some installations (bugfix).
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.6
+---------------------------------------------------------------------------------------
++ blocks: opening brace not on a new line (adjustable for backward compatibility).
++ output into buffer: cursor goes to top of file.
++ trailing ^M in perldoc window will be removed (UNIX/Linux).
++ Vim (without GUI): new key mappings: all entries in the run menu do have mappings now.
++ Vim (without GUI): perldoc can be read with hotkeys \h and \rp .
++ Vim (without GUI): perldoc displays docs using plain text converter.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.5
+---------------------------------------------------------------------------------------
++ Windows support. Most features are now available under Windows.
++ Spaces in path and file names are now possible (Windows and UNIX).
++ Reading documentation with perldoc improved.
++ Minor bugs fixed and improvements.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.4.1
+---------------------------------------------------------------------------------------
++ Run the profiler SmallProf from the menu; save different results with time stamps. 
++ Line end comments start in a fixed column now (can be set from the menu).
++ Recommended settings for ctags corrected (Thanks to William McKee).
++ Perl module list generator pmdesc3 again slightly improved.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.4
+---------------------------------------------------------------------------------------
++ One of three debuggers can be started with the hotkey F9.
++ Complete file or marked area can be reformatted with perltidy. 
++ Running a perl-script 
+  (1) The script can be run from the command line as usual.
+  (2) The output can be directed into a window with name "Perl-Output". 
+      The buffer and its content will disappear when closing the window. 
+      The buffer is reused when still open.
+  (3) The script can be run in an xterm (adjustable).
++ The new hotkey Shift-F9 and the menu entry "cmd. line arg." set command line
+  arguments for the current buffer (that is, each buffer can have its own arguments).
++ A code snippet with the file name extension "ni" or "noindent" will not be
+  indented on insertion.
++ Bug fixed (POD->Text)
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.3.2
+---------------------------------------------------------------------------------------
++ Perl module list generator pmdesc3 improved (no double entries, no control
+  characters in version numbers, handles DOS-teminated files correctly).
++ Looking up help with Shift-F1 now works also in the perldoc help buffer.
++ Running a Perl-script now opens a window with name "Perl-Output" to display
+  the script output. The buffer and its content will disappear when closing
+  the window. 
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.3
+---------------------------------------------------------------------------------------
++ There is now at most one help window/buffer.
++ There is now at most one Perl module list window/buffer.
++ The perldoc help will now search in FAQs too; 
+  search order :  modules - functions - FAQs. 
++ Template files and snippet files are no longer kept in the list of alternate files.
++ A bug fixed in the Perl module list generator pmdesc3.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.2
+---------------------------------------------------------------------------------------
++ Better adaption to the Windows plattforms (default directories, running scripts)
++ Templates are more consistent now.
++ 'Line End Comments' ignores blank lines in a marked block.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.1
+---------------------------------------------------------------------------------------
++ Installation simplified. 
++ The generation of the module list is a magnitude faster.
++ The version of a module is now shown in the module list. 
++ The Perl documentation (pod::perl*) appears in the module list.
++ The dialog windows (GUI) have been replaced by more flexible command line inputs.
++ User will now be asked before a snippet file will be overwritten.
++ The undocumented and unnecessary hot key F12 has been removed.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 2.0
+---------------------------------------------------------------------------------------
++ New menu for regex-construction.
++ New menu with POD items.
++ A list of all installed Perl modules can be built and read in. 
+  The documentation for a module can be opened from this list.
++ Extension to ctags + taglist shows POD table of content and enables navigation.
++ Append aligned comments to all lines of a marked block.
++ The root menu can be removed (default is not removed).
++ Documentation improved.
++ Bug fix (template file handling).
++ Install script improved.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.9.2
+---------------------------------------------------------------------------------------
++ Only one entry in the gVim root menu.
++ All hotkeys are only defined for Perl files.
++ Install script added.
++ Customization improved. 
++ Documentation improved.
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.9
+---------------------------------------------------------------------------------------
++ 58 key mappings for Vim without GUI. See perl-hot-keys.pdf (reference card).
++ A marked region can be surrounded by a for-, if-, do-while- , until-, ... 
+  statements (with indentation).
++ The Perl special variables have been added to the file word.list 
+  for  dictionary completion.
++ Vim doc added (file perlsupport.txt).
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.8
+---------------------------------------------------------------------------------------
++ Tag substitution rewritten (Some characters in a substitution text for a tag 
+  prevented the tag from being substituted).
+
+---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 1.7
+---------------------------------------------------------------------------------------
++ Block comments are now read as templates or skeletons from files:
+    frame Comment,  function description,  file header
++ These templates can contain tags like |FILENAME|, |AUTHOR| etc. which are replaced
+  after reading.
++ indentation: multiline inserts and code snippets will be indented after insertion.
++ Most menu entries are now also active in normal mode.
++ Reading the templates is done in one function which can be called in an autocmd.
++ Code cleanup: register z no longer used. Most function calls are silent now.
+
+
