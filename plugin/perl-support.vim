@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  18.04.2006
+"       Revision:  19.05.2006
 "        Created:  09.07.2001
 "        License:  GPL (GNU Public License)
 "        Credits:  see perlsupport.txt
@@ -32,7 +32,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.0"
+let g:Perl_Version= "3.1"
 "        
 "###############################################################################################
 "
@@ -1898,7 +1898,7 @@ function! Perl_Debugger ()
 		if	s:MSWIN
 			silent exe "!perl -d \"".Sou.l:arguments."\""
 		else
-			if has("gui_running")
+			if has("gui_running") || &term == "xterm"
 				silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d ./'.Sou.l:arguments.' &'
 			else
 				silent exe '!clear; perl -d ./'.Sou.l:arguments
@@ -2154,12 +2154,15 @@ function! Perl_Smallprof ()
 	endif
 	silent exe	":update"
 	"
+	let	l:arguments				= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
+	"
 	echohl Search | echo ' ... profiling ... ' | echohl None
-	silent exe	"!perl -d:SmallProf ".Sou
+	"
+	silent exe '!perl -d:SmallProf '.Sou.l:arguments
 	"
 	if v:shell_error
 		redraw
-		echohl WarningMsg | echo 'Could not execute "perl -d:SmallProf '.Sou.'"' | echohl None
+		echohl WarningMsg | echo 'Could not execute "perl -d:SmallProf '.Sou.l:arguments.'"' | echohl None
 		return
 	endif
 		"
@@ -2190,7 +2193,7 @@ function! Perl_Smallprof ()
 endfunction		" ---------- end of function  Perl_Smallprof  ----------
 "
 "------------------------------------------------------------------------------
-"  run : perlcritic (version 0.15)
+"  run : perlcritic (version 0.16)
 "------------------------------------------------------------------------------
 "	
 function! Perl_Perlcritic ()
@@ -2211,7 +2214,7 @@ function! Perl_Perlcritic ()
 	"
 	" Set the default for an invalid verbosity level.
 	"
-	if s:Perl_PerlcriticFormat < 1 || s:Perl_PerlcriticFormat > 9
+	if s:Perl_PerlcriticFormat < 1 || s:Perl_PerlcriticFormat > 10
 		let	s:Perl_PerlcriticFormat	= 3
 	endif
 	"
@@ -2224,6 +2227,7 @@ function! Perl_Perlcritic ()
 	"	Some verbosity levels are treated equal to give quickfix the filename. 
 	"	
 	" --------------------------------------------------------------------------
+	"
 	" Format 1: 
 	"
 	if s:Perl_PerlcriticFormat == 1
@@ -2233,10 +2237,20 @@ function! Perl_Perlcritic ()
 					\%+A%.%#\ at\ %f\ line\ %l%.%#
 	endif
 	"	
-	" --------------------------------------------------------------------------
-	" Format 2,3  (default): 
 	"
-	if s:Perl_PerlcriticFormat==2 || s:Perl_PerlcriticFormat==3
+	" Format 2: 
+	"
+	if s:Perl_PerlcriticFormat == 2
+		:set makeprg=perlcritic\ -verbose\ 2
+		:setlocal errorformat=
+					\%f:\ (%l:%c)\ %m\,
+					\%+A%.%#\ at\ %f\ line\ %l%.%#
+	endif
+	"	
+	" --------------------------------------------------------------------------
+	" Format 3,4  (default): 
+	"
+	if s:Perl_PerlcriticFormat==3 || s:Perl_PerlcriticFormat==4
 		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\.\ \\%e\ (Severity:\ \\%s)\\\n\"
 		:setlocal errorformat=
 					\%f:%l:%c:%m\,
@@ -2244,22 +2258,22 @@ function! Perl_Perlcritic ()
 	endif
 	"	
 	" --------------------------------------------------------------------------
-	" Format 4,5 : 
+	" Format 5,6 : 
 	"
-	if s:Perl_PerlcriticFormat==4 || s:Perl_PerlcriticFormat==5
-		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%m\ near\ '\\%r'\.\ (Severity:\ \\%s)\\\n\"
+	if s:Perl_PerlcriticFormat==5 || s:Perl_PerlcriticFormat==6
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '\\%r'\.\ (Severity:\ \\%s)\\\n\"
 		:setlocal errorformat=
-					\%f:%m\,
+					\%f:%l:%m\,
 					\%+A%.%#\ at\ %f\ line\ %l%.%#
 	endif
 	"	
 	" --------------------------------------------------------------------------
-	" Format 6,7 : 
+	" Format 7 : 
 	"
-	if s:Perl_PerlcriticFormat==6 || s:Perl_PerlcriticFormat==7
-		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\ near\ '\\%r'\.\ \\%e\ (Severity:\ \\%s)\\\n\"
+	if s:Perl_PerlcriticFormat==7
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m.\ (Severity:\ \\%s)\\\n\"
 		:setlocal errorformat=
-					\%f:%l:%c:%m\,
+					\%f:%l:%m\,
 					\%+A%.%#\ at\ %f\ line\ %l%.%#
 	endif
 	"	
@@ -2267,9 +2281,9 @@ function! Perl_Perlcritic ()
 	" Format 8 : 
 	"
 	if s:Perl_PerlcriticFormat==8
-		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m\ near\ '\\%r'\.\ \\%e\ (Severity:\ \\%s)\\\n\"
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:[\\%p]\ \\%m,\ near\ '\\%r'\.\ (Severity:\ \\%s)\\\n\"
 		:setlocal errorformat=
-					\%f:%l:%c:%m\,
+					\%f:%l:%m\,
 					\%+A%.%#\ at\ %f\ line\ %l%.%#
 	endif
 	"	
@@ -2277,9 +2291,19 @@ function! Perl_Perlcritic ()
 	" Format 9 : 
 	"
 	if s:Perl_PerlcriticFormat==9
-		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m\ near\ '\\%r'\.\ \\%e\ (Severity:\ \\%s)\\\n\\%d\\\n\"
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m.\\\n\ \\%p\ (Severity:\ \\%s)\\\n\\%d\\\n\"
 		:setlocal errorformat=
 					\%f:%l:%c:%m\,
+					\%+A%.%#\ at\ %f\ line\ %l%.%#
+	endif
+	"	
+	" --------------------------------------------------------------------------
+	" Format 10 : 
+	"
+	if s:Perl_PerlcriticFormat==10
+		:set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '\\%r'\.\\\n\ \\%p\ (Severity:\ \\%s)\\\n\\%d\\\n\"
+		:setlocal errorformat=
+					\%f:%l:%m\,
 					\%+A%.%#\ at\ %f\ line\ %l%.%#
 	endif
 	" --------------------------------------------------------------------------

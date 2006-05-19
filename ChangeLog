@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.1
+---------------------------------------------------------------------------------------
++ Adaption for 'perlcritic', version 0.16 .
++ Bugfix: The profiler now gets the command line arguments of the script.
++ Minor bugfixes and improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.0
 ---------------------------------------------------------------------------------------
 + Adaption for Vim 7.

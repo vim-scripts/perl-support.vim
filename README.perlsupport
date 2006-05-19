@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.0) / Apr 18 2006
+README for perl-support.vim (Version 3.1) / May 18 2006
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -74,12 +74,10 @@ and look at the perlsupport help with
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.0
+  RELEASE NOTES FOR VERSION 3.1
 ---------------------------------------------------------------------------------------
-+ Adaption for Vim 7.
-+ The hotkeys F9 and \rd now also starts the debugger (perl -d ..) if vim is running 
-  without GUI.
-+ Debugger starts correctly for scripts with command line arguments (Windows only).
++ Adaption for 'perlcritic', version 0.16 .
++ Bugfix: The profiler now gets the command line arguments of the script.
 + Minor bugfixes and improvements.
 
 
@@ -117,9 +115,6 @@ wordlists/perl.list       A file used as dictionary for automatic word completio
                           perl-support.vim will work without them.
                           -------------------------------------------------------------
 
-rc/customization.SmallProf   Additional settings I use to control the profiler 
-                             SmallProf
-
 rc/customization.ctags       Additional settings I use in  .ctags to enable navigation
                              through POD with the plugin taglist.vim.
 
@@ -129,6 +124,9 @@ rc/customization.gvimrc      Additional settings I use in  .gvimrc:
 
 rc/customization.perltidyrc  Additional settings I use in  .perltidyrc to enable 
                              customize perltidy.
+
+rc/customization.smallprof   Additional settings I use to control the profiler 
+                             Devel::SmallProf
 
 rc/customization.vimrc       Additional settings I use in  .vimrc:  incremental search,
                              tabstop, hot keys, font, use of dictionaries, ...
