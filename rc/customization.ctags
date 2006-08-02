@@ -7,4 +7,5 @@
 --regex-perl=/^=for[[:space:]]+([^:]+):(.*)$/*\1:\2/d,pod/
 --regex-perl=/^__END__$/__END__/l,labels/
 --regex-perl=/^__DATA__$/__DATA__/l,labels/
+--regex-perl=/^[[:space:]]*package[[:space:]]+((::)?([[:alpha:]_][[:alnum:]_]*(::)*)+);/\1/p,package/
 

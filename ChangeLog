@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.2
+---------------------------------------------------------------------------------------
++ New command and menu entry for commenting/uncommenting larger blocks of code.
++ Some POD statements now have a visual mode.
++ Setting the column for the start of line-end comments improved.
++ Mac OS X : circumvent a Vim bug which caused a crash when loading plugin version 3.1.
++ File syntax/perl.vim removed (but see help in perlsupport.txt).
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.1
 ---------------------------------------------------------------------------------------
 + Adaption for 'perlcritic', version 0.16 .

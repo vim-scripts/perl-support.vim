@@ -138,5 +138,5 @@ let g:Perl_Email             = 'mehner@fh-swf.de'
  noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 
-let tlist_perl_settings  = 'perl;c:constants;l:labels;s:subroutines;d:POD'
+let tlist_perl_settings  = 'perl;c:constants;l:labels;p:package;s:subroutines;d:POD'
 
