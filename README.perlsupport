@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.2) / August 01 2006
+README for perl-support.vim (Version 3.2.1) / August 29 2006
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -74,13 +74,10 @@ and look at the perlsupport help with
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.2
+  RELEASE NOTES FOR VERSION 3.2.1
 ---------------------------------------------------------------------------------------
-+ New command and menu entry for commenting/uncommenting larger blocks of code.
-+ Some POD statements now have a visual mode.
-+ Setting the column for the start of line-end comments improved.
-+ Mac OS X : circumvent a Vim bug which caused a crash when loading plugin version 3.1.
-+ File syntax/perl.vim removed (but see help in perlsupport.txt).
++ Better adaption for 'perlcritic', version 0.19 .
++ Bugfix: key mappings \cb and \cn are working now.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

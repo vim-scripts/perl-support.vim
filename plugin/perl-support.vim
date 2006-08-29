@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  01.08.2006
+"       Revision:  29.08.2006
 "        Created:  09.07.2001
 "        License:  Copyright (c) 2001-2006, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.2"
+let g:Perl_Version= "3.2.1"
 "        
 "###############################################################################################
 "
@@ -103,6 +103,7 @@ let s:Perl_LineEndCommColDefault   = 49
 let s:Perl_BraceOnNewLine          = "no"
 let s:Perl_PodcheckerWarnings      = "yes"
 let s:Perl_PerlcriticFormat        = 3
+let s:Perl_PerlcriticSeverity      = 3
 let s:Perl_Printheader             = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 "
 "------------------------------------------------------------------------------
@@ -128,6 +129,7 @@ call Perl_CheckGlobal("Perl_LoadMenus              ")
 call Perl_CheckGlobal("Perl_MenuHeader             ")
 call Perl_CheckGlobal("Perl_OutputGvim             ")
 call Perl_CheckGlobal("Perl_PerlcriticFormat       ")
+call Perl_CheckGlobal("Perl_PerlcriticSeverity     ")
 call Perl_CheckGlobal("Perl_PerlModuleList         ")
 call Perl_CheckGlobal("Perl_PerlModuleListGenerator")
 call Perl_CheckGlobal("Perl_PodcheckerWarnings     ")
@@ -2404,7 +2406,7 @@ function! Perl_Smallprof ()
 endfunction   " ---------- end of function  Perl_Smallprof  ----------
 "
 "------------------------------------------------------------------------------
-"  run : perlcritic (version 0.16)
+"  run : perlcritic (version 0.19)
 "------------------------------------------------------------------------------
 " 
 function! Perl_Perlcritic ()
@@ -2429,6 +2431,13 @@ function! Perl_Perlcritic ()
     let s:Perl_PerlcriticFormat = 3
   endif
   "
+  " Set the default for the severity level.
+  "
+  if s:Perl_PerlcriticSeverity < 1 || s:Perl_PerlcriticSeverity > 5
+    let s:Perl_PerlcriticSeverity = 3
+  endif
+	let l:severity	= string(s:Perl_PerlcriticSeverity)
+  "
   " All formats consist of 2 parts: 
   "  1. the perlcritic message format
   "  2. the trailing    '%+A%.%#\ at\ %f\ line\ %l%.%#'
@@ -2442,7 +2451,7 @@ function! Perl_Perlcritic ()
   " Format 1: 
   "
   if s:Perl_PerlcriticFormat == 1
-    :set makeprg=perlcritic\ -verbose\ 1
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ 1'
     :setlocal errorformat=
           \%f:%l:%c:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2452,7 +2461,7 @@ function! Perl_Perlcritic ()
   " Format 2: 
   "
   if s:Perl_PerlcriticFormat == 2
-    :set makeprg=perlcritic\ -verbose\ 2
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ 2'
     :setlocal errorformat=
           \%f:\ (%l:%c)\ %m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2462,7 +2471,7 @@ function! Perl_Perlcritic ()
   " Format 3,4  (default): 
   "
   if s:Perl_PerlcriticFormat==3 || s:Perl_PerlcriticFormat==4
-    :set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\.\ \\%e\ (Severity:\ \\%s)\\\n\"
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\.\ \\%e\ (Severity:\ \\%s)\\\n\"'
     :setlocal errorformat=
           \%f:%l:%c:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2472,7 +2481,7 @@ function! Perl_Perlcritic ()
   " Format 5,6 : 
   "
   if s:Perl_PerlcriticFormat==5 || s:Perl_PerlcriticFormat==6
-    :set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '\\%r'\.\ (Severity:\ \\%s)\\\n\"
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '."'\\\\%r'".'\.\ (Severity:\ \\%s)\\\n\"'
     :setlocal errorformat=
           \%f:%l:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2482,7 +2491,7 @@ function! Perl_Perlcritic ()
   " Format 7 : 
   "
   if s:Perl_PerlcriticFormat==7
-    :set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m.\ (Severity:\ \\%s)\\\n\"
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m.\ (Severity:\ \\%s)\\\n\"'
     :setlocal errorformat=
           \%f:%l:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2492,7 +2501,7 @@ function! Perl_Perlcritic ()
   " Format 8 : 
   "
   if s:Perl_PerlcriticFormat==8
-    :set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:[\\%p]\ \\%m,\ near\ '\\%r'\.\ (Severity:\ \\%s)\\\n\"
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:[\\%p]\ \\%m,\ near\ '."'\\\\%r'".'\.\ (Severity:\ \\%s)\\\n\"'
     :setlocal errorformat=
           \%f:%l:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2502,7 +2511,7 @@ function! Perl_Perlcritic ()
   " Format 9 : 
   "
   if s:Perl_PerlcriticFormat==9
-    :set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%c:\\%m.\\\n\ \\%p\ (Severity:\ \\%s)\\\n\\%d\\\n\"
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:\\%m.\\\n\ \\%p\ (Severity:\ \\%s)\\\n\\%d\\\n\"'
     :setlocal errorformat=
           \%f:%l:%c:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2512,7 +2521,7 @@ function! Perl_Perlcritic ()
   " Format 10 : 
   "
   if s:Perl_PerlcriticFormat==10
-    :set makeprg=perlcritic\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '\\%r'\.\\\n\ \\%p\ (Severity:\ \\%s)\\\n\\%d\\\n\"
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '."'\\\\%r'".'\.\\\n\ \\%p\ (Severity:\ \\%s)\\\n\\%d\\\n\"'
     :setlocal errorformat=
           \%f:%l:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#

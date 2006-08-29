@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  Perl
-" Plugin     :  perl-support.vim (version 4.0)
+" Plugin     :  perl-support.vim (version 3.2.1)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  15.04.2006
+" Last Change:  29.08.2006
 "
 " ----------------------------------------------------------------------------
 "
@@ -91,6 +91,9 @@ vmap    <buffer>  <silent>  <Leader>co    <Esc><Esc>:'<,'>s/^#//<CR><Esc>:nohlse
 nmap    <buffer>  <silent>  <Leader>cd    i<C-R>=strftime("%x")<CR>
 nmap    <buffer>  <silent>  <Leader>ct    i<C-R>=strftime("%x %X %Z")<CR>
 nmap    <buffer>  <silent>  <Leader>cv    :call Perl_CommentVimModeline()<CR>
+nmap    <buffer>  <silent>  <Leader>cb    :call Perl_CommentBlock("a")<CR>
+vmap    <buffer>  <silent>  <Leader>cb    <Esc><Esc>:call Perl_CommentBlock("v")<CR>
+nmap    <buffer>  <silent>  <Leader>cn    :call Perl_UncommentBlock()<CR>
 
 nmap    <buffer>  <silent>  <Leader>ad    :call Perl_DoWhile("a")<CR><Esc>f(la
 nmap    <buffer>  <silent>  <Leader>af    :call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i

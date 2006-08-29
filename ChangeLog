@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.2.1
+---------------------------------------------------------------------------------------
++ Better adaption for 'perlcritic', version 0.19 .
++ Bugfix: key mappings \cb and \cn are working now.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.2
 ---------------------------------------------------------------------------------------
 + New command and menu entry for commenting/uncommenting larger blocks of code.

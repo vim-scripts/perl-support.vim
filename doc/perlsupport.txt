@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                  August 01 2006
+*perlsupport.txt*                Perl Support                  August 29 2006
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 3.2
+                             Plugin version 3.2.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -641,10 +641,25 @@ to read, error-prone, or unconventional constructs in your code.  Most of the
 rules are based on Damian Conway's book Perl Best Practices (PBP).  When run
 from the menu the current buffer will be saved and run through perlcritic. The
 reported violations will be displayed in a separate quickfix error window.
- 
-Perlcritic (version 0.16) has 10 verbosity levels (default level is 3). Some
+
+Two perlcritic comand line options can be set by this plugin:
+ -severity N  :  Directs perlcritic to only report violations of Policies with
+                 a severity greater than N.
+ -vebose   N  :  Sets the verbosity level for reporting violations.
+
+SEVERITY
+--------
+Perlcritic (version 0.19) has 5 severity levels (perlcritic default level is
+5).  This plugin sets the default level to 3.  This can be changed by setting
+the variable g:Perl_PerlcriticSeverity in .vimrc to another value (1-5):
+
+  let g:Perl_PerlcriticSeverity = 1
+
+VERBOSITY
+---------
+Perlcritic (version 0.19) has 10 verbosity levels (default level is 3). Some
 levels are equal except for the filename and are therefore treated equal
-because the quickfix error systems needs a filename. 
+because the quickfix error system used by this plugin needs a filename. 
 The message format will not be exactly the same as from a command line
 execution of perlcritic but the information displayed will be the same for the
 different verbosity levels. The reason also lies in some peculiarities of the
@@ -720,7 +735,8 @@ will look for this file in the current directory first, and then in your home
 directory.  See the manual for more information ('man perlcritic' or
 'perlcritic -man') especially how to influence the policies.
 
-For easier navigation see tip under |perlsupport-syntax-check|.
+For easier navigation in the error list see tip under
+|perlsupport-syntax-check|.
 
 1.9.12 SAVE BUFFER WITH TIMESTAMP                      *perlsupport-timestamp*
 ---------------------------------
