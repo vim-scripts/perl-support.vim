@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  Perl
-" Plugin     :  perl-support.vim (version 3.2.1)
+" Plugin     :  perl-support.vim (version 3.2.2)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  29.08.2006
+" Last Change:  15.12.2006
 "
 " ----------------------------------------------------------------------------
 "
@@ -118,40 +118,40 @@ vmap    <buffer>  <silent>  <Leader>aw    <Esc><Esc>:call Perl_StatBlock( "v", "
 vmap    <buffer>  <silent>  <Leader>a{    <Esc><Esc>:call Perl_Block("v")<CR>
 "
 
-nmap    <buffer>  <silent>  <Leader>dm    omy<Tab>$;<Esc>i
-nmap    <buffer>  <silent>  <Leader>dy    omy<Tab>$<Tab>= ;<Esc>F$a
-nmap    <buffer>  <silent>  <Leader>d,    omy<Tab>) $, $ );<Esc>2F)r(f$a
-nmap    <buffer>  <silent>  <Leader>d1    omy<Tab>@;<Esc>i
-nmap    <buffer>  <silent>  <Leader>d2    omy<Tab>@<Tab>== ) , ,  );<Esc>2F)r(F@a
-nmap    <buffer>  <silent>  <Leader>d3    omy<Tab>%;<Esc>i
-nmap    <buffer>  <silent>  <Leader>d4    omy<Tab>%<Tab>= <CR>)<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>kr(k^f%a
-nmap    <buffer>  <silent>  <Leader>d5    omy<Tab>$rgx_<Tab>= q//;<Esc>F_a
-nmap    <buffer>  <silent>  <Leader>d6    omy<Tab>$rgx_<Tab>= qr//;<Esc>F_a
-nmap    <buffer>  <silent>  <Leader>d7    <Esc>a$ =~ m//xm<Esc>F$a
-nmap    <buffer>  <silent>  <Leader>d8    <Esc>a$ =~ s///xm<Esc>F$a
-nmap    <buffer>  <silent>  <Leader>d9    <Esc>a$ =~ tr///xm<Esc>F$a
-nmap    <buffer>  <silent>  <Leader>dp    <Esc>aprint "\n";<ESC>3hi
-nmap    <buffer>  <silent>  <Leader>df    <Esc>aprintf x\nx;<ESC>hr"3hr"a
-nmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("a")<CR>A
-vmap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a
-nmap    <buffer>  <silent>  <Leader>di    <Esc><Esc>:call Perl_OpenInputFile()<CR>a
-nmap    <buffer>  <silent>  <Leader>do    <Esc><Esc>:call Perl_OpenOutputFile()<CR>a
-nmap    <buffer>  <silent>  <Leader>de    <Esc><Esc>:call Perl_OpenPipe()<CR>a
+nnoremap    <buffer>  <silent>  <Leader>dm    omy<Tab>$;<Esc>i
+nnoremap    <buffer>  <silent>  <Leader>dy    omy<Tab>$<Tab>= ;<Esc>F$a
+nnoremap    <buffer>  <silent>  <Leader>d,    omy<Tab>( $, $ );<Esc>2F$a
+nnoremap    <buffer>  <silent>  <Leader>d1    omy<Tab>@;<Esc>i
+nnoremap    <buffer>  <silent>  <Leader>d2    omy<Tab>@<Tab>= ( , ,  );<Esc>F@a
+nnoremap    <buffer>  <silent>  <Leader>d3    omy<Tab>%;<Esc>i
+nnoremap    <buffer>  <silent>  <Leader>d4    omy<Tab>%<Tab>= <CR>)<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a
+nnoremap    <buffer>  <silent>  <Leader>d5    omy<Tab>$rgx_<Tab>= q//;<Esc>F_a
+nnoremap    <buffer>  <silent>  <Leader>d6    omy<Tab>$rgx_<Tab>= qr//;<Esc>F_a
+nnoremap    <buffer>  <silent>  <Leader>d7    <Esc>a$ =~ m//xm<Esc>F$a
+nnoremap    <buffer>  <silent>  <Leader>d8    <Esc>a$ =~ s///xm<Esc>F$a
+nnoremap    <buffer>  <silent>  <Leader>d9    <Esc>a$ =~ tr///xm<Esc>F$a
+nnoremap    <buffer>  <silent>  <Leader>dp    <Esc>aprint "\n";<Left><Left><Left><Left>
+nnoremap    <buffer>  <silent>  <Leader>df    <Esc>aprintf "\n";<Left><Left><Left><Left>
+nnoremap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("a")<CR>A
+vnoremap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a
+nnoremap    <buffer>  <silent>  <Leader>di    <Esc><Esc>:call Perl_OpenInputFile()<CR>a
+nnoremap    <buffer>  <silent>  <Leader>do    <Esc><Esc>:call Perl_OpenOutputFile()<CR>a
+nnoremap    <buffer>  <silent>  <Leader>de    <Esc><Esc>:call Perl_OpenPipe()<CR>a
 "
-nmap    <buffer>  <silent>  <Leader>la    a]:alnum:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>lh    a]:alpha:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>li    a]:ascii:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>lb    a]:blank:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>lc    a]:cntrl:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>ld    a]:digit:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>lg    a]:graph:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>ll    a]:lower:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>lp    a]:print:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>ln    a]:punct:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>ls    a]:space:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>lu    a]:upper:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>lw    a]:word:]<Esc>F]r[f]'
-nmap    <buffer>  <silent>  <Leader>lx    a]:xdigit:]<Esc>F]r[f]'
+nnoremap    <buffer>  <silent>  <Leader>la    a[:alnum:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>lh    a[:alpha:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>li    a[:ascii:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>lb    a[:blank:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>lc    a[:cntrl:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>ld    a[:digit:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>lg    a[:graph:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>ll    a[:lower:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>lp    a[:print:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>ln    a[:punct:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>ls    a[:space:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>lu    a[:upper:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>lw    a[:word:]<Esc>'
+nnoremap    <buffer>  <silent>  <Leader>lx    a[:xdigit:]<Esc>'
 "
 map    <buffer>  <silent>  <Leader>rr    <Esc>:call Perl_Run()<CR>
 map    <buffer>  <silent>  <Leader>rs    <Esc>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>

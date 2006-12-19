@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.2.2
+---------------------------------------------------------------------------------------
++ Bugfix: wrong position when building regular expressions in visual mode at
+  the end of a line.
++ Bugfix [cygwin]: unnecessary error message when starting vim (not gvim).
++ Perl keyword help (S-F1) improved.
++ Insertion and substitution from the menus protected against non-plugin mappings.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.2.1
 ---------------------------------------------------------------------------------------
 + Better adaption for 'perlcritic', version 0.19 .
