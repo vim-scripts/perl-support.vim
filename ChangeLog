@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.3
+---------------------------------------------------------------------------------------
++ One new and two improved mappings (\cs, \co, \cc). 
++ All command mappings can be switched off by a global variable.
++ Bugfix: empty new file after removing the header template can't be closed.
++ Bugfix [Windows]: perlcritic messages are sometimes garbled (Thanks to Igor Prischepoff).
++ Bugfix : Tools entry missing when root menu not shown from the start.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.2.2
 ---------------------------------------------------------------------------------------
 + Bugfix: wrong position when building regular expressions in visual mode at

@@ -20,7 +20,7 @@
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  17.12.2006
+"       Revision:  27.12.2006
 "        Created:  09.07.2001
 "        License:  Copyright (c) 2001-2006, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.2.2"
+let g:Perl_Version= "3.3"
 "        
 "###############################################################################################
 "
@@ -171,9 +171,8 @@ let s:Perl_Printheader  = escape( s:Perl_Printheader, ' %' )
 "
 "
 "------------------------------------------------------------------------------
-"  Perl Menu Initialization
+"  Perl Menu Initializations
 "------------------------------------------------------------------------------
-"
 function! Perl_InitMenu ()
   "
   if has("gui_running")
@@ -200,14 +199,13 @@ function! Perl_InitMenu ()
     exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ &Header\ (\.pl)     <Esc><Esc>:call Perl_CommentTemplates("header")<CR>'
     exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ H&eader\ (\.pm)     <Esc><Esc>:call Perl_CommentTemplates("module")<CR>'
     exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ He&ader\ (\.t)      <Esc><Esc>:call Perl_CommentTemplates("test")<CR>'
-""    exe "amenu <silent>  ".s:Perl_Root.'&Comments.File\ Heade&r\ (\.pod)    <Esc><Esc>:call Perl_CommentTemplates("pod")<CR>'
 
     exe "amenu ".s:Perl_Root.'&Comments.-SEP1-                     :'
     "
-    exe "amenu <silent>  ".s:Perl_Root."&Comments.&code->comment       <Esc><Esc>:s/^/#/<CR><Esc>:nohlsearch<CR>"
-    exe "vmenu <silent>  ".s:Perl_Root."&Comments.&code->comment       <Esc><Esc>:'<,'>s/^/#/<CR><Esc>:nohlsearch<CR>"
-    exe "amenu <silent>  ".s:Perl_Root."&Comments.c&omment->code       <Esc><Esc>:s/^\\(\\s*\\)#/\\1/<CR><Esc>:nohlsearch<CR>"
-    exe "vmenu <silent>  ".s:Perl_Root."&Comments.c&omment->code       <Esc><Esc>:'<,'>s/^\\(\\s*\\)#/\\1/<CR><Esc>:nohlsearch<CR>"
+    exe "amenu <silent>  ".s:Perl_Root."&Comments.&code->comment       <Esc><Esc>:s/^/#/<CR><Esc>:nohlsearch<CR>j"
+    exe "vmenu <silent>  ".s:Perl_Root."&Comments.&code->comment       <Esc><Esc>:'<,'>s/^/#/<CR><Esc>:nohlsearch<CR>j"
+    exe "amenu <silent>  ".s:Perl_Root."&Comments.c&omment->code       <Esc><Esc>:s/^\\(\\s*\\)#/\\1/<CR><Esc>:nohlsearch<CR>j"
+    exe "vmenu <silent>  ".s:Perl_Root."&Comments.c&omment->code       <Esc><Esc>:'<,'>s/^\\(\\s*\\)#/\\1/<CR><Esc>:nohlsearch<CR>j"
     exe "amenu <silent>  ".s:Perl_Root.'&Comments.comment\ &block      <Esc><Esc>:call Perl_CommentBlock("a")<CR>'
     exe "vmenu <silent>  ".s:Perl_Root.'&Comments.comment\ &block      <Esc><Esc>:call Perl_CommentBlock("v")<CR>'
     exe "amenu <silent>  ".s:Perl_Root.'&Comments.u&ncomment\ block    <Esc><Esc>:call Perl_UncommentBlock()<CR>'
@@ -1192,7 +1190,7 @@ function! Perl_CommentTemplates (arg)
         :startinsert
       endif
     endif
-
+		:set modified
   else
     echohl WarningMsg | echo 'template file '.templatefile.' does not exist or is not readable'| echohl None
   endif
@@ -1492,9 +1490,6 @@ function! Perl_OpenPipe ()
   else
     normal =9-
   endif
-"" exe " menu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>     i<$'.filehandle.'><ESC>'
-"" exe "vmenu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>     s<$'.filehandle.'><ESC>'
-"" exe "imenu ".s:Perl_Root.'I&dioms.<$'.filehandle.'>      <$'.filehandle.'><ESC>a'
   normal f'
 endfunction   " ---------- end of function  Perl_OpenPipe  ----------
 "
@@ -2408,7 +2403,7 @@ function! Perl_Smallprof ()
 endfunction   " ---------- end of function  Perl_Smallprof  ----------
 "
 "------------------------------------------------------------------------------
-"  run : perlcritic (version 0.19)
+"  run : perlcritic 
 "------------------------------------------------------------------------------
 " 
 function! Perl_Perlcritic ()
@@ -2473,7 +2468,7 @@ function! Perl_Perlcritic ()
   " Format 3,4  (default): 
   "
   if s:Perl_PerlcriticFormat==3 || s:Perl_PerlcriticFormat==4
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\.\ \\%e\ (Severity:\ \\%s)\\\n\"'
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\.\ \\%e\ (Severity:\ \\%s)\\n\"'
     :setlocal errorformat=
           \%f:%l:%c:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2483,7 +2478,7 @@ function! Perl_Perlcritic ()
   " Format 5,6 : 
   "
   if s:Perl_PerlcriticFormat==5 || s:Perl_PerlcriticFormat==6
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '."'\\\\%r'".'\.\ (Severity:\ \\%s)\\\n\"'
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '."'\\\\%r'".'\.\ (Severity:\ \\%s)\\n\"'
     :setlocal errorformat=
           \%f:%l:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2493,7 +2488,7 @@ function! Perl_Perlcritic ()
   " Format 7 : 
   "
   if s:Perl_PerlcriticFormat==7
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m.\ (Severity:\ \\%s)\\\n\"'
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m.\ (Severity:\ \\%s)\\n\"'
     :setlocal errorformat=
           \%f:%l:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2503,7 +2498,7 @@ function! Perl_Perlcritic ()
   " Format 8 : 
   "
   if s:Perl_PerlcriticFormat==8
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:[\\%p]\ \\%m,\ near\ '."'\\\\%r'".'\.\ (Severity:\ \\%s)\\\n\"'
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:[\\%p]\ \\%m,\ near\ '."'\\\\%r'".'\.\ (Severity:\ \\%s)\\n\"'
     :setlocal errorformat=
           \%f:%l:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2513,7 +2508,7 @@ function! Perl_Perlcritic ()
   " Format 9 : 
   "
   if s:Perl_PerlcriticFormat==9
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:\\%m.\\\n\ \\%p\ (Severity:\ \\%s)\\\n\\%d\\\n\"'
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:\\%m.\\n\ \\%p\ (Severity:\ \\%s)\\n\\%d\\n\"'
     :setlocal errorformat=
           \%f:%l:%c:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2523,7 +2518,7 @@ function! Perl_Perlcritic ()
   " Format 10 : 
   "
   if s:Perl_PerlcriticFormat==10
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '."'\\\\%r'".'\.\\\n\ \\%p\ (Severity:\ \\%s)\\\n\\%d\\\n\"'
+    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '."'\\\\%r'".'\.\\n\ \\%p\ (Severity:\ \\%s)\\n\\%d\\n\"'
     :setlocal errorformat=
           \%f:%l:%m\,
           \%+A%.%#\ at\ %f\ line\ %l%.%#
@@ -2618,19 +2613,25 @@ endfunction    " ----------  end of function Perl_HelpPerlsupport ----------
 "------------------------------------------------------------------------------
 "  Perl_CreateGuiMenus
 "------------------------------------------------------------------------------
-let s:Perl_MenuVisible = -1               " state variable controlling the C-menus
+let s:Perl_MenuVisible = 0								" state : 0 = not visible / 1 = visible
 "
 function! Perl_CreateGuiMenus ()
   if s:Perl_MenuVisible != 1
-    if s:Perl_MenuVisible != -1
-      aunmenu <silent> &Tools.Load\ Perl\ Support
-    endif
+		aunmenu <silent> &Tools.Load\ Perl\ Support
     amenu   <silent> 40.1000 &Tools.-SEP100- : 
     amenu   <silent> 40.1160 &Tools.Unload\ Perl\ Support <C-C>:call Perl_RemoveGuiMenus()<CR>
     call Perl_InitMenu()
     let s:Perl_MenuVisible = 1
   endif
 endfunction    " ----------  end of function Perl_CreateGuiMenus  ----------
+
+"------------------------------------------------------------------------------
+"  Perl_ToolMenu
+"------------------------------------------------------------------------------
+function! Perl_ToolMenu ()
+    amenu   <silent> 40.1000 &Tools.-SEP100- : 
+    amenu   <silent> 40.1160 &Tools.Load\ Perl\ Support <C-C>:call Perl_CreateGuiMenus()<CR>
+endfunction    " ----------  end of function Perl_ToolMenu  ----------
 
 "------------------------------------------------------------------------------
 "  Perl_RemoveGuiMenus
@@ -2653,8 +2654,7 @@ function! Perl_RemoveGuiMenus ()
     endif
     "
     aunmenu <silent> &Tools.Unload\ Perl\ Support
-    amenu   <silent> 40.1000 &Tools.-SEP100- : 
-    amenu   <silent> 40.1160 &Tools.Load\ Perl\ Support <C-C>:call Perl_CreateGuiMenus()<CR>
+		call Perl_ToolMenu()
     "
     let s:Perl_MenuVisible = 0
   endif
@@ -2667,6 +2667,8 @@ endfunction    " ----------  end of function Perl_RemoveGuiMenus  ----------
 "
 if has("gui_running")
   "
+	call Perl_ToolMenu()
+	"
   if s:Perl_LoadMenus == 'yes'
     call Perl_CreateGuiMenus()
   endif
@@ -2676,26 +2678,23 @@ if has("gui_running")
   "
 endif
 "
-"
 "------------------------------------------------------------------------------
 "  Automated header insertion
 "------------------------------------------------------------------------------
 if has("autocmd")
   " 
-  " =====  Perl-script : insert header, write file, make it executable  =============
-  "
+  " =====  Perl script      : insert header, write file
+  " =====  Perl module      : insert header, write file
+  " =====  Perl test module : insert header, write file
   autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! 
-  " 
-  " =====  Perl module      : insert header, write file  =============================
-  " =====  Perl test module : set filetype to Perl       =============================
   autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!
-  autocmd BufNewFile  *.t   call Perl_CommentTemplates('test') | :w!
+  autocmd BufNewFile  *.t   call Perl_CommentTemplates('test')   | :w!
   " 
-  " =====  Perl POD module  : set filetype to Perl  ==================================
-  " =====  Perl test module : set filetype to Perl  ==================================
+  " =====  Perl POD module  : set filetype to Perl
+  " =====  Perl test module : set filetype to Perl
   autocmd BufRead            *.pod  set filetype=perl
   autocmd BufNewFile         *.pod  set filetype=perl | call Perl_CommentTemplates('pod') | :w!
-  autocmd BufNewFile,BufRead *.t  set filetype=perl
+  autocmd BufNewFile,BufRead *.t    set filetype=perl
   "
   " Wrap error descriptions in the quickfix window.
   autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak 

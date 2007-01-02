@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.2.2) / December 18 2006
+README for perl-support.vim (Version 3.3) / December 29 2006
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -27,7 +27,7 @@ or $VIM\vimfiles (on the Windows platforms).
 
       unzip perl-support.zip
 
-		If you have already an older version of perl-support and you have modified
+    If you have already an older version of perl-support and you have modified
     the template files you may want to save your templates first or copy the 
     files from the archive by hand.
 
@@ -71,19 +71,21 @@ and look at the perlsupport help with
                | +-------------------------------------------+ |
                +-----------------------------------------------+
 
+Any problems ? See the TROUBLESHOOTING section at the end of the help file
+'doc/perlsupport.txt'.
 
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.2.2
+  RELEASE NOTES FOR VERSION 3.3
 ---------------------------------------------------------------------------------------
-+ Bugfix: wrong position when building regular expressions in visual mode at
-  the end of a line.
-+ Bugfix [cygwin]: unnecessary error message when starting vim (not gvim).
-+ Perl keyword help (S-F1) improved.
-+ Insertion and substitution from the menus protected against non-plugin mappings.
++ One new and two improved mappings (\cs, \co, \cc). 
++ All command mappings can be switched off by a global variable.
++ Bugfix: empty new file after removing the header template can't be closed.
++ Bugfix [Windows]: perlcritic messages are sometimes garbled (Thanks to Igor Prischepoff).
++ Bugfix : Tools entry missing when root menu not shown from the start.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

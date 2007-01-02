@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                 December 01 2006
+*perlsupport.txt*                Perl Support                 December 29 2006
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plugin version 3.2.2
+                              Plugin version 3.3
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -827,6 +827,12 @@ tags must have been generated with
 The frequently used constructs can be inserted with key mappings.  These
 mappings are also described in the document perl-hot-keys.pdf (reference
 card).
+The mappings can be suppressed with the following line in the file .vimrc :
+  let g:Perl_NoKeyMappings = 1
+
+All mappings (except \lps and \ups) are filetype specific: they are only
+defined for buffers with filetype 'perl' to minimize conflicts with mappings
+from other plugins.
 
   -- Load / Unload Perl Support ------------
 
@@ -836,6 +842,7 @@ card).
   -- Comments ------------------------------
 
   \cl     Line End Comment
+  \cs     Set End Comment Col.
   \cf     Frame Comment
   \cu     Function Description
   \ch     File Header (*.pl)
@@ -1058,6 +1065,8 @@ g:Perl_PodcheckerWarnings      "yes"
 g:Perl_Printheader             "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 g:Perl_PerlcriticFormat        3
 
+g:Perl_NoKeyMappings           - undefined -
+
 The variable root_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
   $VIM.'/vimfiles/'     for MS-Windows
@@ -1099,6 +1108,7 @@ The variable root_dir will automatically be set to one of the following values:
           g:Perl_PodcheckerWarnings      : podchecker warnings on/off
           g:Perl_Printheader             : hardcopy header format 
           g:Perl_PerlcriticFormat        : perlcritic error format
+          g:Perl_NoKeyMappings           : suppress command mappings (|perlsupport-mappings|)
 
 To override the defaults add appropriate assignments to .vimrc .
 Set at least some personal details into .vimrc by overriding some defaults.
@@ -1332,6 +1342,18 @@ Configuration files:
 8.  TROUBLESHOOTING                              *perlsupport-troubleshooting*
 ==============================================================================
 
+* I do not see any new main menu entry.
+  - Was the archive extracted into the right directory (see |perlsupport-windows|)?
+
+* How can I see what was loaded?
+  Use ':scriptnames' from the Vim command line. 
+
+* Most key mappings do not work.
+  - They are defined as filetype plugin. Use ':filetype' to check if filetype
+    plugins are enabled. If not, add the line 
+      filetype plugin on
+    to the file '.vimrc'.
+
 * Perl script not executable from inside the editor.
   - Script executable from the command line ?
   - Perl installation correct ?
@@ -1340,19 +1362,16 @@ Configuration files:
   - Script syntax correct ?
   - Necessary modules installed ?
 
-* Some plugin features not present (e.g. hotkeys).
-  - Does the file type plugin $HOME/.vim/ftplugin/perl.vim exist ?
-
-* Some hotkeys do not work.
+* Some hotkeys (e.g. x-F9) do not work.
   - The hotkeys might be in use by your graphical desktop environment.
     Under KDE Ctrl-F9 is the hotkey which let you switch to the 9. desktop.
-    The key settings can usually be redefined.
+    The key settings can usually be redefined or switched off.
     
 * perltidy not running / messing up my file
   Unix/Linux: you have had a proper installation of perltidy, but now it does
   not work or messes up your file.
   The start script '/usr/bin/perltidy' needs the module 'Perl::Tidy.pm'. Most
-  likely you have updated Perl and the module can now longer be found. The
+  likely you have updated Perl and the module can not longer be found. The
   easiest remedy is to reinstall perltidy. Check the installation with the 
   command "perltidy -v" from the command line.
     
