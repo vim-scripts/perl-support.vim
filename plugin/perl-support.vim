@@ -17,12 +17,24 @@
 "  Configuration:  There are at least some personal details which should be configured 
 "                  (see the files README.perlsupport and perlsupport.txt).
 "
+"   Dependencies:  perl
+"                  podchecker
+"                  pod2html
+"                  pod2man
+"                  pod2text
+"                  perldoc
+"                  Perl::Tidy              (beautifier, optional)
+"                  Perl::Critic            (stylechecker, optional)
+"                  Devel::SmallProf        (profiler, optional)
+"                  Devel::ptkdb            (debugger frontend, optional)
+"                  ddd                     (debugger frontend, optional)
+"
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
-"       Revision:  27.12.2006
+"       Revision:  15.02.2007
 "        Created:  09.07.2001
-"        License:  Copyright (c) 2001-2006, Fritz Mehner
+"        License:  Copyright (c) 2001-2007, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
 "                  modify it under the terms of the GNU General Public License as
 "                  published by the Free Software Foundation, version 2 of the
@@ -41,7 +53,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.3"
+let g:Perl_Version= "3.4"
 "        
 "###############################################################################################
 "
@@ -70,7 +82,7 @@ endif
 "  g:Perl_Dictionary_File  must be global
 "          
 if !exists("g:Perl_Dictionary_File")
-  let g:Perl_Dictionary_File       = s:plugin_dir.'wordlists/perl.list'
+  let g:Perl_Dictionary_File       = s:plugin_dir.'perl-support/wordlists/perl.list'
 endif
 "
 "  Modul global variables (with default values) which can be overridden.
@@ -84,8 +96,8 @@ let s:Perl_CopyrightHolder         = ''
 
 let s:Perl_Root                    = '&Perl.'
 let s:Perl_LoadMenus               = 'yes'
-let s:Perl_CodeSnippets            = s:plugin_dir.'codesnippets-perl/'
-let s:Perl_Template_Directory      = s:plugin_dir.'plugin/templates/'
+let s:Perl_CodeSnippets            = s:plugin_dir.'perl-support/codesnippets/'
+let s:Perl_Template_Directory      = s:plugin_dir.'perl-support/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
 let s:Perl_Template_Test           = 'perl-test-header'
@@ -93,8 +105,7 @@ let s:Perl_Template_Pod            = 'perl-pod'
 let s:Perl_Template_Frame          = 'perl-frame'
 let s:Perl_Template_Function       = 'perl-function-description'
 let s:Perl_MenuHeader              = 'yes'
-let s:Perl_PerlModuleList          = s:plugin_dir.'plugin/perl-modules.list'
-let s:Perl_PerlModuleListGenerator = s:plugin_dir.'plugin/pmdesc3.pl'
+let s:Perl_PerlModuleList          = s:plugin_dir.'perl-support/modules/perl-modules.list'
 let s:Perl_OutputGvim              = "vim"
 let s:Perl_XtermDefaults           = "-fa courier -fs 12 -geometry 80x24"
 let s:Perl_Debugger                = "perl"
@@ -102,9 +113,14 @@ let s:Perl_ProfilerTimestamp       = "no"
 let s:Perl_LineEndCommColDefault   = 49
 let s:Perl_BraceOnNewLine          = "no"
 let s:Perl_PodcheckerWarnings      = "yes"
-let s:Perl_PerlcriticFormat        = 3
-let s:Perl_PerlcriticSeverity      = 3
+let s:Perl_PerlcriticOptions       = ""
+let s:Perl_PerlcriticSeverity      = 5
+let s:Perl_PerlcriticVerbosity     = 5
 let s:Perl_Printheader             = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
+"
+let s:Perl_Wrapper                 = s:plugin_dir.'perl-support/scripts/wrapper.sh'
+let s:Perl_EfmPerl                 = s:plugin_dir.'perl-support/scripts/efm_perl.pl'
+let s:Perl_PerlModuleListGenerator = s:plugin_dir.'perl-support/scripts/pmdesc3.pl'
 "
 "------------------------------------------------------------------------------
 "
@@ -128,10 +144,11 @@ call Perl_CheckGlobal("Perl_LineEndCommColDefault  ")
 call Perl_CheckGlobal("Perl_LoadMenus              ")
 call Perl_CheckGlobal("Perl_MenuHeader             ")
 call Perl_CheckGlobal("Perl_OutputGvim             ")
-call Perl_CheckGlobal("Perl_PerlcriticFormat       ")
-call Perl_CheckGlobal("Perl_PerlcriticSeverity     ")
 call Perl_CheckGlobal("Perl_PerlModuleList         ")
 call Perl_CheckGlobal("Perl_PerlModuleListGenerator")
+call Perl_CheckGlobal("Perl_PerlcriticOptions      ")
+call Perl_CheckGlobal("Perl_PerlcriticSeverity     ")
+call Perl_CheckGlobal("Perl_PerlcriticVerbosity    ")
 call Perl_CheckGlobal("Perl_PodcheckerWarnings     ")
 call Perl_CheckGlobal("Perl_Printheader            ")
 call Perl_CheckGlobal("Perl_ProfilerTimestamp      ")
@@ -142,8 +159,8 @@ call Perl_CheckGlobal("Perl_Template_File          ")
 call Perl_CheckGlobal("Perl_Template_Frame         ")
 call Perl_CheckGlobal("Perl_Template_Function      ")
 call Perl_CheckGlobal("Perl_Template_Module        ")
-call Perl_CheckGlobal("Perl_Template_Test          ")
 call Perl_CheckGlobal("Perl_Template_Pod           ")
+call Perl_CheckGlobal("Perl_Template_Test          ")
 call Perl_CheckGlobal("Perl_XtermDefaults          ")
 "
 let s:Perl_PerlcriticMsg     = ""
@@ -212,12 +229,17 @@ function! Perl_InitMenu ()
     "
     exe "amenu ".s:Perl_Root.'&Comments.-SEP2-               :'
     "
+		" %x : The preferred date representation for the current locale without the time.
+		"
     exe " menu ".s:Perl_Root.'&Comments.&Date                i<C-R>=strftime("%x")<CR>'
     exe "imenu ".s:Perl_Root.'&Comments.&Date                 <C-R>=strftime("%x")<CR>'
+		" 
+		" %x : The preferred date representation for the current locale without the time.
+		" %X : The preferred time representation for the current locale without the date.
+		" %Z : The time zone or name or abbreviation.
+		"
     exe " menu ".s:Perl_Root.'&Comments.Date\ &Time          i<C-R>=strftime("%x %X %Z")<CR>'
     exe "imenu ".s:Perl_Root.'&Comments.Date\ &Time           <C-R>=strftime("%x %X %Z")<CR>'
-
-
 
     exe "amenu ".s:Perl_Root.'&Comments.-SEP3-                     :'
     "
@@ -874,7 +896,7 @@ function! Perl_Input ( promp, text )
   echohl None                         " reset highlighting
   return retval
 endfunction   " ---------- end of function  Perl_Input  ----------
-"
+
 "------------------------------------------------------------------------------
 "  Comments : get line-end comment position
 "------------------------------------------------------------------------------
@@ -1069,33 +1091,12 @@ endfunction    " ----------  end of function Perl_UncommentBlock ----------
 "  Substitute tags
 "------------------------------------------------------------------------------
 function! Perl_SubstituteTag( pos1, pos2, tag, replacement )
-  " 
-  " loop over marked block
-  " 
   let linenumber=a:pos1
   while linenumber <= a:pos2
-    let line=getline(linenumber)
-    " 
-    " loop for multiple tags in one line
-    " 
-    let start=0
-    while match(line,a:tag,start)>=0        " do we have a tag ?
-      let frst=match(line,a:tag,start)
-      let last=matchend(line,a:tag,start)
-      if frst!=-1
-        let part1=strpart(line,0,frst)
-        let part2=strpart(line,last)
-        let line=part1.a:replacement.part2
-        "
-        " next search starts after the replacement to suppress recursion
-        " 
-        let start=strlen(part1)+strlen(a:replacement)
-      endif
-    endwhile
+		let line	= substitute( getline(linenumber), a:tag, a:replacement, "g" )
     call setline( linenumber, line )
     let linenumber=linenumber+1
   endwhile
-
 endfunction    " ----------  end of function  Perl_SubstituteTag  ----------
 "
 "------------------------------------------------------------------------------
@@ -1208,7 +1209,7 @@ endfunction    " ----------  end of function Perl_CommentVimModeline  ----------
 "------------------------------------------------------------------------------
 "  Statements : subroutine
 "------------------------------------------------------------------------------
-function! Perl_Subroutine (arg1)
+function! Perl_Subroutine (mode)
   let identifier=Perl_Input("subroutine name : ", "" )
   "
   if identifier==""
@@ -1216,7 +1217,7 @@ function! Perl_Subroutine (arg1)
   endif
   "
   " ----- normal mode ----------------
-  if a:arg1=="a" 
+  if a:mode=="a" 
     if s:Perl_BraceOnNewLine == "no"
       let zz=    "sub ".identifier." {\n\tmy\t($par1)\t= @_;\n\t\n\treturn ;\n}"
       let zz= zz."\t# ----------  end of subroutine ".identifier."  ----------" 
@@ -1239,7 +1240,7 @@ function! Perl_Subroutine (arg1)
   endif
   "
   " ----- visual mode ----------------
-  if a:arg1=="v" 
+  if a:mode=="v" 
     if s:Perl_BraceOnNewLine == "no"
       let zz=    "sub ".identifier." {\n\tmy\t($par1)\t= @_;"
       :'<put! =zz
@@ -1496,12 +1497,12 @@ endfunction   " ---------- end of function  Perl_OpenPipe  ----------
 "------------------------------------------------------------------------------
 "  Perl-Idioms : read / edit code snippet
 "------------------------------------------------------------------------------
-function! Perl_CodeSnippet(arg1)
+function! Perl_CodeSnippet(mode)
   if isdirectory(s:Perl_CodeSnippets)
     "
     " read snippet file, put content below current line
     " 
-    if a:arg1 == "r"
+    if a:mode == "r"
       let l:snippetfile=browse(0,"read a code snippet",s:Perl_CodeSnippets,"")
       if filereadable(l:snippetfile)
         let linesread= line("$")
@@ -1519,7 +1520,7 @@ function! Perl_CodeSnippet(arg1)
     "
     " update current buffer / split window / edit snippet file
     " 
-    if a:arg1 == "e"
+    if a:mode == "e"
       let l:snippetfile=browse(0,"edit a code snippet",s:Perl_CodeSnippets,"")
       if l:snippetfile != ""
         :execute "update! | split | edit ".l:snippetfile
@@ -1528,7 +1529,7 @@ function! Perl_CodeSnippet(arg1)
     "
     " write whole buffer into snippet file 
     " 
-    if a:arg1 == "w"
+    if a:mode == "w"
       let l:snippetfile=browse(0,"write a code snippet",s:Perl_CodeSnippets,"")
       if l:snippetfile != ""
         if filereadable(l:snippetfile)
@@ -1542,7 +1543,7 @@ function! Perl_CodeSnippet(arg1)
     "
     " write marked area into snippet file 
     " 
-    if a:arg1 == "wv"
+    if a:mode == "wv"
       let l:snippetfile=browse(0,"write a code snippet",s:Perl_CodeSnippets,"")
       if l:snippetfile != ""
         if filereadable(l:snippetfile)
@@ -1575,8 +1576,7 @@ let s:Perl_PerldocTry              = "module"
 "
 function! Perl_perldoc()
 
-  let buffername  = getcwd()."/".bufname("%")
-  if( buffername == s:Perl_PerlModuleList )
+  if( expand("%:p") == s:Perl_PerlModuleList )
     normal 0
     let item=expand("<cWORD>")        			" WORD under the cursor 
   else
@@ -1756,6 +1756,9 @@ function! Perl_Settings ()
     let txt     = txt."      dictionary file(s) :  ".ausgabe."\n"
   endif
   let txt = txt."   current output dest.  :  ".s:Perl_OutputGvim."\n"
+  let txt = txt."             perlcritic  :  perlcritic -severity ".s:Perl_PerlcriticSeverity
+				\				." -verbosity ".s:Perl_PerlcriticVerbosity
+				\				." ".s:Perl_PerlcriticOptions."\n"
   let txt = txt."\n"
   let txt = txt."    Additional hot keys\n\n"
   let txt = txt."               Shift-F1  :  read perldoc (for word under cursor)\n"
@@ -1776,18 +1779,18 @@ endfunction   " ---------- end of function  Perl_Settings  ----------
 function! Perl_SyntaxCheck ()
   let s:Perl_SyntaxCheckMsg = ""
   exe ":cclose"
-  let l:currentdir      = getcwd()
   let l:currentbuffer   = bufname("%")
-  let l:fullname        = l:currentdir."/".l:currentbuffer
+	let l:fullname        = expand("%:p")
   silent exe  ":update"
   "
   " avoid filtering the Perl output if the file name does not contain blanks:
   " 
-  if match( l:fullname, " " ) < 0
-    exe "set makeprg=perl\\ -cw\\ $*"
+  if l:fullname !~ " " 
     " 
+		" no whitespaces
     " Errorformat from compiler/perl.vim (VIM distribution).
     "
+    exe "set makeprg=perl\\ -cw\\ $*"
     exe ':setlocal errorformat=
         \%-G%.%#had\ compilation\ errors.,
         \%-G%.%#syntax\ OK,
@@ -1795,17 +1798,16 @@ function! Perl_SyntaxCheck ()
         \%+A%.%#\ at\ %f\ line\ %l\\,%.%#,
         \%+C%.%#'
   else
-    let l:fullname        = escape( l:fullname, s:escfilename )
     "
     " Use tools/efm_perl.pl from the VIM distribution.
     " This wrapper can handle filenames containing blanks.
     " Errorformat from tools/efm_perl.pl .
     " 
-    exe "set makeprg=".s:plugin_dir."plugin/efm_perl.pl\\ -c\\ "
+    exe "set makeprg=".s:Perl_EfmPerl."\\ -c\\ "
     exe ':setlocal errorformat=%f:%l:%m'
   endif
 
-  silent exe  ":make ".l:fullname
+  silent exe  ":make ".escape( l:fullname, s:escfilename )
 
   exe ":botright cwindow"
   exe ':setlocal errorformat='
@@ -1910,13 +1912,10 @@ function! Perl_Run ()
   endif
   "
   let l:currentbuffernr = bufnr("%")
-  let l:currentdir      = getcwd()
   let l:arguments       = exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
   let l:switches        = exists("b:Perl_Switches") ? b:Perl_Switches.' ' : ""
   let l:currentbuffer   = bufname("%")
-  let l:fullname        = l:currentdir."/".l:currentbuffer
-  " escape whitespaces
-  let l:fullname        = escape( l:fullname, s:escfilename )
+  let l:fullname        = escape( expand("%:p"), s:escfilename )
   "
   silent exe ":update"
   silent exe ":cclose"
@@ -1997,7 +1996,7 @@ function! Perl_Run ()
       " same as "vim"
       exe "!perl \"".l:switches.l:fullname." ".l:arguments."\""
     else
-      silent exe '!xterm -title '.l:fullname.' '.s:Perl_XtermDefaults.' -e '.s:plugin_dir.'plugin/wrapper.sh perl '.l:switches.l:fullname.l:arguments
+      silent exe '!xterm -title '.l:fullname.' '.s:Perl_XtermDefaults.' -e '.s:Perl_Wrapper.' perl '.l:switches.l:fullname.l:arguments
     endif
     "
   endif
@@ -2195,21 +2194,25 @@ endfunction   " ---------- end of function  Perl_PodProcessor  ----------
 function! Perl_PodCheck ()
   let s:Perl_PodCheckMsg = ""
   exe ":cclose"
-  let l:currentdir      = getcwd()
   let l:currentbuffer   = bufname("%")
-  let l:fullname        = l:currentdir."/".l:currentbuffer
   silent exe  ":update"
-  "
-  let l:fullname        = escape( l:fullname, s:escfilename )
   "
   if s:Perl_PodcheckerWarnings == "no"
     let PodcheckerWarnings  = '-nowarnings '
   else
     let PodcheckerWarnings  = '-warnings '
   endif
-  exe "set makeprg=podchecker"
+  exe ':set makeprg=podchecker\ '.PodcheckerWarnings
+
   exe ':setlocal errorformat=***\ %m\ at\ line\ %l\ in\ file\ %f'
-  silent exe  ":make ".PodcheckerWarnings.l:fullname
+
+  let l:fullname        = escape( expand("%:p"), s:escfilename )
+  "
+	if  s:MSWIN
+		silent exe  ":make \"".l:fullname."\""
+	else
+		silent exe  ":make ".l:fullname
+	endif
 
   exe ":botright cwindow"
   exe ':setlocal errorformat='
@@ -2233,12 +2236,20 @@ endfunction   " ---------- end of function  Perl_PodCheckMsg  ----------
 "------------------------------------------------------------------------------
 "  run : POD -> html / man / text
 "------------------------------------------------------------------------------
-function! Perl_POD (arg1)
-  let filename  = escape( expand("%:r"), s:escfilename )
-  let filename  = filename.".".a:arg1
+function! Perl_POD ( format )
+  let filename  = escape( expand("%:p"), s:escfilename )
+  let target	  = escape( expand("%:p:r"), s:escfilename ).'.'.a:format
   silent exe  ":update"
-  silent exe  ":!pod2".a:arg1." ".expand("%")." > ".filename
-  echo  " '".getcwd()."/".filename."' generated"
+	if  s:MSWIN
+		if a:format=='html'
+			silent exe  ":!pod2".a:format." \"--infile=".filename."\" \"--outfile=".target."\""
+		else
+			silent exe  ":!pod2".a:format." \"".filename."\" \"".target."\""
+		endif
+	else
+		silent exe  ":!pod2".a:format." ".filename." > ".target
+	endif
+  echo  " '".target."' generated"
 endfunction   " ---------- end of function  Perl_POD  ----------
 "
 "------------------------------------------------------------------------------
@@ -2278,7 +2289,7 @@ endfunction   " ---------- end of function  Perl_POD  ----------
 let s:Perl_perltidy_startscript_executable = 'no'
 let s:Perl_perltidy_module_executable      = 'no'
 
-function! Perl_Perltidy (arg1)
+function! Perl_Perltidy (mode)
 
   let Sou   = expand("%")               " name of the file in the current buffer
   if &filetype != "perl"
@@ -2315,7 +2326,7 @@ function! Perl_Perltidy (arg1)
     endif
   endif
   " ----- normal mode ----------------
-  if a:arg1=="n"
+  if a:mode=="n"
     if Perl_Input("reformat whole file [y/n/Esc] : ", "y" ) != "y"
       return
     endif
@@ -2330,7 +2341,7 @@ function! Perl_Perltidy (arg1)
     echo "File \"".Sou."\" reformatted."
   endif
   " ----- visual mode ----------------
-  if a:arg1=="v"
+  if a:mode=="v"
     let pos1  = line("'<")
     let pos2  = line("'>")
     if  s:MSWIN
@@ -2403,152 +2414,6 @@ function! Perl_Smallprof ()
 endfunction   " ---------- end of function  Perl_Smallprof  ----------
 "
 "------------------------------------------------------------------------------
-"  run : perlcritic 
-"------------------------------------------------------------------------------
-" 
-function! Perl_Perlcritic ()
-  let l:currentbuffer = escape( expand("%"), s:escfilename )
-  if &filetype != "perl"
-    echohl WarningMsg | echo l:currentbuffer.' seems not to be a Perl file' | echohl None
-    return
-  endif
-  if executable("perlcritic") == 0                  " not executable
-    echohl WarningMsg | echo 'perlcritic not installed or not executable' | echohl None
-    return
-  endif
-  let s:Perl_PerlcriticMsg = ""
-  exe ":cclose"
-  let l:currentdir      = getcwd()
-  let l:fullname        = l:currentdir."/".l:currentbuffer
-  silent exe  ":update"
-  "
-  " Set the default for an invalid verbosity level.
-  "
-  if s:Perl_PerlcriticFormat < 1 || s:Perl_PerlcriticFormat > 10
-    let s:Perl_PerlcriticFormat = 3
-  endif
-  "
-  " Set the default for the severity level.
-  "
-  if s:Perl_PerlcriticSeverity < 1 || s:Perl_PerlcriticSeverity > 5
-    let s:Perl_PerlcriticSeverity = 3
-  endif
-  let l:severity  = string(s:Perl_PerlcriticSeverity)
-  "
-  " All formats consist of 2 parts: 
-  "  1. the perlcritic message format
-  "  2. the trailing    '%+A%.%#\ at\ %f\ line\ %l%.%#'
-  " Part 1 rebuilds the original perlcritic message. This is done to make
-  " parsing of the messages easier.
-  " Part 2 captures errors from inside perlcritic if any.
-  " Some verbosity levels are treated equal to give quickfix the filename. 
-  " 
-  " --------------------------------------------------------------------------
-  "
-  " Format 1: 
-  "
-  if s:Perl_PerlcriticFormat == 1
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ 1'
-    :setlocal errorformat=
-          \%f:%l:%c:%m\,
-          \%+A%.%#\ at\ %f\ line\ %l%.%#
-  endif
-  " 
-  "
-  " Format 2: 
-  "
-  if s:Perl_PerlcriticFormat == 2
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ 2'
-    :setlocal errorformat=
-          \%f:\ (%l:%c)\ %m\,
-          \%+A%.%#\ at\ %f\ line\ %l%.%#
-  endif
-  " 
-  " --------------------------------------------------------------------------
-  " Format 3,4  (default): 
-  "
-  if s:Perl_PerlcriticFormat==3 || s:Perl_PerlcriticFormat==4
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:\\%m\.\ \\%e\ (Severity:\ \\%s)\\n\"'
-    :setlocal errorformat=
-          \%f:%l:%c:%m\,
-          \%+A%.%#\ at\ %f\ line\ %l%.%#
-  endif
-  " 
-  " --------------------------------------------------------------------------
-  " Format 5,6 : 
-  "
-  if s:Perl_PerlcriticFormat==5 || s:Perl_PerlcriticFormat==6
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '."'\\\\%r'".'\.\ (Severity:\ \\%s)\\n\"'
-    :setlocal errorformat=
-          \%f:%l:%m\,
-          \%+A%.%#\ at\ %f\ line\ %l%.%#
-  endif
-  " 
-  " --------------------------------------------------------------------------
-  " Format 7 : 
-  "
-  if s:Perl_PerlcriticFormat==7
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:[\\%p]\ \\%m.\ (Severity:\ \\%s)\\n\"'
-    :setlocal errorformat=
-          \%f:%l:%m\,
-          \%+A%.%#\ at\ %f\ line\ %l%.%#
-  endif
-  " 
-  " --------------------------------------------------------------------------
-  " Format 8 : 
-  "
-  if s:Perl_PerlcriticFormat==8
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:[\\%p]\ \\%m,\ near\ '."'\\\\%r'".'\.\ (Severity:\ \\%s)\\n\"'
-    :setlocal errorformat=
-          \%f:%l:%m\,
-          \%+A%.%#\ at\ %f\ line\ %l%.%#
-  endif
-  " 
-  " --------------------------------------------------------------------------
-  " Format 9 : 
-  "
-  if s:Perl_PerlcriticFormat==9
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%c:\\%m.\\n\ \\%p\ (Severity:\ \\%s)\\n\\%d\\n\"'
-    :setlocal errorformat=
-          \%f:%l:%c:%m\,
-          \%+A%.%#\ at\ %f\ line\ %l%.%#
-  endif
-  " 
-  " --------------------------------------------------------------------------
-  " Format 10 : 
-  "
-  if s:Perl_PerlcriticFormat==10
-    exe ':set makeprg=perlcritic\ -severity\ '.l:severity.'\ -verbose\ \"\\%f:\\%l:\\%m,\ near\ '."'\\\\%r'".'\.\\n\ \\%p\ (Severity:\ \\%s)\\n\\%d\\n\"'
-    :setlocal errorformat=
-          \%f:%l:%m\,
-          \%+A%.%#\ at\ %f\ line\ %l%.%#
-  endif
-  " --------------------------------------------------------------------------
-  "
-  silent exe ':make '.l:fullname
-  "
-  exe ":botright cwindow"
-  exe ':setlocal errorformat='
-  exe "set makeprg=make"
-  "
-  " message in case of success
-  "
-  if l:currentbuffer ==  bufname("%")
-    let s:Perl_PerlcriticMsg= l:currentbuffer." : no critique "
-  else
-    setlocal wrap
-    setlocal linebreak
-  endif
-
-endfunction   " ---------- end of function  Perl_Perlcritic  ----------
-"
-function! Perl_PerlcriticMsg ()
-  if s:Perl_PerlcriticMsg != ""
-    echohl Search | echo s:Perl_PerlcriticMsg | echohl None
-  endif
-endfunction   " ---------- end of function  Perl_PerlcriticMsg  ----------
-"
-"------------------------------------------------------------------------------
 "  run : Save buffer with timestamp
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
@@ -2570,7 +2435,7 @@ endfunction   " ---------- end of function  Perl_SaveWithTimestamp  ----------
 "    other : print PostScript to file
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
-function! Perl_Hardcopy (arg1)
+function! Perl_Hardcopy (mode)
   let Sou = expand("%") 
   if Sou == ""
     redraw
@@ -2582,14 +2447,14 @@ function! Perl_Hardcopy (arg1)
   let old_printheader=&printheader
   exe  ':set printheader='.s:Perl_Printheader
   " ----- normal mode ----------------
-  if a:arg1=="n"
+  if a:mode=="n"
     silent exe  "hardcopy > ".Sou.".ps"   
     if  !s:MSWIN
       echo "file \"".Sou."\" printed to \"".Sou.".ps\""
     endif
   endif
   " ----- visual mode ----------------
-  if a:arg1=="v"
+  if a:mode=="v"
     silent exe  "*hardcopy > ".Sou.".ps"    
     if  !s:MSWIN
       echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
@@ -2659,6 +2524,165 @@ function! Perl_RemoveGuiMenus ()
     let s:Perl_MenuVisible = 0
   endif
 endfunction    " ----------  end of function Perl_RemoveGuiMenus  ----------
+"
+"------------------------------------------------------------------------------
+"  run : perlcritic 
+"------------------------------------------------------------------------------
+"
+" All formats consist of 2 parts: 
+"  1. the perlcritic message format
+"  2. the trailing    '%+A%.%#\ at\ %f\ line\ %l%.%#'
+" Part 1 rebuilds the original perlcritic message. This is done to make
+" parsing of the messages easier.
+" Part 2 captures errors from inside perlcritic if any.
+" Some verbosity levels are treated equal to give quickfix the filename. 
+" 
+" verbosity rebuilt
+"
+let s:PCverbosityFormat1 	= 1 
+let s:PCverbosityFormat2 	= 2 
+let s:PCverbosityFormat3 	= 3 
+let s:PCverbosityFormat4 	= '\"\\%f:\\%l:\\%c:\\%m\.\ \ \\%e\ \ (Severity:\ \\%s)\\n\"' 
+let s:PCverbosityFormat5 	= '\"\\%f:\\%l:\\%c:\\%m\.\ \ \\%e\ \ (Severity:\ \\%s)\\n\"' 
+let s:PCverbosityFormat6 	= '\"\\%f:\\%l:\\%m,\ near\ ' . "'\\\\%r'\." . '\ \ (Severity:\ \\%s)\\n\"' 
+let s:PCverbosityFormat7 	= '\"\\%f:\\%l:\\%m,\ near\ ' . "'\\\\%r'\." . '\ \ (Severity:\ \\%s)\\n\"' 
+let s:PCverbosityFormat8 	= '\"\\%f:\\%l:\\%c:[\\%p]\ \\%m\.\ (Severity:\ \\%s)\\n\"' 
+let s:PCverbosityFormat9 	= '\"\\%f:\\%l:[\\%p]\ \\%m,\ near\ ' . "'\\\\%r'" . '\.\ (Severity:\ \\%s)\\n\"' 
+let s:PCverbosityFormat10	= '\"\\%f:\\%l:\\%c:\\%m\.\\n\ \ \\%p\ (Severity:\ \\%s)\\n\\%d\\n\"' 
+let s:PCverbosityFormat11	= '\"\\%f:\\%l:\\%m,\ near\ ' . "'\\\\%r'" . '\.\\n\ \ \\%p\ (Severity:\ \\%s)\\n\\%d\\n\"' 
+"
+" parses output for different verbosity levels:
+"
+let s:PCInnerErrorFormat	= ',\%+A%.%#\ at\ %f\ line\ %l%.%#'
+let s:PCerrorFormat1 			= '%f:%l:%c:%m'         . s:PCInnerErrorFormat
+let s:PCerrorFormat2 			= '%f:\ (%l:%c)\ %m'    . s:PCInnerErrorFormat
+let s:PCerrorFormat3 			= '%m\ at\ %f\ line\ %l'. s:PCInnerErrorFormat
+let s:PCerrorFormat4 			= '%f:%l:%c:%m'         . s:PCInnerErrorFormat
+let s:PCerrorFormat5 			= '%f:%l:%c:%m'         . s:PCInnerErrorFormat
+let s:PCerrorFormat6 			= '%f:%l:%m'            . s:PCInnerErrorFormat
+let s:PCerrorFormat7 			= '%f:%l:%m'            . s:PCInnerErrorFormat
+let s:PCerrorFormat8 			= '%f:%l:%m'            . s:PCInnerErrorFormat
+let s:PCerrorFormat9 			= '%f:%l:%m'            . s:PCInnerErrorFormat
+let s:PCerrorFormat10			= '%f:%l:%m'            . s:PCInnerErrorFormat
+let s:PCerrorFormat11			= '%f:%l:%m'            . s:PCInnerErrorFormat
+"
+"------------------------------------------------------------------------------
+"  run : perlcritic (PC)
+"------------------------------------------------------------------------------
+function! Perl_Perlcritic ()
+  let l:currentbuffer = bufname("%")
+  if &filetype != "perl"
+    echohl WarningMsg | echo l:currentbuffer.' seems not to be a Perl file' | echohl None
+    return
+  endif
+  if executable("perlcritic") == 0                  " not executable
+    echohl WarningMsg | echo 'perlcritic not installed or not executable' | echohl None
+    return
+  endif
+  let s:Perl_PerlcriticMsg = ""
+  exe ":cclose"
+  silent exe  ":update"
+	"
+  exe  ':set makeprg=perlcritic\ -severity\ '.s:Perl_PerlcriticSeverity
+      \                      .'\ -verbose\ '.eval("s:PCverbosityFormat".s:Perl_PerlcriticVerbosity)
+      \                      .'\ '.escape( s:Perl_PerlcriticOptions, s:escfilename )
+	"
+  exe  ':setlocal errorformat='.eval("s:PCerrorFormat".s:Perl_PerlcriticVerbosity)
+  "
+	if  s:MSWIN
+		silent exe ':make "'.escape( expand("%:p"), s:escfilename )."\""
+	else
+		silent exe ':make '.escape( expand("%:p"), s:escfilename )
+	endif
+  "
+  exe ":botright cwindow"
+  exe ':setlocal errorformat='
+  exe "set makeprg=make"
+  "
+  " message in case of success
+  "
+  if l:currentbuffer ==  bufname("%")
+    let s:Perl_PerlcriticMsg= l:currentbuffer." : no critique "
+  else
+    setlocal wrap
+    setlocal linebreak
+  endif
+
+endfunction   " ---------- end of function  Perl_Perlcritic  ----------
+"
+function! Perl_PerlcriticMsg ()
+  if s:Perl_PerlcriticMsg != ""
+    echohl Search | echo s:Perl_PerlcriticMsg | echohl None
+  endif
+endfunction   " ---------- end of function  Perl_PerlcriticMsg  ----------
+"
+"-------------------------------------------------------------------------------
+"   set severity for perlcritic
+"-------------------------------------------------------------------------------
+let s:PCseverityName1	= "brutal"
+let s:PCseverityName2	= "cruel"
+let s:PCseverityName3	= "harsh"
+let s:PCseverityName4	= "stern"
+let s:PCseverityName5	= "gentle"
+"
+function! Perl_PerlCriticSeverity ( severity )
+	let s:Perl_PerlcriticSeverity = 3                         " the default
+	let	sev	= a:severity
+	let sev	= substitute( sev, '^\s\+', '', '' )  	     			" remove leading whitespaces
+	let sev	= substitute( sev, '\s\+$', '', '' )	       			" remove trailing whitespaces
+	"
+	" parameter is numeric 
+	if sev =~ '^\d$' && 1 <= sev && sev <= 5
+		let s:Perl_PerlcriticSeverity = sev
+	else
+		"
+		" parameter is word
+		if sev =~ '^\a\+$'
+			let	sev = tolower(sev)
+			let nr	= 1
+			while nr<=5
+				if eval("s:PCseverityName".nr) == sev
+					let s:Perl_PerlcriticSeverity = nr
+					return
+				end
+				let	nr	= nr+1
+			endwhile
+		endif
+		"
+		echomsg "wrong argument '".a:severity."' / severity is set to ".s:Perl_PerlcriticSeverity
+	endif
+endfunction    " ----------  end of function Perl_PerlCriticSeverity  ----------
+"
+"-------------------------------------------------------------------------------
+"   set verbosity for perlcritic
+"-------------------------------------------------------------------------------
+function! Perl_PerlCriticVerbosity ( verbosity )
+	let s:Perl_PerlcriticVerbosity = 4
+	let	vrb	= a:verbosity
+  let vrb	= substitute( vrb, '^\s\+', '', '' )  	     			" remove leading whitespaces
+  let vrb	= substitute( vrb, '\s\+$', '', '' )	       			" remove trailing whitespaces
+  if vrb =~ '^\d\{1,2}$' && 1 <= vrb && vrb <= 11
+    let s:Perl_PerlcriticVerbosity = vrb
+	else
+		echomsg "wrong argument '".a:verbosity."' / verbosity is set to ".s:Perl_PerlcriticVerbosity
+  endif
+endfunction    " ----------  end of function Perl_PerlCriticVerbosity  ----------
+"
+"-------------------------------------------------------------------------------
+"   set options for perlcritic
+"-------------------------------------------------------------------------------
+function! Perl_PerlCriticOptions ( ... )
+	let s:Perl_PerlcriticOptions = ""
+	if a:0 > 0
+		let s:Perl_PerlcriticOptions = a:1
+	end
+endfunction    " ----------  end of function Perl_PerlCriticOptions  ----------
+"
+"------------------------------------------------------------------------------
+"  Check the perlcritic default severity and verbosity.
+"------------------------------------------------------------------------------
+call Perl_PerlCriticSeverity (s:Perl_PerlcriticSeverity)
+call Perl_PerlCriticVerbosity(s:Perl_PerlcriticVerbosity)
 "
 "------------------------------------------------------------------------------
 "  show / hide the menus

@@ -44,6 +44,9 @@ if exists('g:Perl_BraceOnNewLine')
   let s:Perl_BraceOnNewLine=g:Perl_BraceOnNewLine
 endif
 "
+command! -nargs=? CriticOptions			call Perl_PerlCriticOptions  (<f-args>)
+command! -nargs=1 CriticSeverity		call Perl_PerlCriticSeverity (<f-args>)
+command! -nargs=1 CriticVerbosity		call Perl_PerlCriticVerbosity(<f-args>)
 " ---------- Key mappings : function keys ------------------------------------
 "
 "   Ctrl-F9   run script

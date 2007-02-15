@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.4
+---------------------------------------------------------------------------------------
++ Subdirectories rearranged.
++ Adaption for 'perlcritic', version 1.02 . Interface improved.
++ Three new Ex commands to control 'perlcritic'.
++ Escaping for unusual characters in filename reworked.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.3
 ---------------------------------------------------------------------------------------
 + One new and two improved mappings (\cs, \co, \cc). 

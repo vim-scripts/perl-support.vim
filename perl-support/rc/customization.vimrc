@@ -5,6 +5,8 @@
 "
 runtime vimrc_example.vim
 "
+filetype plugin on
+"
 "===============================================================================
 "==========  CUSTOMIZATION (vimrc)  ============================================
 "===============================================================================
@@ -55,13 +57,15 @@ set visualbell            " visual bell instead of beeping
 "    F2   -  write file without confirmation
 "    F3   -  call file explorer Ex
 "    F4   -  show tag under curser in the preview window (tagfile must exist!)
-"    F6   -  list all errors           
+"    F5   -  close error window
+"    F6   -  (re)open error window
 "    F7   -  display previous error
 "    F8   -  display next error   
 "-------------------------------------------------------------------------------
 map   <silent> <F2>    :write<CR>
 map   <silent> <F3>    :Explore<CR>
 nmap  <silent> <F4>    :exe ":ptag ".expand("<cword>")<CR>
+map   <silent> <F5>    :cclose<CR>
 map   <silent> <F6>    :copen<CR>
 map   <silent> <F7>    :cp<CR>
 map   <silent> <F8>    :cn<CR>
@@ -69,6 +73,7 @@ map   <silent> <F8>    :cn<CR>
 imap  <silent> <F2>    <Esc>:write<CR>
 imap  <silent> <F3>    <Esc>:Explore<CR>
 imap  <silent> <F4>    <Esc>:exe ":ptag ".expand("<cword>")<CR>
+imap  <silent> <F5>    <Esc>:cclose<CR>
 imap  <silent> <F6>    <Esc>:copen<CR>
 imap  <silent> <F7>    <Esc>:cp<CR>
 imap  <silent> <F8>    <Esc>:cn<CR>
@@ -80,9 +85,9 @@ inoremap ( ()<Left>
 inoremap [ []<Left>
 inoremap { {}<Left>
 "
-vnoremap ( s()<Esc>P
-vnoremap [ s[]<Esc>P
-vnoremap { s{}<Esc>P
+vnoremap ( s()<Esc>P<Right>
+vnoremap [ s[]<Esc>P<Right>
+vnoremap { s{}<Esc>P<Right>
 "
 "-------------------------------------------------------------------------------
 " Fast switching between buffers
