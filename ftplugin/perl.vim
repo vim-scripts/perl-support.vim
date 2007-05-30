@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
-" Language   :  Perl
-" Plugin     :  perl-support.vim (version 3.3)
+"   Language :  Perl
+"     Plugin :  perl-support.vim (version 3.6)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  27.12.2006
+"   Revision :  $Id: perl.vim,v 1.12 2007/05/29 14:12:40 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -79,88 +79,180 @@ endif
 "
 if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl_NoKeyMappings!=1 )
 	"
-	nmap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_LineEndComment()<CR>
-	vmap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_MultiLineEndComments()<CR>
-	nmap    <buffer>  <silent>  <Leader>cs    <Esc><Esc>:call Perl_GetLineEndCommCol()<CR>
-	nmap    <buffer>  <silent>  <Leader>cf    :call Perl_CommentTemplates('frame')<CR>
-	nmap    <buffer>  <silent>  <Leader>cu    :call Perl_CommentTemplates('function')<CR>
-	nmap    <buffer>  <silent>  <Leader>ch    :call Perl_CommentTemplates('header')<CR>
-	nmap    <buffer>  <silent>  <Leader>ce    :call Perl_CommentTemplates('module')<CR>
-	nmap    <buffer>  <silent>  <Leader>ca    :call Perl_CommentTemplates('test')<CR>
-	nmap    <buffer>  <silent>  <Leader>ckb   $<Esc>:call Perl_CommentClassified("BUG")     <CR>kJA
-	nmap    <buffer>  <silent>  <Leader>ckt   $<Esc>:call Perl_CommentClassified("TODO")    <CR>kJA
-	nmap    <buffer>  <silent>  <Leader>ckr   $<Esc>:call Perl_CommentClassified("TRICKY")  <CR>kJA
-	nmap    <buffer>  <silent>  <Leader>ckw   $<Esc>:call Perl_CommentClassified("WARNING") <CR>kJA
-	nmap    <buffer>  <silent>  <Leader>cko   $<Esc>:call Perl_CommentClassified("WORKAROUND") <CR>kJA
-	nmap    <buffer>  <silent>  <Leader>ckn   $<Esc>:call Perl_CommentClassified("")        <CR>kJf:a
-	nmap    <buffer>  <silent>  <Leader>cc    <Esc><Esc>:s/^/#/<CR><Esc>:nohlsearch<CR>j
-	vmap    <buffer>  <silent>  <Leader>cc    <Esc><Esc>:'<,'>s/^/#/<CR><Esc>:nohlsearch<CR>j
-	nmap    <buffer>  <silent>  <Leader>co    <Esc><Esc>:s/^#//<CR><Esc>:nohlsearch<CR>j
-	vmap    <buffer>  <silent>  <Leader>co    <Esc><Esc>:'<,'>s/^#//<CR><Esc>:nohlsearch<CR>j
-	nmap    <buffer>  <silent>  <Leader>cd    i<C-R>=strftime("%x")<CR>
-	nmap    <buffer>  <silent>  <Leader>ct    i<C-R>=strftime("%x %X %Z")<CR>
-	nmap    <buffer>  <silent>  <Leader>cv    :call Perl_CommentVimModeline()<CR>
-	nmap    <buffer>  <silent>  <Leader>cb    :call Perl_CommentBlock("a")<CR>
-	vmap    <buffer>  <silent>  <Leader>cb    <Esc><Esc>:call Perl_CommentBlock("v")<CR>
-	nmap    <buffer>  <silent>  <Leader>cn    :call Perl_UncommentBlock()<CR>
-
-	nmap    <buffer>  <silent>  <Leader>ad    :call Perl_DoWhile("a")<CR><Esc>f(la
-	nmap    <buffer>  <silent>  <Leader>af    :call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i
-	nmap    <buffer>  <silent>  <Leader>ao    :call Perl_StatBlock( "a", "foreach  (  ) {\n}", "" )<CR>f(hi
-	nmap    <buffer>  <silent>  <Leader>ai    :call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la
-	nmap    <buffer>  <silent>  <Leader>ae    :call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la
-	nmap    <buffer>  <silent>  <Leader>au    :call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la
-	nmap    <buffer>  <silent>  <Leader>an    :call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la
-	nmap    <buffer>  <silent>  <Leader>at    :call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la
-	nmap    <buffer>  <silent>  <Leader>aw    :call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la
-	nmap    <buffer>  <silent>  <Leader>a{    :call Perl_Block("a")<CR>o
-
-	vmap    <buffer>  <silent>  <Leader>ad    <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la
-	vmap    <buffer>  <silent>  <Leader>af    <Esc><Esc>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i
-	vmap    <buffer>  <silent>  <Leader>ao    <Esc><Esc>:call Perl_StatBlock( "v", "foreach  (  ) {", "}" )<CR>f(hi
-	vmap    <buffer>  <silent>  <Leader>ai    <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la
-	vmap    <buffer>  <silent>  <Leader>ae    <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la
-	vmap    <buffer>  <silent>  <Leader>au    <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}" )<CR>f(la
-	vmap    <buffer>  <silent>  <Leader>an    <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}\nelse {\n}" )<CR>f(la
-	vmap    <buffer>  <silent>  <Leader>at    <Esc><Esc>:call Perl_StatBlock( "v", "until (  ) {", "}" )<CR>f(la
-	vmap    <buffer>  <silent>  <Leader>aw    <Esc><Esc>:call Perl_StatBlock( "v", "while (  ) {", "}" )<CR>f(la
-	vmap    <buffer>  <silent>  <Leader>a{    <Esc><Esc>:call Perl_Block("v")<CR>
+	" ----------------------------------------------------------------------------
+	" Comments
+	" ----------------------------------------------------------------------------
 	"
+	nnoremap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_LineEndComment("")<CR>A
+	inoremap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_LineEndComment("")<CR>A
+	vnoremap    <buffer>  <silent>  <Leader>cl    <Esc><Esc>:call Perl_MultiLineEndComments()<CR>A
+	nnoremap    <buffer>  <silent>  <Leader>cj    <Esc><Esc>:call Perl_AlignLineEndComm("a")<CR>
+	inoremap    <buffer>  <silent>  <Leader>cj    <Esc><Esc>:call Perl_AlignLineEndComm("a")<CR>a
+	vnoremap    <buffer>  <silent>  <Leader>cj    <Esc><Esc>:call Perl_AlignLineEndComm("v")<CR>
+	nnoremap    <buffer>  <silent>  <Leader>cs    <Esc><Esc>:call Perl_GetLineEndCommCol()<CR>
 
-	nnoremap    <buffer>  <silent>  <Leader>dm    omy<Tab>$;<Esc>i
-	nnoremap    <buffer>  <silent>  <Leader>dy    omy<Tab>$<Tab>= ;<Esc>F$a
-	nnoremap    <buffer>  <silent>  <Leader>d,    omy<Tab>( $, $ );<Esc>2F$a
-	nnoremap    <buffer>  <silent>  <Leader>d1    omy<Tab>@;<Esc>i
-	nnoremap    <buffer>  <silent>  <Leader>d2    omy<Tab>@<Tab>= ( , ,  );<Esc>F@a
-	nnoremap    <buffer>  <silent>  <Leader>d3    omy<Tab>%;<Esc>i
-	nnoremap    <buffer>  <silent>  <Leader>d4    omy<Tab>%<Tab>= <CR>)<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a
-	nnoremap    <buffer>  <silent>  <Leader>d5    omy<Tab>$rgx_<Tab>= q//;<Esc>F_a
-	nnoremap    <buffer>  <silent>  <Leader>d6    omy<Tab>$rgx_<Tab>= qr//;<Esc>F_a
-	nnoremap    <buffer>  <silent>  <Leader>d7    <Esc>a$ =~ m//xm<Esc>F$a
-	nnoremap    <buffer>  <silent>  <Leader>d8    <Esc>a$ =~ s///xm<Esc>F$a
-	nnoremap    <buffer>  <silent>  <Leader>d9    <Esc>a$ =~ tr///xm<Esc>F$a
-	nnoremap    <buffer>  <silent>  <Leader>dp    <Esc>aprint "\n";<Left><Left><Left><Left>
-	nnoremap    <buffer>  <silent>  <Leader>df    <Esc>aprintf "\n";<Left><Left><Left><Left>
-	nnoremap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("a")<CR>A
-	vnoremap    <buffer>  <silent>  <Leader>ds    <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a
-	nnoremap    <buffer>  <silent>  <Leader>di    <Esc><Esc>:call Perl_OpenInputFile()<CR>a
-	nnoremap    <buffer>  <silent>  <Leader>do    <Esc><Esc>:call Perl_OpenOutputFile()<CR>a
-	nnoremap    <buffer>  <silent>  <Leader>de    <Esc><Esc>:call Perl_OpenPipe()<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>cfr        :call Perl_CommentTemplates('frame')<CR>
+	nnoremap    <buffer>  <silent>  <Leader>cfu        :call Perl_CommentTemplates('function')<CR>
+	nnoremap    <buffer>  <silent>  <Leader>cm         :call Perl_CommentTemplates('method')<CR>
+	nnoremap    <buffer>  <silent>  <Leader>ch         :call Perl_CommentTemplates('header')<CR>
+	nnoremap    <buffer>  <silent>  <Leader>ce         :call Perl_CommentTemplates('module')<CR>
+	nnoremap    <buffer>  <silent>  <Leader>ca         :call Perl_CommentTemplates('test')<CR>
+
+	inoremap    <buffer>  <silent>  <Leader>cfr   <Esc>:call Perl_CommentTemplates('frame')<CR>
+	inoremap    <buffer>  <silent>  <Leader>cfu   <Esc>:call Perl_CommentTemplates('function')<CR>
+	inoremap    <buffer>  <silent>  <Leader>cm    <Esc>:call Perl_CommentTemplates('method')<CR>
+	inoremap    <buffer>  <silent>  <Leader>ch    <Esc>:call Perl_CommentTemplates('header')<CR>
+	inoremap    <buffer>  <silent>  <Leader>ce    <Esc>:call Perl_CommentTemplates('module')<CR>
+	inoremap    <buffer>  <silent>  <Leader>ca    <Esc>:call Perl_CommentTemplates('test')<CR>
+
+	nnoremap    <buffer>  <silent>  <Leader>ckb   <Esc><Esc>:call Perl_CommentClassified("BUG")       <CR>A
+	nnoremap    <buffer>  <silent>  <Leader>ckt   <Esc><Esc>:call Perl_CommentClassified("TODO")      <CR>A
+	nnoremap    <buffer>  <silent>  <Leader>ckr   <Esc><Esc>:call Perl_CommentClassified("TRICKY")    <CR>A
+	nnoremap    <buffer>  <silent>  <Leader>ckw   <Esc><Esc>:call Perl_CommentClassified("WARNING")   <CR>A
+	nnoremap    <buffer>  <silent>  <Leader>cko   <Esc><Esc>:call Perl_CommentClassified("WORKAROUND")<CR>A
+	nnoremap    <buffer>  <silent>  <Leader>ckn   <Esc><Esc>:call Perl_CommentClassified("")          <CR>3F:i
+                                                     
+	inoremap    <buffer>  <silent>  <Leader>ckb   <Esc><Esc>:call Perl_CommentClassified("BUG")       <CR>A
+	inoremap    <buffer>  <silent>  <Leader>ckt   <Esc><Esc>:call Perl_CommentClassified("TODO")      <CR>A
+	inoremap    <buffer>  <silent>  <Leader>ckr   <Esc><Esc>:call Perl_CommentClassified("TRICKY")    <CR>A
+	inoremap    <buffer>  <silent>  <Leader>ckw   <Esc><Esc>:call Perl_CommentClassified("WARNING")   <CR>A
+	inoremap    <buffer>  <silent>  <Leader>cko   <Esc><Esc>:call Perl_CommentClassified("WORKAROUND")<CR>A
+	inoremap    <buffer>  <silent>  <Leader>ckn   <Esc><Esc>:call Perl_CommentClassified("")          <CR>3F:i
+
+	nnoremap    <buffer>  <silent>  <Leader>cc    <Esc><Esc>:s/^/#/<CR><Esc>:nohlsearch<CR>j
+	vnoremap    <buffer>  <silent>  <Leader>cc    <Esc><Esc>:'<,'>s/^/#/<CR><Esc>:nohlsearch<CR>j
+	nnoremap    <buffer>  <silent>  <Leader>co    <Esc><Esc>:s/^#//<CR><Esc>:nohlsearch<CR>j
+	vnoremap    <buffer>  <silent>  <Leader>co    <Esc><Esc>:'<,'>s/^#//<CR><Esc>:nohlsearch<CR>j
+
+	nnoremap    <buffer>  <silent>  <Leader>cd    a<C-R>=strftime("%x")<CR>
+	nnoremap    <buffer>  <silent>  <Leader>ct    a<C-R>=strftime("%x %X %Z")<CR>
+	inoremap    <buffer>  <silent>  <Leader>cd    <C-R>=strftime("%x")<CR>
+	inoremap    <buffer>  <silent>  <Leader>ct    <C-R>=strftime("%x %X %Z")<CR>
+
+	nnoremap    <buffer>  <silent>  <Leader>cv    :call Perl_CommentVimModeline()<CR>
+	nnoremap    <buffer>  <silent>  <Leader>cb    :call Perl_CommentBlock("a")<CR>
+	vnoremap    <buffer>  <silent>  <Leader>cb    <Esc><Esc>:call Perl_CommentBlock("v")<CR>
+	nnoremap    <buffer>  <silent>  <Leader>cn    :call Perl_UncommentBlock()<CR>
 	"
-	nnoremap    <buffer>  <silent>  <Leader>la    a[:alnum:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>lh    a[:alpha:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>li    a[:ascii:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>lb    a[:blank:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>lc    a[:cntrl:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>ld    a[:digit:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>lg    a[:graph:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>ll    a[:lower:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>lp    a[:print:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>ln    a[:punct:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>ls    a[:space:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>lu    a[:upper:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>lw    a[:word:]<Esc>'
-	nnoremap    <buffer>  <silent>  <Leader>lx    a[:xdigit:]<Esc>'
+	" ----------------------------------------------------------------------------
+	" Statements
+	" ----------------------------------------------------------------------------
+	"
+	nnoremap    <buffer>  <silent>  <Leader>sd              :call Perl_DoWhile("a")<CR><Esc>f(la
+	nnoremap    <buffer>  <silent>  <Leader>sf              :call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i
+	nnoremap    <buffer>  <silent>  <Leader>sfe             :call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a
+	nnoremap    <buffer>  <silent>  <Leader>si              :call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la
+	nnoremap    <buffer>  <silent>  <Leader>sie             :call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la
+	nnoremap    <buffer>  <silent>  <Leader>su              :call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la
+	nnoremap    <buffer>  <silent>  <Leader>sue             :call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la
+	nnoremap    <buffer>  <silent>  <Leader>st              :call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la
+	nnoremap    <buffer>  <silent>  <Leader>sw              :call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la
+	nnoremap    <buffer>  <silent>  <Leader>s{              :call Perl_Block("a")<CR>o
+
+	vnoremap    <buffer>  <silent>  <Leader>sd    <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la
+	vnoremap    <buffer>  <silent>  <Leader>sf    <Esc><Esc>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i
+	vnoremap    <buffer>  <silent>  <Leader>sfe   <Esc><Esc>:call Perl_StatBlock( "v", "foreach my $ (  ) {", "}" )<CR>f$a
+	vnoremap    <buffer>  <silent>  <Leader>si    <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la
+	vnoremap    <buffer>  <silent>  <Leader>sie   <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la
+	vnoremap    <buffer>  <silent>  <Leader>su    <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}" )<CR>f(la
+	vnoremap    <buffer>  <silent>  <Leader>sue   <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}\nelse {\n}" )<CR>f(la
+	vnoremap    <buffer>  <silent>  <Leader>st    <Esc><Esc>:call Perl_StatBlock( "v", "until (  ) {", "}" )<CR>f(la
+	vnoremap    <buffer>  <silent>  <Leader>sw    <Esc><Esc>:call Perl_StatBlock( "v", "while (  ) {", "}" )<CR>f(la
+	vnoremap    <buffer>  <silent>  <Leader>s{    <Esc><Esc>:call Perl_Block("v")<CR>
+
+	inoremap    <buffer>  <silent>  <Leader>sd    <Esc><Esc>:call Perl_DoWhile("a")<CR><Esc>f(la
+	inoremap    <buffer>  <silent>  <Leader>sf    <Esc><Esc>:call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i
+	inoremap    <buffer>  <silent>  <Leader>sfe   <Esc><Esc>:call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a
+	inoremap    <buffer>  <silent>  <Leader>si    <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la
+	inoremap    <buffer>  <silent>  <Leader>sie    <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la
+	inoremap    <buffer>  <silent>  <Leader>su    <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la
+	inoremap    <buffer>  <silent>  <Leader>sue   <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la
+	inoremap    <buffer>  <silent>  <Leader>st    <Esc><Esc>:call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la
+	inoremap    <buffer>  <silent>  <Leader>sw    <Esc><Esc>:call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la
+	"
+	" ----------------------------------------------------------------------------
+	" Idioms
+	" ----------------------------------------------------------------------------
+	"	
+	nnoremap    <buffer>  <silent>  <Leader>$    omy<Tab>$;<Esc>i
+	nnoremap    <buffer>  <silent>  <Leader>$=   omy<Tab>$<Tab>= ;<Esc>F$a
+	nnoremap    <buffer>  <silent>  <Leader>$$   omy<Tab>( $, $ );<Esc>2F$a
+	nnoremap    <buffer>  <silent>  <Leader>@    omy<Tab>@;<Esc>i
+	nnoremap    <buffer>  <silent>  <Leader>@=   omy<Tab>@<Tab>= ( , ,  );<Esc>F@a
+	nnoremap    <buffer>  <silent>  <Leader>%    omy<Tab>%;<Esc>i
+	nnoremap    <buffer>  <silent>  <Leader>%=   omy<Tab>%<Tab>= <CR>)<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a
+	"	
+	inoremap    <buffer>  <silent>  <Leader>$    my<Tab>$;<Esc>i
+	inoremap    <buffer>  <silent>  <Leader>$=   my<Tab>$<Tab>= ;<Esc>F$a
+	inoremap    <buffer>  <silent>  <Leader>$$   my<Tab>( $, $ );<Esc>2F$a
+	inoremap    <buffer>  <silent>  <Leader>@    my<Tab>@;<Esc>i
+	inoremap    <buffer>  <silent>  <Leader>@=   my<Tab>@<Tab>= ( , ,  );<Esc>F@a
+	inoremap    <buffer>  <silent>  <Leader>%    my<Tab>%;<Esc>i
+	inoremap    <buffer>  <silent>  <Leader>%=   my<Tab>%<Tab>= <CR>)<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a
+	"
+	nnoremap    <buffer>  <silent>  <Leader>ir    omy<Tab>$rgx_<Tab>= q//;<Esc>F_a
+	nnoremap    <buffer>  <silent>  <Leader>im    <Esc>a$ =~ m//xm<Esc>F$a
+	nnoremap    <buffer>  <silent>  <Leader>is    <Esc>a$ =~ s///xm<Esc>F$a
+	nnoremap    <buffer>  <silent>  <Leader>it    <Esc>a$ =~ tr///xm<Esc>F$a
+	nnoremap    <buffer>  <silent>  <Leader>ip    <Esc>aprint "\n";<Left><Left><Left><Left>
+	"
+	inoremap    <buffer>  <silent>  <Leader>ir    my<Tab>$rgx_<Tab>= q//;<Esc>F_a
+	inoremap    <buffer>  <silent>  <Leader>im    $ =~ m//xm<Esc>F$a
+	inoremap    <buffer>  <silent>  <Leader>is    $ =~ s///xm<Esc>F$a
+	inoremap    <buffer>  <silent>  <Leader>it    $ =~ tr///xm<Esc>F$a
+	inoremap    <buffer>  <silent>  <Leader>ip    print "\n";<Left><Left><Left><Left>
+	"
+	nnoremap    <buffer>  <silent>  <Leader>isu   <Esc><Esc>:call Perl_Subroutine("a")<CR>A
+	vnoremap    <buffer>  <silent>  <Leader>isu   <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a
+	inoremap    <buffer>  <silent>  <Leader>isu   <Esc><Esc>:call Perl_Subroutine("a")<CR>A
+	nnoremap    <buffer>  <silent>  <Leader>ii    <Esc><Esc>:call Perl_OpenInputFile("a")<CR>a
+	vnoremap    <buffer>  <silent>  <Leader>ii    <Esc><Esc>:call Perl_OpenInputFile("v")<CR>a
+	inoremap    <buffer>  <silent>  <Leader>ii    <Esc><Esc>:call Perl_OpenInputFile("a")<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>io    <Esc><Esc>:call Perl_OpenOutputFile("a")<CR>a
+	vnoremap    <buffer>  <silent>  <Leader>io    <Esc><Esc>:call Perl_OpenOutputFile("v")<CR>a
+	inoremap    <buffer>  <silent>  <Leader>io    <Esc><Esc>:call Perl_OpenOutputFile("a")<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>ipi   <Esc><Esc>:call Perl_OpenPipe("a")<CR>a
+	vnoremap    <buffer>  <silent>  <Leader>ipi   <Esc><Esc>:call Perl_OpenPipe("v")<CR>a
+	inoremap    <buffer>  <silent>  <Leader>ipi   <Esc><Esc>:call Perl_OpenPipe("a")<CR>a
+	"
+	"
+	" ----------------------------------------------------------------------------
+	" POSIX character classes
+	" ----------------------------------------------------------------------------
+	"
+	nnoremap    <buffer>  <silent>  <Leader>pa    a[:alnum:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>ph    a[:alpha:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pi    a[:ascii:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pb    a[:blank:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pc    a[:cntrl:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pd    a[:digit:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pg    a[:graph:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pl    a[:lower:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pp    a[:print:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pn    a[:punct:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>ps    a[:space:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pu    a[:upper:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>pw    a[:word:]<Esc>
+	nnoremap    <buffer>  <silent>  <Leader>px    a[:xdigit:]<Esc>
+	"
+	inoremap    <buffer>  <silent>  <Leader>pa    [:alnum:]
+	inoremap    <buffer>  <silent>  <Leader>ph    [:alpha:]
+	inoremap    <buffer>  <silent>  <Leader>pi    [:ascii:]
+	inoremap    <buffer>  <silent>  <Leader>pb    [:blank:]
+	inoremap    <buffer>  <silent>  <Leader>pc    [:cntrl:]
+	inoremap    <buffer>  <silent>  <Leader>pd    [:digit:]
+	inoremap    <buffer>  <silent>  <Leader>pg    [:graph:]
+	inoremap    <buffer>  <silent>  <Leader>pl    [:lower:]
+	inoremap    <buffer>  <silent>  <Leader>pp    [:print:]
+	inoremap    <buffer>  <silent>  <Leader>pn    [:punct:]
+	inoremap    <buffer>  <silent>  <Leader>ps    [:space:]
+	inoremap    <buffer>  <silent>  <Leader>pu    [:upper:]
+	inoremap    <buffer>  <silent>  <Leader>pw    [:word:]
+	inoremap    <buffer>  <silent>  <Leader>px    [:xdigit:]
+	"
+	" ----------------------------------------------------------------------------
+	" Run
+	" ----------------------------------------------------------------------------
 	"
 	map    <buffer>  <silent>  <Leader>rr    <Esc>:call Perl_Run()<CR>
 	map    <buffer>  <silent>  <Leader>rs    <Esc>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
@@ -181,27 +273,38 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 		nmap    <buffer>  <silent>  <Leader>re    :call Perl_MakeScriptExecutable()<CR>
 	endif
 	"
-	map    <buffer>  <silent>  <Leader>rp    <Esc>:call Perl_perldoc()<CR>
-	map    <buffer>  <silent>  <Leader>h     <Esc>:call Perl_perldoc()<CR>
+	 map    <buffer>  <silent>  <Leader>rp    <Esc>:call Perl_perldoc()<CR>
+	 map    <buffer>  <silent>  <Leader>h     <Esc>:call Perl_perldoc()<CR>
 	"
-	map    <buffer>  <silent>  <Leader>ri    <Esc>:call Perl_perldoc_show_module_list()<CR>
-	map    <buffer>  <silent>  <Leader>rg    <Esc>:call Perl_perldoc_generate_module_list()<CR>:redraw!<CR>
+	 map    <buffer>  <silent>  <Leader>ri    <Esc>:call Perl_perldoc_show_module_list()<CR>
+	 map    <buffer>  <silent>  <Leader>rg    <Esc>:call Perl_perldoc_generate_module_list()<CR>:redraw!<CR>
 	"
-	map    <buffer>  <silent>  <Leader>ry    <Esc>:call Perl_Perltidy("n")<CR>
+	 map    <buffer>  <silent>  <Leader>ry    <Esc>:call Perl_Perltidy("n")<CR>
 	vmap    <buffer>  <silent>  <Leader>ry    <Esc>:call Perl_Perltidy("v")<CR>
 	"
-	map    <buffer>  <silent>  <Leader>rm    <Esc>:call Perl_Smallprof()<CR>
-	map    <buffer>  <silent>  <Leader>rc    <Esc>:call Perl_Perlcritic()<CR>:redraw<CR>:call Perl_PerlcriticMsg()<CR>
-	map    <buffer>  <silent>  <Leader>rt    <C-C>:call Perl_SaveWithTimestamp()<CR>
-	map    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("n")<CR>
+	 map    <buffer>  <silent>  <Leader>rm    <Esc>:call Perl_Smallprof()<CR>
+	 map    <buffer>  <silent>  <Leader>rc    <Esc>:call Perl_Perlcritic()<CR>:redraw<CR>:call Perl_PerlcriticMsg()<CR>
+	 map    <buffer>  <silent>  <Leader>rt    <C-C>:call Perl_SaveWithTimestamp()<CR>
+	 map    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("n")<CR>
 	vmap    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("v")<CR>
 	"
-	map    <buffer>  <silent>  <Leader>rk    <Esc>:call Perl_Settings()<CR>
+	 map    <buffer>  <silent>  <Leader>rk    <Esc>:call Perl_Settings()<CR>
 	if has("gui_running") && has("unix")
-		map    <buffer>  <silent>  <Leader>rx    <Esc>:call Perl_XtermSize()<CR>
+	 	 map    <buffer>  <silent>  <Leader>rx    <Esc>:call Perl_XtermSize()<CR>
 	endif
 	"
-	map    <buffer>  <silent>  <Leader>ro    <Esc>:call Perl_Toggle_Gvim_Xterm()<CR>
+	 map    <buffer>  <silent>  <Leader>ro    <Esc>:call Perl_Toggle_Gvim_Xterm()<CR>
 	"
 	"
 endif
+
+" ----------------------------------------------------------------------------
+"  Generate (possibly exuberant) Ctags style tags for Perl sourcecode
+" ----------------------------------------------------------------------------
+if has('perl')
+	if has("unix")
+		source /home/mehner/.vim/perl-support/scripts/perltags.vim
+	endif
+endif
+" ----------------------------------------------------------------------------
+

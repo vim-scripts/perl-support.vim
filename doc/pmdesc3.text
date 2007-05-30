@@ -3,9 +3,9 @@ NAME
     modules and PODs
 
 SYNOPSIS
-            pmdesc3.pl
+        pmdesc3.pl
 
-            pmdesc3.pl ~/perllib
+        pmdesc3.pl ~/perllib
 
 DESCRIPTION
       pmdesc3.pl [-h] [-s] [-t ddd] [-v dd] [--] [dir [dir [dir [...]]]]
@@ -65,5 +65,5 @@ NOTES
     pmdesc2 is at least one magnitude faster than pmdesc.
 
 VERSION
-    1.2.2
+    1.2.3
 

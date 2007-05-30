@@ -1,5 +1,5 @@
 
-package PackageName;   
+package PackageName;
 
 use strict;
 use warnings;
@@ -8,21 +8,18 @@ use warnings;
 #  MODULE INTERFACE
 #=======================================================================
 
-use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
+use version; our $VERSION = qv('0.2.0');
 
-use Exporter;
-@ISA         = qw(Exporter);
-
-$VERSION     = 0.01;                            # Version number
+use base qw(Exporter);
 
 # Symbols to be exported by default
-@EXPORT      = qw();
+our @EXPORT     = qw();
 
 # Symbols to be exported on request
-@EXPORT_OK   = qw();
+our @EXPORT_OK  = qw();
 
 # Define names for sets of symbols
-%EXPORT_TAGS = (
+%EXPORT_TAGS    = (
   TAG1 => [],
   TAG2 => [],
   );
@@ -36,7 +33,7 @@ $VERSION     = 0.01;                            # Version number
 #=======================================================================
 
 #=======================================================================
-#  MODULE CODE
+#  MODULE IMPLEMENTATION
 #=======================================================================
 
 END { }                                         # module clean-up code

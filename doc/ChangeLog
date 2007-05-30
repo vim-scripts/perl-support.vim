@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.6
+---------------------------------------------------------------------------------------
++ New command enables the alignment of line end comments (menu item, hotkey). 
++ Idioms hotkeys renamed (better to remember).
++ Lot of new mappings for the insert mode.
++ The code for opening files or pipes can surround a marked area (v-mode).
++ Script pmdesc3 removes POD markup sequences now.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.4
 ---------------------------------------------------------------------------------------
 + Subdirectories rearranged.

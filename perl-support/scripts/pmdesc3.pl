@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 #===================================================================================
 #
 #         FILE:  pmdesc3
@@ -8,7 +8,13 @@
 #  DESCRIPTION:  See POD below.
 #
 #      CREATED:  15.06.2004 22:12:41 CEST
-#     REVISION:  23.10.2004 
+#     REVISION:  27.04.2007
+#                - use version;
+#                17.04.2007
+#                - version numbers with leading 'v' will be recognized (use version;)
+#                24.03.2007
+#                - Pod markups removed/replaced.
+#                23.10.2004 
 #                - Module versions are checked with a regex; avoids unprintable
 #                  characters (original version) and doubling of entries.
 #                - new option -v
@@ -25,20 +31,21 @@
 
 package pmdesc3;
 
-$VERSION=1.2.2;                   # update POD at the end of this file
-
 require 5.6.1;
 
 use strict;
+use warnings;
 use Carp;
 use ExtUtils::MakeMaker;
 use File::Find           qw(find);
 use Getopt::Std          qw(getopts);
+use version;
+our $VERSION	= qv("1.2.3");    # update POD at the end of this file
 
 my  $MaxDescLength= 150;          # Maximum length for the description field:
                                   # prevents slurping in big amount of faulty docs.
 
-my  $rgx_version  = q/\A\d+(\.\w+)*\Z/; # regex for module versions 
+my  $rgx_version  = q/\Av?\d+(\.\w+)*\Z/; # regex for module versions 
 
 #===  FUNCTION  ====================================================================
 #         NAME:  usage
@@ -78,23 +85,25 @@ sub get_module_name {
 sub get_module_description 
 {
   my  $desc;
-  my  ($INFILE_file_name) = @_;               # input file name
+  my  ($INFILE_file_name) = @_;                 # input file name
 
-  undef $/;                                   # undefine input record separator
+  undef $/;                                     # undefine input record separator
 
-  open ( INFILE, '<', $INFILE_file_name )
-    or die "$0 : failed to open input file $INFILE_file_name : $!\n";
+  open  my $INFILE, '<', $INFILE_file_name
+	  or die  "$0 : failed to open  input file '$INFILE_file_name' : $!\n";
 
-  my  $file = <INFILE>;                       # slurp mode
-  close ( INFILE );                           # close input file
+  my  $file = <$INFILE>;                        # slurp mode
 
-  $file =~  s/\cM\cJ/\cJ/g;                   # remove DOS line ends 
-  $file =~  m/\A=head1\s+NAME(.*?)\n=\w+/s;   # file starts with '=head1' (PODs)
+  close  $INFILE
+	  or warn "$0 : failed to close input file '$INFILE_file_name' : $!\n";
+
+  $file =~  s/\cM\cJ/\cJ/g;                     # remove DOS line ends 
+  $file =~  m/\A=head1\s+NAME(.*?)\n=\w+/s;     # file starts with '=head1' (PODs)
   $desc = $1;
 
   if ( ! defined $desc  )
   {
-    $file =~  m/\n=head1\s+NAME(.*?)\n=\w+/s; # '=head1' is embedded
+    $file =~  m/\n=head1\s+NAME(.*?)\n=\w+/s;   # '=head1' is embedded
     $desc = $1;
   }
 
@@ -106,14 +115,25 @@ sub get_module_description
 
   if ( defined $desc )
   {
-    $desc =~ s/\A[ \t\n]*//s;                 # remove leading whitespaces
-    $desc =~ s/\n\s+\n/\n\n/sg;               # make true empty lines
-    $desc =~ s/\n\n.*$//s;                    # discard all trailing paragraphs
-    $desc =~ s/\A.*?\s+-+\s+//s;              # discard leading module name
-    $desc =~ s/\n/ /sg;                       # join lines
-    $desc =~ s/\s+/ /g;                       # squeeze whitespaces
-    $desc =~ s/\s*$//g;                       # remove trailing whitespaces
-    $desc =  substr $desc, 0, $MaxDescLength; # limited length
+    $desc =~ s/B<([^>]+)>/$1/gs;                # remove bold markup
+    $desc =~ s/C<([^>]+)>/'$1'/gs;              # single quotes to indicate literal
+    $desc =~ s/E<lt>/</gs;                      # replace markup for <
+    $desc =~ s/E<gt>/>/gs;                      # replace markup for >
+    $desc =~ s/F<([^>]+)>/$1/gs;                # remove filename markup
+    $desc =~ s/I<([^>]+)>/$1/gs;                # remove italic markup
+    $desc =~ s/L<([^>]+)>/$1/gs;                # remove link markup
+    $desc =~ s/X<([^>]+)>//gs;                  # remove index markup
+    $desc =~ s/Z<>//gs;                         # remove zero-width character
+    $desc =~ s/S<([^>]+)>/$1/gs;                # remove markup for nonbreaking spaces
+
+    $desc =~ s/\A[ \t\n]*//s;                   # remove leading whitespaces
+    $desc =~ s/\n\s+\n/\n\n/sg;                 # make true empty lines
+    $desc =~ s/\n\n.*$//s;                      # discard all trailing paragraphs
+    $desc =~ s/\A.*?\s+-+\s+//s;                # discard leading module name
+    $desc =~ s/\n/ /sg;                         # join lines
+    $desc =~ s/\s+/ /g;                         # squeeze whitespaces
+    $desc =~ s/\s*$//g;                         # remove trailing whitespaces
+    $desc =  substr $desc, 0, $MaxDescLength;   # limited length
   }
   return $desc;
 }
@@ -122,7 +142,7 @@ sub get_module_description
 #         NAME:  get_module_version
 #===================================================================================
 sub get_module_version {
-  local $_;                                   # MM->parse_version is naughty
+  local $_;                                     # MM->parse_version is naughty
   my $vers_code = MM->parse_version($File::Find::name) || '';
   $vers_code = undef unless $vers_code =~ /$rgx_version/;
   return $vers_code;
@@ -167,14 +187,14 @@ $options{v} = "10" unless $options{v};
 #---------------------------------------------------------------------------
 if ($options{s}) {
 	usage() if $^O eq "MSWin32";
-  if (open(ME, "-|")) {
-    $/ = "";
-    while (<ME>) {
-      chomp;
-      print join("\n", sort split /\n/), "\n";
-    }
-    exit;
-  }
+	if ( open(ME, "-|") ) {
+		$/ = "";
+		while ( <ME> ) {
+			chomp;
+			print join("\n", sort split /\n/), "\n";
+		}
+		exit;
+	}
 }
 
 #---------------------------------------------------------------------------
@@ -187,105 +207,105 @@ if ($options{s}) {
 # 
 if ( $^O ne "MSWin32" ) {                       # ----- UNIX, Linux, ...
 
-	for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
-		find({
-				wanted => sub {
-					return unless /\.p(?:m|od)\z/ && -f;
+    for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
+        find({
+                wanted => sub {
+                    return unless /\.p(?:m|od)\z/ && -f;
 
-					#---------------------------------------------------------------------
-					#  return from function if there exists a pod-file for this module
-					#---------------------------------------------------------------------
-					my $pod = $_;
-					my $pm  = $_;
-					if ( m/\.pm\z/ )
-					{
-						$pod  =~ s/\.pm\z/\.pod/; 
-						return if -f $pod;
-					}
+                    #---------------------------------------------------------------------
+                    #  return from function if there exists a pod-file for this module
+                    #---------------------------------------------------------------------
+                    my $pod = $_;
+                    my $pm  = $_;
+                    if ( m/\.pm\z/ )
+                    {
+                        $pod  =~ s/\.pm\z/\.pod/; 
+                        return if -f $pod;
+                    }
 
-					my $module  = get_module_name($File::Find::name, $inc_dir);
-					my $version;
-					if ( /\.pod\z/ )
-					{
-						$pm =~ s/\.pod\z/\.pm/; 
-						#-------------------------------------------------------------------
-						#  try to find the version from the pm-file
-						#-------------------------------------------------------------------
-						if ( -f $pm )
-						{
-							local $_;
-							$version = MM->parse_version($pm) || "";
-							$version = undef unless $version =~ /$rgx_version/;
-						}
-					}
-					else
-					{
-						$version = get_module_version($_);
-					}
-					my $desc = get_module_description($_);
+                    my $module  = get_module_name($File::Find::name, $inc_dir);
+                    my $version;
+                    if ( /\.pod\z/ )
+                    {
+                        $pm =~ s/\.pod\z/\.pm/; 
+                        #-------------------------------------------------------------------
+                        #  try to find the version from the pm-file
+                        #-------------------------------------------------------------------
+                        if ( -f $pm )
+                        {
+                            local $_;
+                            $version = MM->parse_version($pm) || "";
+                            $version = undef unless $version =~ /$rgx_version/;
+                        }
+                    }
+                    else
+                    {
+                        $version = get_module_version($_);
+                    }
+                    my $desc = get_module_description($_);
 
-					$version = defined $version ? " ($version)" : " (n/a)";
-					$desc    = defined $desc    ? " $desc"      : " <description not available>";
+                    $version = defined $version ? " ($version)" : " (n/a)";
+                    $desc    = defined $desc    ? " $desc"      : " <description not available>";
 
-					printf("%-${options{t}}s%-${options{v}}s%-s\n", $module, $version, $desc ); 
+                    printf("%-${options{t}}s%-${options{v}}s%-s\n", $module, $version, $desc ); 
 
-				},
+                },
 
-				preprocess => sub {
-					my ($dev, $inode) = stat $File::Find::dir or return;
-					$visited{"$dev:$inode"}++ ? () : @_;
-				},
-			},
-			$inc_dir);
-	}
+                preprocess => sub {
+                    my ($dev, $inode) = stat $File::Find::dir or return;
+                    $visited{"$dev:$inode"}++ ? () : @_;
+                },
+            },
+            $inc_dir);
+    }
 }
 else {                                          # ----- MS Windows
-	for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
-		find({
-				wanted => sub {
-					return unless /\.p(?:m|od)\z/ && -f;
+    for my $inc_dir (sort { length $b <=> length $a } @ARGV) {
+        find({
+                wanted => sub {
+                    return unless /\.p(?:m|od)\z/ && -f;
 
-					#---------------------------------------------------------------------
-					#  return from function if there exists a pod-file for this module
-					#---------------------------------------------------------------------
-					my $pod = $_;
-					my $pm  = $_;
-					if ( m/\.pm\z/ )
-					{
-						$pod  =~ s/\.pm\z/\.pod/; 
-						return if -f $pod;
-					}
+                    #---------------------------------------------------------------------
+                    #  return from function if there exists a pod-file for this module
+                    #---------------------------------------------------------------------
+                    my $pod = $_;
+                    my $pm  = $_;
+                    if ( m/\.pm\z/ )
+                    {
+                        $pod  =~ s/\.pm\z/\.pod/; 
+                        return if -f $pod;
+                    }
 
-					my $module  = get_module_name($File::Find::name, $inc_dir);
-					my $version;
-					if ( /\.pod\z/ )
-					{
-						$pm =~ s/\.pod\z/\.pm/; 
-						#-------------------------------------------------------------------
-						#  try to find the version from the pm-file
-						#-------------------------------------------------------------------
-						if ( -f $pm )
-						{
-							local $_;
-							$version = MM->parse_version($pm) || "";
-							$version = undef unless $version =~ /$rgx_version/;
-						}
-					}
-					else
-					{
-						$version = get_module_version($_);
-					}
-					my $desc = get_module_description($_);
+                    my $module  = get_module_name($File::Find::name, $inc_dir);
+                    my $version;
+                    if ( /\.pod\z/ )
+                    {
+                        $pm =~ s/\.pod\z/\.pm/; 
+                        #-------------------------------------------------------------------
+                        #  try to find the version from the pm-file
+                        #-------------------------------------------------------------------
+                        if ( -f $pm )
+                        {
+                            local $_;
+                            $version = MM->parse_version($pm) || "";
+                            $version = undef unless $version =~ /$rgx_version/;
+                        }
+                    }
+                    else
+                    {
+                        $version = get_module_version($_);
+                    }
+                    my $desc = get_module_description($_);
 
-					$version = defined $version ? " ($version)" : " (n/a)";
-					$desc    = defined $desc    ? " $desc"      : " <description not available>";
+                    $version = defined $version ? " ($version)" : " (n/a)";
+                    $desc    = defined $desc    ? " $desc"      : " <description not available>";
 
-					printf("%-${options{t}}s%-${options{v}}s%-s\n", $module, $version, $desc ); 
+                    printf("%-${options{t}}s%-${options{v}}s%-s\n", $module, $version, $desc ); 
 
-				},
-			},
-			$inc_dir);
-	}
+                },
+            },
+            $inc_dir);
+    }
 }
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -298,9 +318,9 @@ pmdesc3 - List name, version, and description of all installed perl modules and 
 
 =head1 SYNOPSIS
 
-	pmdesc3.pl
+    pmdesc3.pl
 
-	pmdesc3.pl ~/perllib
+    pmdesc3.pl ~/perllib
 
 =head1 DESCRIPTION
 
@@ -368,7 +388,7 @@ pmdesc2 is at least one magnitude faster than pmdesc.
 
 =head1 VERSION
 
-1.2.2
+1.2.3
 
 =cut
 

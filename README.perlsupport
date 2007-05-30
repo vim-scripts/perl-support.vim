@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.4) / February 14 2007
+README for perl-support.vim (Version 3.6) / May 23 2007
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -81,12 +81,13 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.4
+  RELEASE NOTES FOR VERSION 3.6
 ---------------------------------------------------------------------------------------
-+ Subdirectories rearranged.
-+ Adaption for 'perlcritic', version 1.02 . Interface improved.
-+ Three new Ex commands to control 'perlcritic'.
-+ Escaping for unusual characters in filename reworked.
++ New command enables the alignment of line end comments (menu item, hotkey). 
++ Idioms hotkeys renamed (better to remember).
++ Lot of new mappings for the insert mode.
++ The code for opening files or pipes can surround a marked area (v-mode).
++ Script pmdesc3 removes POD markup sequences now.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

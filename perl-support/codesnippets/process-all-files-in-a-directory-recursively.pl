@@ -6,7 +6,7 @@ my  @directory_list   = ( '.' );  # directory_list used by File::Find::find()
 my  $files_processed  = 0;        # counts the files processed by process_file()
 
 #-----------------------------------------------------------------------
-# Process a single file in a directory 
+# Process a single file in a directory
 #-----------------------------------------------------------------------
 sub process_file {
   my  $filename      = $_;                # filename without directory
@@ -16,7 +16,7 @@ sub process_file {
   # print "$directory  :  $filename  :  $filename_full\n";
 
   $files_processed++;
-   
+
   return ;
 } # ----------  end of subroutine process_file  ----------
 
