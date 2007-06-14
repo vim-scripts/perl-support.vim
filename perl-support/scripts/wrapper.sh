@@ -14,8 +14,7 @@
 #       COMPANY:  Fachhochschule Südwestfalen, Iserlohn
 #       VERSION:  1.2
 #       CREATED:  23.11.2004 18:04:01 CET
-#      REVISION:  17.03.2005 - executable quoted
-#      REVISION:  18.02.2006 - look for the full pathname of an executable
+#      REVISION:  $Id: wrapper.sh,v 1.2 2007/06/14 16:50:35 mehner Exp $
 #===============================================================================
 
 command=${@}                             # the complete command line

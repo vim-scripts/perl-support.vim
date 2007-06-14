@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                     May 29 2007
+*perlsupport.txt*                Perl Support                    June 16 2007
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 3.6
+                             Plugin version 3.6.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -66,6 +66,7 @@ profiler can be done with a keystroke.
  5.      Template files and tags          |perlsupport-tempfiles|
  5.1      Template files                  |perlsupport-tempfiles|
  5.2      Tags                            |perlsupport-tags|
+ 5.3      Perl::Tags                      |perlsupport-perltags|
  6.      Perl Dictionary                  |perlsupport-dictionary|
  7.      MS-Windows particularities       |perlsupport-windows|
  8.      Troubleshooting                  |perlsupport-troubleshooting|
@@ -946,6 +947,21 @@ perl-support plugin package).
 
 The mappings can also be used with gVim.
 
+
+Resolving conflicts 
+-------------------
+Sometimes the map leader "\" may conflict with Perl constructs e.g. when 
+typing an array reference: \@arrayname . There are two solutions.
+
+(1) Typing speed matters. Type \ and wait some hundred milliseconds. The
+following character will no longer be recognized as belonging to the backslash
+as map leader.
+
+(2) Change the map leader to another character, e.g. to the backtick with
+      :let mapleader="`"
+You can make this change permanent by adding this line to the file .vimrc .
+
+
 ==============================================================================
 3.  FUNCTION KEYS                                  *perlsupport-function-keys*
 ==============================================================================
@@ -1071,6 +1087,7 @@ g:Perl_Printheader             "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 g:Perl_PerlcriticSeverity      5
 g:Perl_PerlcriticVerbosity     5
 g:Perl_PerlcriticOptions       ""
+g:Perl_PerlTags                - undefined -
 
 g:Perl_NoKeyMappings           - undefined -
 
@@ -1117,6 +1134,7 @@ The variable root_dir will automatically be set to one of the following values:
           g:Perl_PerlcriticSeverity      : perlcritic severity
           g:Perl_PerlcriticVerbosity     : perlcritic verbosity
           g:Perl_PerlcriticOptions       : additional perlcritic options
+          g:Perl_PerlTags                : controls usage of Perl::Tags (|perlsupport-perltags|)
           g:Perl_NoKeyMappings           : suppress command mappings (|perlsupport-mappings|)
 
 To override the defaults add appropriate assignments to .vimrc .
@@ -1326,6 +1344,21 @@ The tag |CURSOR| will be the cursor position after the block is read in.
 There is no need to use any of these tags, some or all can be missing.
 
 The template files can actually be links pointing to existing templates.
+
+------------------------------------------------------------------------------
+5.3  Perl::Tags                                         *perlsupport-perltags*
+------------------------------------------------------------------------------
+
+The use of the module Perl::Tags (version 0.23; see CPAN) is encouraged. 
+Vim has to be compiled with Perl support (see |perl|).
+The script perl-support/scripts/perltags.vim (which is drawn from the module
+documentation) will be loaded from the filetype plugin ftplugin/perl.vim.  See
+the module documentation on how to use Perl::Tags.
+
+This feature is turned off by default. To turn it on add the following line to
+the file .vimrc :
+
+  let g:Perl_PerlTags	= "enable"
 
 
 ==============================================================================

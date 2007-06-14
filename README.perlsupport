@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.6) / May 23 2007
+README for perl-support.vim (Version 3.6.1) / June 05 2007
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -81,13 +81,9 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.6
+  RELEASE NOTES FOR VERSION 3.6.1
 ---------------------------------------------------------------------------------------
-+ New command enables the alignment of line end comments (menu item, hotkey). 
-+ Idioms hotkeys renamed (better to remember).
-+ Lot of new mappings for the insert mode.
-+ The code for opening files or pipes can surround a marked area (v-mode).
-+ Script pmdesc3 removes POD markup sequences now.
++ Support for Perl::Tags added (see the help file).
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'
@@ -111,6 +107,7 @@ perl-support/codesnippets-perl/*  Some Perl code snippets as a starting point.
 perl-support/modules/             Directory for the list of installed Perl modules
 
 perl-support/scripts/efm_perl.pl  Perl script; Reformats the error messages of the Perl interpreter
+perl-support/scripts/perltags.vim Vim script; use Perl::Tags (version 0.23) with Vim
 perl-support/scripts/pmdesc3.pl   Perl script; generates a list of all installed Perl modules
 perl-support/scripts/wrapper.sh   The wrapper script for the use of an xterm.
 

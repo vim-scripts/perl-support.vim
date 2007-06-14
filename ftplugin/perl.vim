@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 "   Language :  Perl
-"     Plugin :  perl-support.vim (version 3.6)
+"     Plugin :  perl-support.vim (version 3.6.1)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.12 2007/05/29 14:12:40 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.14 2007/06/05 17:16:03 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -299,12 +299,20 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 endif
 
 " ----------------------------------------------------------------------------
-"  Generate (possibly exuberant) Ctags style tags for Perl sourcecode
+"  Generate (possibly exuberant) Ctags style tags for Perl sourcecode.
+"  Controlled by g:Perl_PerlTags, disabled by default.
 " ----------------------------------------------------------------------------
 if has('perl')
-	if has("unix")
-		source /home/mehner/.vim/perl-support/scripts/perltags.vim
+	if exists("g:Perl_PerlTags") && g:Perl_PerlTags=="enable"
+		"
+		if has("unix")
+			source $HOME/.vim/perl-support/scripts/perltags.vim
+		endif
+		"
+		if has("win16") || has("win32") || has("win64") ||  has("win95") || has("win32unix")
+			source $VIM/vimfiles/perl-support/scripts/perltags.vim
+		endif
+		"
 	endif
-endif
+end
 " ----------------------------------------------------------------------------
-

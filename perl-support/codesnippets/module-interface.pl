@@ -19,9 +19,9 @@ our @EXPORT     = qw();
 our @EXPORT_OK  = qw();
 
 # Define names for sets of symbols
-%EXPORT_TAGS    = (
-  TAG1 => [],
-  TAG2 => [],
+our %EXPORT_TAGS    = (
+  TAG1 => [ qw() ],
+  TAG2 => [ qw() ],
   );
 
 #=======================================================================

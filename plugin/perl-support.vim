@@ -44,7 +44,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.15 2007/05/29 14:12:40 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.16 2007/06/05 17:14:29 mehner Exp $
 "------------------------------------------------------------------------------
 " 
 " Prevent duplicate loading: 
@@ -52,7 +52,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.6"
+let g:Perl_Version= "3.6.1"
 "        
 "###############################################################################################
 "
@@ -1875,7 +1875,8 @@ function! Perl_perldoc_generate_module_list()
     silent exe ":!".s:Perl_PerlModuleListGenerator." > ".s:Perl_PerlModuleList
     silent exe ":!sort ".s:Perl_PerlModuleList." /O ".s:Perl_PerlModuleList
   else
-    silent exe ":!".s:Perl_PerlModuleListGenerator." -s > ".s:Perl_PerlModuleList
+		" direct STDOUT and STDERR to the module list file :
+    silent exe ":!".s:Perl_PerlModuleListGenerator." -s &> ".s:Perl_PerlModuleList
   endif
   setlocal nomodifiable
   echo " DONE " 
