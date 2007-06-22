@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.6.1) / June 05 2007
+README for perl-support.vim (Version 3.6.2) / June 22 2007
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -6,10 +6,10 @@ README for perl-support.vim (Version 3.6.1) / June 05 2007
   *  ADDITIONAL TIPS
   *  CREDITS
 
-Perl Support implements a Perl-IDE for Vim/gVim. It is written to considerably
-speed up writing code in a consistent style.  This is done by inserting
-complete statements, comments, idioms, code snippets, templates, and POD
-documentation.  Reading perldoc is integrated.  Syntax checking, running a
+Perl Support implements a Perl-IDE for Vim/gVim. It has been written to
+considerably speed up writing code in a consistent style.  This is done by
+inserting complete statements, comments, idioms, code snippets, templates, and
+POD documentation.  Reading perldoc is integrated.  Syntax checking, running a
 script, running perltidy,  running perlcritics, starting a debugger and a
 profiler can be done with a keystroke.  There are many additional hints and
 options which can improve speed and comfort when writing Perl. Please read the
@@ -33,7 +33,7 @@ or $VIM\vimfiles (on the Windows platforms).
 
 (2) Loading of plugin files must be enabled. If not use
       :filetype plugin on
-		This is the minimal content of the file '$HOME/.vimrc'. Create one if there
+    This is the minimal content of the file '$HOME/.vimrc'. Create one if there
     is none. 
 
 (3) Set at least some personal details into .vimrc by overriding some defaults.
@@ -81,9 +81,12 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.6.1
+  RELEASE NOTES FOR VERSION 3.6.2
 ---------------------------------------------------------------------------------------
-+ Support for Perl::Tags added (see the help file).
++ Snippets can now be managed in the console mode.
++ Three new key mappings for snippets.
++ Bugfix: quitting the module list buffer no longer terminates the editor.
++ Documentaion: section about optinonal dependencies added.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

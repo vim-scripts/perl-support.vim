@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                    June 16 2007
+*perlsupport.txt*                Perl Support                    June 22 2007
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plugin version 3.6.1
+                             Plugin version 3.6.2
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -68,10 +68,11 @@ profiler can be done with a keystroke.
  5.2      Tags                            |perlsupport-tags|
  5.3      Perl::Tags                      |perlsupport-perltags|
  6.      Perl Dictionary                  |perlsupport-dictionary|
- 7.      MS-Windows particularities       |perlsupport-windows|
- 8.      Troubleshooting                  |perlsupport-troubleshooting|
- 9.      Release Notes / Change Log       |perlsupport-release-notes|
- 10.     Credits                          |perlsupport-credits|
+ 7.      Optional Dependencies            |perlsupport-dependencies|
+ 8.      MS-Windows particularities       |perlsupport-windows|
+ 9.      Troubleshooting                  |perlsupport-troubleshooting|
+ 10.     Release Notes / Change Log       |perlsupport-release-notes|
+ 11.     Credits                          |perlsupport-credits|
 
  How to add this help file to vim's help  |add-local-help|
 
@@ -566,11 +567,11 @@ The script will be run as 'perl -d my-script.pl my-arguments' in an xterm.
 (2) ptkdb
 The debugger ptkdb will be started as an independent process. ptkdb is a Perl
 debugger using a Tk GUI. The module Devel::ptkdb and the Tk tool kit have to be
-installed.
+installed (see |perlsupport-dependencies|).
 
 (3) ddd
-The data display debugger ddd is a graphical front end for GDB. It will be
-started as an independent process.
+The data display debugger ddd is a graphical front end for GDB (see
+|perlsupport-dependencies|). It will be started as an independent process.
 The debugger ddd is not available under MS-Windows.
 
 The debugger starts in an separate xterm or is a separate GUI-application
@@ -640,10 +641,10 @@ See also |perlsupport-troubleshooting|.
 1.9.10  RUN SMALLPROF                                    *perlsupport-profile*
 ---------------------
 Profile the script in the current buffer using the profiler  Devel::SmallProf
-(the module has to be installed, of course).  The results will go to the file
-smallprof.out in the current directory. This file will be opened automatically.
-Devel::SmallProf (version 2.00_03) is controlled by 4 variables (default values
-shown here):
+(see |perlsupport-dependencies|). The results will go to the file
+smallprof.out in the current directory. This file will be opened
+automatically.  Devel::SmallProf (version 2.00_03) is controlled by 4
+variables (default values shown here):
 
  $DB::drop_zeros  = 0;           # Do not show lines which were never called: 1
  $DB::grep_format = 0;           # Output on a format similar to grep : 1
@@ -659,12 +660,13 @@ the profiler.
 1.9.11 RUN PERLCRITIC                                 *perlsupport-perlcritic*
 ---------------------
 "perlcritic" is a Perl source code analyzer (by Jeffrey Ryan Thalhammer;
-search CPAN for the latest version).  This excellent tool is the executable
-front-end to the Perl::Critic engine, which attempts to identify awkward, hard
-to read, error-prone, or unconventional constructs in your code.  Most of the
-rules are based on Damian Conway's book Perl Best Practices (PBP).  When run
-from the menu the current buffer will be saved and run through perlcritic. The
-reported violations will be displayed in a separate quickfix error window.
+search CPAN for the latest version; see also |perlsupport-dependencies|).
+This excellent tool is the executable front-end to the Perl::Critic engine,
+which attempts to identify awkward, hard to read, error-prone, or
+unconventional constructs in your code.  Most of the rules are based on Damian
+Conway's book Perl Best Practices (PBP).  When run from the menu the current
+buffer will be saved and run through perlcritic. The reported violations will
+be displayed in a separate quickfix error window.
 
 Two perlcritic comand line options can be set by this plugin:
  -severity N  :  Directs perlcritic to only report violations of Policies with
@@ -874,6 +876,10 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \st      until { }                         (n,v,i)
   \sw      while { }                         (n,v,i)
   \s{      { }                               (n,v,i)
+
+  \nr      read code snippet                 (n)
+  \nw      write code snippet                (n,v)
+  \ne      read code snippet                 (n)
 
   -- Idioms --------------------------------
 
@@ -1349,17 +1355,37 @@ The template files can actually be links pointing to existing templates.
 5.3  Perl::Tags                                         *perlsupport-perltags*
 ------------------------------------------------------------------------------
 
-The use of the module Perl::Tags (version 0.23; see CPAN) is encouraged. 
-Vim has to be compiled with Perl support (see |perl|).
-The script perl-support/scripts/perltags.vim (which is drawn from the module
-documentation) will be loaded from the filetype plugin ftplugin/perl.vim.  See
+The use of the module Perl::Tags (version 0.23; see CPAN) is encouraged. See
 the module documentation on how to use Perl::Tags.
+This feature is turned off by default because you need a Vim binary with Perl
+interface compiled in (see below). To turn it on add the following line to the
+file ~/.vimrc :
 
-This feature is turned off by default. To turn it on add the following line to
-the file .vimrc :
+  let g:Perl_PerlTags = "enable"
 
-  let g:Perl_PerlTags	= "enable"
+The script perl-support/scripts/perltags.vim (which is drawn from the
+Perl::Tags documentation) will be loaded from the filetype plugin
+ftplugin/perl.vim.  
 
+
+Compiling VIM with Perl interface
+---------------------------------
+To use the module Perl::Tags Vim has to be compiled with Perl interface (not
+to be confused with this plugin; see also |perl|). To check this display the
+version information with
+  :version
+and look for the features section. A '+perl' says that your binary was
+compiled with Perl interface. 
+
+Compile Vim from the sources:
+
+(1) Get the tarball from http://vim.sourceforge.net/ and unpack it.
+(2) Configure with
+      ./configure --enable-perlinterp
+(3) Make the binary the traditional way:
+      make
+      make test
+      make install  (you must be root)
 
 ==============================================================================
 6.  PERL DICTIONARY                                   *perlsupport-dictionary*
@@ -1383,7 +1409,58 @@ You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
 
 
 ==============================================================================
-7.  MS-Windows PARTICULARITIES                           *perlsupport-windows*
+9.  OPTIONAL DEPENDENCIES                           *perlsupport-dependencies*
+==============================================================================
+
+There are several optional dependencies.
+
+------------------------------------------------------------------------------
+9.1 Standard Perl modules
+------------------------------------------------------------------------------
+
+These modules should come with your Perl distribution:
+
+  perldoc    - Look up Perl documentation in Pod format
+  pod2html   - convert .pod files to .html files
+  pod2man    - Convert POD data to formatted *roff input
+  pod2text   - Convert POD data to formatted ASCII text
+  podchecker - check the syntax of POD format documentation files
+
+------------------------------------------------------------------------------
+9.2 Non-standard Perl modules
+------------------------------------------------------------------------------
+
+The following modules have to be installed by the user/administrator in order
+to use them.
+
+  Devel::SmallProf - per-line Perl profiler
+  Devel::ptkdb     - Perl debugger using a Tk GUI
+  Perl::Critic     - Critique Perl source code for best-practices
+  Perl::Tags       - Generate Ctags style tags for Perl source code 
+                     (see |perlsupport-perltags|)
+  Perl::Tidy       - Parses and beautifies perl source
+
+This is done in one of two way:
+
+(1) Download the tarball from CPAN (http://www.cpan.org/) or one of its
+mirrors, go to the new directory, read the files README and INSTALL, and
+follow the instructions. You have to resolve the dependencies yourself
+by first installing them.
+
+(2) Install the cpan shell (module CPAN) and install modules via network.
+The dependencies are resolved automatically. Recommended.
+
+------------------------------------------------------------------------------
+9.3 Other applications
+------------------------------------------------------------------------------
+
+  ddd - The Data Display Debugger (graphical front-end for GDB)
+
+The homepage of this project is http://www.gnu.org/software/ddd/.
+
+
+==============================================================================
+8.  MS-Windows PARTICULARITIES                           *perlsupport-windows*
 ==============================================================================
 
 The plugins should go into the directory structure below the local
@@ -1401,7 +1478,7 @@ Configuration files:
 
 
 ==============================================================================
-8.  TROUBLESHOOTING                              *perlsupport-troubleshooting*
+9.  TROUBLESHOOTING                              *perlsupport-troubleshooting*
 ==============================================================================
 
 * I do not see any new main menu item.
@@ -1445,13 +1522,13 @@ Configuration files:
     
 
 ==============================================================================
-9.  RELEASE NOTES / CHANGELOG                       *perlsupport-release-notes*
+10.  RELEASE NOTES / CHANGELOG                      *perlsupport-release-notes*
 ==============================================================================
 
 See files 'README.perlsupport' and 'ChangeLog'.
 
 ==============================================================================
-10.  CREDITS                                             *perlsupport-credits*
+11.  CREDITS                                             *perlsupport-credits*
 ==============================================================================
 
 David Fishburn <fishburn@ianywhere.com> for the implementation of the

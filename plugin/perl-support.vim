@@ -44,7 +44,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.16 2007/06/05 17:14:29 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.17 2007/06/22 12:35:53 mehner Exp $
 "------------------------------------------------------------------------------
 " 
 " Prevent duplicate loading: 
@@ -52,7 +52,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.6.1"
+let g:Perl_Version= "3.6.2"
 "        
 "###############################################################################################
 "
@@ -1647,7 +1647,11 @@ function! Perl_CodeSnippet(mode)
     " read snippet file, put content below current line
     " 
     if a:mode == "r"
-      let l:snippetfile=browse(0,"read a code snippet",s:Perl_CodeSnippets,"")
+			if has("gui_running")
+				let l:snippetfile=browse(0,"read a code snippet",s:Perl_CodeSnippets,"")
+			else
+				let	l:snippetfile=input("read snippet ", s:Perl_CodeSnippets, "file" )
+			end
       if filereadable(l:snippetfile)
         let linesread= line("$")
         let l:old_cpoptions = &cpoptions " Prevent the alternate buffer from being set to this files
@@ -1665,37 +1669,35 @@ function! Perl_CodeSnippet(mode)
     " update current buffer / split window / edit snippet file
     " 
     if a:mode == "e"
-      let l:snippetfile=browse(0,"edit a code snippet",s:Perl_CodeSnippets,"")
+			if has("gui_running")
+				let l:snippetfile=browse(0,"edit a code snippet",s:Perl_CodeSnippets,"")
+			else
+				let	l:snippetfile=input("edit snippet ", s:Perl_CodeSnippets, "file" )
+			end
       if l:snippetfile != ""
         :execute "update! | split | edit ".l:snippetfile
       endif
     endif
     "
-    " write whole buffer into snippet file 
+    " write whole buffer or marked area into snippet file 
     " 
-    if a:mode == "w"
-      let l:snippetfile=browse(0,"write a code snippet",s:Perl_CodeSnippets,"")
+    if a:mode == "w" || a:mode == "wv"
+			if has("gui_running")
+				let l:snippetfile=browse(0,"write a code snippet",s:Perl_CodeSnippets,"")
+			else
+				let	l:snippetfile=input("write snippet ", s:Perl_CodeSnippets, "file" )
+			end
       if l:snippetfile != ""
         if filereadable(l:snippetfile)
           if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
             return
           endif
         endif
-        :execute ":write! ".l:snippetfile
-      endif
-    endif
-    "
-    " write marked area into snippet file 
-    " 
-    if a:mode == "wv"
-      let l:snippetfile=browse(0,"write a code snippet",s:Perl_CodeSnippets,"")
-      if l:snippetfile != ""
-        if filereadable(l:snippetfile)
-          if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
-            return
-          endif
-        endif
-        :execute ":*write! ".l:snippetfile
+				if a:mode == "w"
+					:execute ":write! ".l:snippetfile
+				else
+					:execute ":*write! ".l:snippetfile
+				end
       endif
     endif
 
@@ -1847,10 +1849,10 @@ function! Perl_perldoc_show_module_list()
   if bufexists(s:Perl_PerldocModulelistBuffer) && bufwinnr(s:Perl_PerldocModulelistBuffer)!=-1
     silent exe bufwinnr(s:Perl_PerldocModulelistBuffer) . "wincmd w"
   else
-""    silent exe ":view ".s:Perl_PerlModuleList
+		:split
     exe ":view ".s:Perl_PerlModuleList
     let s:Perl_PerldocModulelistBuffer=bufnr("%")
-""    setlocal nomodifiable
+    setlocal nomodifiable
     setlocal filetype=perl
     setlocal syntax=none
   endif

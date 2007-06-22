@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 "   Language :  Perl
-"     Plugin :  perl-support.vim (version 3.6.1)
+"     Plugin :  perl-support.vim (version 3.6.2)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.14 2007/06/05 17:16:03 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.15 2007/06/22 12:32:54 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -164,11 +164,16 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 	inoremap    <buffer>  <silent>  <Leader>sf    <Esc><Esc>:call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i
 	inoremap    <buffer>  <silent>  <Leader>sfe   <Esc><Esc>:call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a
 	inoremap    <buffer>  <silent>  <Leader>si    <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la
-	inoremap    <buffer>  <silent>  <Leader>sie    <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la
+	inoremap    <buffer>  <silent>  <Leader>sie   <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la
 	inoremap    <buffer>  <silent>  <Leader>su    <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la
 	inoremap    <buffer>  <silent>  <Leader>sue   <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la
 	inoremap    <buffer>  <silent>  <Leader>st    <Esc><Esc>:call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la
 	inoremap    <buffer>  <silent>  <Leader>sw    <Esc><Esc>:call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la
+	"
+	 noremap    <buffer>  <silent>  <Leader>nr    <Esc>:call Perl_CodeSnippet("r")<CR>
+	 noremap    <buffer>  <silent>  <Leader>nw    <Esc>:call Perl_CodeSnippet("w")<CR>
+	vnoremap    <buffer>  <silent>  <Leader>nw    <Esc>:call Perl_CodeSnippet("wv")<CR>
+	 noremap    <buffer>  <silent>  <Leader>ne    <Esc>:call Perl_CodeSnippet("e")<CR>
 	"
 	" ----------------------------------------------------------------------------
 	" Idioms

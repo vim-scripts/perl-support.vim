@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.6.2
+---------------------------------------------------------------------------------------
++ Snippets can now be managed in the console mode.
++ Three new key mappings for snippets.
++ Bugfix: quitting the module list buffer no longer terminates the editor.
++ Documentaion: section about optinonal dependencies added.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.6.1
 ---------------------------------------------------------------------------------------
 + Support for Perl::Tags added (see the help file).
