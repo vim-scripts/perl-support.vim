@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 "   Language :  Perl
-"     Plugin :  perl-support.vim (version 3.6.2)
+"     Plugin :  perl-support.vim (version 3.6.3)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.15 2007/06/22 12:32:54 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.16 2007/07/28 09:50:47 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -311,7 +311,7 @@ if has('perl')
 	if exists("g:Perl_PerlTags") && g:Perl_PerlTags=="enable"
 		"
 		if has("unix")
-			source $HOME/.vim/perl-support/scripts/perltags.vim
+			exe "source ".g:Perl_PluginDir."/perl-support/scripts/perltags.vim"
 		endif
 		"
 		if has("win16") || has("win32") || has("win64") ||  has("win95") || has("win32unix")

@@ -44,7 +44,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.17 2007/06/22 12:35:53 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.18 2007/07/28 09:55:10 mehner Exp $
 "------------------------------------------------------------------------------
 " 
 " Prevent duplicate loading: 
@@ -52,30 +52,45 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.6.2"
+let g:Perl_Version= "3.6.3"
 "        
 "###############################################################################################
 "
 "  Global variables (with default values) which can be overridden.
 "          
 " Platform specific items:
-" - root directory
+" - plugin directory
 " - characters that must be escaped for filenames
 " 
 let s:MSWIN =   has("win16") || has("win32")     || has("win64") || 
               \ has("win95") || has("win32unix")
 " 
 if  s:MSWIN
-  "
+  " ==========  MS Windows  ======================================================
   let s:plugin_dir  = $VIM.'\vimfiles\'
   let s:escfilename = ''
   "
 else
   "
+  " ==========  Linux/Unix  ======================================================
+	"--------------------------------------------------------------------------
+	"   plugin directory for a user installation (default)
+	"   comment out next line for a system wide installation
+	"--------------------------------------------------------------------------
   let s:plugin_dir   = $HOME.'/.vim/'
+	"
+	"--------------------------------------------------------------------------
+	"   plugin directory for a system wide installation 
+	"   uncomment next line for a system wide installation
+	"--------------------------------------------------------------------------
+	" let s:plugin_dir  = $VIM.'/vimfiles/'
+	"
   let s:escfilename = ' \%#[]'
   "
 endif
+"
+let g:Perl_PluginDir	= s:plugin_dir         " used for communication with ftplugin/perl.vim
+"
 "
 "  Key word completion is enabled by the filetype plugin 'perl.vim'
 "  g:Perl_Dictionary_File  must be global
@@ -95,7 +110,7 @@ let s:Perl_CopyrightHolder         = ''
 
 let s:Perl_Root                    = '&Perl.'
 let s:Perl_LoadMenus               = 'yes'
-let s:Perl_CodeSnippets            = s:plugin_dir.'perl-support/codesnippets/'
+let s:Perl_CodeSnippets            = $HOME.'/.vim/perl-support/codesnippets/'
 let s:Perl_Template_Directory      = s:plugin_dir.'perl-support/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'

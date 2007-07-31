@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.6.2) / June 22 2007
+README for perl-support.vim (Version 3.6.3) / July 28 2007
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -76,17 +76,16 @@ and look at the perlsupport help with
 Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/perlsupport.txt'.
 
+For a system-wide installation please see the help file 'doc/perlsupport.txt'.
+
 =======================================================================================
   RELEASE NOTES 
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.6.2
+  RELEASE NOTES FOR VERSION 3.6.3
 ---------------------------------------------------------------------------------------
-+ Snippets can now be managed in the console mode.
-+ Three new key mappings for snippets.
-+ Bugfix: quitting the module list buffer no longer terminates the editor.
-+ Documentaion: section about optinonal dependencies added.
++ Changes to allow a system-wide installation.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

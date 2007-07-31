@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                    June 22 2007
+*perlsupport.txt*                Perl Support                    July 28 2007
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plugin version 3.6.2
+                             Plugin version 3.6.3
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -63,6 +63,7 @@ profiler can be done with a keystroke.
  4.4      Navigate through PODs           |perlsupport-custom-navigate|
  4.5      Tabulator width                 |perlsupport-custom-tab|
  4.6      Syntax based folding            |perlsupport-folding|
+ 4.7      System-wide installation        |perlsupport-system-wide|
  5.      Template files and tags          |perlsupport-tempfiles|
  5.1      Template files                  |perlsupport-tempfiles|
  5.2      Tags                            |perlsupport-tags|
@@ -1282,6 +1283,45 @@ Syntax based folding can be enabled by adding the following lines to the file
 
 You may have to create this file first. See |folding| for more information.
 
+------------------------------------------------------------------------------
+4.7  System-wide installation (Unix/Linux only)      *perlsupport-system-wide*
+------------------------------------------------------------------------------
+
+A system-wide installation (one installation for all users) is done as
+follows.
+
+As *** SUPERUSER *** :
+
+(1) Find the Vim installation directory.
+The Vim ex command ':echo $VIM' gives '/usr/local/share/vim' or something like
+that. Beyond this directory you will find the Vim installation,  e.g. in
+'/usr/local/share/vim/vim71' if Vim version 7.1 has been installed.
+
+(2) Create a new subdirectory 'vimfiles', e.g. '/usr/local/share/vim/vimfiles'.
+
+(3) Install Perl Support
+Copy the archive perl-support.zip to this new directory and unpack it:
+  unzip perl-support.zip
+
+(4) Adjust the plugin directory
+Open the file 'plugin/perl-support.vim' und uncomment the line 
+  " let s:plugin_dir  = $VIM.'/vimfiles/'
+i.e. remove the leading quotation mark and save this file.
+
+(5) Generate the help tags:
+  :helptags $VIM/vimfiles/doc
+
+
+As *** USER *** :
+
+Create your private snippet directory:
+
+  mkdir --parents  ~/.vim/perl-support/codesnippets 
+
+You may want to copy the snippets comming with this plugin (in
+$VIM/vimfiles/perl-support/codesnippets) into the new directory or to set a
+link to the global directory.
+
 ==============================================================================
 5.  TEMPLATE FILES AND TAGS                            *perlsupport-tempfiles*
 ==============================================================================
@@ -1511,7 +1551,9 @@ Configuration files:
   - The hotkeys might be in use by your graphical desktop environment.
     Under KDE Ctrl-F9 is the hotkey which let you switch to the 9. desktop.
     The key settings can usually be redefined or switched off.
-    
+    Under KDE, 'Keyboard Shortcuts' may be configured by following:
+     K Menu -> Control Center -> Regional & Accessibility -> Keyboard Shortcuts.
+
 * perltidy not running / messing up my file
   Unix/Linux: you have had a proper installation of perltidy, but now it does
   not work or messes up your file.
