@@ -8,23 +8,7 @@
 #  DESCRIPTION:  See POD below.
 #
 #      CREATED:  15.06.2004 22:12:41 CEST
-#     REVISION:  27.04.2007
-#                - use version;
-#                17.04.2007
-#                - version numbers with leading 'v' will be recognized (use version;)
-#                24.03.2007
-#                - Pod markups removed/replaced.
-#                23.10.2004 
-#                - Module versions are checked with a regex; avoids unprintable
-#                  characters (original version) and doubling of entries.
-#                - new option -v
-#                28.10.2004 
-#                - Function get_module_description completely new written.
-#                29.01.2005 
-#                - Look for a description in the DESCRIPTION section if no
-#                  NAME section is found.
-#                16.04.2005 - Adaption for MS Windows.
-#                19.08.2005 - POD updated.
+#     REVISION:  $Id: pmdesc3.pl,v 1.4 2007/08/10 16:02:32 mehner Exp $
 #         TODO:  Replace UNIX sort pipe.
 #                 
 #===================================================================================
@@ -39,10 +23,10 @@ use Carp;
 use ExtUtils::MakeMaker;
 use File::Find           qw(find);
 use Getopt::Std          qw(getopts);
-use version;
-our $VERSION	= qv("1.2.3");    # update POD at the end of this file
+#use version;
+our $VERSION        = qw(1.2.3);  # update POD at the end of this file
 
-my  $MaxDescLength= 150;          # Maximum length for the description field:
+my  $MaxDescLength  = 150;        # Maximum length for the description field:
                                   # prevents slurping in big amount of faulty docs.
 
 my  $rgx_version  = q/\Av?\d+(\.\w+)*\Z/; # regex for module versions 
@@ -90,12 +74,12 @@ sub get_module_description
   undef $/;                                     # undefine input record separator
 
   open  my $INFILE, '<', $INFILE_file_name
-	  or die  "$0 : failed to open  input file '$INFILE_file_name' : $!\n";
+      or die  "$0 : failed to open  input file '$INFILE_file_name' : $!\n";
 
   my  $file = <$INFILE>;                        # slurp mode
 
   close  $INFILE
-	  or warn "$0 : failed to close input file '$INFILE_file_name' : $!\n";
+      or warn "$0 : failed to close input file '$INFILE_file_name' : $!\n";
 
   $file =~  s/\cM\cJ/\cJ/g;                     # remove DOS line ends 
   $file =~  m/\A=head1\s+NAME(.*?)\n=\w+/s;     # file starts with '=head1' (PODs)
@@ -186,15 +170,15 @@ $options{v} = "10" unless $options{v};
 #  option -s  :  install an output filter to sort the module list
 #---------------------------------------------------------------------------
 if ($options{s}) {
-	usage() if $^O eq "MSWin32";
-	if ( open(ME, "-|") ) {
-		$/ = "";
-		while ( <ME> ) {
-			chomp;
-			print join("\n", sort split /\n/), "\n";
-		}
-		exit;
-	}
+    usage() if $^O eq "MSWin32";
+    if ( open(ME, "-|") ) {
+        $/ = "";
+        while ( <ME> ) {
+            chomp;
+            print join("\n", sort split /\n/), "\n";
+        }
+        exit;
+    }
 }
 
 #---------------------------------------------------------------------------

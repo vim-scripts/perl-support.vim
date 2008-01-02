@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 "   Language :  Perl
-"     Plugin :  perl-support.vim (version 3.6.3)
+"     Plugin :  perl-support.vim (version 3.7)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.16 2007/07/28 09:50:47 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.19 2007/12/28 13:28:59 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -14,6 +14,7 @@ if exists("b:did_PERL_ftplugin")
 endif
 let b:did_PERL_ftplugin = 1
 "
+let s:UNIX	=   has("unix") || has("macunix") || has("win32unix")
 "
 " ---------- tabulator / shiftwidth ------------------------------------------
 "  Set tabulator and shift width to 4 conforming to the Perl Style Guide.
@@ -220,7 +221,6 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 	vnoremap    <buffer>  <silent>  <Leader>ipi   <Esc><Esc>:call Perl_OpenPipe("v")<CR>a
 	inoremap    <buffer>  <silent>  <Leader>ipi   <Esc><Esc>:call Perl_OpenPipe("a")<CR>a
 	"
-	"
 	" ----------------------------------------------------------------------------
 	" POSIX character classes
 	" ----------------------------------------------------------------------------
@@ -274,7 +274,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 		imap    <buffer>  <silent>    <F9>   <C-C><C-C>:call Perl_Debugger()<CR>:redraw!<CR>
 	endif
 	"
-	if has("unix")
+	if s:UNIX
 		nmap    <buffer>  <silent>  <Leader>re    :call Perl_MakeScriptExecutable()<CR>
 	endif
 	"
@@ -294,7 +294,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 	vmap    <buffer>  <silent>  <Leader>rh    <Esc>:call Perl_Hardcopy("v")<CR>
 	"
 	 map    <buffer>  <silent>  <Leader>rk    <Esc>:call Perl_Settings()<CR>
-	if has("gui_running") && has("unix")
+	if has("gui_running") && s:UNIX
 	 	 map    <buffer>  <silent>  <Leader>rx    <Esc>:call Perl_XtermSize()<CR>
 	endif
 	"
@@ -305,17 +305,19 @@ endif
 
 " ----------------------------------------------------------------------------
 "  Generate (possibly exuberant) Ctags style tags for Perl sourcecode.
-"  Controlled by g:Perl_PerlTags, disabled by default.
+"  Controlled by g:Perl_PerlTags, enabled by default.
 " ----------------------------------------------------------------------------
 if has('perl')
-	if exists("g:Perl_PerlTags") && g:Perl_PerlTags=="enable"
+	if g:Perl_PerlTags == "enabled"
 		"
-		if has("unix")
+		if s:UNIX
 			exe "source ".g:Perl_PluginDir."/perl-support/scripts/perltags.vim"
+			vnoremap    <buffer>  <silent>  <Leader>xe   <Esc><Esc>:call Perl_RegexAnalyse()<CR>
 		endif
 		"
 		if has("win16") || has("win32") || has("win64") ||  has("win95") || has("win32unix")
 			source $VIM/vimfiles/perl-support/scripts/perltags.vim
+			nnoremap    <buffer>  <silent>  <Leader>xe   <Esc><Esc>:call Perl_RegexAnalyse()<CR>
 		endif
 		"
 	endif

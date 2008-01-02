@@ -16,7 +16,7 @@ filetype plugin on
 " - default dictionary
 " Uncomment your choice.  
 if  has("win16") || has("win32")     || has("win64") || 
-  \ has("win95") || has("win32unix") 
+  \ has("win95")
     "
 "    runtime mswin.vim
 "    set backupdir =$VIM\vimfiles\backupdir
@@ -134,5 +134,5 @@ let g:Perl_Email             = 'mehner@fh-swf.de'
  noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 
-let tlist_perl_settings  = 'perl;c:constants;l:labels;p:package;s:subroutines;d:POD'
+let tlist_perl_settings  = 'perl;c:constants;f:formats;l:labels;p:packages;s:subroutines;d:subroutines;o:POD'
 

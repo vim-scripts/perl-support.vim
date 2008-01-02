@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.6.3) / July 28 2007
+README for perl-support.vim (Version 3.7) / January 1 2008
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -83,9 +83,13 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.6.3
+  RELEASE NOTES FOR VERSION 3.7
 ---------------------------------------------------------------------------------------
-+ Changes to allow a system-wide installation.
++ Regex analyser YAPE::Regex::Explain integrated.
++ Bugfix: use correct pathnames under Cygwin.
++ Bugfix: always use the right perl executable to list the installed Perl modules.
++ Minor changes due to ctags, version 5.7.
++ Global variable g:Perl_PerlTags is no longer needed.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

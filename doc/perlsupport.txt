@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                    July 28 2007
+*perlsupport.txt*                Perl Support                December 28 2007
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plugin version 3.6.3
+                              Plugin version 3.7
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -30,6 +30,8 @@ profiler can be done with a keystroke.
  1.3.1      Stub subroutine               |perlsupport-stub-sub|
  1.3.2      Opening files                 |perlsupport-open-files|
  1.4      Menu 'Regex'                    |perlsupport-regex|
+ 1.4.1     Compose regular expressions    |perlsupport-regex-compose|
+ 1.4.2     Explain regular expressions    |perlsupport-regex-explain|
  1.5      Menu 'CharCls'                  |perlsupport-charcls|
  1.6      Menu 'File-Tests'               |perlsupport-filetests|
  1.7      Menu 'Spec-Var'                 |perlsupport-specvar|
@@ -423,6 +425,9 @@ this block, the close statement will be inserted below.
 1.4  MENU 'Regex'                                          *perlsupport-regex*
 ------------------------------------------------------------------------------
 
+1.4.1  COMPOSE REGULAR EXPRESSIONS                 *perlsupport-regex-compose*
+
+----------------------------------
 In NORMAL and INSERT MODE the shown items will be inserted at the cursor
 position.
 
@@ -434,6 +439,27 @@ In VISUAL MODE the following entries and all entries from the
     []    :      [xxx]
     {}    :      {xxx}
     {,}   :      {xxx,}
+
+1.4.2  EXPLAIN REGULAR EXPRESSIONS                 *perlsupport-regex-explain*
+----------------------------------
+If the Perl module YAPE::Regex::Explain is installed a regular expression
+can be explained to you. 
+
+- Linux/Unix -
+Just mark the expression (v-mode) and use the menu entry 'explain Regex' or
+the hotkey '\xe'. 
+
+- MS-Windows -
+Mark the expression (v-mode) and type 'y' (yank) to put the selection into the
+yank register ("0). Now use the menu entry 'explain Regex' or the hotkey '\xe'
+(both in normal mode).
+
+The regex will now be explain in a new buffer called 'REGEX'. This buffer is
+not related  to a file and will not be written. A regular explain can span
+several lines.
+In order to use this feature you need a Vim binary with Perl interface
+compiled in (see |perl|) and YAPE::Regex::Explain must be installed,  of
+course.
 
 ------------------------------------------------------------------------------
 1.5  MENU 'CharCls'                                    *perlsupport-charcls*
@@ -884,13 +910,11 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Idioms --------------------------------
 
-  <d> means $ , <a> means @ :
-
-  \<d>     my $;                             (n   i)
-  \<d>=    my $ = ;                          (n   i)
-  \<d><d>  my ( $, $ );                      (n   i)
-  \<a>     my @;                             (n   i)
-  \<a>=    my @ = (,,);                      (n   i)
+  \$       my $;                             (n   i)
+  \$=      my $ = ;                          (n   i)
+  \$$      my ( $, $ );                      (n   i)
+  \@       my @;                             (n   i)
+  \@=      my @ = (,,);                      (n   i)
   \%       my %;                             (n   i)
   \%=      my % = (=>,=>,);                  (n   i)
   \ir      my $regex_ = q//;                 (n   i)
@@ -902,6 +926,10 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \ii      open input file                   (n,v,i)
   \io      open output file                  (n,v,i)
   \ipi     open pipe                         (n,v,i)
+
+  -- Regular Expressions -------------------
+
+  \xe      explain Regex                     (v)
 
   -- POSIX Character Classes ---------------
 
@@ -1060,12 +1088,12 @@ Several global variables are checked by the script to customize it:
 ------------------------------------------------------------------------------
 global variable                default value               tag (see below)
 ------------------------------------------------------------------------------
-g:Perl_AuthorName              ""                          |AUTHOR|
-g:Perl_AuthorRef               ""                          |AUTHORREF|
-g:Perl_Email                   ""                          |EMAIL|
-g:Perl_Company                 ""                          |COMPANY|
-g:Perl_Project                 ""                          |PROJECT|
-g:Perl_CopyrightHolder         ""                          |COPYRIGHTHOLDER|
+g:Perl_AuthorName              ""                         *|AUTHOR|*
+g:Perl_AuthorRef               ""                         *|AUTHORREF|*
+g:Perl_Company                 ""                         *|COMPANY|*
+g:Perl_CopyrightHolder         ""                         *|COPYRIGHTHOLDER|*
+g:Perl_Email                   ""                         *|EMAIL|*
+g:Perl_Project                 ""                         *|PROJECT|*
 
 g:Perl_Template_Directory      root_dir.'perl-support/templates/'
 g:Perl_Template_File           'perl-file-header'
@@ -1094,7 +1122,6 @@ g:Perl_Printheader             "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 g:Perl_PerlcriticSeverity      5
 g:Perl_PerlcriticVerbosity     5
 g:Perl_PerlcriticOptions       ""
-g:Perl_PerlTags                - undefined -
 
 g:Perl_NoKeyMappings           - undefined -
 
@@ -1141,7 +1168,6 @@ The variable root_dir will automatically be set to one of the following values:
           g:Perl_PerlcriticSeverity      : perlcritic severity
           g:Perl_PerlcriticVerbosity     : perlcritic verbosity
           g:Perl_PerlcriticOptions       : additional perlcritic options
-          g:Perl_PerlTags                : controls usage of Perl::Tags (|perlsupport-perltags|)
           g:Perl_NoKeyMappings           : suppress command mappings (|perlsupport-mappings|)
 
 To override the defaults add appropriate assignments to .vimrc .
@@ -1303,12 +1329,7 @@ that. Beyond this directory you will find the Vim installation,  e.g. in
 Copy the archive perl-support.zip to this new directory and unpack it:
   unzip perl-support.zip
 
-(4) Adjust the plugin directory
-Open the file 'plugin/perl-support.vim' und uncomment the line 
-  " let s:plugin_dir  = $VIM.'/vimfiles/'
-i.e. remove the leading quotation mark and save this file.
-
-(5) Generate the help tags:
+(4) Generate the help tags:
   :helptags $VIM/vimfiles/doc
 
 
@@ -1371,19 +1392,19 @@ The comments in these files do not have to be personalized but they can.
 The text can contain the following tags which are replaced by the appropriate
 information when the file is read in:
 
-    |AUTHOR|
-    |DATE|
-    |EMAIL|
-    |FILENAME|
-    |YEAR|
+   *|AUTHOR|*
+   *|AUTHORREF|*
+   *|COMPANY|*
+   *|COPYRIGHTHOLDER|*
+   *|EMAIL|*
+   *|PROJECT|*
 
-    |AUTHORREF|
-    |COMPANY|
-    |COPYRIGHTHOLDER|
-    |PROJECT|
-    |TIME|
+   *|DATE|*
+   *|FILENAME|*
+   *|TIME|*
+   *|YEAR|*
 
-    |CURSOR|
+   *|CURSOR|*
 
 Each tag can occur more than once. The tag |CURSOR| may appear only once.
 The tag |CURSOR| will be the cursor position after the block is read in.
@@ -1395,17 +1416,23 @@ The template files can actually be links pointing to existing templates.
 5.3  Perl::Tags                                         *perlsupport-perltags*
 ------------------------------------------------------------------------------
 
-The use of the module Perl::Tags (version 0.23; see CPAN) is encouraged. See
-the module documentation on how to use Perl::Tags.
-This feature is turned off by default because you need a Vim binary with Perl
-interface compiled in (see below). To turn it on add the following line to the
-file ~/.vimrc :
+The use of the module Perl::Tags (version 0.23; see CPAN) is encouraged.
+In order to use this feature you need a Vim binary with Perl interface
+compiled in (see below) and Perl::Tags must be installed,  of course.
 
-  let g:Perl_PerlTags = "enable"
+Usage. If the cursor is on the module name in a perl 'use' ore 'require'
+statement like
+
+  use Graphics::GnuplotIF qw(GnuplotIF);
+
+a CTRL-] let you jump into the file GnuplotIF.pm.  An easy way back is with
+the CTRL-T command.  See also the module documentation on how to use
+Perl::Tags.
 
 The script perl-support/scripts/perltags.vim (which is drawn from the
 Perl::Tags documentation) will be loaded from the filetype plugin
-ftplugin/perl.vim.  
+'ftplugin/perl.vim'. The tag files will be created in '/tmp'. MS-Windows user
+have possibly to create this directory.
 
 
 Compiling VIM with Perl interface
@@ -1426,6 +1453,9 @@ Compile Vim from the sources:
       make
       make test
       make install  (you must be root)
+
+Depending on your GUI you will probably need some additional graphics
+libraries.
 
 ==============================================================================
 6.  PERL DICTIONARY                                   *perlsupport-dictionary*
@@ -1449,13 +1479,13 @@ You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
 
 
 ==============================================================================
-9.  OPTIONAL DEPENDENCIES                           *perlsupport-dependencies*
+7.  OPTIONAL DEPENDENCIES                           *perlsupport-dependencies*
 ==============================================================================
 
 There are several optional dependencies.
 
 ------------------------------------------------------------------------------
-9.1 Standard Perl modules
+7.1 Standard Perl modules
 ------------------------------------------------------------------------------
 
 These modules should come with your Perl distribution:
@@ -1467,18 +1497,19 @@ These modules should come with your Perl distribution:
   podchecker - check the syntax of POD format documentation files
 
 ------------------------------------------------------------------------------
-9.2 Non-standard Perl modules
+7.2 Non-standard Perl modules
 ------------------------------------------------------------------------------
 
 The following modules have to be installed by the user/administrator in order
 to use them.
 
-  Devel::SmallProf - per-line Perl profiler
-  Devel::ptkdb     - Perl debugger using a Tk GUI
-  Perl::Critic     - Critique Perl source code for best-practices
-  Perl::Tags       - Generate Ctags style tags for Perl source code 
-                     (see |perlsupport-perltags|)
-  Perl::Tidy       - Parses and beautifies perl source
+  Devel::SmallProf     - per-line Perl profiler
+  Devel::ptkdb         - Perl debugger using a Tk GUI
+  Perl::Critic         - Critique Perl source code for best-practices
+  Perl::Tags           - Generate Ctags style tags for Perl source code 
+                         (see |perlsupport-perltags|)
+  Perl::Tidy           - Parses and beautifies perl source
+  YAPE::Regex::Explain - regular expression analyzer
 
 This is done in one of two way:
 
@@ -1491,7 +1522,7 @@ by first installing them.
 The dependencies are resolved automatically. Recommended.
 
 ------------------------------------------------------------------------------
-9.3 Other applications
+7.3 Other applications
 ------------------------------------------------------------------------------
 
   ddd - The Data Display Debugger (graphical front-end for GDB)

@@ -23,11 +23,15 @@
 "                  pod2man
 "                  pod2text
 "                  perldoc
-"                  Perl::Tidy              (beautifier,        optional)
-"                  Perl::Critic            (stylechecker,      optional)
-"                  Devel::SmallProf        (profiler,          optional)
-"                  Devel::ptkdb            (debugger frontend, optional)
-"                  ddd                     (debugger frontend, optional)
+"
+"                  optional:
+"
+"                  Perl::Tidy           (beautifier)
+"                  Perl::Critic         (stylechecker)
+"                  Devel::SmallProf     (profiler)
+"                  Devel::ptkdb         (debugger frontend)
+"                  YAPE::Regex::Explain (regular expression analyzer)
+"                  ddd                  (debugger frontend)
 "
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
@@ -44,7 +48,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.18 2007/07/28 09:55:10 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.23 2007/12/28 13:29:25 mehner Exp $
 "------------------------------------------------------------------------------
 " 
 " Prevent duplicate loading: 
@@ -52,7 +56,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.6.3"
+let g:Perl_Version= "3.7"
 "        
 "###############################################################################################
 "
@@ -62,35 +66,42 @@ let g:Perl_Version= "3.6.3"
 " - plugin directory
 " - characters that must be escaped for filenames
 " 
-let s:MSWIN =   has("win16") || has("win32")     || has("win64") || 
-              \ has("win95") || has("win32unix")
+let s:MSWIN =   has("win16") || has("win32") || has("win64") || has("win95")
+let s:UNIX	=   has("unix") || has("macunix") || has("win32unix")
 " 
 if  s:MSWIN
   " ==========  MS Windows  ======================================================
   let s:plugin_dir  = $VIM.'\vimfiles\'
   let s:escfilename = ''
+	let s:Perl_CodeSnippets            = s:plugin_dir.'perl-support/codesnippets/'
   "
+	let s:Perl_Display        = ''
+	"
 else
   "
   " ==========  Linux/Unix  ======================================================
-	"--------------------------------------------------------------------------
-	"   plugin directory for a user installation (default)
-	"   comment out next line for a system wide installation
-	"--------------------------------------------------------------------------
-  let s:plugin_dir   = $HOME.'/.vim/'
 	"
-	"--------------------------------------------------------------------------
-	"   plugin directory for a system wide installation 
-	"   uncomment next line for a system wide installation
-	"--------------------------------------------------------------------------
-	" let s:plugin_dir  = $VIM.'/vimfiles/'
+	" user / system wide installation
 	"
-  let s:escfilename = ' \%#[]'
+	if match( expand("<sfile>"), $VIM ) >= 0
+		" system wide installation 
+		let s:plugin_dir  = $VIM.'/vimfiles/'
+	else
+		" user installation assumed
+		let s:plugin_dir  = $HOME.'/.vim/'
+	end
+	"
+	let s:escfilename = ' \%#[]'
   "
+	let s:Perl_CodeSnippets            = $HOME.'/.vim/perl-support/codesnippets/'
+	"
+	let s:Perl_Display	= system("echo -n $DISPLAY")
+	"
 endif
 "
 let g:Perl_PluginDir	= s:plugin_dir         " used for communication with ftplugin/perl.vim
 "
+let g:Perl_PerlTags		= 'enabled'							" enable use of Perl::Tags
 "
 "  Key word completion is enabled by the filetype plugin 'perl.vim'
 "  g:Perl_Dictionary_File  must be global
@@ -110,7 +121,6 @@ let s:Perl_CopyrightHolder         = ''
 
 let s:Perl_Root                    = '&Perl.'
 let s:Perl_LoadMenus               = 'yes'
-let s:Perl_CodeSnippets            = $HOME.'/.vim/perl-support/codesnippets/'
 let s:Perl_Template_Directory      = s:plugin_dir.'perl-support/templates/'
 let s:Perl_Template_File           = 'perl-file-header'
 let s:Perl_Template_Module         = 'perl-module-header'
@@ -439,7 +449,7 @@ function! Perl_InitMenu ()
     exe "vnoremenu ".s:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  s{}<Esc>P'
     exe "vnoremenu ".s:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  s{,}<Esc>hPf}i'
     "
-    exe " menu ".s:Perl_Root.'Rege&x.-SEP0-                             :'
+    exe " menu ".s:Perl_Root.'Rege&x.-SEP3-                             :'
     "
     exe " noremenu ".s:Perl_Root.'Rege&x.word\ &boundary<Tab>\\b              <Esc>a\b'
     exe "inoremenu ".s:Perl_Root.'Rege&x.word\ &boundary<Tab>\\b              \b'
@@ -449,7 +459,7 @@ function! Perl_InitMenu ()
     exe "inoremenu ".s:Perl_Root.'Rege&x.white&space<Tab>\\s                  \s'
     exe " noremenu ".s:Perl_Root.'Rege&x.&word\ character<Tab>\\w             <Esc>a\w'
     exe "inoremenu ".s:Perl_Root.'Rege&x.&word\ character<Tab>\\w             \w'
-    exe " noremenu ".s:Perl_Root.'Rege&x.-SEP1-                               :'
+    exe " noremenu ".s:Perl_Root.'Rege&x.-SEP4-                               :'
     exe " noremenu ".s:Perl_Root.'Rege&x.non-(word\ bound\.)\ (&1)<Tab>\\B    <Esc>a\B'
     exe "inoremenu ".s:Perl_Root.'Rege&x.non-(word\ bound\.)\ (&1)<Tab>\\B    \B'
     exe " noremenu ".s:Perl_Root.'Rege&x.non-digit\ (&2)<Tab>\\D              <Esc>a\D'
@@ -459,6 +469,13 @@ function! Perl_InitMenu ()
     exe " noremenu ".s:Perl_Root.'Rege&x.non-\"word\"\ char\.\ (&4)<Tab>\\W   <Esc>a\W'
     exe "inoremenu ".s:Perl_Root.'Rege&x.non-\"word\"\ char\.\ (&4)<Tab>\\W   \W'
     "
+    exe " noremenu ".s:Perl_Root.'Rege&x.-SEP5-                               :'
+		if  s:MSWIN
+			exe " menu <silent> ".s:Perl_Root.'Rege&x.&explain\ Regex    <C-C>:call Perl_RegexAnalyse()<CR>'
+		else
+			exe "vmenu <silent> ".s:Perl_Root.'Rege&x.&explain\ Regex    <C-C>:call Perl_RegexAnalyse()<CR>'
+		endif
+		"
     "---------- submenu : POSIX character classes --------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
@@ -1191,7 +1208,6 @@ endfunction    " ----------  end of function  Perl_SubstituteTag  ----------
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_CommentTemplates (arg)
-
   "----------------------------------------------------------------------
   "  Perl templates
   "----------------------------------------------------------------------
@@ -1489,13 +1505,13 @@ function! Perl_Block (arg)
   endif
   
   if a:arg=='v'
-    let zz=    '{'
-    :'<put! =zz
-    let zz=    "}\n"
-    :'>put =zz
-    :'<-1
-    :exe "normal =".(line("'>")-line(".")+2)."+"
-    :'>+1
+		let zz=    '{'
+		:'<put! =zz
+		let zz=    "}\n"
+		:'>put =zz
+		:'<-1
+		:exe "normal =".(line("'>")-line(".")+2)."+"
+		:'>+1
   endif
 endfunction    " ----------  end of function Perl_Block  ----------
 "
@@ -1775,7 +1791,7 @@ function! Perl_perldoc()
     " search order:  library module --> builtin function --> FAQ keyword
     " 
     let delete_perldoc_errors = ""
-    if has("unix")
+    if s:UNIX
       let delete_perldoc_errors = " 2>/dev/null"
     endif
     setlocal  modifiable
@@ -1839,7 +1855,7 @@ function! Perl_perldoc()
       let s:Perl_PerldocTry         = 'module'
       let s:Perl_PerldocSearchWord  = ""
     endif
-    if has("unix")
+    if s:UNIX
       " remove windows line ends
       silent! exe ":%s/\r$// | normal gg"
     endif
@@ -1889,11 +1905,11 @@ function! Perl_perldoc_generate_module_list()
   echo " ... generating Perl module list ... " 
   setlocal modifiable
   if  s:MSWIN
-    silent exe ":!".s:Perl_PerlModuleListGenerator." > ".s:Perl_PerlModuleList
+    silent exe ":!perl ".s:Perl_PerlModuleListGenerator." > ".s:Perl_PerlModuleList
     silent exe ":!sort ".s:Perl_PerlModuleList." /O ".s:Perl_PerlModuleList
   else
 		" direct STDOUT and STDERR to the module list file :
-    silent exe ":!".s:Perl_PerlModuleListGenerator." -s &> ".s:Perl_PerlModuleList
+    silent exe ":!perl ".s:Perl_PerlModuleListGenerator." -s &> ".s:Perl_PerlModuleList
   endif
   setlocal nomodifiable
   echo " DONE " 
@@ -2001,40 +2017,39 @@ endfunction   " ---------- end of function  Perl_SyntaxCheckMsg  ----------
 "----------------------------------------------------------------------
 function! Perl_Toggle_Gvim_Xterm ()
 
-  if has("gui_running")
-    if s:Perl_OutputGvim == "vim"
-      if has("gui_running")
-        exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm'
-        exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim              <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
-      endif
-      let s:Perl_OutputGvim = "buffer"
-    else
-      if s:Perl_OutputGvim == "buffer"
-        if has("gui_running")
-          exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim'
-          exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer             <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
-          let s:Perl_OutputGvim = "xterm"
-        else
-          let s:Perl_OutputGvim = "vim"
-        endif
-      else
-        " ---------- output : xterm -> gvim
-        if has("gui_running")
-          exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer'
-          exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
-        endif
-        let s:Perl_OutputGvim = "vim"
-      endif
-    endif
-  else
-    if s:Perl_OutputGvim == "vim"
-      let s:Perl_OutputGvim = "buffer"
-    else
-      let s:Perl_OutputGvim = "vim"
-    endif
-  endif
+	if s:Perl_OutputGvim == "vim"
+		if has("gui_running")
+			exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm'
+			exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim              <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+		endif
+		let	s:Perl_OutputGvim	= "buffer"
+	else
+		if s:Perl_OutputGvim == "buffer"
+			if has("gui_running")
+				exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim'
+				if (!s:MSWIN) 
+					exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer             <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+				else
+					exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+				endif
+			endif
+			if (!s:MSWIN) && (s:Perl_Display != '')
+				let	s:Perl_OutputGvim	= "xterm"
+			else
+				let	s:Perl_OutputGvim	= "vim"
+			end
+		else
+			" ---------- output : xterm -> gvim
+			if has("gui_running")
+				exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer'
+				exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+			endif
+			let	s:Perl_OutputGvim	= "vim"
+		endif
+	endif
+  echomsg "output destination is '".s:Perl_OutputGvim."'"
 
-endfunction    " ----------  end of function Perl_Toggle_Gvim_Xterm  ----------
+endfunction    " ----------  end of function Perl_Toggle_Gvim_Xterm ----------
 "
 "------------------------------------------------------------------------------
 "  run : Perl_PerlSwitches
@@ -2125,6 +2140,7 @@ function! Perl_Run ()
         setlocal noswapfile
         setlocal syntax=none
         setlocal bufhidden=delete
+        setlocal tabstop=8
       endif
       "
       " run script 
@@ -2138,15 +2154,10 @@ function! Perl_Run ()
       endif
       setlocal  nomodifiable
       "
-      " stdout is empty / not empty
-      "
-      if line("$")==1 && col("$")==1
-        silent  exe ":bdelete"
-      else
-        if winheight(winnr()) >= line("$")
-          exe bufwinnr(l:currentbuffernr) . "wincmd w"
-        endif
-      endif
+			if winheight(winnr()) >= line("$")
+				exe bufwinnr(l:currentbuffernr) . "wincmd w"
+			endif
+			"
     endif
   endif
   "
@@ -2160,6 +2171,7 @@ function! Perl_Run ()
       exe "!perl \"".l:switches.l:fullname." ".l:arguments."\""
     else
       silent exe '!xterm -title '.l:fullname.' '.s:Perl_XtermDefaults.' -e '.s:Perl_Wrapper.' perl '.l:switches.l:fullname.l:arguments
+			:redraw!
     endif
     "
   endif
@@ -2869,23 +2881,101 @@ endif
 "  Automated header insertion
 "------------------------------------------------------------------------------
 if has("autocmd")
-  " 
-  " =====  Perl script      : insert header, write file
-  " =====  Perl module      : insert header, write file
-  " =====  Perl test module : insert header, write file
-  autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header') | :w! 
-  autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module') | :w!
-  autocmd BufNewFile  *.t   call Perl_CommentTemplates('test')   | :w!
-  " 
-  " =====  Perl POD module  : set filetype to Perl
-  " =====  Perl test module : set filetype to Perl
+	
+	autocmd BufNewFile  *.pl  call Perl_CommentTemplates('header')	|	:w!
+	autocmd BufNewFile  *.pm  call Perl_CommentTemplates('module')	|	:w!
+	autocmd BufNewFile  *.t   call Perl_CommentTemplates('test')  	|	:w!
+  "
   autocmd BufRead            *.pod  set filetype=perl
-  autocmd BufNewFile         *.pod  set filetype=perl | call Perl_CommentTemplates('pod') | :w!
+  autocmd BufNewFile         *.pod  set filetype=perl | call Perl_CommentTemplates("pod")
   autocmd BufNewFile,BufRead *.t    set filetype=perl
   "
   " Wrap error descriptions in the quickfix window.
   autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak 
   "
-endif " has("autocmd")
+endif
+"
+"------------------------------------------------------------------------------
+"   run the regular expression analyzer YAPE::Regex::Explain
+"------------------------------------------------------------------------------
+let s:Perl_PerlRegexBufferName    = 'REGEX'
+let s:Perl_PerlRegexBufferNumber	= -1
+let s:Perl_PerlRegexAnalyser			= 'yes'
+"
+function! Perl_RegexAnalyse( )
+
+	if !has('perl')
+		echomsg	"*** Your version of Vim was not compiled with Perl interface. ***"
+		return
+	endif
+
+	if s:Perl_PerlRegexAnalyser	!= 'yes'
+		echomsg	"*** The Perl module YAPE::Regex::Explain can not be found. ***"
+		return
+	endif
+
+	if bufloaded(s:Perl_PerlRegexBufferName) != 0 && bufwinnr(s:Perl_PerlRegexBufferNumber) != -1
+		exe bufwinnr(s:Perl_PerlRegexBufferNumber) . "wincmd w"
+		" buffer number may have changed, e.g. after a 'save as' 
+	else
+		exe ":new ".s:Perl_PerlRegexBufferName
+		let s:Perl_PerlRegexBufferNumber=bufnr("%")
+		setlocal buftype=nofile
+		setlocal noswapfile
+		setlocal bufhidden=delete
+		setlocal syntax=OFF
+	endif
+	"
+	" remove content if any
+	"
+	normal	ggdG
+
+    perl <<EOF
+				my $explanation;
+				my ( $success, $value ) = VIM::Eval('s:MSWIN');
+
+				if ( $value ) {
+					# MS-Windows : evaluate the yank register "0
+					( $success, $value ) = VIM::Eval('@0');
+					}
+				else {
+					# Linux/Unix : evaluate the selection register "*
+					( $success, $value ) = VIM::Eval('@*');
+					}
+
+				if ( $success == 1 ) {
+					# get the explanation
+					$explanation	= YAPE::Regex::Explain->new($value)->explain();
+					}
+				else {
+					$explanation	= "\n*** VIM failed to evaluate the marked expression ***\n";
+					}
+
+				# split explanation into lines
+				my	@explanation	= split /\n/, $explanation;
+
+				# put the explanation to the top of the buffer
+				$curbuf->Append( 0, @explanation );
+EOF
+
+endfunction    " ----------  end of function Perl_RegexAnalyse  ----------
+"
+"-------------------------------------------------------------------------------
+"   initialize the regular expression analyzer
+"-------------------------------------------------------------------------------
+function! Perl_RegexAnalyseInit( )
+	if has('perl')
+		" try to load the regex analyzer module; report failure
+    perl <<EOF
+				eval "require YAPE::Regex::Explain";
+				if ( $@ ) {
+					VIM::DoCommand("let s:Perl_PerlRegexAnalyser = 'no'");
+					}
+EOF
+	endif
+endfunction    " ----------  end of function Perl_RegexAnalyseInit  ----------
+"
+call Perl_RegexAnalyseInit()
+"
 "
 " vim:set tabstop=2: 
