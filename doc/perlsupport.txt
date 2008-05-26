@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                December 28 2007
+*perlsupport.txt*                Perl Support                     May 23 2008
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 3.7
+                              Plugin version 3.8
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -17,11 +17,10 @@ profiler can be done with a keystroke.
  1.1      Menu 'Comments'                 |perlsupport-comments|
  1.1.1     Append aligned comments        |perlsupport-aligned-comm|
  1.1.2     Comment templates              |perlsupport-comm-templates|
- 1.1.3     Code to comment                |perlsupport-code-to-comm|
- 1.1.4     Comment to code                |perlsupport-comm-to-code|
- 1.1.5     Comment out a block of code    |perlsupport-comm-block|
- 1.1.6     Uncomment a block of code      |perlsupport-uncomm-block|
- 1.1.7     KEYWORD + comment              |perlsupport-comm-keywords|
+ 1.1.3     Toggle comment                 |perlsupport-comm-toggle|
+ 1.1.4     Comment out a block of code    |perlsupport-comm-block|
+ 1.1.5     Uncomment a block of code      |perlsupport-uncomm-block|
+ 1.1.6     KEYWORD + comment              |perlsupport-comm-keywords|
  1.2      Menu 'Statements'               |perlsupport-statements|
  1.2.1     Normal mode, insert mode       |perlsupport-stat-norm-ins|
  1.2.2     Visual mode                    |perlsupport-stat-visual|
@@ -31,7 +30,8 @@ profiler can be done with a keystroke.
  1.3.2      Opening files                 |perlsupport-open-files|
  1.4      Menu 'Regex'                    |perlsupport-regex|
  1.4.1     Compose regular expressions    |perlsupport-regex-compose|
- 1.4.2     Explain regular expressions    |perlsupport-regex-explain|
+ 1.4.2     Explain regular expression     |perlsupport-regex-explain|
+ 1.4.3     Match                          |perlsupport-regex-match|
  1.5      Menu 'CharCls'                  |perlsupport-charcls|
  1.6      Menu 'File-Tests'               |perlsupport-filetests|
  1.7      Menu 'Spec-Var'                 |perlsupport-specvar|
@@ -72,10 +72,11 @@ profiler can be done with a keystroke.
  5.3      Perl::Tags                      |perlsupport-perltags|
  6.      Perl Dictionary                  |perlsupport-dictionary|
  7.      Optional Dependencies            |perlsupport-dependencies|
- 8.      MS-Windows particularities       |perlsupport-windows|
- 9.      Troubleshooting                  |perlsupport-troubleshooting|
- 10.     Release Notes / Change Log       |perlsupport-release-notes|
- 11.     Credits                          |perlsupport-credits|
+ 8.      Compiling Vim                    |perlsupport-compile-vim|
+ 9.      MS-Windows particularities       |perlsupport-windows|
+ 10.     Troubleshooting                  |perlsupport-troubleshooting|
+ 11.     Release Notes / Change Log       |perlsupport-release-notes|
+ 12.     Credits                          |perlsupport-credits|
 
  How to add this help file to vim's help  |add-local-help|
 
@@ -148,37 +149,30 @@ VISUAL MODE: All comments in the marked area will be aligned.
 Frame comments, function descriptions and file header comments are read as
 templates from the appropriate files (see |perlsupport-tempfiles|).
 
-1.1.3 CODE TO COMMENT                               *perlsupport-code-to-comm*
+1.1.3 TOGGLE COMMENT                                *perlsupport-comm-toggle*
 ---------------------
-A marked block will be changed into
+The comment sign # can be set or removed at the beginning of the current line.
+A single line needs not to be marked.
 
-#my $x11       = 11;
-#my $x1111     = 1111;
-#my $x11111111 = 11111111;
+A marked block 
 
-The menu item works also for a single line. A single line needs not to be
-marked.
+ my $x11       = 11;
+ 
+ #my $x1111     = 1111;
+ #  print "\n";
+   #print "\n";
 
-1.1.4 COMMENT TO CODE                               *perlsupport-comm-to-code*
----------------------
-A marked block
+will be changed into (and vice versa)
 
-#my $x1        = 1;
-my $x11       = 11;
-     my  $x1111     = 1111;
-    # my  $x11111111 = 11111111;
+ #my $x11       = 11;
+ #
+ my $x1111     = 1111;
+   print "\n";
+   print "\n";
 
-will be changed into
+Whitespaces in front of the hash sign will be preserved.
 
-my $x1        = 1;
-my $x11       = 11;
-     my  $x1111     = 1111;
-     my  $x11111111 = 11111111;
-
-The menu item works also for a single line. A single line needs not to be
-marked.
-
-1.1.5 COMMENT OUT A BLOCK OF CODE                     *perlsupport-comm-block*
+1.1.4 COMMENT OUT A BLOCK OF CODE                     *perlsupport-comm-block*
 ---------------------------------
 In normal mode the menu item 'comment block' inserts an empty POD block which
 can be used like a C preprocessor directive for conditional compilation.
@@ -217,13 +211,13 @@ A corresponding label can be found by searching with the vim star command (*).
 All labels can be found with a global search like :g/BlockCommentNo_/ or
 :g/BlockCommentNo_\d\+/.
 
-1.1.6 UNCOMMENT A BLOCK OF CODE                     *perlsupport-uncomm-block*
+1.1.5 UNCOMMENT A BLOCK OF CODE                     *perlsupport-uncomm-block*
 -------------------------------
 The menu item 'uncomment block' removes such a construct if the cursor is in
 the middle of such a block or on the line with '=begin ...'. Nested constructs
 will be untouched.
 
-1.1.7 KEYWORD+comment                              *perlsupport-comm-keywords*
+1.1.6 KEYWORD+comment                              *perlsupport-comm-keywords*
 ---------------------
 Preliminary line end comments to document (and find again) places where work
 will be resumed shortly, like
@@ -421,6 +415,27 @@ The menu items and hotkeys for opening a file or a pipe have visual mode. When
 a block is selected the code for opening a file/pipe will be inserted above
 this block, the close statement will be inserted below.
 
+PERL-BEST-PRACTICES-STYLE
+-------------------------
+The Perl operators m, s, and tr will be generated by the menu items from the
+'Idioms'-menu in the traditional form using slashes: 
+
+  $ =~ m//
+  $ =~ s///
+  $ =~ tr///
+
+You can switch to
+ 
+  $ =~ m{}xm
+  $ =~ s{}{}xm
+  $ =~ tr{}{}xm
+
+by setting a global variable in the file '~/.vimrc' :
+
+  let s:Perl_PBP  = 'yes'
+
+The default value is 'no'.
+
 ------------------------------------------------------------------------------
 1.4  MENU 'Regex'                                          *perlsupport-regex*
 ------------------------------------------------------------------------------
@@ -440,26 +455,152 @@ In VISUAL MODE the following entries and all entries from the
     {}    :      {xxx}
     {,}   :      {xxx,}
 
-1.4.2  EXPLAIN REGULAR EXPRESSIONS                 *perlsupport-regex-explain*
-----------------------------------
+1.4.2  EXPLAIN REGULAR EXPRESSION                  *perlsupport-regex-explain*
+---------------------------------
 If the Perl module YAPE::Regex::Explain is installed a regular expression
 can be explained to you. 
-
-- Linux/Unix -
 Just mark the expression (v-mode) and use the menu entry 'explain Regex' or
 the hotkey '\xe'. 
+You also can pick up a complete line containing a regular expression with the
+menu entry 'pick up regex' in normal mode. In this case leading and trailing
+whitespaces will be removed.
+Flags for the operator m/// can be picked up with  menu entry 'pick up flags'.
 
-- MS-Windows -
-Mark the expression (v-mode) and type 'y' (yank) to put the selection into the
-yank register ("0). Now use the menu entry 'explain Regex' or the hotkey '\xe'
-(both in normal mode).
-
-The regex will now be explain in a new buffer called 'REGEX'. This buffer is
-not related  to a file and will not be written. A regular explain can span
+The regex will now be explain in a new buffer called 'REGEX-EXPLAIN'. This
+buffer is not related  to a file and will not be written, but the content can
+be printed with the hardcopy entry in the run-menu. A regular explain can span
 several lines.
 In order to use this feature you need a Vim binary with Perl interface
 compiled in (see |perl|) and YAPE::Regex::Explain must be installed,  of
 course.
+
+1.4.3  MATCH                                         *perlsupport-regex-match*
+------------
+If you have a Vim binary with Perl interface compiled in (see |perl|) you can
+test regular expressions very easily. This can be done in two ways.
+
+(1) Visual mode. Pick up a regular expression by selecting the appropriate
+string (v-mode; e.g.  inside the m// operator) and use the menu entry 'pick up
+regex'.  Pick up flags the same way with 'pick up flags'. Now pick up a string
+as target with 'pick up string' and select the menu entry 'match'. The regular
+expression, the target and the match are shown in a new window called
+REGEX-TEST: 
+
+  REGEXP = m{([\w\s]+)(jumped)(.{1,6})([\w\s]+)}
+  
+  STRING    [  0, 53] = ### The quick brown fox jumped over the lazy dog. ###
+  prematch  [  0,  3] = ###
+  MATCH     [  3, 45] =   | The quick brown fox jumped over the lazy dog|
+  postmatch [ 48,  5] =                                                 . ###
+  
+  $1        [  3, 21] =   | The quick brown fox |
+  $2        [ 24,  6] =                         jumped
+  $3        [ 30,  6] =                              | over |
+  $4        [ 36, 12] =                                     the lazy dog
+  
+In addition the match will be highlighted in most cases. The match is done as
+  $string =~ m{(?flags:$regexp)}
+by the Perl interface. For the flags see|perlsupport-regex-flags|). 
+The brackets after a match object contain the starting position (starting with
+0) and the length of the object. Objects starting or ending with one or more
+spaces are enclosed in vertical bars.
+
+Multiline regular expressions (like the string inside the braces below) are
+allowed. They work properly if the flag 'x' is set.
+
+  regexp     = m{ \d+
+                  /   # a/b
+                  \d+
+                  }x
+
+Multiline strings are also allowed.  The regular expression '(\n+)$' matches
+consecutive linefeeds at the end of a string or inside a string when used with
+the flag 'm'.  The string in the following example consists of the 6 lines
+from 'aaaa' to 'eeee'. The second, third, and fourth line contains 1 to 3
+tabulators each (tab width is 2). The fifth line line is empty: 
+
+  aaaa
+  bb  bb
+  cc    cc
+  dd      dd
+  
+  eeee
+
+With the flag 'm' matching gives the following visualization:
+
+  REGEXP = m{(\n+)$}m
+  
+  lines : 6           = |1.. |2... |3.... |4.....  |6..
+  STRING    [  0, 32] = aaaa$bb~bb$cc~~cc$dd~~~dd$$eeee$
+  prematch  [  0, 25] = aaaa$bb~bb$cc~~cc$dd~~~dd
+  MATCH     [ 25,  1] =                          $
+  postmatch [ 26,  6] =                           $eeee$
+  
+  $1        [ 25,  1] =                          $
+  
+  
+  Control character replacement: \n -> '$'   \t -> '~'
+
+The linefeeds inside the string have been replace by dollar signs, the
+tabulators have been replaced by the tilde. A ruler line will be shown. The
+start of some lines are marked with the line number (depending on the line
+length).
+The control character replacements can be changed on the command line, e.g.:
+
+  :RegexSubstitutions '# '
+
+or by changing the defaults in the file '.vimrc'
+
+  let g:Perl_PerlRegexSubstitution   = '# '
+
+Linefeeds will now be replaced by '#' (the first character of the given pair),
+tabulators will be replaced by a space. Control characters are not allowed as
+replacements.
+
+Last parenthesized submatch ($+) and  most-recently-closed capturing
+parenthesis submatch ($^N). If the two results differ both are displayed:
+
+  REGEXP = m{(Version: (.*)|Revision: (.*))}
+  
+  STRING    [  0, 25] = ##   Revision:    5-6-pre 
+  prematch  [  0,  5] =|##   |
+  MATCH     [  5, 20] =      Revision:    5-6-pre
+  
+  $1        [  5, 20] =      Revision:    5-6-pre
+  $2        undefined
+  $3        [ 15, 10] =               |   5-6-pre|
+  
+  $+            [ 10] =|   5-6-pre|
+  $^N           [ 20] = Revision:    5-6-pre
+
+
+(2) Normal mode. You can use a scratch buffer or a scratch area to test your
+regular expressions. Just write the naked regular expression in one line and
+the string on the next line:
+
+  ([\w\s]+)(jumped)(.{1,6})([\w\s]+)
+  ### The quick brown fox jumped over the lazy dog. ###
+
+Now select 'pick up regex', 'pick up string', and 'match' in normal mode
+or use the hotkeys \xr, \xs, and \xm .
+Leading and trailing whitespaces are removed from the regex and target string
+if picked up in normal mode. If one of these strings has such whitespaces pick
+it up in visual mode.
+
+The picked up regular expression, the string, and the flags are kept in
+internal variables. After a change you have just to renew the changed item.
+The variable for the regular expression and for the flags is also used by the
+menu entry 'explain regex' (see|perlsupport-regex-explain|).
+
+Pick up flag(s)                                      *perlsupport-regex-flags*
+
+The menu item 'pick up flag(s)' asks for one of the regular expression flags
+'imsx' or any combination of them (hotkeys \xf ). You can also mark flags in
+visual mode and pick the selection up. Characters other than the allowed flags
+will be removed.
+
+LIMITATION. Regular expressions with  match-time code evaluation can not be
+handled in the current version.
 
 ------------------------------------------------------------------------------
 1.5  MENU 'CharCls'                                    *perlsupport-charcls*
@@ -547,8 +688,8 @@ correctly by the VIM quickfix system.
 This script has to be executable under UNIX.
 
 Consider using maps like 
-  map  <silent> <F7>    <Esc>:cp<CR>
-  map  <silent> <F8>    <Esc>:cn<CR>
+  noremap  <silent> <F7>    :cp<CR>
+  noremap  <silent> <F8>    :cn<CR>
 in your .vimrc file to jump over the error locations and make navigation
 easier (see also file customization.vimrc |perlsupport-custom-files|).
 The error list and the error locations in your source buffer will be
@@ -792,8 +933,8 @@ See :h printheader and :h strftime()  for more details.
 
 1.9.14 SETTINGS AND HOTKEYS                             *perlsupport-settings*
 ---------------------------
-This menu item shows actualsettings for the plugin. Some may have been changed 
-duribg a session (e.g. current output destination or perlcritic verbosity).
+This menu item shows actual settings for the plugin. Some of them can change
+during a session (e.g. current output destination or perlcritic verbosity).
 
 1.9.15 XTERM SIZE                                          *perlsupport-xterm*
 -----------------
@@ -883,8 +1024,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \ckw     keyword comment WARNING           (n   i)
   \cko     keyword comment WORKAROUND        (n   i)
   \ckn     keyword comment new keyword       (n   i)
-  \cc      code to comment                   (n,v  )
-  \co      comment to code                   (n,v  )
+  \cc      toggle comment                    (n,v  )
   \cb      code block to comment             (n,v  )
   \cn      uncomment code block              (n,v  )
   \cd      date                              (n   i)
@@ -929,7 +1069,11 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Regular Expressions -------------------
 
-  \xe      explain Regex                     (v)
+  \xr      pick up Regex                     (n,v)
+  \xs      pick up string                    (n,v)
+  \xf      pick up flags                     (n,v)
+  \xm      match                             (n)
+  \xe      explain Regex                     (n,v)
 
   -- POSIX Character Classes ---------------
 
@@ -1122,6 +1266,7 @@ g:Perl_Printheader             "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 g:Perl_PerlcriticSeverity      5
 g:Perl_PerlcriticVerbosity     5
 g:Perl_PerlcriticOptions       ""
+g:Perl_PerlRegexSubstitution   '$+'
 
 g:Perl_NoKeyMappings           - undefined -
 
@@ -1169,6 +1314,7 @@ The variable root_dir will automatically be set to one of the following values:
           g:Perl_PerlcriticVerbosity     : perlcritic verbosity
           g:Perl_PerlcriticOptions       : additional perlcritic options
           g:Perl_NoKeyMappings           : suppress command mappings (|perlsupport-mappings|)
+          g:Perl_PerlRegexSubstitution   : regex control character substitutions
 
 To override the defaults add appropriate assignments to .vimrc .
 Set at least some personal details into .vimrc by overriding some defaults.
@@ -1268,8 +1414,8 @@ entries. To enable this feature
   " taglist.vim : toggle the taglist window
   " taglist.vim : define the title texts for Perl
   "-----------------------------------------------------------------------------
-   noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
-  inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
+   noremap <silent> <F11>       :Tlist<CR>
+  inoremap <silent> <F11>  <C-C>:Tlist<CR>
 
   let tlist_perl_settings  = 'perl;c:constants;l:labels;p:package;s:subroutines;d:POD'
 
@@ -1529,9 +1675,61 @@ The dependencies are resolved automatically. Recommended.
 
 The homepage of this project is http://www.gnu.org/software/ddd/.
 
+==============================================================================
+8.  Compiling Vim                                    *perlsupport-compile-vim*
+==============================================================================
+
+You may want to compile Vim yourself because the 'perl' feature is missing.
+First, there are two ways to check this:
+(1) Type 'version' on the Vim command line and look for 'perl' in the section
+"Features includes ... ". 
+(2) Type 'echo has("perl")' on the Vim command line. If you get a '0' the
+feature is not present.
+A ':help :version' will show all possible features to choose from.
+
+You could first look around for a binary distribution with this feature which
+was compiled for your platform. Install it and all is done.
+
+COMPILE YOUR OWN VERSION (LINUX/UNIX).
+--------------------------------------
+(1) Download the sources from 'vim.sourceforge.net' and extract the sources
+from the archive (for patches see|perlsupport-compile-vim-patches|).
+
+(2) Inspect the current version again. The section 'Compilation' shows how
+this version was built. You can see the libraries used. In order to have your
+new version looking like the one you are just using you may have to install
+some additional libraries first (the development versions).
+
+(3) Change to the directory containing the source code and type 
+
+  ./configure --enable-perlinterp
+  make
+  make check
+
+If all was well install the program:
+
+  make install
+
+A './configure --help' prior to these steps will show a lot of options (e.g.
+for a local or user installation).
+
+(4) Check if you have to add the target directory for the new installation to
+PATH.
+
+(5) Check if the new version starts up when you are in your normal working
+environment. You may have to remove the old version to avoid conflicts.
+
+The file 'src/INSTALL' contains more details if needed. 
+
+PATCHES                                      *perlsupport-compile-vim-patches*
+-------
+Before compiling your own version you may want to include the patches from
+ftp.vim.org/pub/vim/patches/. The patch directory contains a file 'README'
+which shows how to do that.
+
 
 ==============================================================================
-8.  MS-Windows PARTICULARITIES                           *perlsupport-windows*
+9.  MS-Windows PARTICULARITIES                           *perlsupport-windows*
 ==============================================================================
 
 The plugins should go into the directory structure below the local
@@ -1549,7 +1747,7 @@ Configuration files:
 
 
 ==============================================================================
-9.  TROUBLESHOOTING                              *perlsupport-troubleshooting*
+10.  TROUBLESHOOTING                             *perlsupport-troubleshooting*
 ==============================================================================
 
 * I do not see any new main menu item.
@@ -1595,13 +1793,13 @@ Configuration files:
     
 
 ==============================================================================
-10.  RELEASE NOTES / CHANGELOG                      *perlsupport-release-notes*
+11.  RELEASE NOTES / CHANGELOG                      *perlsupport-release-notes*
 ==============================================================================
 
 See files 'README.perlsupport' and 'ChangeLog'.
 
 ==============================================================================
-11.  CREDITS                                             *perlsupport-credits*
+12.  CREDITS                                             *perlsupport-credits*
 ==============================================================================
 
 David Fishburn <fishburn@ianywhere.com> for the implementation of the

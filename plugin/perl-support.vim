@@ -26,18 +26,18 @@
 "
 "                  optional:
 "
-"                  Perl::Tidy           (beautifier)
-"                  Perl::Critic         (stylechecker)
-"                  Devel::SmallProf     (profiler)
-"                  Devel::ptkdb         (debugger frontend)
-"                  YAPE::Regex::Explain (regular expression analyzer)
 "                  ddd                  (debugger frontend)
+"                  Devel::ptkdb         (debugger frontend)
+"                  Devel::SmallProf     (profiler)
+"                  Perl::Critic         (stylechecker)
+"                  Perl::Tidy           (beautifier)
+"                  YAPE::Regex::Explain (regular expression analyzer)
 "
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
 "        Version:  see variable  g:Perl_Version  below 
 "        Created:  09.07.2001
-"        License:  Copyright (c) 2001-2007, Fritz Mehner
+"        License:  Copyright (c) 2001-2008, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
 "                  modify it under the terms of the GNU General Public License as
 "                  published by the Free Software Foundation, version 2 of the
@@ -48,7 +48,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.23 2007/12/28 13:29:25 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.41 2008/05/21 15:33:53 mehner Exp $
 "------------------------------------------------------------------------------
 " 
 " Prevent duplicate loading: 
@@ -56,7 +56,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.7"
+let g:Perl_Version= "3.8"
 "        
 "###############################################################################################
 "
@@ -66,8 +66,8 @@ let g:Perl_Version= "3.7"
 " - plugin directory
 " - characters that must be escaped for filenames
 " 
-let s:MSWIN =   has("win16") || has("win32") || has("win64") || has("win95")
-let s:UNIX	=   has("unix") || has("macunix") || has("win32unix")
+let s:MSWIN = has("win16") || has("win32")   || has("win64")    || has("win95")
+let s:UNIX	= has("unix")  || has("macunix") || has("win32unix")
 " 
 if  s:MSWIN
   " ==========  MS Windows  ======================================================
@@ -146,6 +146,9 @@ let s:Perl_Printheader             = "%<%f%h%m%<  %=%{strftime('%x %X')}     Pag
 let s:Perl_Wrapper                 = s:plugin_dir.'perl-support/scripts/wrapper.sh'
 let s:Perl_EfmPerl                 = s:plugin_dir.'perl-support/scripts/efm_perl.pl'
 let s:Perl_PerlModuleListGenerator = s:plugin_dir.'perl-support/scripts/pmdesc3.pl'
+let s:Perl_PBP										 = 'no'
+let s:Perl_PerlRegexSubstitution   = '$~'
+
 "
 "------------------------------------------------------------------------------
 "
@@ -169,11 +172,13 @@ call Perl_CheckGlobal("Perl_LineEndCommColDefault  ")
 call Perl_CheckGlobal("Perl_LoadMenus              ")
 call Perl_CheckGlobal("Perl_MenuHeader             ")
 call Perl_CheckGlobal("Perl_OutputGvim             ")
-call Perl_CheckGlobal("Perl_PerlModuleList         ")
-call Perl_CheckGlobal("Perl_PerlModuleListGenerator")
+call Perl_CheckGlobal("Perl_PBP                    ")
 call Perl_CheckGlobal("Perl_PerlcriticOptions      ")
 call Perl_CheckGlobal("Perl_PerlcriticSeverity     ")
 call Perl_CheckGlobal("Perl_PerlcriticVerbosity    ")
+call Perl_CheckGlobal("Perl_PerlModuleList         ")
+call Perl_CheckGlobal("Perl_PerlModuleListGenerator")
+call Perl_CheckGlobal("Perl_PerlRegexSubstitution  ")
 call Perl_CheckGlobal("Perl_PodcheckerWarnings     ")
 call Perl_CheckGlobal("Perl_Printheader            ")
 call Perl_CheckGlobal("Perl_ProfilerTimestamp      ")
@@ -212,11 +217,12 @@ endif
 "
 let s:Perl_Printheader  = escape( s:Perl_Printheader, ' %' )
 "
+let s:Perl_InterfaceVersion = ''
 "
 "------------------------------------------------------------------------------
 " Perl Menu Initializations
 " Against the advice of every style guide this function has overlong lines
-" to enable the use of block commands.
+" to enable the use of block commands when editing.
 "------------------------------------------------------------------------------
 function! Perl_InitMenu ()
   "
@@ -224,7 +230,7 @@ function! Perl_InitMenu ()
 
     if s:Perl_Root != ""
       if s:Perl_MenuHeader == "yes"
-        exe "amenu ".s:Perl_Root.'Perl     <Esc>'
+        exe "amenu ".s:Perl_Root.'Perl     <Nop>'
         exe "amenu ".s:Perl_Root.'-Sep0-        :'
       endif
     endif
@@ -232,31 +238,35 @@ function! Perl_InitMenu ()
     "---------- Comments-Menu ----------------------------------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&Comments.&Comments<Tab>Perl     <Esc>'
+      exe "amenu ".s:Perl_Root.'&Comments.&Comments<Tab>Perl     <Nop>'
       exe "amenu ".s:Perl_Root.'&Comments.-Sep0-        :'
     endif
 
-		exe "amenu <silent>  ".s:Perl_Root.'&Comments.end-of-&line\ com\.              <Esc><Esc>:call Perl_LineEndComment("")<CR>A'
-    exe "vmenu <silent>  ".s:Perl_Root.'&Comments.end-of-&line\ com\.              <Esc><Esc>:call Perl_MultiLineEndComments()<CR>A'
-		exe "amenu <silent>  ".s:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.      <Esc><Esc>:call Perl_AlignLineEndComm("a")<CR>'
-		exe "vmenu <silent>  ".s:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.      <Esc><Esc>:call Perl_AlignLineEndComm("v")<CR>'
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.&set\ end-of-line\ com\.\ col\.  <Esc><Esc>:call Perl_GetLineEndCommCol()<CR>'
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.&frame\ comm\.                   <Esc><Esc>:call Perl_CommentTemplates("frame")<CR>'
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.f&unction\ descr\.               <Esc><Esc>:call Perl_CommentTemplates("function")<CR>'
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.&method\ descr\.                 <Esc><Esc>:call Perl_CommentTemplates("method")<CR>'
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.file\ &header\ (\.pl)            <Esc><Esc>:call Perl_CommentTemplates("header")<CR>'
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.file\ h&eader\ (\.pm)            <Esc><Esc>:call Perl_CommentTemplates("module")<CR>'
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.file\ he&ader\ (\.t)             <Esc><Esc>:call Perl_CommentTemplates("test")<CR>'
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.end-of-&line\ com\.                   :call Perl_LineEndComment("")<CR>A'
+		exe "imenu <silent>  ".s:Perl_Root.'&Comments.end-of-&line\ com\.              <C-C>:call Perl_LineEndComment("")<CR>A'
+    exe "vmenu <silent>  ".s:Perl_Root.'&Comments.end-of-&line\ com\.              <C-C>:call Perl_MultiLineEndComments()<CR>A'
+		"
+		exe "amenu <silent>  ".s:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.           :call Perl_AlignLineEndComm("a")<CR>'
+		exe "vmenu <silent>  ".s:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.      <C-C>:call Perl_AlignLineEndComm("v")<CR>'
+		"
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.&set\ end-of-line\ com\.\ col\.       :call Perl_GetLineEndCommCol()<CR>'
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.&frame\ comm\.                        :call Perl_CommentTemplates("frame")<CR>'
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.f&unction\ descr\.                    :call Perl_CommentTemplates("function")<CR>'
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.&method\ descr\.                      :call Perl_CommentTemplates("method")<CR>'
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.file\ &header\ (\.pl)                 :call Perl_CommentTemplates("header")<CR>'
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.file\ h&eader\ (\.pm)                 :call Perl_CommentTemplates("module")<CR>'
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.file\ he&ader\ (\.t)                  :call Perl_CommentTemplates("test")<CR>'
 
     exe "amenu ".s:Perl_Root.'&Comments.-SEP1-                     :'
     "
-    exe "amenu <silent>  ".s:Perl_Root."&Comments.&code->comment       <Esc><Esc>:s/^/#/<CR><Esc>:nohlsearch<CR>j"
-    exe "vmenu <silent>  ".s:Perl_Root."&Comments.&code->comment       <Esc><Esc>:'<,'>s/^/#/<CR><Esc>:nohlsearch<CR>j"
-    exe "amenu <silent>  ".s:Perl_Root."&Comments.c&omment->code       <Esc><Esc>:s/^\\(\\s*\\)#/\\1/<CR><Esc>:nohlsearch<CR>j"
-    exe "vmenu <silent>  ".s:Perl_Root."&Comments.c&omment->code       <Esc><Esc>:'<,'>s/^\\(\\s*\\)#/\\1/<CR><Esc>:nohlsearch<CR>j"
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.comment\ &block      <Esc><Esc>:call Perl_CommentBlock("a")<CR>'
-    exe "vmenu <silent>  ".s:Perl_Root.'&Comments.comment\ &block      <Esc><Esc>:call Perl_CommentBlock("v")<CR>'
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.u&ncomment\ block    <Esc><Esc>:call Perl_UncommentBlock()<CR>'
+    exe "amenu <silent>  ".s:Perl_Root."&Comments.toggle\\ &comment         :call Perl_CommentToggle()<CR>j"
+    exe "imenu <silent>  ".s:Perl_Root."&Comments.toggle\\ &comment    <C-C>:call Perl_CommentToggle()<CR>j"
+    exe "vmenu <silent>  ".s:Perl_Root."&Comments.toggle\\ &comment    <C-C>:'<,'>call Perl_CommentToggle()<CR>j"
+
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.comment\ &block           :call Perl_CommentBlock("a")<CR>'
+    exe "imenu <silent>  ".s:Perl_Root.'&Comments.comment\ &block      <C-C>:call Perl_CommentBlock("a")<CR>'
+    exe "vmenu <silent>  ".s:Perl_Root.'&Comments.comment\ &block      <C-C>:call Perl_CommentBlock("v")<CR>'
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.u&ncomment\ block         :call Perl_UncommentBlock()<CR>'
     "
     exe "amenu ".s:Perl_Root.'&Comments.-SEP2-               :'
     "
@@ -277,22 +287,29 @@ function! Perl_InitMenu ()
     "--------- submenu : KEYWORD -------------------------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.Comments-1<Tab>Perl   <Esc>'
+      exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.Comments-1<Tab>Perl   <Nop>'
       exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.-Sep0-      :'
     endif
     "
-    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&BUG             <Esc><Esc>:call Perl_CommentClassified("BUG")       <CR>A'
-    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&TODO            <Esc><Esc>:call Perl_CommentClassified("TODO")      <CR>A'
-    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.T&RICKY          <Esc><Esc>:call Perl_CommentClassified("TRICKY")    <CR>A'
-    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&WARNING         <Esc><Esc>:call Perl_CommentClassified("WARNING")   <CR>A'
-    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.W&ORKAROUND      <Esc><Esc>:call Perl_CommentClassified("WORKAROUND")<CR>A'
-    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&new\ keyword    <Esc><Esc>:call Perl_CommentClassified("")          <CR>3F:i'
+    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&BUG             :call Perl_CommentClassified("BUG")       <CR>A'
+    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&TODO            :call Perl_CommentClassified("TODO")      <CR>A'
+    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.T&RICKY          :call Perl_CommentClassified("TRICKY")    <CR>A'
+    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&WARNING         :call Perl_CommentClassified("WARNING")   <CR>A'
+    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.W&ORKAROUND      :call Perl_CommentClassified("WORKAROUND")<CR>A'
+    exe "amenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&new\ keyword    :call Perl_CommentClassified("")          <CR>3F:i'
+    "
+    exe "imenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&BUG             <C-C>:call Perl_CommentClassified("BUG")       <CR>A'
+    exe "imenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&TODO            <C-C>:call Perl_CommentClassified("TODO")      <CR>A'
+    exe "imenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.T&RICKY          <C-C>:call Perl_CommentClassified("TRICKY")    <CR>A'
+    exe "imenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&WARNING         <C-C>:call Perl_CommentClassified("WARNING")   <CR>A'
+    exe "imenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.W&ORKAROUND      <C-C>:call Perl_CommentClassified("WORKAROUND")<CR>A'
+    exe "imenu ".s:Perl_Root.'&Comments.#:&KEYWORD\:.&new\ keyword    <C-C>:call Perl_CommentClassified("")          <CR>3F:i'
     "
     "
     "----- Submenu :  Tags  ----------------------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&Comments.ta&gs\ (plugin).Comments-2<Tab>Perl   <Esc>'
+      exe "amenu ".s:Perl_Root.'&Comments.ta&gs\ (plugin).Comments-2<Tab>Perl   <Nop>'
       exe "amenu ".s:Perl_Root.'&Comments.ta&gs\ (plugin).-Sep0-      :'
     endif
     "
@@ -311,117 +328,270 @@ function! Perl_InitMenu ()
     exe "imenu  ".s:Perl_Root.'&Comments.ta&gs\ (plugin).&PROJECT          <Esc>a'.s:Perl_Project
     "
     "
-    exe "amenu <silent>  ".s:Perl_Root.'&Comments.&vim\ modeline             <Esc><Esc>:call Perl_CommentVimModeline()<CR>'
+    exe "amenu <silent>  ".s:Perl_Root.'&Comments.&vim\ modeline           :call Perl_CommentVimModeline()<CR>'
 
     "---------- Statements-Menu ----------------------------------------------------------------------
 
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&Statements.&Statements<Tab>Perl     <Esc>'
+      exe "amenu ".s:Perl_Root.'&Statements.&Statements<Tab>Perl     <Nop>'
       exe "amenu ".s:Perl_Root.'&Statements.-Sep0-        :'
     endif
     "
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              <Esc><Esc>:call Perl_DoWhile("a")<CR><Esc>f(la'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <Esc><Esc>:call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                <Esc><Esc>:call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       <Esc><Esc>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.&unless\ \{\ \}                 <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.u&nless\ \{\ \}\ else\ \{\ \}   <Esc><Esc>:call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.un&til\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.&while\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.&\{\ \}                         <Esc><Esc>:call Perl_Block("a")<CR>o'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              :call Perl_DoWhile("a")<CR>f(la'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    :call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                :call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     :call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       :call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.&unless\ \{\ \}                 :call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.u&nless\ \{\ \}\ else\ \{\ \}   :call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.un&til\ \{\ \}                  :call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.&while\ \{\ \}                  :call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.&\{\ \}                         :call Perl_Block("a")<CR>o'
     "
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              <Esc><Esc>:call Perl_DoWhile("v")<CR><Esc>f(la'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <Esc><Esc>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                <Esc><Esc>:call Perl_StatBlock( "v", "foreach my $ (  ) {", "}" )<CR>f$a'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       <Esc><Esc>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&unless\ \{\ \}                 <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}" )<CR>f(la'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.u&nless\ \{\ \}\ else\ \{\ \}   <Esc><Esc>:call Perl_StatBlock( "v", "unless (  ) {", "}\nelse {\n}" )<CR>f(la'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.un&til\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "v", "until (  ) {", "}" )<CR>f(la'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&while\ \{\ \}                  <Esc><Esc>:call Perl_StatBlock( "v", "while (  ) {", "}" )<CR>f(la'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&\{\ \}                         <Esc><Esc>:call Perl_Block("v")<CR>'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              <C-C>:call Perl_DoWhile("a")<CR>f(la'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <C-C>:call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                <C-C>:call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     <C-C>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       <C-C>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.&unless\ \{\ \}                 <C-C>:call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.u&nless\ \{\ \}\ else\ \{\ \}   <C-C>:call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.un&til\ \{\ \}                  <C-C>:call Perl_StatBlock( "a", "until (  ) {\n}", "" )<CR>f(la'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.&while\ \{\ \}                  <C-C>:call Perl_StatBlock( "a", "while (  ) {\n}", "" )<CR>f(la'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.&\{\ \}                         <C-C>:call Perl_Block("a")<CR>o'
+    "
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              <C-C>:call Perl_DoWhile("v")<CR>f(la'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <C-C>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                <C-C>:call Perl_StatBlock( "v", "foreach my $ (  ) {", "}" )<CR>f$a'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     <C-C>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       <C-C>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&unless\ \{\ \}                 <C-C>:call Perl_StatBlock( "v", "unless (  ) {", "}" )<CR>f(la'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.u&nless\ \{\ \}\ else\ \{\ \}   <C-C>:call Perl_StatBlock( "v", "unless (  ) {", "}\nelse {\n}" )<CR>f(la'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.un&til\ \{\ \}                  <C-C>:call Perl_StatBlock( "v", "until (  ) {", "}" )<CR>f(la'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&while\ \{\ \}                  <C-C>:call Perl_StatBlock( "v", "while (  ) {", "}" )<CR>f(la'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&\{\ \}                         <C-C>:call Perl_Block("v")<CR>'
     "
     " The menu entries for code snippet support will not appear if the following string is empty 
     if s:Perl_CodeSnippets != ""
-      exe "imenu ".s:Perl_Root.'&Statements.-SEP6-                            :'
-      exe "amenu <silent>  ".s:Perl_Root.'&Statements.&read\ code\ snippet    <C-C>:call Perl_CodeSnippet("r")<CR>'
-      exe "amenu <silent>  ".s:Perl_Root.'&Statements.&write\ code\ snippet   <C-C>:call Perl_CodeSnippet("w")<CR>'
-      exe "vmenu <silent>  ".s:Perl_Root.'&Statements.&write\ code\ snippet   <C-C>:call Perl_CodeSnippet("wv")<CR>'
-      exe "amenu <silent>  ".s:Perl_Root.'&Statements.e&dit\ code\ snippet    <C-C>:call Perl_CodeSnippet("e")<CR>'
+      exe "amenu ".s:Perl_Root.'&Statements.-SEP6-                            :'
+      exe "amenu <silent>  ".s:Perl_Root.'&Statements.&read\ code\ snippet    :call Perl_CodeSnippet("r")<CR>'
+      exe "amenu <silent>  ".s:Perl_Root.'&Statements.&write\ code\ snippet   :call Perl_CodeSnippet("w")<CR>'
+      exe "vmenu <silent>  ".s:Perl_Root.'&Statements.&write\ code\ snippet   :call Perl_CodeSnippet("wv")<CR>'
+      exe "amenu <silent>  ".s:Perl_Root.'&Statements.e&dit\ code\ snippet    :call Perl_CodeSnippet("e")<CR>'
     endif
     "
     "---------- submenu : idioms -------------------------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&Idioms.&Idioms<Tab>Perl    <Esc>'
+      exe "amenu ".s:Perl_Root.'&Idioms.&Idioms<Tab>Perl    <Nop>'
       exe "amenu ".s:Perl_Root.'&Idioms.-Sep0-       :'
     endif
     "
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &$;                         <Esc><Esc>omy<Tab>$;<Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ $\ &=\ ;                    <Esc><Esc>omy<Tab>$<Tab>= ;<Esc>F$a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );               <Esc><Esc>omy<Tab>( $, $ );<Esc>2F$a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP1-                          :'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &@;                         <Esc><Esc>omy<Tab>@;<Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ @\ =\ (,,);\ \ \ \ \ (&1)   <Esc><Esc>omy<Tab>@<Tab>= ( , ,  );<Esc>F@a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP2-                          :'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &%;                         <Esc><Esc>omy<Tab>%;<Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ %\ =\ (=>,);\ \ \ \ \ (&2)  <Esc><Esc>omy<Tab>%<Tab>= <CR>(<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ $rgx_\ =\ q//;\ \ \ (&3)    <Esc><Esc>omy<Tab>$rgx_<Tab>= q//;<Esc>F_a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP3-                          :'
-    exe " noremenu ".s:Perl_Root.'&Idioms.$\ =~\ &m/\ /xm                 <Esc>a$ =~ m//xm<Esc>F$a'
-    exe " noremenu ".s:Perl_Root.'&Idioms.$\ =~\ &s/\ /\ /xm              <Esc>a$ =~ s///xm<Esc>F$a'
-    exe " noremenu ".s:Perl_Root.'&Idioms.$\ =~\ &tr/\ /\ /xm             <Esc>a$ =~ tr///xm<Esc>F$a'
-    exe "inoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &m/\ /xm                 $ =~ m//xm<Esc>F$a'
-    exe "inoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &s/\ /\ /xm              $ =~ s///xm<Esc>F$a'
-    exe "inoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &tr/\ /\ /xm             $ =~ tr///xm<Esc>F$a'
-    exe " noremenu ".s:Perl_Root.'&Idioms.-SEP4-                          :'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.s&ubroutine                     <Esc><Esc>:call Perl_Subroutine("a")<CR>A'
-    exe "vnoremenu ".s:Perl_Root.'&Idioms.s&ubroutine                     <Esc><Esc>:call Perl_Subroutine("v")<CR>f(a'
-    exe " noremenu ".s:Perl_Root.'&Idioms.&print\ \"\.\.\.\\n\";          <Esc>aprint "\n";<Left><Left><Left><Left>'
-    exe "inoremenu ".s:Perl_Root.'&Idioms.&print\ \"\.\.\.\\n\";                print "\n";<Left><Left><Left><Left>'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.open\ &input\ file              <Esc><Esc>:call Perl_OpenInputFile("a")<CR>a'
-    exe "vnoremenu ".s:Perl_Root.'&Idioms.open\ &input\ file              <Esc><Esc>:call Perl_OpenInputFile("v")<CR>a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.open\ &output\ file             <Esc><Esc>:call Perl_OpenOutputFile("a")<CR>a'
-    exe "vnoremenu ".s:Perl_Root.'&Idioms.open\ &output\ file             <Esc><Esc>:call Perl_OpenOutputFile("v")<CR>a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.open\ pip&e                     <Esc><Esc>:call Perl_OpenPipe("a")<CR>a'
-    exe "vnoremenu ".s:Perl_Root.'&Idioms.open\ pip&e                     <Esc><Esc>:call Perl_OpenPipe("v")<CR>a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP5-                          :'
-    exe " noremenu ".s:Perl_Root.'&Idioms.<STDIN>                         <Esc>a<STDIN>'
-    exe " noremenu ".s:Perl_Root.'&Idioms.<STDOUT>                        <Esc>a<STDOUT>'
-    exe " noremenu ".s:Perl_Root.'&Idioms.<STDERR>                        <Esc>a<STDERR>'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &$;                         omy<Tab>$;<Esc>i'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ $\ &=\ ;                    omy<Tab>$<Tab>= ;<Esc>F$a'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );               omy<Tab>( $, $ );<Esc>2F$a'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP1-                        :'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &@;                         omy<Tab>@;<Esc>i'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ @\ =\ (,,);\ \ \ \ \ (&1)   omy<Tab>@<Tab>= ( , ,  );<Esc>F@a'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP2-                        :'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &%;                         omy<Tab>%;<Esc>i'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ %\ =\ (=>,);\ \ \ \ \ (&2)  omy<Tab>%<Tab>= <CR>(<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ $rgx_\ =\ q//;\ \ \ (&3)    omy<Tab>$rgx_<Tab>= q//;<Esc>F_a'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP3-                        :'
+		if s:Perl_PBP == "yes"
+			exe "anoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &m\{\ \}xm             a$ =~ m{}xm<Esc>F$a'
+			exe "anoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &s\{\ \}\{\ \}xm       a$ =~ s{}{}xm<Esc>F$a'
+			exe "anoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &tr\{\ \}\{\ \}xm      a$ =~ tr{}{}xm<Esc>F$a'
+		else
+			exe "anoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &m/\ /                 a$ =~ m//<Esc>F$a'
+			exe "anoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &s/\ /\ /              a$ =~ s///<Esc>F$a'
+			exe "anoremenu ".s:Perl_Root.'&Idioms.$\ =~\ &tr/\ /\ /             a$ =~ tr///<Esc>F$a'
+		endif
+    exe " noremenu ".s:Perl_Root.'&Idioms.-SEP4-                    :'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.s&ubroutine                     :call Perl_Subroutine("a")<CR>A'
+    exe "vnoremenu ".s:Perl_Root.'&Idioms.s&ubroutine                     :call Perl_Subroutine("v")<CR>f(a'
+		"
+    exe "anoremenu ".s:Perl_Root.'&Idioms.&print\ \"\.\.\.\\n\";          aprint "\n";<Left><Left><Left><Left>'
+    exe "inoremenu ".s:Perl_Root.'&Idioms.&print\ \"\.\.\.\\n\";           print "\n";<Left><Left><Left><Left>'
+		"
+    exe "anoremenu ".s:Perl_Root.'&Idioms.open\ &input\ file              :call Perl_OpenInputFile("a")<CR>a'
+    exe "inoremenu ".s:Perl_Root.'&Idioms.open\ &input\ file         <C-C>:call Perl_OpenInputFile("a")<CR>a'
+    exe "vnoremenu ".s:Perl_Root.'&Idioms.open\ &input\ file         <C-C>:call Perl_OpenInputFile("v")<CR>a'
+		"
+    exe "anoremenu ".s:Perl_Root.'&Idioms.open\ &output\ file             :call Perl_OpenOutputFile("a")<CR>a'
+    exe "inoremenu ".s:Perl_Root.'&Idioms.open\ &output\ file        <C-C>:call Perl_OpenOutputFile("a")<CR>a'
+    exe "vnoremenu ".s:Perl_Root.'&Idioms.open\ &output\ file        <C-C>:call Perl_OpenOutputFile("v")<CR>a'
+		"
+    exe "anoremenu ".s:Perl_Root.'&Idioms.open\ pip&e                     :call Perl_OpenPipe("a")<CR>a'
+    exe "inoremenu ".s:Perl_Root.'&Idioms.open\ pip&e                <C-C>:call Perl_OpenPipe("a")<CR>a'
+    exe "vnoremenu ".s:Perl_Root.'&Idioms.open\ pip&e                <C-C>:call Perl_OpenPipe("v")<CR>a'
+		"
+    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP5-                    :'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.<STDIN>                         a<STDIN>'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.<STDOUT>                        a<STDOUT>'
+    exe "anoremenu ".s:Perl_Root.'&Idioms.<STDERR>                        a<STDERR>'
     exe "inoremenu ".s:Perl_Root.'&Idioms.<STDIN>                         <STDIN>'
     exe "inoremenu ".s:Perl_Root.'&Idioms.<STDOUT>                        <STDOUT>'
     exe "inoremenu ".s:Perl_Root.'&Idioms.<STDERR>                        <STDERR>'
-    exe "inoremenu ".s:Perl_Root.'&Idioms.-SEP7-                          :'
+    exe "inoremenu ".s:Perl_Root.'&Idioms.-SEP7-                    :'
     "
     "---------- submenu : Regular Expression Suport  -----------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Rege&x.Rege&x<Tab>Perl      <Esc>'
+      exe "amenu ".s:Perl_Root.'Rege&x.Rege&x<Tab>Perl      <Nop>'
       exe "amenu ".s:Perl_Root.'Rege&x.-Sep0-         :'
     endif
     "
     "
+    exe "anoremenu ".s:Perl_Root.'Rege&x.&grouping<Tab>(\ )               a()<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        a(\|)<Left><Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.char\.\ &class<Tab>[\ ]          a[]<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  a{}<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  a{,}<Left><Left>'
+    "
+    exe "inoremenu ".s:Perl_Root.'Rege&x.&grouping<Tab>(\ )               ()<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        (\|)<Left><Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.char\.\ &class<Tab>[\ ]          []<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  {}<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  {,}<Left><Left>'
+
+    exe "vnoremenu ".s:Perl_Root.'Rege&x.&grouping<Tab>(\ )               s()<Esc>P'
+    exe "vnoremenu ".s:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        s(\|)<Esc>hPf)i'
+    exe "vnoremenu ".s:Perl_Root.'Rege&x.char\.\ &class<Tab>[\ ]          s[]<Esc>P'
+    exe "vnoremenu ".s:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  s{}<Esc>P'
+    exe "vnoremenu ".s:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  s{,}<Esc>hPf}i'
+    "
+    exe " menu ".s:Perl_Root.'Rege&x.-SEP3-                             :'
+    "
+    exe "anoremenu ".s:Perl_Root.'Rege&x.word\ &boundary<Tab>\\b              a\b'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.word\ &boundary<Tab>\\b               \b'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.&digit<Tab>\\d                       a\d'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.&digit<Tab>\\d                        \d'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.white&space<Tab>\\s                  a\s'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.white&space<Tab>\\s                   \s'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.&word\ character<Tab>\\w             a\w'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.&word\ character<Tab>\\w              \w'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.match\ &property<Tab>\\p{}           a\p{}<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.match\ &property<Tab>\\p{}            \p{}<Left>'
+    exe "vnoremenu ".s:Perl_Root.'Rege&x.match\ &property<Tab>\\p{}           s\p{}<Esc>P'
+
+    exe "anoremenu ".s:Perl_Root.'Rege&x.-SEP4-                         :'
+		exe "anoremenu ".s:Perl_Root.'Rege&x.non-(word\ &bound\.)<Tab>\\B   			a\B'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.non-(word\ &bound\.)<Tab>\\B   			 \B'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.non-&digit<Tab>\\D             			a\D'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.non-&digit<Tab>\\D             			 \D'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.non-white&space<Tab>\\S        			a\S'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.non-white&space<Tab>\\S        			 \S'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.non-(&word\ char\.)<Tab>\\W   				a\W'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.non-(&word\ char\.)<Tab>\\W   				 \W'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.do\ not\ match\ &prop\.<Tab>\\P{}    a\P{}<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.do\ not\ match\ &prop\.<Tab>\\P{}     \P{}<Left>'
+    exe "vnoremenu ".s:Perl_Root.'Rege&x.do\ not\ match\ &prop\.<Tab>\\P{}    s\P{}<Esc>P'
+		"
+    "---------- submenu : POSIX character classes --------------------------------------------
+    "
+    exe " noremenu ".s:Perl_Root.'Rege&x.-SEP5-                               :'
+    if s:Perl_MenuHeader == "yes"
+      exe "amenu ".s:Perl_Root.'Rege&x.CharC&ls.Regex-1<Tab>Perl   <Nop>'
+      exe "amenu ".s:Perl_Root.'Rege&x.CharC&ls.-Sep0-             :'
+    endif
+    "
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&alnum:]   a[:alnum:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:alp&ha:]   a[:alpha:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:asc&ii:]   a[:ascii:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&blank:]   a[:blank:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&cntrl:]   a[:cntrl:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&digit:]   a[:digit:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&graph:]   a[:graph:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&lower:]   a[:lower:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&print:]   a[:print:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:pu&nct:]   a[:punct:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&space:]   a[:space:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&upper:]   a[:upper:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&word:]    a[:word:]'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.CharC&ls.[:&xdigit:]  a[:xdigit:]'
+		"
+    "---------- submenu : Unicode properties  --------------------------------------------
+    "
+    if s:Perl_MenuHeader == "yes"
+      	exe "amenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Regex-2<Tab>Perl   <Nop>'
+      	exe "amenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.-Sep0-             :'
+    endif
+		"
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Letter.L&etter<Tab>\\p{L}           	  					a\p{Letter}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Letter.&Lowercase_Letter<Tab>\\p{Ll}   					a\p{Lowercase_Letter}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Letter.&Uppercase_Letter<Tab>\\p{Lu}   					a\p{Uppercase_Letter}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Letter.&Titlecase_Letter<Tab>\\p{Lt}   					a\p{Titlecase_Letter}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Letter.&Modifier_Letter<Tab>\\p{Lm}    					a\p{Modifier_Letter}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Letter.&Other_Letter<Tab>\\p{Lo}       					a\p{Other_Letter}'
+		"
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Mark.&Mark<Tab>\\p{M}           	  							a\p{Mark}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Mark.&Non_Spacing_Mark<Tab>\\p{Mn}   						a\p{Non_Spacing_Mark}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Mark.Spacing_&Combining_Mark<Tab>\\p{Mc} 				a\p{Spacing_Combining_Mark}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Mark.&Enclosing_Mark<Tab>\\p{Me}   							a\p{Enclosing_Mark}'
+		"
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Separator\ (&Z).S&eparator<Tab>\\p{Z}           	a\p{Separator}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Separator\ (&Z).&Space_Separator<Tab>\\p{Zs}   		a\p{Space_Separator}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Separator\ (&Z).&Line_Separator<Tab>\\p{Zl} 			a\p{Line_Separator}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Separator\ (&Z).&Paragraph_Separator<Tab>\\p{Zp}  a\p{Paragraph_Separator}'
+		"
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Symbol.&Symbol<Tab>\\p{S}           	  					a\p{Symbol}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Symbol.&Math_Symbol<Tab>\\p{Sm}   								a\p{Math_Symbol}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Symbol.&Currency_Symbol<Tab>\\p{Sc} 							a\p{Currency_Symbol}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Symbol.Modifier_Symbol\ (&k)<Tab>\\p{Sk}   			a\p{Modifier_Symbol}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Symbol.&Other_Symbol<Tab>\\p{So}   							a\p{Other_Symbol}'
+		"
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Number.&Number<Tab>\\p{N}           	  					a\p{Number}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Number.&Decimal_Digit_Number<Tab>\\p{Nd}   			a\p{Decimal_Digit_Number}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Number.&Letter_Number<Tab>\\p{Nl} 								a\p{Letter_Number}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Number.&Other_Number<Tab>\\p{No}   							a\p{Other_Number}'
+		"
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Punctuation.&Punctuation<Tab>\\p{P}     	  			a\p{Punctuation}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Punctuation.&Dash_Punctuation<Tab>\\p{Pd}   			a\p{Dash_Punctuation}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Punctuation.Open_Punctuation\ (&s)<Tab>\\p{Ps} 	a\p{Open_Punctuation}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Punctuation.Close_Punctuation\ (&e)<Tab>\\p{Pe}	a\p{Close_Punctuation}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Punctuation.&Initial_Punctuation<Tab>\\p{Pi}   	a\p{Initial_Punctuation}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Punctuation.&Final_Punctuation<Tab>\\p{Pf}   		a\p{Final_Punctuation}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Punctuation.&Connector_Punctuation<Tab>\\p{Pc} 	a\p{Connector_Punctuation}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.&Punctuation.&Other_Punctuation<Tab>\\p{Po}   		a\p{Other_Punctuation}'
+		"
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Other\ (&C).O&ther<Tab>\\p{C}            					a\p{Other}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Other\ (&C).&Control<Tab>\\p{Cc}   								a\p{Control}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Other\ (&C).&Format<Tab>\\p{Cf} 									a\p{Format}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Other\ (&C).Private_Use\ (&o)<Tab>\\p{Co}   			a\p{Private_Use}'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.Unicode\ propert&y.Other\ (&C).U&nassigned<Tab>\\p{Cn}   						a\p{Unassigned}'
+    "
     "---------- subsubmenu : Regular Expression Suport  -----------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.Regex-1<Tab>Perl      <Esc>'
+      exe "amenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.Regex-3<Tab>Perl      <Nop>'
       exe "amenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.-Sep0-         :'
     endif
     "
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.&comment<Tab>(?#\ \.\.\.\ )                       <Esc><Esc>a(?#)<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.cl&uster\ only\ paren\.<Tab>(?:\ \.\.\.\ )        <Esc><Esc>a(?:)<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.pattern\ &modifier<Tab>(?imsx-imsx)               <Esc><Esc>a(?)<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.e&xecute\ code<Tab>(?\{\ \.\.\.\ \})              <Esc><Esc>a(?{})<Left><Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match\ &regex\ from\ code<Tab>(??\{\ \.\.\.\ \})  <Esc><Esc>a(??{})<Left><Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match-if-&then<Tab>(?(\.\.)\.\.)                  <Esc><Esc>a(?())<Left><Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match-if-t&hen-else<Tab>(?(\.\.)\.\.\|\.\.)       <Esc><Esc>a(?()\|)<Left><Left><Left>'
-    exe " noremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.-SEP11-                                           :'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.look&ahead\ succeeds<Tab>(?=\ \.\.\.\ )           <Esc><Esc>a(?=)<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.looka&head\ fails<Tab>(?!\ \.\.\.\ )              <Esc><Esc>a(?!)<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.look&behind\ succeeds<Tab>(?<=\ \.\.\.\ )         <Esc><Esc>a(?<=)<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.lookb&ehind\ fails<Tab>(?<!\ \.\.\.\ )            <Esc><Esc>a(?<!)<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.&comment<Tab>(?#\ \.\.\.\ )                       a(?#)<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.cl&uster\ only\ paren\.<Tab>(?:\ \.\.\.\ )        a(?:)<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.pattern\ &modifier<Tab>(?imsx-imsx)               a(?)<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.e&xecute\ code<Tab>(?\{\ \.\.\.\ \})              a(?{})<Left><Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match\ &regex\ from\ code<Tab>(??\{\ \.\.\.\ \})  a(??{})<Left><Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match-if-&then<Tab>(?(\.\.)\.\.)                  a(?())<Left><Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match-if-t&hen-else<Tab>(?(\.\.)\.\.\|\.\.)       a(?()\|)<Left><Left><Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.-SEP11-                                     :'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.look&ahead\ succeeds<Tab>(?=\ \.\.\.\ )           a(?=)<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.looka&head\ fails<Tab>(?!\ \.\.\.\ )              a(?!)<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.look&behind\ succeeds<Tab>(?<=\ \.\.\.\ )         a(?<=)<Left>'
+    exe "anoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.lookb&ehind\ fails<Tab>(?<!\ \.\.\.\ )            a(?<!)<Left>'
+    "
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.&comment<Tab>(?#\ \.\.\.\ )                        (?#)<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.cl&uster\ only\ paren\.<Tab>(?:\ \.\.\.\ )         (?:)<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.pattern\ &modifier<Tab>(?imsx-imsx)                (?)<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.e&xecute\ code<Tab>(?\{\ \.\.\.\ \})               (?{})<Left><Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match\ &regex\ from\ code<Tab>(??\{\ \.\.\.\ \})   (??{})<Left><Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match-if-&then<Tab>(?(\.\.)\.\.)                   (?())<Left><Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.match-if-t&hen-else<Tab>(?(\.\.)\.\.\|\.\.)        (?()\|)<Left><Left><Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.-SEP11-                                     :'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.look&ahead\ succeeds<Tab>(?=\ \.\.\.\ )            (?=)<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.looka&head\ fails<Tab>(?!\ \.\.\.\ )               (?!)<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.look&behind\ succeeds<Tab>(?<=\ \.\.\.\ )          (?<=)<Left>'
+    exe "inoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.lookb&ehind\ fails<Tab>(?<!\ \.\.\.\ )             (?<!)<Left>'
 
     exe "vnoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.&comment<Tab>(?#\ \.\.\.\ )                       s(?#)<Esc>P'
     exe "vnoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.cl&uster\ only\ paren\.<Tab>(?:\ \.\.\.\ )        s(?:)<Esc>P'
@@ -435,398 +605,283 @@ function! Perl_InitMenu ()
     exe "vnoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.looka&head\ fails<Tab>(?!\ \.\.\.\ )              s(?!)<Esc>P'
     exe "vnoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.look&behind\ succeeds<Tab>(?<=\ \.\.\.\ )         s(?<=)<Esc>P'
     exe "vnoremenu ".s:Perl_Root.'Rege&x.e&xtended\ Regex.lookb&ehind\ fails<Tab>(?<!\ \.\.\.\ )            s(?<!)<Esc>P'
-    exe " noremenu ".s:Perl_Root.'Rege&x.-SEP2-                               :'
     "
-    exe "anoremenu ".s:Perl_Root.'Rege&x.&grouping<Tab>(\ )               <Esc><Esc>a()<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        <Esc><Esc>a(\|)<Left><Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.char\.\ &class<Tab>[\ ]          <Esc><Esc>a[]<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  <Esc><Esc>a{}<Left>'
-    exe "anoremenu ".s:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  <Esc><Esc>a{,}<Left><Left>'
-
-    exe "vnoremenu ".s:Perl_Root.'Rege&x.&grouping<Tab>(\ )               s()<Esc>P'
-    exe "vnoremenu ".s:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        s(\|)<Esc>hPf)i'
-    exe "vnoremenu ".s:Perl_Root.'Rege&x.char\.\ &class<Tab>[\ ]          s[]<Esc>P'
-    exe "vnoremenu ".s:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  s{}<Esc>P'
-    exe "vnoremenu ".s:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  s{,}<Esc>hPf}i'
     "
-    exe " menu ".s:Perl_Root.'Rege&x.-SEP3-                             :'
-    "
-    exe " noremenu ".s:Perl_Root.'Rege&x.word\ &boundary<Tab>\\b              <Esc>a\b'
-    exe "inoremenu ".s:Perl_Root.'Rege&x.word\ &boundary<Tab>\\b              \b'
-    exe " noremenu ".s:Perl_Root.'Rege&x.&digit<Tab>\\d                       <Esc>a\d'
-    exe "inoremenu ".s:Perl_Root.'Rege&x.&digit<Tab>\\d                       \d'
-    exe " noremenu ".s:Perl_Root.'Rege&x.white&space<Tab>\\s                  <Esc>a\s'
-    exe "inoremenu ".s:Perl_Root.'Rege&x.white&space<Tab>\\s                  \s'
-    exe " noremenu ".s:Perl_Root.'Rege&x.&word\ character<Tab>\\w             <Esc>a\w'
-    exe "inoremenu ".s:Perl_Root.'Rege&x.&word\ character<Tab>\\w             \w'
-    exe " noremenu ".s:Perl_Root.'Rege&x.-SEP4-                               :'
-    exe " noremenu ".s:Perl_Root.'Rege&x.non-(word\ bound\.)\ (&1)<Tab>\\B    <Esc>a\B'
-    exe "inoremenu ".s:Perl_Root.'Rege&x.non-(word\ bound\.)\ (&1)<Tab>\\B    \B'
-    exe " noremenu ".s:Perl_Root.'Rege&x.non-digit\ (&2)<Tab>\\D              <Esc>a\D'
-    exe "inoremenu ".s:Perl_Root.'Rege&x.non-digit\ (&2)<Tab>\\D              \D'
-    exe " noremenu ".s:Perl_Root.'Rege&x.non-whitespace\ (&3)<Tab>\\S         <Esc>a\S'
-    exe "inoremenu ".s:Perl_Root.'Rege&x.non-whitespace\ (&3)<Tab>\\S         \S'
-    exe " noremenu ".s:Perl_Root.'Rege&x.non-\"word\"\ char\.\ (&4)<Tab>\\W   <Esc>a\W'
-    exe "inoremenu ".s:Perl_Root.'Rege&x.non-\"word\"\ char\.\ (&4)<Tab>\\W   \W'
-    "
-    exe " noremenu ".s:Perl_Root.'Rege&x.-SEP5-                               :'
-		if  s:MSWIN
-			exe " menu <silent> ".s:Perl_Root.'Rege&x.&explain\ Regex    <C-C>:call Perl_RegexAnalyse()<CR>'
-		else
-			exe "vmenu <silent> ".s:Perl_Root.'Rege&x.&explain\ Regex    <C-C>:call Perl_RegexAnalyse()<CR>'
-		endif
+    exe " noremenu ".s:Perl_Root.'Rege&x.-SEP7-                               :'
+		exe "amenu <silent> ".s:Perl_Root.'Rege&x.pick\ up\ &regex    			:call Perl_RegexPick( "regexp", "n" )<CR>j'
+		exe "amenu <silent> ".s:Perl_Root.'Rege&x.pick\ up\ s&tring   			:call Perl_RegexPick( "string", "n" )<CR>j'
+		exe "amenu <silent> ".s:Perl_Root.'Rege&x.pick\ up\ &flag(s)  			:call Perl_RegexPickFlag( "n" )<CR>'
+		exe "vmenu <silent> ".s:Perl_Root.'Rege&x.pick\ up\ &regex     <C-C>:call Perl_RegexPick( "regexp", "v" )<CR>'."'>j"
+		exe "vmenu <silent> ".s:Perl_Root.'Rege&x.pick\ up\ s&tring    <C-C>:call Perl_RegexPick( "string", "v" )<CR>'."'>j"
+		exe "vmenu <silent> ".s:Perl_Root.'Rege&x.pick\ up\ &flag(s)   <C-C>:call Perl_RegexPickFlag( "v" )<CR>'."'>j"
 		"
-    "---------- submenu : POSIX character classes --------------------------------------------
-    "
-    if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'CharC&ls.CharC&ls<Tab>Perl   <Esc>'
-      exe "amenu ".s:Perl_Root.'CharC&ls.-Sep0-      :'
-    endif
-    "
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&alnum:]   <Esc>a[:alnum:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:alp&ha:]   <Esc>a[:alpha:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:asc&ii:]   <Esc>a[:ascii:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&blank:]   <Esc>a[:blank:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&cntrl:]   <Esc>a[:cntrl:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&digit:]   <Esc>a[:digit:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&graph:]   <Esc>a[:graph:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&lower:]   <Esc>a[:lower:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&print:]   <Esc>a[:print:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:pu&nct:]   <Esc>a[:punct:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&space:]   <Esc>a[:space:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&upper:]   <Esc>a[:upper:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&word:]    <Esc>a[:word:]<Esc>'
-    exe " noremenu ".s:Perl_Root.'CharC&ls.[:&xdigit:]  <Esc>a[:xdigit:]<Esc>'
-    "                                   
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&alnum:]   [:alnum:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:alp&ha:]   [:alpha:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:asc&ii:]   [:ascii:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&blank:]   [:blank:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&cntrl:]   [:cntrl:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&digit:]   [:digit:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&graph:]   [:graph:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&lower:]   [:lower:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&print:]   [:print:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:pu&nct:]   [:punct:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&space:]   [:space:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&upper:]   [:upper:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&word:]     [:word:]'
-    exe "inoremenu ".s:Perl_Root.'CharC&ls.[:&xdigit:] [:xdigit:]'
-    "
+		exe "amenu <silent> ".s:Perl_Root.'Rege&x.&match                     :call Perl_RegexVisualize( )<CR>'
+		exe "amenu <silent> ".s:Perl_Root.'Rege&x.&explain\ regex            :call Perl_RegexExplain( "n" )<CR>'
+		exe "vmenu <silent> ".s:Perl_Root.'Rege&x.&explain\ regex       <C-C>:call Perl_RegexExplain( "v" )<CR>'
     "
     "---------- File-Tests-Menu ----------------------------------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&File-Tests.&File-Tests<Tab>Perl             <Esc>'
+      exe "amenu ".s:Perl_Root.'&File-Tests.&File-Tests<Tab>Perl             <Nop>'
       exe "amenu ".s:Perl_Root.'&File-Tests.-Sep0-                          :'
     endif
     "
-    exe " noremenu ".s:Perl_Root.'&File-Tests.exists<Tab>-e                     <Esc>a-e <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.has\ zero\ size<Tab>-z            <Esc>a-z <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.has\ nonzero\ size<Tab>-s         <Esc>a-s <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.plain\ file<Tab>-f                <Esc>a-f <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.directory<Tab>-d                  <Esc>a-d <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.symbolic\ link<Tab>-l             <Esc>a-l <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.named\ pipe<Tab>-p                <Esc>a-p <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.socket<Tab>-S                     <Esc>a-S <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.block\ special\ file<Tab>-b       <Esc>a-b <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.character\ special\ file<Tab>-c   <Esc>a-c <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.exists<Tab>-e                     -e <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.has\ zero\ size<Tab>-z            -z <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.has\ nonzero\ size<Tab>-s         -s <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.plain\ file<Tab>-f                -f <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.directory<Tab>-d                  -d <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.symbolic\ link<Tab>-l             -l <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.named\ pipe<Tab>-p                -p <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.socket<Tab>-S                     -S <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.block\ special\ file<Tab>-b       -b <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.character\ special\ file<Tab>-c   -c <Esc>a'
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.exists<Tab>-e                     a-e '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.has\ zero\ size<Tab>-z            a-z '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.has\ nonzero\ size<Tab>-s         a-s '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.plain\ file<Tab>-f                a-f '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.directory<Tab>-d                  a-d '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.symbolic\ link<Tab>-l             a-l '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.named\ pipe<Tab>-p                a-p '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.socket<Tab>-S                     a-S '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.block\ special\ file<Tab>-b       a-b '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.character\ special\ file<Tab>-c   a-c '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.exists<Tab>-e                      -e '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.has\ zero\ size<Tab>-z             -z '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.has\ nonzero\ size<Tab>-s          -s '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.plain\ file<Tab>-f                 -f '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.directory<Tab>-d                   -d '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.symbolic\ link<Tab>-l              -l '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.named\ pipe<Tab>-p                 -p '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.socket<Tab>-S                      -S '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.block\ special\ file<Tab>-b        -b '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.character\ special\ file<Tab>-c    -c '
     "
     exe " menu ".s:Perl_Root.'&File-Tests.-SEP1-                              :'
     "
-    exe " noremenu ".s:Perl_Root.'&File-Tests.readable\ by\ eff\.\ UID/GID<Tab>-r     <Esc>a-r <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.writable\ by\ eff\.\ UID/GID<Tab>-w     <Esc>a-w <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.executable\ by\ eff\.\ UID/GID<Tab>-x   <Esc>a-x <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.owned\ by\ eff\.\ UID<Tab>-o            <Esc>a-o <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.readable\ by\ eff\.\ UID/GID<Tab>-r     -r <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.writable\ by\ eff\.\ UID/GID<Tab>-w     -w <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.executable\ by\ eff\.\ UID/GID<Tab>-x   -x <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.owned\ by\ eff\.\ UID<Tab>-o            -o <Esc>a'
-    "                              
-    exe " noremenu ".s:Perl_Root.'&File-Tests.-SEP2-                          :'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.readable\ by\ real\ UID/GID<Tab>-R      <Esc>a-R <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.writable\ by\ real\ UID/GID<Tab>-W      <Esc>a-W <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.executable\ by\ real\ UID/GID<Tab>-X    <Esc>a-X <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.owned\ by\ real\ UID<Tab>-O             <Esc>a-O <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.readable\ by\ real\ UID/GID<Tab>-R      -R <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.writable\ by\ real\ UID/GID<Tab>-W      -W <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.executable\ by\ real\ UID/GID<Tab>-X    -X <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.owned\ by\ real\ UID<Tab>-O             -O <Esc>a'
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.readable\ by\ eff\.\ UID/GID<Tab>-r   a-r '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.writable\ by\ eff\.\ UID/GID<Tab>-w   a-w '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.executable\ by\ eff\.\ UID/GID<Tab>-x a-x '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.owned\ by\ eff\.\ UID<Tab>-o          a-o '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.readable\ by\ eff\.\ UID/GID<Tab>-r    -r '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.writable\ by\ eff\.\ UID/GID<Tab>-w    -w '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.executable\ by\ eff\.\ UID/GID<Tab>-x  -x '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.owned\ by\ eff\.\ UID<Tab>-o           -o '
+    "
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.-SEP2-                          :'
+    "
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.readable\ by\ real\ UID/GID<Tab>-R    a-R '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.writable\ by\ real\ UID/GID<Tab>-W    a-W '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.executable\ by\ real\ UID/GID<Tab>-X  a-X '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.owned\ by\ real\ UID<Tab>-O           a-O '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.readable\ by\ real\ UID/GID<Tab>-R     -R '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.writable\ by\ real\ UID/GID<Tab>-W     -W '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.executable\ by\ real\ UID/GID<Tab>-X   -X '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.owned\ by\ real\ UID<Tab>-O            -O '
                                    
-    exe " noremenu ".s:Perl_Root.'&File-Tests.-SEP3-                                 :'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.setuid\ bit\ set<Tab>-u                <Esc>a-u <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.setgid\ bit\ set<Tab>-g                <Esc>a-g <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.sticky\ bit\ set<Tab>-k                <Esc>a-k <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.setuid\ bit\ set<Tab>-u                -u <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.setgid\ bit\ set<Tab>-g                -g <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.sticky\ bit\ set<Tab>-k                -k <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.-SEP4-                                 :'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.age\ since\ modification<Tab>-M       <Esc>a-M <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.age\ since\ last\ access<Tab>-A       <Esc>a-A <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.age\ since\ inode\ change<Tab>-C      <Esc>a-C <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.age\ since\ modification<Tab>-M       -M <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.age\ since\ last\ access<Tab>-A       -A <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.age\ since\ inode\ change<Tab>-C      -C <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.-SEP5-                                 :'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.text\ file<Tab>-T                     <Esc>a-T <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.binary\ file<Tab>-B                   <Esc>a-B <Esc>a'
-    exe " noremenu ".s:Perl_Root.'&File-Tests.handle\ opened\ to\ a\ tty<Tab>-t     <Esc>a-t <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.text\ file<Tab>-T                     -T <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.binary\ file<Tab>-B                   -B <Esc>a'
-    exe "inoremenu ".s:Perl_Root.'&File-Tests.handle\ opened\ to\ a\ tty<Tab>-t     -t <Esc>a'
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.-SEP3-                           :'
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.setuid\ bit\ set<Tab>-u               a-u '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.setgid\ bit\ set<Tab>-g               a-g '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.sticky\ bit\ set<Tab>-k               a-k '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.setuid\ bit\ set<Tab>-u                -u '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.setgid\ bit\ set<Tab>-g                -g '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.sticky\ bit\ set<Tab>-k                -k '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.-SEP4-                           :'
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.age\ since\ modification<Tab>-M       a-M '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.age\ since\ last\ access<Tab>-A       a-A '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.age\ since\ inode\ change<Tab>-C      a-C '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.age\ since\ modification<Tab>-M        -M '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.age\ since\ last\ access<Tab>-A        -A '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.age\ since\ inode\ change<Tab>-C       -C '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.-SEP5-                           :'
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.text\ file<Tab>-T                     a-T '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.binary\ file<Tab>-B                   a-B '
+    exe "anoremenu ".s:Perl_Root.'&File-Tests.handle\ opened\ to\ a\ tty<Tab>-t     a-t '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.text\ file<Tab>-T                      -T '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.binary\ file<Tab>-B                    -B '
+    exe "inoremenu ".s:Perl_Root.'&File-Tests.handle\ opened\ to\ a\ tty<Tab>-t      -t '
     "
     "---------- Special-Variables -------------------------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Spec-&Var.Spec-&Var<Tab>Perl      <Esc>'
+      exe "amenu ".s:Perl_Root.'Spec-&Var.Spec-&Var<Tab>Perl      <Nop>'
       exe "amenu ".s:Perl_Root.'Spec-&Var.-Sep0-         :'
     endif
     "
     "-------- submenu errors -------------------------------------------------
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Spec-&Var.&errors.Spec-Var-1<Tab>Perl       <Esc>'
+      exe "amenu ".s:Perl_Root.'Spec-&Var.&errors.Spec-Var-1<Tab>Perl       <Nop>'
       exe "amenu ".s:Perl_Root.'Spec-&Var.&errors.-Sep0-                    :'
     endif
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&errors.$CHILD_ERROR<Tab>$?         <Esc>a$CHILD_ERROR'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&errors.$ERRNO<Tab>$!               <Esc>a$ERRNO'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&errors.$EVAL_ERROR<Tab>$@          <Esc>a$EVAL_ERROR'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&errors.$EXTENDED_OS_ERROR<Tab>$^E  <Esc>a$EXTENDED_OS_ERROR'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&errors.$WARNING<Tab>$^W            <Esc>a$WARNING'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&errors.$CHILD_ERROR<Tab>$?         $CHILD_ERROR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&errors.$ERRNO<Tab>$!               $ERRNO'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&errors.$EVAL_ERROR<Tab>$@          $EVAL_ERROR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&errors.$EXTENDED_OS_ERROR<Tab>$^E  $EXTENDED_OS_ERROR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&errors.$WARNING<Tab>$^W            $WARNING'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&errors.$CHILD_ERROR<Tab>$?         a$CHILD_ERROR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&errors.$ERRNO<Tab>$!               a$ERRNO'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&errors.$EVAL_ERROR<Tab>$@          a$EVAL_ERROR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&errors.$EXTENDED_OS_ERROR<Tab>$^E  a$EXTENDED_OS_ERROR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&errors.$WARNING<Tab>$^W            a$WARNING'
 
     "-------- submenu files -------------------------------------------------
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Spec-&Var.&files.Spec-Var-2<Tab>Perl     <Esc>'
+      exe "amenu ".s:Perl_Root.'Spec-&Var.&files.Spec-Var-2<Tab>Perl     <Nop>'
       exe "amenu ".s:Perl_Root.'Spec-&Var.&files.-Sep0-                  :'
     endif
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&files.$AUTOFLUSH<Tab>$\|              <Esc>a$AUTOFLUSH'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&files.$OUTPUT_AUTOFLUSH<Tab>$\|       <Esc>a$OUTPUT_AUTOFLUSH'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_LINES_LEFT<Tab>$-       <Esc>a$FORMAT_LINES_LEFT'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_LINES_PER_PAGE<Tab>$=   <Esc>a$FORMAT_LINES_PER_PAGE'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_NAME<Tab>$~             <Esc>a$FORMAT_NAME'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_PAGE_NUMBER<Tab>$%      <Esc>a$FORMAT_PAGE_NUMBER'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_TOP_NAME<Tab>$^         <Esc>a$FORMAT_TOP_NAME'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&files.$AUTOFLUSH<Tab>$\|              $AUTOFLUSH'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&files.$OUTPUT_AUTOFLUSH<Tab>$\|       $OUTPUT_AUTOFLUSH'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_LINES_LEFT<Tab>$-       $FORMAT_LINES_LEFT'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_LINES_PER_PAGE<Tab>$=   $FORMAT_LINES_PER_PAGE'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_NAME<Tab>$~             $FORMAT_NAME'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_PAGE_NUMBER<Tab>$%      $FORMAT_PAGE_NUMBER'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_TOP_NAME<Tab>$^         $FORMAT_TOP_NAME'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&files.$AUTOFLUSH<Tab>$\|              a$AUTOFLUSH'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&files.$OUTPUT_AUTOFLUSH<Tab>$\|       a$OUTPUT_AUTOFLUSH'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_LINES_LEFT<Tab>$-       a$FORMAT_LINES_LEFT'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_LINES_PER_PAGE<Tab>$=   a$FORMAT_LINES_PER_PAGE'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_NAME<Tab>$~             a$FORMAT_NAME'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_PAGE_NUMBER<Tab>$%      a$FORMAT_PAGE_NUMBER'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&files.$FORMAT_TOP_NAME<Tab>$^         a$FORMAT_TOP_NAME'
 
     "-------- submenu IDs -------------------------------------------------
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Spec-&Var.&IDs.Spec-Var-3<Tab>Perl    <Esc>'
+      exe "amenu ".s:Perl_Root.'Spec-&Var.&IDs.Spec-Var-3<Tab>Perl    <Nop>'
       exe "amenu ".s:Perl_Root.'Spec-&Var.&IDs.-Sep0-                 :'
     endif
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&IDs.$PID<Tab>$$                   <Esc>a$PID'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&IDs.$PROCESS_ID<Tab>$$            <Esc>a$PROCESS_ID'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&IDs.$GID<Tab>$(                   <Esc>a$GID'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&IDs.$REAL_GROUP_ID<Tab>$(         <Esc>a$REAL_GROUP_ID'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&IDs.$EGID<Tab>$)                  <Esc>a$EGID'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&IDs.$EFFECTIVE_GROUP_ID<Tab>$)    <Esc>a$EFFECTIVE_GROUP_ID'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$PID<Tab>$$                   $PID'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$PROCESS_ID<Tab>$$            $PROCESS_ID'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$GID<Tab>$(                   $GID'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$REAL_GROUP_ID<Tab>$(         $REAL_GROUP_ID'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$EGID<Tab>$)                  $EGID'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$EFFECTIVE_GROUP_ID<Tab>$)    $EFFECTIVE_GROUP_ID'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$PID<Tab>$$                   a$PID'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$PROCESS_ID<Tab>$$            a$PROCESS_ID'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$GID<Tab>$(                   a$GID'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$REAL_GROUP_ID<Tab>$(         a$REAL_GROUP_ID'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$EGID<Tab>$)                  a$EGID'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&IDs.$EFFECTIVE_GROUP_ID<Tab>$)    a$EFFECTIVE_GROUP_ID'
 
     "-------- submenu IO -------------------------------------------------
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Spec-&Var.I&O.Spec-Var-4<Tab>Perl       <Esc>'
+      exe "amenu ".s:Perl_Root.'Spec-&Var.I&O.Spec-Var-4<Tab>Perl       <Nop>'
       exe "amenu ".s:Perl_Root.'Spec-&Var.I&O.-Sep0-                    :'
     endif
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$INPUT_LINE_NUMBER<Tab>$\.         <Esc>a$INPUT_LINE_NUMBER'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$NR<Tab>$\.                        <Esc>a$NR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$INPUT_LINE_NUMBER<Tab>$\.         $INPUT_LINE_NUMBER'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$NR<Tab>$\.                        $NR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$INPUT_LINE_NUMBER<Tab>$\.         a$INPUT_LINE_NUMBER'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$NR<Tab>$\.                        a$NR'
 
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.-SEP1-                             :'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$INPUT_RECORD_SEPARATOR<Tab>$/     <Esc>a$INPUT_RECORD_SEPARATOR'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$RS<Tab>$/                         <Esc>a$RS'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$LIST_SEPARATOR<Tab>$"             <Esc>a$LIST_SEPARATOR'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$OUTPUT_FIELD_SEPARATOR<Tab>$,     <Esc>a$OUTPUT_FIELD_SEPARATOR'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$OFS<Tab>$,                        <Esc>a$OFS'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$OUTPUT_RECORD_SEPARATOR<Tab>$\\   <Esc>a$OUTPUT_RECORD_SEPARATOR'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$ORS<Tab>$\\                       <Esc>a$ORS'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$SUBSCRIPT_SEPARATOR<Tab>$;        <Esc>a$SUBSCRIPT_SEPARATOR'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.I&O.$SUBSEP<Tab>$;                     <Esc>a$SUBSEP'
-
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$INPUT_RECORD_SEPARATOR<Tab>$/     $INPUT_RECORD_SEPARATOR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$RS<Tab>$/                         $RS'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$LIST_SEPARATOR<Tab>$"             $LIST_SEPARATOR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$OUTPUT_FIELD_SEPARATOR<Tab>$,     $OUTPUT_FIELD_SEPARATOR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$OFS<Tab>$,                        $OFS'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$OUTPUT_RECORD_SEPARATOR<Tab>$\\   $OUTPUT_RECORD_SEPARATOR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$ORS<Tab>$\\                       $ORS'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$SUBSCRIPT_SEPARATOR<Tab>$;        $SUBSCRIPT_SEPARATOR'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.I&O.$SUBSEP<Tab>$;                     $SUBSEP'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.-SEP1-                             :'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$INPUT_RECORD_SEPARATOR<Tab>$/     a$INPUT_RECORD_SEPARATOR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$RS<Tab>$/                         a$RS'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$LIST_SEPARATOR<Tab>$"             a$LIST_SEPARATOR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$OUTPUT_FIELD_SEPARATOR<Tab>$,     a$OUTPUT_FIELD_SEPARATOR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$OFS<Tab>$,                        a$OFS'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$OUTPUT_RECORD_SEPARATOR<Tab>$\\   a$OUTPUT_RECORD_SEPARATOR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$ORS<Tab>$\\                       a$ORS'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$SUBSCRIPT_SEPARATOR<Tab>$;        a$SUBSCRIPT_SEPARATOR'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.I&O.$SUBSEP<Tab>$;                     a$SUBSEP'
 
     "-------- submenu regexp -------------------------------------------------
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Spec-&Var.&regexp.Spec-Var-5<Tab>Perl       <Esc>'
+      exe "amenu ".s:Perl_Root.'Spec-&Var.&regexp.Spec-Var-5<Tab>Perl       <Nop>'
       exe "amenu ".s:Perl_Root.'Spec-&Var.&regexp.-Sep0-                    :'
     endif
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&regexp.$digits                            <Esc>a$digits'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&regexp.@LAST_MATCH_END<Tab>@+             <Esc>a@LAST_MATCH_END'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&regexp.@LAST_MATCH_START<Tab>@-           <Esc>a@LAST_MATCH_START'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&regexp.$LAST_PAREN_MATCH<Tab>$+           <Esc>a$LAST_PAREN_MATCH'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&regexp.$LAST_REGEXP_CODE_RESULT<Tab>$^R   <Esc>a$LAST_REGEXP_CODE_RESULT'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&regexp.$MATCH<Tab>$&                      <Esc>a$MATCH'
-    exe " noremenu ".s:Perl_Root."Spec-&Var.&regexp.$POSTMATCH<Tab>$'                  <Esc>a$POSTMATCH"
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.&regexp.$PREMATCH<Tab>$`                   <Esc>a$PREMATCH'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$digits                            $digits'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&regexp.@LAST_MATCH_END<Tab>$@+            @LAST_MATCH_END'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&regexp.@LAST_MATCH_START<Tab>$@-          @LAST_MATCH_START'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$LAST_PAREN_MATCH<Tab>$+           $LAST_PAREN_MATCH'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$LAST_REGEXP_CODE_RESULT<Tab>$^R   $LAST_REGEXP_CODE_RESULT'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$MATCH<Tab>$&                      $MATCH'
-    exe "inoremenu ".s:Perl_Root."Spec-&Var.&regexp.$POSTMATCH<Tab>$'                  $POSTMATCH"
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$PREMATCH<Tab>$`                   $PREMATCH'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$digits                            a$digits'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&regexp.@LAST_MATCH_END<Tab>@+             a@LAST_MATCH_END'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&regexp.@LAST_MATCH_START<Tab>@-           a@LAST_MATCH_START'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$LAST_PAREN_MATCH<Tab>$+           a$LAST_PAREN_MATCH'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$LAST_REGEXP_CODE_RESULT<Tab>$^R   a$LAST_REGEXP_CODE_RESULT'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$MATCH<Tab>$&                      a$MATCH'
+    exe "anoremenu ".s:Perl_Root."Spec-&Var.&regexp.$POSTMATCH<Tab>$'                  a$POSTMATCH"
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.&regexp.$PREMATCH<Tab>$`                   a$PREMATCH'
 
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.$BASETIME<Tab>$^T         <Esc>a$BASETIME'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.$PERL_VERSION<Tab>$^V     <Esc>a$PERL_VERSION'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.$PROGRAM_NAME<Tab>$0      <Esc>a$PROGRAM_NAME'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.$OSNAME<Tab>$^O           <Esc>a$OSNAME'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.$SYSTEM_FD_MAX<Tab>$^F    <Esc>a$SYSTEM_FD_MAX'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.$ENV{\ }                  <Esc>a$ENV{}<Left>'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.$INC{\ }                  <Esc>a$INC{}<Left>'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.$SIG{\ }                  <Esc>a$SIG{}<Left>'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.$BASETIME<Tab>$^T         $BASETIME'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.$PERL_VERSION<Tab>$^V     $PERL_VERSION'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.$PROGRAM_NAME<Tab>$0      $PROGRAM_NAME'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.$OSNAME<Tab>$^O           $OSNAME'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.$SYSTEM_FD_MAX<Tab>$^F    $SYSTEM_FD_MAX'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.$ENV{\ }                  $ENV{}<Left>'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.$INC{\ }                  $INC{}<Left>'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.$SIG{\ }                  $SIG{}<Left>'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.$BASETIME<Tab>$^T         a$BASETIME'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.$PERL_VERSION<Tab>$^V     a$PERL_VERSION'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.$PROGRAM_NAME<Tab>$0      a$PROGRAM_NAME'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.$OSNAME<Tab>$^O           a$OSNAME'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.$SYSTEM_FD_MAX<Tab>$^F    a$SYSTEM_FD_MAX'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.$ENV{\ }                  a$ENV{}<Left>'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.$INC{\ }                  a$INC{}<Left>'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.$SIG{\ }                  a$SIG{}<Left>'
     "
     "---------- submenu : POSIX signals --------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.Spec-Var-6<Tab>Perl     <Esc>'
+      exe "amenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.Spec-Var-6<Tab>Perl     <Nop>'
       exe "amenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.-Sep0-        :'
     endif
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.HUP    <Esc>aHUP'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.INT    <Esc>aINT'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.QUIT   <Esc>aQUIT'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ILL    <Esc>aILL'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ABRT   <Esc>aABRT'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.FPE    <Esc>aFPE'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.KILL   <Esc>aKILL'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.SEGV   <Esc>aSEGV'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.PIPE   <Esc>aPIPE'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ALRM   <Esc>aALRM'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TERM   <Esc>aTERM'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.USR1   <Esc>aUSR1'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.USR2   <Esc>aUSR2'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.CHLD   <Esc>aCHLD'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.CONT   <Esc>aCONT'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.STOP   <Esc>aSTOP'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TSTP   <Esc>aTSTP'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TTIN   <Esc>aTTIN'
-    exe " noremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TTOU   <Esc>aTTOU'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.HUP    aHUP'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.INT    aINT'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.QUIT   aQUIT'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ILL    aILL'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ABRT   aABRT'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.FPE    aFPE'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.KILL   aKILL'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.SEGV   aSEGV'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.PIPE   aPIPE'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ALRM   aALRM'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TERM   aTERM'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.USR1   aUSR1'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.USR2   aUSR2'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.CHLD   aCHLD'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.CONT   aCONT'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.STOP   aSTOP'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TSTP   aTSTP'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TTIN   aTTIN'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TTOU   aTTOU'
     "
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.HUP    HUP'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.INT    INT'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.QUIT   QUIT'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ILL    ILL'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ABRT   ABRT'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.FPE    FPE'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.KILL   KILL'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.SEGV   SEGV'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.PIPE   PIPE'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.ALRM   ALRM'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TERM   TERM'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.USR1   USR1'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.USR2   USR2'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.CHLD   CHLD'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.CONT   CONT'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.STOP   STOP'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TSTP   TSTP'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TTIN   TTIN'
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.POSIX\ signals.TTOU   TTOU'
-    "
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.-SEP2-                :'
-    exe " noremenu ".s:Perl_Root."Spec-&Var.\'IGNORE\'            <Esc>a'IGNORE'"
-    exe " noremenu ".s:Perl_Root."Spec-&Var.\'DEFAULT\'           <Esc>a'DEFAULT'"
-    exe "inoremenu ".s:Perl_Root."Spec-&Var.\'IGNORE\'            'IGNORE'"
-    exe "inoremenu ".s:Perl_Root."Spec-&Var.\'DEFAULT\'           'DEFAULT'"
-    exe "inoremenu ".s:Perl_Root.'Spec-&Var.-SEP3-                :'
-    exe "anoremenu ".s:Perl_Root.'Spec-&Var.use\ English;         <ESC><ESC>ouse English qw( -no_match_vars );<ESC>'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.-SEP2-                :'
+    exe "anoremenu ".s:Perl_Root."Spec-&Var.\'IGNORE\'            a'IGNORE'"
+    exe "anoremenu ".s:Perl_Root."Spec-&Var.\'DEFAULT\'           a'DEFAULT'"
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.-SEP3-                :'
+    exe "anoremenu ".s:Perl_Root.'Spec-&Var.use\ English;         ouse English qw( -no_match_vars );<ESC>'
     "
     "---------- POD-Menu ----------------------------------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&POD.&POD<Tab>Perl           <Esc>'
+      exe "amenu ".s:Perl_Root.'&POD.&POD<Tab>Perl          <Nop>'
       exe "amenu ".s:Perl_Root.'&POD.-Sep0-                 :'
     endif
     "
-    exe "amenu ".s:Perl_Root.'&POD.=&pod\ /\ =cut            <Esc><Esc>:call Perl_PodPodCut("a")<CR>3kA'
-    exe "vmenu ".s:Perl_Root.'&POD.=&pod\ /\ =cut            <Esc><Esc>:call Perl_PodPodCut("v")<CR>'
+    exe "amenu ".s:Perl_Root.'&POD.=&pod\ /\ =cut                 :call Perl_PodPodCut("a")<CR>3kA'
+    exe "imenu ".s:Perl_Root.'&POD.=&pod\ /\ =cut            <C-C>:call Perl_PodPodCut("a")<CR>3kA'
+    exe "vmenu ".s:Perl_Root.'&POD.=&pod\ /\ =cut            <C-C>:call Perl_PodPodCut("v")<CR>'
     "
-    exe "amenu ".s:Perl_Root.'&POD.=c&ut                     <Esc><Esc>o<CR>=cut<CR><CR><Esc>A'
+    exe "amenu ".s:Perl_Root.'&POD.=c&ut                     o<CR>=cut<CR><CR><Esc>A'
     "
-    exe "amenu ".s:Perl_Root.'&POD.=fo&r\ /\ =cut            <Esc><Esc>:call Perl_PodForCut("a")<CR>3kA'
-    exe "vmenu ".s:Perl_Root.'&POD.=fo&r\ /\ =cut            <Esc><Esc>:call Perl_PodForCut("v")<CR>A'
+    exe "amenu ".s:Perl_Root.'&POD.=fo&r\ /\ =cut                 :call Perl_PodForCut("a")<CR>3kA'
+    exe "imenu ".s:Perl_Root.'&POD.=fo&r\ /\ =cut            <C-C>:call Perl_PodForCut("a")<CR>3kA'
+    exe "vmenu ".s:Perl_Root.'&POD.=fo&r\ /\ =cut            <C-C>:call Perl_PodForCut("v")<CR>A'
     "
-    exe "amenu ".s:Perl_Root.'&POD.=begin\ &html\ /\ =end    <Esc><Esc>:call Perl_PodProcessor("a","html")<CR>3kA'
-    exe "amenu ".s:Perl_Root.'&POD.=begin\ &man\ /\ =end     <Esc><Esc>:call Perl_PodProcessor("a","man ")<CR>3kA'
-    exe "amenu ".s:Perl_Root.'&POD.=begin\ &text\ /\ =end    <Esc><Esc>:call Perl_PodProcessor("a","text")<CR>3kA'
-    exe "vmenu ".s:Perl_Root.'&POD.=begin\ &html\ /\ =end    <Esc><Esc>:call Perl_PodProcessor("v","html")<CR>'
-    exe "vmenu ".s:Perl_Root.'&POD.=begin\ &man\ /\ =end     <Esc><Esc>:call Perl_PodProcessor("v","man ")<CR>'
-    exe "vmenu ".s:Perl_Root.'&POD.=begin\ &text\ /\ =end    <Esc><Esc>:call Perl_PodProcessor("v","text")<CR>'
+    exe "amenu ".s:Perl_Root.'&POD.=begin\ &html\ /\ =end         :call Perl_PodProcessor("a","html")<CR>3kA'
+    exe "amenu ".s:Perl_Root.'&POD.=begin\ &man\ /\ =end          :call Perl_PodProcessor("a","man ")<CR>3kA'
+    exe "amenu ".s:Perl_Root.'&POD.=begin\ &text\ /\ =end         :call Perl_PodProcessor("a","text")<CR>3kA'
+    exe "imenu ".s:Perl_Root.'&POD.=begin\ &html\ /\ =end    <C-C>:call Perl_PodProcessor("a","html")<CR>3kA'
+    exe "imenu ".s:Perl_Root.'&POD.=begin\ &man\ /\ =end     <C-C>:call Perl_PodProcessor("a","man ")<CR>3kA'
+    exe "imenu ".s:Perl_Root.'&POD.=begin\ &text\ /\ =end    <C-C>:call Perl_PodProcessor("a","text")<CR>3kA'
+    exe "vmenu ".s:Perl_Root.'&POD.=begin\ &html\ /\ =end    <C-C>:call Perl_PodProcessor("v","html")<CR>'
+    exe "vmenu ".s:Perl_Root.'&POD.=begin\ &man\ /\ =end     <C-C>:call Perl_PodProcessor("v","man ")<CR>'
+    exe "vmenu ".s:Perl_Root.'&POD.=begin\ &text\ /\ =end    <C-C>:call Perl_PodProcessor("v","text")<CR>'
     "
-    exe "amenu ".s:Perl_Root.'&POD.=head&1                   <Esc><Esc>o<CR>=head1 <CR><Esc>kA'
-    exe "amenu ".s:Perl_Root.'&POD.=head&2                   <Esc><Esc>o<CR>=head2 <CR><Esc>kA'
-    exe "amenu ".s:Perl_Root.'&POD.=head&3                   <Esc><Esc>o<CR>=head3 <CR><Esc>kA'
+    exe "amenu ".s:Perl_Root.'&POD.=head&1                   o<CR>=head1 <CR><Esc>kA'
+    exe "amenu ".s:Perl_Root.'&POD.=head&2                   o<CR>=head2 <CR><Esc>kA'
+    exe "amenu ".s:Perl_Root.'&POD.=head&3                   o<CR>=head3 <CR><Esc>kA'
     exe "amenu ".s:Perl_Root.'&POD.-Sep1-                    :'
     "
-    exe "amenu ".s:Perl_Root.'&POD.=&over\ \.\.\ =back       <Esc><Esc>:call Perl_PodOverBack("a")<CR>7kA'
-    exe "vmenu ".s:Perl_Root.'&POD.=&over\ \.\.\ =back       <Esc><Esc>:call Perl_PodOverBack("v")<CR>A'
-    exe "amenu ".s:Perl_Root.'&POD.=item\ &*                 <Esc><Esc>o<CR>=item *<CR><CR><CR><Esc>kA'
+    exe "amenu ".s:Perl_Root.'&POD.=&over\ \.\.\ =back            :call Perl_PodOverBack("a")<CR>7kA'
+    exe "imenu ".s:Perl_Root.'&POD.=&over\ \.\.\ =back       <C-C>:call Perl_PodOverBack("a")<CR>7kA'
+    exe "vmenu ".s:Perl_Root.'&POD.=&over\ \.\.\ =back       <C-C>:call Perl_PodOverBack("v")<CR>A'
+		"
+    exe "amenu ".s:Perl_Root.'&POD.=item\ &*                 o<CR>=item *<CR><CR><CR><Esc>kA'
     exe "amenu ".s:Perl_Root.'&POD.-Sep2-                    :'
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&POD.in&visible\ POD.invisible\ POD<Tab>Perl     <Esc>'
+      exe "amenu ".s:Perl_Root.'&POD.in&visible\ POD.invisible\ POD<Tab>Perl     <Nop>'
       exe "amenu ".s:Perl_Root.'&POD.in&visible\ POD.-Sep0-        :'
     endif
-    exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Improvement   <Esc><C-C>:call Perl_InvisiblePOD("a","Improvement")<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Optimization  <Esc><C-C>:call Perl_InvisiblePOD("a","Optimization")<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Rationale     <Esc><C-C>:call Perl_InvisiblePOD("a","Rationale")<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Workaround    <Esc><C-C>:call Perl_InvisiblePOD("a","Workaround")<CR>'
-    exe "vmenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Improvement   <Esc><C-C>:call Perl_InvisiblePOD("v","Improvement")<CR>'
-    exe "vmenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Optimization  <Esc><C-C>:call Perl_InvisiblePOD("v","Optimization")<CR>'
-    exe "vmenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Rationale     <Esc><C-C>:call Perl_InvisiblePOD("v","Rationale")<CR>'
-    exe "vmenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Workaround    <Esc><C-C>:call Perl_InvisiblePOD("v","Workaround")<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Improvement        :call Perl_InvisiblePOD("a","Improvement")<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Optimization       :call Perl_InvisiblePOD("a","Optimization")<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Rationale          :call Perl_InvisiblePOD("a","Rationale")<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Workaround         :call Perl_InvisiblePOD("a","Workaround")<CR>'
+    exe "vmenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Improvement   <C-C>:call Perl_InvisiblePOD("v","Improvement")<CR>'
+    exe "vmenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Optimization  <C-C>:call Perl_InvisiblePOD("v","Optimization")<CR>'
+    exe "vmenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Rationale     <C-C>:call Perl_InvisiblePOD("v","Rationale")<CR>'
+    exe "vmenu <silent> ".s:Perl_Root.'&POD.in&visible\ POD.&Workaround    <C-C>:call Perl_InvisiblePOD("v","Workaround")<CR>'
     exe "amenu ".s:Perl_Root.'&POD.-Sep3-                    :'
     "
     "---------- submenu : Sequences --------------------------------------
     "
-    exe "anoremenu ".s:Perl_Root.'&POD.&B<><Tab>bold             <Esc><Esc>aB<><Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&POD.&C<><Tab>literal          <Esc><Esc>aC<><Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&POD.&E<><Tab>escape           <Esc><Esc>aE<><Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&POD.&F<><Tab>filename         <Esc><Esc>aF<><Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&POD.&I<><Tab>italic           <Esc><Esc>aI<><Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&POD.&L<><Tab>link             <Esc><Esc>aL<\|><Esc>hi'
-    exe "anoremenu ".s:Perl_Root.'&POD.&S<>\ \ nonbr\.\ spaces   <Esc><Esc>aS<><Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&POD.&X<><Tab>index            <Esc><Esc>aX<><Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&POD.&Z<><Tab>zero-width       <Esc><Esc>aZ<><Esc>a'
+    exe "anoremenu ".s:Perl_Root.'&POD.&B<><Tab>bold             aB<><Left>'
+    exe "anoremenu ".s:Perl_Root.'&POD.&C<><Tab>literal          aC<><Left>'
+    exe "anoremenu ".s:Perl_Root.'&POD.&E<><Tab>escape           aE<><Left>'
+    exe "anoremenu ".s:Perl_Root.'&POD.&F<><Tab>filename         aF<><Left>'
+    exe "anoremenu ".s:Perl_Root.'&POD.&I<><Tab>italic           aI<><Left>'
+    exe "anoremenu ".s:Perl_Root.'&POD.&L<><Tab>link             aL<\|><Left><Left>'
+    exe "anoremenu ".s:Perl_Root.'&POD.&S<>\ \ nonbr\.\ spaces   aS<><Left>'
+    exe "anoremenu ".s:Perl_Root.'&POD.&X<><Tab>index            aX<><Left>'
+    exe "anoremenu ".s:Perl_Root.'&POD.&Z<><Tab>zero-width       aZ<><Left>'
+    "
+    exe "inoremenu ".s:Perl_Root.'&POD.&B<><Tab>bold              B<><Left>'
+    exe "inoremenu ".s:Perl_Root.'&POD.&C<><Tab>literal           C<><Left>'
+    exe "inoremenu ".s:Perl_Root.'&POD.&E<><Tab>escape            E<><Left>'
+    exe "inoremenu ".s:Perl_Root.'&POD.&F<><Tab>filename          F<><Left>'
+    exe "inoremenu ".s:Perl_Root.'&POD.&I<><Tab>italic            I<><Left>'
+    exe "inoremenu ".s:Perl_Root.'&POD.&L<><Tab>link              L<\|><Left><Left>'
+    exe "inoremenu ".s:Perl_Root.'&POD.&S<>\ \ nonbr\.\ spaces    S<><Left>'
+    exe "inoremenu ".s:Perl_Root.'&POD.&X<><Tab>index             X<><Left>'
+    exe "inoremenu ".s:Perl_Root.'&POD.&Z<><Tab>zero-width        Z<><Left>'
     "
     exe "vnoremenu ".s:Perl_Root.'&POD.&B<><Tab>bold             sB<><Esc>P2l'
     exe "vnoremenu ".s:Perl_Root.'&POD.&C<><Tab>literal          sC<><Esc>P2l'
@@ -838,62 +893,62 @@ function! Perl_InitMenu ()
     exe "vnoremenu ".s:Perl_Root.'&POD.&X<><Tab>index            sX<><Esc>P2l'
 
     exe "amenu          ".s:Perl_Root.'&POD.-SEP4-                  :'
-    exe "amenu <silent> ".s:Perl_Root.'&POD.run\ podchecker\ \ (&4) <Esc><C-C>:call Perl_PodCheck()<CR>:redraw<CR>:call Perl_PodCheckMsg()<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ html\ \ (&5)   <Esc><C-C>:call Perl_POD("html")<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ man\ \ (&6)    <Esc><C-C>:call Perl_POD("man")<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&7)   <Esc><C-C>:call Perl_POD("text")<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&POD.run\ podchecker\ \ (&4) :call Perl_PodCheck()<CR>:redraw<CR>:call Perl_PodCheckMsg()<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ html\ \ (&5)   :call Perl_POD("html")<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ man\ \ (&6)    :call Perl_POD("man")<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&POD.POD\ ->\ text\ \ (&7)   :call Perl_POD("text")<CR>'
     "
     "---------- Run-Menu ----------------------------------------------------------------------
     "
     if s:Perl_MenuHeader == "yes"
-      exe "amenu ".s:Perl_Root.'&Run.&Run<Tab>Perl                   <Esc>'
+      exe "amenu ".s:Perl_Root.'&Run.&Run<Tab>Perl                  <Nop>'
       exe "amenu ".s:Perl_Root.'&Run.-Sep0-                         :'
     endif
     "
     "   run the script from the local directory 
     "   ( the one which is being edited; other versions may exist elsewhere ! )
     " 
-    exe "amenu <silent> ".s:Perl_Root.'&Run.update,\ &run\ script<Tab><C-F9>         <C-C>:call Perl_Run()<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.update,\ &run\ script<Tab><C-F9>         :call Perl_Run()<CR>'
     "
-    exe "amenu ".s:Perl_Root.'&Run.update,\ check\ &syntax<Tab><A-F9>                <C-C>:call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.cmd\.\ line\ &arg\.<Tab><S-F9>           <C-C>:call Perl_Arguments()<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.perl\ s&witches                          <C-C>:call Perl_PerlSwitches()<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.start\ &debugger<Tab><F9>                <C-C>:call Perl_Debugger()<CR>'
+    exe "amenu ".s:Perl_Root.'&Run.update,\ check\ &syntax<Tab><A-F9>                :call Perl_SyntaxCheck()<CR>:redraw<CR>:call Perl_SyntaxCheckMsg()<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.cmd\.\ line\ &arg\.<Tab><S-F9>           :call Perl_Arguments()<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.perl\ s&witches                          :call Perl_PerlSwitches()<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.start\ &debugger<Tab><F9>                :call Perl_Debugger()<CR>'
     "
     "   set execution rights for user only ( user may be root ! )
     "
     if !s:MSWIN
-      exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ &executable              <C-C>:call Perl_MakeScriptExecutable()<CR>'
+      exe "amenu <silent> ".s:Perl_Root.'&Run.make\ script\ &executable              :call Perl_MakeScriptExecutable()<CR>'
     endif
-    exe "amenu          ".s:Perl_Root.'&Run.-SEP2-                           :'
+    exe "amenu          ".s:Perl_Root.'&Run.-SEP2-                     :'
 
-    exe "amenu <silent> ".s:Perl_Root.'&Run.read\ &perldoc<Tab><S-F1>        <C-C>:call Perl_perldoc()<CR><CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.show\ &installed\ Perl\ modules  <Esc><Esc>:call Perl_perldoc_show_module_list()<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.&generate\ Perl\ module\ list    <C-C>:call Perl_perldoc_generate_module_list()<CR><CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.read\ &perldoc<Tab><S-F1>        :call Perl_perldoc()<CR><CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.show\ &installed\ Perl\ modules  :call Perl_perldoc_show_module_list()<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.&generate\ Perl\ module\ list    :call Perl_perldoc_generate_module_list()<CR><CR>'
     "
-    exe "amenu          ".s:Perl_Root.'&Run.-SEP4-                           :'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.run\ perltid&y                   <C-C>:call Perl_Perltidy("n")<CR>'
+    exe "amenu          ".s:Perl_Root.'&Run.-SEP4-                     :'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.run\ perltid&y                        :call Perl_Perltidy("n")<CR>'
     exe "vmenu <silent> ".s:Perl_Root.'&Run.run\ perltid&y                   <C-C>:call Perl_Perltidy("v")<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.run\ S&mallProf                  <C-C>:call Perl_Smallprof()<CR><CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.run\ perl&critic                 <C-C>:call Perl_Perlcritic()<CR>:redraw<CR>:call Perl_PerlcriticMsg()<CR>'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.save\ buffer\ with\ &timestamp   <C-C>:call Perl_SaveWithTimestamp()<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.run\ S&mallProf                  			:call Perl_Smallprof()<CR><CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.run\ perl&critic                 			:call Perl_Perlcritic()<CR>:redraw<CR>:call Perl_PerlcriticMsg()<CR>'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.save\ buffer\ with\ &timestamp   			:call Perl_SaveWithTimestamp()<CR>'
 
-    exe "amenu          ".s:Perl_Root.'&Run.-SEP5-                           :'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.&hardcopy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("n")<CR>'
+    exe "amenu          ".s:Perl_Root.'&Run.-SEP5-                     :'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.&hardcopy\ to\ FILENAME\.ps           :call Perl_Hardcopy("n")<CR>'
     exe "vmenu <silent> ".s:Perl_Root.'&Run.&hardcopy\ to\ FILENAME\.ps      <C-C>:call Perl_Hardcopy("v")<CR>'
-    exe "amenu          ".s:Perl_Root.'&Run.-SEP6-                           :'
-    exe "amenu <silent> ".s:Perl_Root.'&Run.settings\ and\ hot\ &keys        <C-C>:call Perl_Settings()<CR>'
+    exe "amenu          ".s:Perl_Root.'&Run.-SEP6-                     :'
+    exe "amenu <silent> ".s:Perl_Root.'&Run.settings\ and\ hot\ &keys             :call Perl_Settings()<CR>'
     "
     if  !s:MSWIN
-      exe "amenu  <silent>  ".s:Perl_Root.'&Run.&xterm\ size                          <C-C>:call Perl_XtermSize()<CR>'
+      exe "amenu  <silent>  ".s:Perl_Root.'&Run.&xterm\ size                          :call Perl_XtermSize()<CR>'
     endif
     if s:Perl_OutputGvim == "vim" 
-      exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm          <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+      exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm          :call Perl_Toggle_Gvim_Xterm()<CR>'
     else
       if s:Perl_OutputGvim == "buffer" 
-        exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim        <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+        exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim        :call Perl_Toggle_Gvim_Xterm()<CR>'
       else
-        exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer        <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+        exe "amenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer        :call Perl_Toggle_Gvim_Xterm()<CR>'
       endif
     endif
     "
@@ -904,7 +959,7 @@ function! Perl_InitMenu ()
   "===============================================================================================
   "
   if s:Perl_Root != ""
-    exe "menu  <silent>  ".s:Perl_Root.'&help\ \(plugin\)        <C-C><C-C>:call Perl_HelpPerlsupport()<CR>'
+    exe "amenu  <silent>  ".s:Perl_Root.'&help\ \(plugin\)        :call Perl_HelpPerlsupport()<CR>'
   endif
   "
   "--------------------------------------------------------------------------------------------
@@ -954,7 +1009,7 @@ function! Perl_LineEndComment ( comment )
     let b:Perl_LineEndCommentColumn = s:Perl_LineEndCommColDefault
   endif
   " ----- trim whitespaces -----
-  exe "s/\s\*$//"
+	exe 's/\s*$//'
   let linelength= virtcol("$") - 1
   if linelength < b:Perl_LineEndCommentColumn
     let diff  = b:Perl_LineEndCommentColumn -1 -linelength
@@ -1046,7 +1101,7 @@ function! Perl_MultiLineEndComments ()
   let pos0  = line("'<")
   let pos1  = line("'>")
   " ----- trim whitespaces -----
-  exe "'<,'>s/\s\*$//"
+  :'<,'>s/\s*$//
   " ----- find the longest line -----
   let maxlength   = 0
   let linenumber  = pos0
@@ -1190,6 +1245,19 @@ function! Perl_UncommentBlock ()
   silent exe ':'.line1.','.line2.'d'
 
 endfunction    " ----------  end of function Perl_UncommentBlock ----------
+"
+"------------------------------------------------------------------------------
+"  toggle comments
+"------------------------------------------------------------------------------
+function! Perl_CommentToggle ()
+  if match( getline("."), '^\s*#' ) != -1
+		" remove comment sign, keep leading whitespaces
+		exe ":s/^\\(\\s*\\)#/\\1/"
+	else
+		" add comment leader
+		exe ":s/^/#/"
+	endif
+endfunction    " ----------  end of function Perl_CommentToggle  ----------
 "
 "------------------------------------------------------------------------------
 "  Substitute tags
@@ -1382,7 +1450,6 @@ endfunction   " ---------- end of function  Perl_Subroutine  ----------
 "  Statements : do-while
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
-"
 function! Perl_DoWhile (arg)
 
   if a:arg=='a'
@@ -1528,7 +1595,7 @@ function! Perl_OpenInputFile (mode)
   
   let filename=filehandle."_file_name"
 
-  exe " menu ".s:Perl_Root.'&Idioms.<$'.filehandle.'>     i<$'.filehandle.'><ESC>'
+  exe "amenu ".s:Perl_Root.'&Idioms.<$'.filehandle.'>     a<$'.filehandle.'><ESC>'
   exe "vmenu ".s:Perl_Root.'&Idioms.<$'.filehandle.'>     s<$'.filehandle.'><ESC>'
   exe "imenu ".s:Perl_Root.'&Idioms.<$'.filehandle.'>      <$'.filehandle.'><ESC>a'
 
@@ -1903,7 +1970,6 @@ endfunction   " ---------- end of function  Perl_perldoc_show_module_list  -----
 function! Perl_perldoc_generate_module_list()
   echohl Search
   echo " ... generating Perl module list ... " 
-  setlocal modifiable
   if  s:MSWIN
     silent exe ":!perl ".s:Perl_PerlModuleListGenerator." > ".s:Perl_PerlModuleList
     silent exe ":!sort ".s:Perl_PerlModuleList." /O ".s:Perl_PerlModuleList
@@ -1911,7 +1977,6 @@ function! Perl_perldoc_generate_module_list()
 		" direct STDOUT and STDERR to the module list file :
     silent exe ":!perl ".s:Perl_PerlModuleListGenerator." -s &> ".s:Perl_PerlModuleList
   endif
-  setlocal nomodifiable
   echo " DONE " 
   echohl None
 endfunction   " ---------- end of tion  Perl_perldoc_generate_module_list  ----------
@@ -1938,6 +2003,9 @@ function! Perl_Settings ()
   let txt = txt."             perlcritic  :  perlcritic -severity ".s:Perl_PerlcriticSeverity
 				\				." -verbosity ".s:Perl_PerlcriticVerbosity
 				\				." ".s:Perl_PerlcriticOptions."\n"
+	if s:Perl_InterfaceVersion != ''
+		let txt = txt." Perl interface version  :  ".s:Perl_InterfaceVersion."\n"
+	endif
   let txt = txt."\n"
   let txt = txt."    Additional hot keys\n\n"
   let txt = txt."               Shift-F1  :  read perldoc (for word under cursor)\n"
@@ -1954,7 +2022,6 @@ endfunction   " ---------- end of function  Perl_Settings  ----------
 "  run : syntax check
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
-"
 function! Perl_SyntaxCheck ()
   let s:Perl_SyntaxCheckMsg = ""
   exe ":cclose"
@@ -2020,7 +2087,7 @@ function! Perl_Toggle_Gvim_Xterm ()
 	if s:Perl_OutputGvim == "vim"
 		if has("gui_running")
 			exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm'
-			exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim              <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+			exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim              :call Perl_Toggle_Gvim_Xterm()<CR>'
 		endif
 		let	s:Perl_OutputGvim	= "buffer"
 	else
@@ -2028,9 +2095,9 @@ function! Perl_Toggle_Gvim_Xterm ()
 			if has("gui_running")
 				exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ BUFFER->xterm->vim'
 				if (!s:MSWIN) 
-					exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer             <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer             :call Perl_Toggle_Gvim_Xterm()<CR>'
 				else
-					exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            :call Perl_Toggle_Gvim_Xterm()<CR>'
 				endif
 			endif
 			if (!s:MSWIN) && (s:Perl_Display != '')
@@ -2042,7 +2109,7 @@ function! Perl_Toggle_Gvim_Xterm ()
 			" ---------- output : xterm -> gvim
 			if has("gui_running")
 				exe "aunmenu  <silent>  ".s:Perl_Root.'&Run.&output:\ XTERM->vim->buffer'
-				exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call Perl_Toggle_Gvim_Xterm()<CR><CR>'
+				exe "amenu    <silent>  ".s:Perl_Root.'&Run.&output:\ VIM->buffer->xterm            :call Perl_Toggle_Gvim_Xterm()<CR>'
 			endif
 			let	s:Perl_OutputGvim	= "vim"
 		endif
@@ -2659,7 +2726,7 @@ function! Perl_CreateGuiMenus ()
   if s:Perl_MenuVisible != 1
 		aunmenu <silent> &Tools.Load\ Perl\ Support
     amenu   <silent> 40.1000 &Tools.-SEP100- : 
-    amenu   <silent> 40.1160 &Tools.Unload\ Perl\ Support <C-C>:call Perl_RemoveGuiMenus()<CR>
+    amenu   <silent> 40.1160 &Tools.Unload\ Perl\ Support :call Perl_RemoveGuiMenus()<CR>
     call Perl_InitMenu()
     let s:Perl_MenuVisible = 1
   endif
@@ -2670,7 +2737,7 @@ endfunction    " ----------  end of function Perl_CreateGuiMenus  ----------
 "------------------------------------------------------------------------------
 function! Perl_ToolMenu ()
     amenu   <silent> 40.1000 &Tools.-SEP100- : 
-    amenu   <silent> 40.1160 &Tools.Load\ Perl\ Support <C-C>:call Perl_CreateGuiMenus()<CR>
+    amenu   <silent> 40.1160 &Tools.Load\ Perl\ Support :call Perl_CreateGuiMenus()<CR>
 endfunction    " ----------  end of function Perl_ToolMenu  ----------
 
 "------------------------------------------------------------------------------
@@ -2683,7 +2750,6 @@ function! Perl_RemoveGuiMenus ()
       aunmenu <silent> Statements
       aunmenu <silent> Idioms
       aunmenu <silent> Regex
-      aunmenu <silent> CharCls
       aunmenu <silent> File-Tests
       aunmenu <silent> Spec-Var
       aunmenu <silent> POD
@@ -2898,11 +2964,11 @@ endif
 "------------------------------------------------------------------------------
 "   run the regular expression analyzer YAPE::Regex::Explain
 "------------------------------------------------------------------------------
-let s:Perl_PerlRegexBufferName    = 'REGEX'
+let s:Perl_PerlRegexBufferName    = 'REGEX-EXPLAIN'
 let s:Perl_PerlRegexBufferNumber	= -1
 let s:Perl_PerlRegexAnalyser			= 'yes'
-"
-function! Perl_RegexAnalyse( )
+
+function! Perl_RegexExplain( mode )
 
 	if !has('perl')
 		echomsg	"*** Your version of Vim was not compiled with Perl interface. ***"
@@ -2914,11 +2980,15 @@ function! Perl_RegexAnalyse( )
 		return
 	endif
 
+	if a:mode == 'v'
+		call Perl_RegexPick ( "regexp", "v" )
+	endif
+
 	if bufloaded(s:Perl_PerlRegexBufferName) != 0 && bufwinnr(s:Perl_PerlRegexBufferNumber) != -1
-		exe bufwinnr(s:Perl_PerlRegexBufferNumber) . "wincmd w"
+		silent exe bufwinnr(s:Perl_PerlRegexBufferNumber) . "wincmd w"
 		" buffer number may have changed, e.g. after a 'save as' 
 	else
-		exe ":new ".s:Perl_PerlRegexBufferName
+		silent exe ":new ".s:Perl_PerlRegexBufferName
 		let s:Perl_PerlRegexBufferNumber=bufnr("%")
 		setlocal buftype=nofile
 		setlocal noswapfile
@@ -2928,54 +2998,429 @@ function! Perl_RegexAnalyse( )
 	"
 	" remove content if any
 	"
-	normal	ggdG
+	silent normal	ggdG
 
-    perl <<EOF
-				my $explanation;
-				my ( $success, $value ) = VIM::Eval('s:MSWIN');
+  perl <<EOF
+			my $explanation;
+			my ( $success, $regexp ) = VIM::Eval('s:MSWIN');
 
-				if ( $value ) {
-					# MS-Windows : evaluate the yank register "0
-					( $success, $value ) = VIM::Eval('@0');
-					}
-				else {
-					# Linux/Unix : evaluate the selection register "*
-					( $success, $value ) = VIM::Eval('@*');
-					}
+			my	$flag			= VIM::Eval('s:Perl_PerlRegexVisualizeFlag');
+			( $success, $regexp )	= VIM::Eval('s:Perl_PerlRegexVisualize_regexp');
+			if ( $success == 1 ) {
+				# get the explanation
+				$regexp = eval 'qr{'.$regexp.'}'.$flag;
+				$explanation	= YAPE::Regex::Explain->new($regexp)->explain();
+				}
+			else {
+				$explanation	= "\n*** VIM failed to evaluate the regular expression ***\n";
+				}
 
-				if ( $success == 1 ) {
-					# get the explanation
-					$explanation	= YAPE::Regex::Explain->new($value)->explain();
-					}
-				else {
-					$explanation	= "\n*** VIM failed to evaluate the marked expression ***\n";
-					}
+			# split explanation into lines
+			my	@explanation	= split /\n/, $explanation;
 
-				# split explanation into lines
-				my	@explanation	= split /\n/, $explanation;
-
-				# put the explanation to the top of the buffer
-				$curbuf->Append( 0, @explanation );
+			# put the explanation to the top of the buffer
+			$curbuf->Append( 0, @explanation );
 EOF
 
-endfunction    " ----------  end of function Perl_RegexAnalyse  ----------
+endfunction    " ----------  end of function Perl_RegexExplain  ----------
 "
 "-------------------------------------------------------------------------------
-"   initialize the regular expression analyzer
+"   read the substitution characters for \n, \t,  ... from the command line
 "-------------------------------------------------------------------------------
-function! Perl_RegexAnalyseInit( )
-	if has('perl')
-		" try to load the regex analyzer module; report failure
-    perl <<EOF
-				eval "require YAPE::Regex::Explain";
-				if ( $@ ) {
-					VIM::DoCommand("let s:Perl_PerlRegexAnalyser = 'no'");
-					}
-EOF
+function! Perl_PerlRegexSubstitutions ( string )
+	let result  = a:string
+	let result  = substitute( result, '^\s\+', '', '' )  " remove leading whitespaces
+	let result 	= substitute( result, '\s\+$', '', '' )	 " remove trailing whitespaces
+	let result 	= substitute( result, "^'", '', '' )
+	let result 	= substitute( result, "'$", '', '' )
+	"
+	" replacement string: length 2, printable characters, no control characters
+	"
+	if 			strlen( result )                   ==  2 && 
+				\	match( result, '^[[:print:]]\+$' ) ==  0 &&
+				\	match( result, '[[:cntrl:]]' )     == -1 
+		let s:Perl_PerlRegexSubstitution 	= result
 	endif
-endfunction    " ----------  end of function Perl_RegexAnalyseInit  ----------
+endfunction    " ----------  end of function Perl_PerlRegexSubstitutions  ----------
 "
-call Perl_RegexAnalyseInit()
+"------------------------------------------------------------------------------
+"   RUN THE REGULAR EXPRESSION VISUALIZOR
+"------------------------------------------------------------------------------
+let s:Perl_PerlRegexVisualizeBufferName   = 'REGEX-TEST'
+let s:Perl_PerlRegexVisualizeBufferNumber = -1
+let s:Perl_PerlRegexVisualize_regexp      = ''
+let s:Perl_PerlRegexVisualize_string      = ''
+let s:Perl_PerlRegexVisualizeFlag         = ''
+let s:Perl_PerlRegexCodeEvaluation        = 'off'
+let s:Perl_PerlRegexPrematch              = ''
+let s:Perl_PerlRegexMatch                 = ''
 "
+"------------------------------------------------------------------------------
+"   command line switch 'RegexCodeEvaluation'
+"------------------------------------------------------------------------------
+function! Perl_RegexCodeEvaluation ( onoff )
+	if a:onoff == 'on'
+		let s:Perl_PerlRegexCodeEvaluation				= 'on'
+	else
+		let s:Perl_PerlRegexCodeEvaluation				= 'off'
+	endif
+endfunction    " ----------  end of function Perl_RegexCodeEvaluation  ----------
+
+"------------------------------------------------------------------------------
+"   pick up string or regular expression
+"------------------------------------------------------------------------------
+function! Perl_RegexPick ( item, mode )
+	"
+	" the complete line; remove leading and trailing whitespaces
+	"
+	if a:mode == 'n' 
+		let line	= getline(line("."))
+		if  s:MSWIN
+			" MSWIN : copy item to the yank-register, remove trailing CR
+			let line	= substitute( line, "\n$", '', '' )
+		endif
+		let line	= substitute( line, '^\s\+', '', '' )  " remove leading whitespaces
+		let line	= substitute( line, '\s\+$', '', '' )	 " remove trailing whitespaces
+		let s:Perl_PerlRegexVisualize_{a:item}	= line
+	endif
+	"
+	" the marked area
+	"
+	if a:mode == 'v' 
+		" copy item to the yank-register (Windows has no selection register)
+		normal gvy
+		let s:Perl_PerlRegexVisualize_{a:item}	= eval('@"')
+	endif
+	"
+	echomsg a:item." : '".s:Perl_PerlRegexVisualize_{a:item}."'"
+endfunction    " ----------  end of function Perl_RegexPick  ----------
+"
+"------------------------------------------------------------------------------
+"   pick up flags
+"------------------------------------------------------------------------------
+function! Perl_RegexPickFlag ( mode )
+	if a:mode == 'v'
+		" copy item to the yank-register
+		normal gvy
+		let s:Perl_PerlRegexVisualizeFlag	= eval('@"')
+	else
+		let s:Perl_PerlRegexVisualizeFlag = Perl_Input("regex modifier(s) [imsx] : ", s:Perl_PerlRegexVisualizeFlag )
+	endif
+	let s:Perl_PerlRegexVisualizeFlag=substitute(s:Perl_PerlRegexVisualizeFlag, '[^imsx]', '', 'g')
+	echomsg "regex modifier(s) : '".s:Perl_PerlRegexVisualizeFlag."'"
+endfunction    " ----------  end of function Perl_RegexPickFlag  ----------
+"
+"------------------------------------------------------------------------------
+"   visualize regular expression
+"------------------------------------------------------------------------------
+function! Perl_RegexVisualize( )
+
+	if !has('perl')
+		echomsg	"*** Your version of Vim was not compiled with Perl interface. ***"
+		return
+	endif
+
+	let l:currentbuffernr = bufnr("%")
+	if bufloaded(s:Perl_PerlRegexVisualizeBufferName) != 0 && bufwinnr(s:Perl_PerlRegexVisualizeBufferNumber) != -1
+		silent exe bufwinnr(s:Perl_PerlRegexVisualizeBufferNumber) . "wincmd w"
+		" buffer number may have changed, e.g. after a 'save as' 
+	else
+		silent exe ":topleft new ".s:Perl_PerlRegexVisualizeBufferName
+		let s:Perl_PerlRegexVisualizeBufferNumber=bufnr("%")
+		setlocal buftype=nofile
+		setlocal noswapfile
+		setlocal bufhidden=delete
+		setlocal syntax=OFF
+	endif
+	"
+	" remove content if any:
+	silent normal	ggdG
+
+	perl <<EOF
+
+	my	@substchar= split //, VIM::Eval('s:Perl_PerlRegexSubstitution');
+
+	if ( VIM::Eval('s:Perl_PerlRegexCodeEvaluation') eq 'on' ) {
+		##use re 'eval';
+		##no strict "vars";
+		use	utf8;                                   # Perl pragma to enable/disable UTF-8 in source
+		regex_evaluate();
+		}
+	else {
+		use	utf8;                                   # Perl pragma to enable/disable UTF-8 in source
+		regex_evaluate();
+		}
+
+		#===  FUNCTION  ================================================================
+		#         NAME:  regex_evaluate
+		#      PURPOSE:  evaluate regex an write result into a buffer
+		#   PARAMETERS:  ---
+		#      RETURNS:  ---
+		#===============================================================================
+		sub regex_evaluate {
+
+		my ( $regexp, $string, $flag );
+
+		$flag			= VIM::Eval('s:Perl_PerlRegexVisualizeFlag');
+		$string 	= VIM::Eval('s:Perl_PerlRegexVisualize_string') || '';
+		$regexp 	= VIM::Eval('s:Perl_PerlRegexVisualize_regexp');
+
+		utf8::decode($string);
+		utf8::decode($regexp);
+
+		if ( defined($regexp) && $regexp ne '' ) {
+
+			my	$format1		= "%-9s [%3d,%3d] =%s \n";			# see also Perl_RegexVisualize()
+			my	$format2		= "%-9s [%3d,%3d] =%s\n";
+			my	$format3		= "REGEXP = m{%s}%s\n\n";
+			my	$format4		= "lines : %-3d         = %s\n";
+			my	$format5		= "%-9s     [%3d] =%s\n";
+			my	$format6		= "%-9s undefined\n";
+			my	$linecount	= 1;
+			my	$lineruler;
+			my	$result 		= '';
+			my	$rgx_1			= q/^[a-ln-z]*m[a-ln-z]*[-]?/;
+			my	$stringout	= prepare_stringout($string);
+
+			if ( $flag =~ m{$rgx_1} ) {
+				($lineruler, $linecount)	= lineruler($string);
+				}
+
+				my $regexp1	= join "\n           ", ( split /\n/, $regexp );
+
+				$result	.= sprintf $format3, $regexp1, $flag;
+
+				if ( $flag =~ m{$rgx_1} ) {
+					$result	.= sprintf $format4, $linecount, $lineruler;
+					}
+				$result	.= sprintf $format1, 'STRING', 0, length $string, 
+						marker_string( 0, $stringout );
+
+				#---------------------------------------------------------------------------
+				#  match (single line / multiline)
+				#---------------------------------------------------------------------------
+				if (	 $string =~ m{(?$flag:$regexp)}   ) {
+					#
+					# print the prematch, if not empty
+					#
+					if ( $` ne '' ) {
+						$result	.= sprintf $format2, 'prematch', 0, length $`, 
+						 marker_string( 0, prepare_stringout($`) );
+						}
+					#
+					# print the match
+					#
+					$result	.= sprintf $format2, 'MATCH', $-[0], length $&,
+					 marker_string( $-[0], prepare_stringout($&) );
+					#
+					# print the postmatch, if not empty
+					#
+					if ( $' ne '' ) {
+						$result	.= sprintf $format2, 'postmatch', $+[0], length $',
+						marker_string( $+[0],  prepare_stringout($') );
+						}
+					$result	.= "\n";
+					#
+					# print the numbered variables $1, $2, ...
+					#
+					foreach my $n ( 1 .. (scalar( @-) -1) ) {
+						if ( defined eval( "\$$n" ) ) {
+						$result	.= sprintf $format2, "\$$n", $-[$n], $+[$n] - $-[$n], 
+							marker_string( $-[$n], prepare_stringout(substr( $string, $-[$n], $+[$n] - $-[$n] )) );
+							}
+						else {
+						$result	.= sprintf $format6, "\$$n";
+							}
+					}
+					$result	.= "\n";
+					#
+					# print $+, $^N, $LAST_SUBMATCH_RESULT (only if not equal $+ )
+					#
+					if ( defined $+ && defined $^N && "$+" ne "$^N" ) {
+						$result	.= sprintf $format5, '$+', length $+, 
+												marker_string( 0, prepare_stringout($+) );
+						$result	.= sprintf $format5, '$^N', length $^N, 
+											marker_string( 0, prepare_stringout($^N) );
+						}
+					#
+					# show the control character replacement (if any)
+					#
+					if ( $string ne $stringout ) {
+						$result	.= "\nControl character replacement: \\n -> '$substchar[0]'   \\t -> '$substchar[1]'"
+						}
+
+					#
+					# do not assign matches containing ticks for coloring
+					#
+					if ( $` !~ m{'} && $& !~ m{'} && $' !~ m{'} ) {
+						VIM::DoCommand("let s:Perl_PerlRegexPrematch  = '".prepare_stringout($`)."' ");
+						VIM::DoCommand("let s:Perl_PerlRegexMatch     = '".prepare_stringout($&)."' ");
+						}
+					else {
+						VIM::DoCommand("let s:Perl_PerlRegexPrematch  = '' ");
+						VIM::DoCommand("let s:Perl_PerlRegexMatch     = '' ");
+						}
+					}
+			else {
+				$result	.= "\n *****  NO MATCH  *****"
+				}
+
+				$curbuf->Append( 0, split(/\n/,$result) ); # put the result to the top of the buffer
+				}
+			else {
+				VIM::DoCommand("echomsg 'regexp is not defined or has zero length'");
+				}
+				return ;
+		}	# ----------  end of subroutine regex_evaluate  ----------
+
+		#===  FUNCTION  ================================================================
+		#         NAME:  prepare_stringout
+		#      PURPOSE:  Sustitute tabs and newlines with printable characters. 
+		#   PARAMETERS:  string
+		#      RETURNS:  string with replacements
+		#===============================================================================
+		sub prepare_stringout {
+			my	( $par1 )	= @_;
+			$par1 =~ s/\n/$substchar[0]/g;
+			$par1 =~ s/\t/$substchar[1]/g;
+			return $par1;
+		}	# ----------  end of subroutine prepare_stringout  ----------
+
+		#===  FUNCTION  ================================================================
+		#         NAME:  marker_string
+		#      PURPOSE:  Prepend blanks; 
+		#                surround string with bars if starting/ending with whitespaces
+		#   PARAMETERS:  1. first column of the marker bar (>=0)
+		#                2. string
+		#      RETURNS:  The augmented string.
+		#===============================================================================
+		sub marker_string {
+			my	( $start, $str )	= @_;
+			my	$result	= ' ' x ($start);
+			if ( $str =~ m{^\s} || $str =~ m{\s$} ) {
+				$result	.= "|".$str."|"
+				}
+			else {
+				$result	.= ' '.$str;
+				}
+			return $result;
+		}	# ----------  end of subroutine marker_string  ----------
+
+		#===  FUNCTION  ================================================================
+		#         NAME:  lineruler
+		#      PURPOSE:  Generate a line ruler like  "|1... |2... |3......."
+		#   PARAMETERS:  1. a (multiline) string 
+		#      RETURNS:  ( ruler, number of lines )
+		#===============================================================================
+		sub lineruler {
+			my	( $string )	= @_;
+			my	$result			= '';                     # result string (the ruler)
+			my	@lines			= split /\n/, $string;    # lines as an array
+			my	$lineno			= 0;                      # current line number
+			my	$linecount	= 0;                      # number of lines
+
+			while ( $string =~/\n/g ) {
+				$linecount++;
+				}
+			if ( $string !~ /\n$/ ) {                 # last non-empty line
+				$linecount++;
+				}
+
+			foreach my $line ( @lines ) {
+				$lineno++;
+				if ( $lineno > 1 ) {
+					$result	.= ' ';
+				}
+				if ( length($line) == 1 ) {
+					$result	.= '|';
+				}
+				if ( length($line) > 1 ) {
+					$result	.= '|'.$lineno;
+					$result	.= '.' x ((length $line)-(length $lineno)-1);
+				}
+			}
+			return ($result, $linecount);
+		}	# ----------  end of subroutine lineruler  ----------
+EOF
+	"
+	if line('$') == 1
+		:close
+		return
+	endif
+	normal gg
+
+	"-------------------------------------------------------------------------------
+	" Highlight the match by matching  MATCH.POSTMATCH.EOL .
+	" Find a character not contained in the string to mark start and end of the
+	" Vim regex pattern (range 33 ... 126 or '!' ... '~').
+	"-------------------------------------------------------------------------------
+	exe ":match none"
+	if s:Perl_PerlRegexMatch != ''
+		let nr		= char2nr('!')
+		let tilde	= char2nr('~')
+		let tick1	= char2nr("'")
+		let tick2	= char2nr('"')
+		let tick3	= char2nr('|')
+		while nr <= tilde
+			if nr != tick1 && nr != tick2 &&  nr != tick3 &&
+						\	match( s:Perl_PerlRegexMatch, nr2char(nr) ) < 0
+				break
+			endif
+			let nr	= nr+1
+		endwhile
+
+		if nr <= tilde
+			:highlight color_match ctermbg=green guibg=green
+			let delim		= nr2char(nr)
+			" escape Vim regexp metacharacters
+			let match0	= escape( s:Perl_PerlRegexPrematch , '*$~' )
+			let match1	= escape( s:Perl_PerlRegexMatch    , '*$~' )
+			"
+			" the first part of the following regular expression describes the
+			" beginnning of $format1 in sub regex_evaluate 
+			"
+			exe ':match color_match '.delim.'\(^STRING\s\+\[\s*\d\+,\s*\d\+\] =[ |]'.match0.'\)\@<='.match1.delim
+		endif
+	endif
+
+	if winheight(winnr()) >= line("$")
+		exe bufwinnr(l:currentbuffernr) . "wincmd w"
+	endif
+
+endfunction    " ----------  end of function Perl_RegexVisualize  ----------
+"
+"-------------------------------------------------------------------------------
+"   initialize the Perl interface
+"-------------------------------------------------------------------------------
+function! Perl_InitializePerlInterface( )
+	if has('perl')
+    perl <<EOF
+		#
+		# ---------------------------------------------------------------
+		# find out the version of the Perl interface
+		# ---------------------------------------------------------------
+		my $perlversion=sprintf "%vd", $^V;
+		VIM::DoCommand("let s:Perl_InterfaceVersion = \"$perlversion\"");
+		#
+		# ---------------------------------------------------------------
+		# Perl_RegexVisualize (function)
+		# ---------------------------------------------------------------
+		# -- empty --
+		#
+		# ---------------------------------------------------------------
+		# Perl_RegexExplain (function)
+		# try to load the regex analyzer module; report failure
+		# ---------------------------------------------------------------
+		eval "require YAPE::Regex::Explain";
+		if ( $@ ) {
+			VIM::DoCommand("let s:Perl_PerlRegexAnalyser = 'no'");
+			}
+		#
+EOF
+
+	endif
+endfunction    " ----------  end of function Perl_InitializePerlInterface  ----------
+"
+call Perl_InitializePerlInterface()
 "
 " vim:set tabstop=2: 

@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.7
+---------------------------------------------------------------------------------------
++ Regex analyser YAPE::Regex::Explain integrated.
++ Bugfix: use correct pathnames under Cygwin.
++ Bugfix: always use the right perl executable to list the installed Perl modules.
++ Minor changes due to ctags, version 5.7.
++ Global variable g:Perl_PerlTags is no longer needed.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.6.3
 ---------------------------------------------------------------------------------------
 + Changes to allow a system-wide installation.

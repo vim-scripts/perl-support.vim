@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.7) / January 1 2008
+README for perl-support.vim (Version 3.8) / May 17 2008
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -83,13 +83,14 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.7
+  RELEASE NOTES FOR VERSION 3.8
 ---------------------------------------------------------------------------------------
-+ Regex analyser YAPE::Regex::Explain integrated.
-+ Bugfix: use correct pathnames under Cygwin.
-+ Bugfix: always use the right perl executable to list the installed Perl modules.
-+ Minor changes due to ctags, version 5.7.
-+ Global variable g:Perl_PerlTags is no longer needed.
++ New regular expression testing tool.
++ 'code->comment' and 'comment->code'  are replaced by a toggle: 'toggle comment'
++ 'explain regex' can use flags now.
++ 'run->settings'  shows the  Perl interface version.
++ Superfluous control characters for mode switching (menus, hotkeys) removed. Caused beeps.
++ Some minor improvements.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'
