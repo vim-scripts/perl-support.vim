@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.8) / May 17 2008
+README for perl-support.vim (Version 3.8.1) / June 25 2008
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -14,6 +14,8 @@ script, running perltidy,  running perlcritics, starting a debugger and a
 profiler can be done with a keystroke.  There are many additional hints and
 options which can improve speed and comfort when writing Perl. Please read the
 documentation.
+This plugin can be used with Vim version 7.x . Most features should work with
+Vim version 6.x.
 
 =======================================================================================
   INSTALLATION
@@ -83,14 +85,10 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.8
+  RELEASE NOTES FOR VERSION 3.8.1
 ---------------------------------------------------------------------------------------
-+ New regular expression testing tool.
-+ 'code->comment' and 'comment->code'  are replaced by a toggle: 'toggle comment'
-+ 'explain regex' can use flags now.
-+ 'run->settings'  shows the  Perl interface version.
-+ Superfluous control characters for mode switching (menus, hotkeys) removed. Caused beeps.
-+ Some minor improvements.
++ Bugfix: hot keys beginning like references (e.g. \$ ) now inactive in insert mode 
+  for non-empty lines.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

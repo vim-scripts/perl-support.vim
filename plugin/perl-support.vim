@@ -48,7 +48,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.41 2008/05/21 15:33:53 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.44 2008/06/26 12:26:42 mehner Exp $
 "------------------------------------------------------------------------------
 " 
 " Prevent duplicate loading: 
@@ -56,7 +56,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.8"
+let g:Perl_Version= "3.8.1"
 "        
 "###############################################################################################
 "
@@ -338,7 +338,7 @@ function! Perl_InitMenu ()
     endif
     "
     exe "amenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              :call Perl_DoWhile("a")<CR>f(la'
-    exe "amenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    :call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    :call Perl_StatBlock( "a", "for ( my $; ;  ) {\n}","" )<CR>f$a'
     exe "amenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                :call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a'
     exe "amenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     :call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
     exe "amenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       :call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
@@ -349,7 +349,7 @@ function! Perl_InitMenu ()
     exe "amenu <silent> ".s:Perl_Root.'&Statements.&\{\ \}                         :call Perl_Block("a")<CR>o'
     "
     exe "imenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              <C-C>:call Perl_DoWhile("a")<CR>f(la'
-    exe "imenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <C-C>:call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <C-C>:call Perl_StatBlock( "a", "for ( my $; ;  ) {\n}","" )<CR>f$a'
     exe "imenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                <C-C>:call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a'
     exe "imenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     <C-C>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
     exe "imenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       <C-C>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
@@ -360,7 +360,7 @@ function! Perl_InitMenu ()
     exe "imenu <silent> ".s:Perl_Root.'&Statements.&\{\ \}                         <C-C>:call Perl_Block("a")<CR>o'
     "
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              <C-C>:call Perl_DoWhile("v")<CR>f(la'
-    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <C-C>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <C-C>:call Perl_StatBlock( "v", "for ( my $; ;  ) {", "}" )<CR>f$a'
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                <C-C>:call Perl_StatBlock( "v", "foreach my $ (  ) {", "}" )<CR>f$a'
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     <C-C>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la'
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       <C-C>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la'
@@ -386,15 +386,22 @@ function! Perl_InitMenu ()
       exe "amenu ".s:Perl_Root.'&Idioms.-Sep0-       :'
     endif
     "
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &$;                         omy<Tab>$;<Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ $\ &=\ ;                    omy<Tab>$<Tab>= ;<Esc>F$a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );               omy<Tab>( $, $ );<Esc>2F$a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP1-                        :'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &@;                         omy<Tab>@;<Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ @\ =\ (,,);\ \ \ \ \ (&1)   omy<Tab>@<Tab>= ( , ,  );<Esc>F@a'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP2-                        :'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ &%;                         omy<Tab>%;<Esc>i'
-    exe "anoremenu ".s:Perl_Root.'&Idioms.my\ %\ =\ (=>,);\ \ \ \ \ (&2)  omy<Tab>%<Tab>= <CR>(<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a'
+    exe "nnoremenu <silent> ".s:Perl_Root.'&Idioms.my\ &$;                         o<C-C>:call Perl_Idiom(  "\$", "my<Tab>$;",                       "$" )<CR>a'
+    exe "nnoremenu <silent> ".s:Perl_Root.'&Idioms.my\ $\ &=\ ;                    o<C-C>:call Perl_Idiom( "\$=", "my<Tab>$<Tab>= ;",                "$" )<CR>a'
+    exe "nnoremenu <silent> ".s:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );               o<C-C>:call Perl_Idiom( "\$$", "my<Tab>( $, $ );",                "$" )<CR>a'
+    exe "nnoremenu <silent> ".s:Perl_Root.'&Idioms.my\ &@;                         o<C-C>:call Perl_Idiom(  "\@", "my<Tab>@;",                       "@" )<CR>a'
+    exe "nnoremenu <silent> ".s:Perl_Root.'&Idioms.my\ @\ =\ (,,);\ \ \ \ \ (&1)   o<C-C>:call Perl_Idiom( "\@=", "my<Tab>@<Tab>= ( , ,  );",        "@" )<CR>a'
+    exe "nnoremenu <silent> ".s:Perl_Root.'&Idioms.my\ &%;                         o<C-C>:call Perl_Idiom(  "\%", "my<Tab>%;",                       "%" )<CR>a'
+    exe "nnoremenu <silent> ".s:Perl_Root.'&Idioms.my\ %\ =\ (=>,);\ \ \ \ \ (&2)  o<C-C>:call Perl_Idiom( "\%=", "my<Tab>%<Tab>= (  => ,  => , );", "%" )<CR>a'
+    "
+    exe "inoremenu <silent> ".s:Perl_Root.'&Idioms.my\ &$;                         <C-C>:call Perl_Idiom( "", "my<Tab>$;",                       "$" )<CR>a'
+    exe "inoremenu <silent> ".s:Perl_Root.'&Idioms.my\ $\ &=\ ;                    <C-C>:call Perl_Idiom( "", "my<Tab>$<Tab>= ;",                "$" )<CR>a'
+    exe "inoremenu <silent> ".s:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );               <C-C>:call Perl_Idiom( "", "my<Tab>( $, $ );",                "$" )<CR>a'
+    exe "inoremenu <silent> ".s:Perl_Root.'&Idioms.my\ &@;                         <C-C>:call Perl_Idiom( "", "my<Tab>@;",                       "@" )<CR>a'
+    exe "inoremenu <silent> ".s:Perl_Root.'&Idioms.my\ @\ =\ (,,);\ \ \ \ \ (&1)   <C-C>:call Perl_Idiom( "", "my<Tab>@<Tab>= ( , ,  );",        "@" )<CR>a'
+    exe "inoremenu <silent> ".s:Perl_Root.'&Idioms.my\ &%;                         <C-C>:call Perl_Idiom( "", "my<Tab>%;",                       "%" )<CR>a'
+    exe "inoremenu <silent> ".s:Perl_Root.'&Idioms.my\ %\ =\ (=>,);\ \ \ \ \ (&2)  <C-C>:call Perl_Idiom( "", "my<Tab>%<Tab>= (  => ,  => , );", "%" )<CR>a'
+    "
     exe "anoremenu ".s:Perl_Root.'&Idioms.my\ $rgx_\ =\ q//;\ \ \ (&3)    omy<Tab>$rgx_<Tab>= q//;<Esc>F_a'
     exe "anoremenu ".s:Perl_Root.'&Idioms.-SEP3-                        :'
 		if s:Perl_PBP == "yes"
@@ -440,7 +447,6 @@ function! Perl_InitMenu ()
       exe "amenu ".s:Perl_Root.'Rege&x.Rege&x<Tab>Perl      <Nop>'
       exe "amenu ".s:Perl_Root.'Rege&x.-Sep0-         :'
     endif
-    "
     "
     exe "anoremenu ".s:Perl_Root.'Rege&x.&grouping<Tab>(\ )               a()<Left>'
     exe "anoremenu ".s:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        a(\|)<Left><Left>'
@@ -973,7 +979,6 @@ endfunction   " ---------- end of function  Perl_InitMenu  ----------
 "
 let s:Perl_Active       = -1        " state variable controlling the Perl-menus
 "
-"
 "------------------------------------------------------------------------------
 "  Input after a highlighted prompt
 "------------------------------------------------------------------------------
@@ -1049,9 +1054,10 @@ function! Perl_AlignLineEndComm ( mode ) range
 
 	while linenumber <= pos1
 		let	line= getline(".")
-		" look for a Perl comment
-		let idx1	= 1 + match( line, '\s*#.*$' )
-		let idx2	= 1 + match( line, '#.*$' )
+		"
+		" look for a Perl comment; do not match $#arrayname
+		let idx1	= 1 + match( line, '\s*\$\@<!#.*$' )
+		let idx2	= 1 + match( line,    '\$\@<!#.*$' )
 
 		let	ln	= line(".")
 		call setpos(".", [ 0, ln, idx1, 0 ] )
@@ -1583,6 +1589,36 @@ function! Perl_Block (arg)
 endfunction    " ----------  end of function Perl_Block  ----------
 "
 "------------------------------------------------------------------------------
+"  Idioms : insert some idioms
+"  This subroutine is needed because some shortcuts collide with the start
+"  of a reference, e.g. the '\$' in  'sub_x ( \$x )' should not be expanded to 
+"  'my $;'
+"------------------------------------------------------------------------------
+function! Perl_Idiom ( shortcut, replacement, mark )
+	let	colpos		= col(".")
+	let	curline		= getline(".")
+	let	curlineno	= line(".")
+	let	part1			= strpart( curline, 0, colpos )
+	let	part2			= strpart( curline, colpos )
+	"
+	" 1.part: empty or whitespaces / 2.part: empty or whitespaces or comment 
+	" (shortcut empty : replace always) :
+	"
+	if			 		( a:shortcut == "" )
+				\	||	( ( match( part1, '^\s*$' ) >= 0 ) && ( match( part2, '^\s*\(#.*\)\=$' ) >= 0 ) )
+		" insert the replacement
+		call setline( curlineno, part1.a:replacement.part2 )
+		exe "normal f".a:mark
+	else
+		" insert the shortcut
+		if a:shortcut != ""
+			call setline( curlineno, part1.a:shortcut.part2 )
+			call cursor ( curlineno, colpos + strlen(a:shortcut) )
+		endif
+	endif
+endfunction    " ----------  end of function Perl_Idiom  ----------
+"
+"------------------------------------------------------------------------------
 "  Perl-Idioms : open input file
 "------------------------------------------------------------------------------
 function! Perl_OpenInputFile (mode)
@@ -1968,6 +2004,14 @@ endfunction   " ---------- end of function  Perl_perldoc_show_module_list  -----
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_perldoc_generate_module_list()
+	" save the module list, if any
+	if filereadable( s:Perl_PerlModuleList )
+		let	backupfile	= s:Perl_PerlModuleList.'.backup'
+		if rename( s:Perl_PerlModuleList, backupfile ) != 0 
+			echomsg 'Could not rename "'.s:Perl_PerlModuleList.'" to "'.backupfile.'"'
+		endif
+	endif
+	"
   echohl Search
   echo " ... generating Perl module list ... " 
   if  s:MSWIN
@@ -1979,7 +2023,7 @@ function! Perl_perldoc_generate_module_list()
   endif
   echo " DONE " 
   echohl None
-endfunction   " ---------- end of tion  Perl_perldoc_generate_module_list  ----------
+endfunction   " ---------- end of function  Perl_perldoc_generate_module_list  ----------
 "
 "------------------------------------------------------------------------------
 "  Run : settings

@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.8
+---------------------------------------------------------------------------------------
++ New regular expression testing tool.
++ 'code->comment' and 'comment->code'  are replaced by a toggle: 'toggle comment'
++ 'explain regex' can use flags now.
++ 'run->settings'  shows the  Perl interface version.
++ Superfluous control characters for mode switching (menus, hotkeys) removed. Caused beeps.
++ Some minor improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.7
 ---------------------------------------------------------------------------------------
 + Regex analyser YAPE::Regex::Explain integrated.

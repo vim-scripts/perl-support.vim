@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 "   Language :  Perl
-"     Plugin :  perl-support.vim (version 3.8)
+"     Plugin :  perl-support.vim (version 3.8.1)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.31 2008/05/21 15:30:03 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.32 2008/06/25 08:50:19 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -142,7 +142,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 	" ----------------------------------------------------------------------------
 	"
 	nnoremap    <buffer>  <silent>  <Leader>sd              :call Perl_DoWhile("a")<CR>f(la
-	nnoremap    <buffer>  <silent>  <Leader>sf              :call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i
+	nnoremap    <buffer>  <silent>  <Leader>sf              :call Perl_StatBlock( "a", "for ( my $; ;  ) {\n}","" )<CR>f$a
 	nnoremap    <buffer>  <silent>  <Leader>sfe             :call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a
 	nnoremap    <buffer>  <silent>  <Leader>si              :call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la
 	nnoremap    <buffer>  <silent>  <Leader>sie             :call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la
@@ -153,7 +153,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 	nnoremap    <buffer>  <silent>  <Leader>s{              :call Perl_Block("a")<CR>o
 
 	vnoremap    <buffer>  <silent>  <Leader>sd    <C-C>:call Perl_DoWhile("v")<CR>f(la
-	vnoremap    <buffer>  <silent>  <Leader>sf    <C-C>:call Perl_StatBlock( "v", "for ( ; ; ) {", "}" )<CR>f;i
+	vnoremap    <buffer>  <silent>  <Leader>sf    <C-C>:call Perl_StatBlock( "v", "for ( my $; ;  ) {", "}" )<CR>f$a
 	vnoremap    <buffer>  <silent>  <Leader>sfe   <C-C>:call Perl_StatBlock( "v", "foreach my $ (  ) {", "}" )<CR>f$a
 	vnoremap    <buffer>  <silent>  <Leader>si    <C-C>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la
 	vnoremap    <buffer>  <silent>  <Leader>sie   <C-C>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la
@@ -164,7 +164,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 	vnoremap    <buffer>  <silent>  <Leader>s{    <C-C>:call Perl_Block("v")<CR>
 
 	inoremap    <buffer>  <silent>  <Leader>sd    <C-C>:call Perl_DoWhile("a")<CR>f(la
-	inoremap    <buffer>  <silent>  <Leader>sf    <C-C>:call Perl_StatBlock( "a", "for ( ; ; ) {\n}","" )<CR>f;i
+	inoremap    <buffer>  <silent>  <Leader>sf    <C-C>:call Perl_StatBlock( "a", "for ( my $; ;  ) {\n}","" )<CR>f$a
 	inoremap    <buffer>  <silent>  <Leader>sfe   <C-C>:call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a
 	inoremap    <buffer>  <silent>  <Leader>si    <C-C>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la
 	inoremap    <buffer>  <silent>  <Leader>sie   <C-C>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la
@@ -182,21 +182,21 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 	" Idioms
 	" ----------------------------------------------------------------------------
 	"	
-	nnoremap    <buffer>  <silent>  <Leader>$    omy<Tab>$;<Esc>i
-	nnoremap    <buffer>  <silent>  <Leader>$=   omy<Tab>$<Tab>= ;<Esc>F$a
-	nnoremap    <buffer>  <silent>  <Leader>$$   omy<Tab>( $, $ );<Esc>2F$a
-	nnoremap    <buffer>  <silent>  <Leader>@    omy<Tab>@;<Esc>i
-	nnoremap    <buffer>  <silent>  <Leader>@=   omy<Tab>@<Tab>= ( , ,  );<Esc>F@a
-	nnoremap    <buffer>  <silent>  <Leader>%    omy<Tab>%;<Esc>i
-	nnoremap    <buffer>  <silent>  <Leader>%=   omy<Tab>%<Tab>= <CR>)<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a
+	nnoremap    <buffer>  <silent>  <Leader>$    o<C-C>:call Perl_Idiom(  '\$', 'my<Tab>$;',                       '$' )<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>$=   o<C-C>:call Perl_Idiom( '\$=', 'my<Tab>$<Tab>= ;',                '$' )<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>$$   o<C-C>:call Perl_Idiom( '\$$', 'my<Tab>( $, $ );',                '$' )<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>@    o<C-C>:call Perl_Idiom(  '\@', 'my<Tab>@;',                       '@' )<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>@=   o<C-C>:call Perl_Idiom( '\@=', 'my<Tab>@<Tab>= ( , ,  );',        '@' )<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>%    o<C-C>:call Perl_Idiom(  '\%', 'my<Tab>%;',                       '%' )<CR>a
+	nnoremap    <buffer>  <silent>  <Leader>%=   o<C-C>:call Perl_Idiom( '\%=', 'my<Tab>%<Tab>= (  => ,  => , );', '%' )<CR>a
 	"	
-	inoremap    <buffer>  <silent>  <Leader>$    my<Tab>$;<Esc>i
-	inoremap    <buffer>  <silent>  <Leader>$=   my<Tab>$<Tab>= ;<Esc>F$a
-	inoremap    <buffer>  <silent>  <Leader>$$   my<Tab>( $, $ );<Esc>2F$a
-	inoremap    <buffer>  <silent>  <Leader>@    my<Tab>@;<Esc>i
-	inoremap    <buffer>  <silent>  <Leader>@=   my<Tab>@<Tab>= ( , ,  );<Esc>F@a
-	inoremap    <buffer>  <silent>  <Leader>%    my<Tab>%;<Esc>i
-	inoremap    <buffer>  <silent>  <Leader>%=   my<Tab>%<Tab>= <CR>)<CR>=> ,<CR>=> ,<CR>);<Esc>k0i<Tab><Tab><Esc>k0i<Tab><Tab><Esc>2k^f%a
+	inoremap    <buffer>  <silent>  <Leader>$    <C-C>:call Perl_Idiom(  '\$', 'my<Tab>$;',                       '$' )<CR>a
+	inoremap    <buffer>  <silent>  <Leader>$=   <C-C>:call Perl_Idiom( '\$=', 'my<Tab>$<Tab>= ;',                '$' )<CR>a
+	inoremap    <buffer>  <silent>  <Leader>$$   <C-C>:call Perl_Idiom( '\$$', 'my<Tab>( $, $ );',                '$' )<CR>a
+	inoremap    <buffer>  <silent>  <Leader>@    <C-C>:call Perl_Idiom(  '\@', 'my<Tab>@;',                       '@' )<CR>a
+	inoremap    <buffer>  <silent>  <Leader>@=   <C-C>:call Perl_Idiom( '\@=', 'my<Tab>@<Tab>= ( , ,  );',        '@' )<CR>a
+	inoremap    <buffer>  <silent>  <Leader>%    <C-C>:call Perl_Idiom(  '\%', 'my<Tab>%;',                       '%' )<CR>a
+	inoremap    <buffer>  <silent>  <Leader>%=   <C-C>:call Perl_Idiom( '\%=', 'my<Tab>%<Tab>= (  => ,  => , );', '%' )<CR>a
 	"
 	nnoremap    <buffer>  <silent>  <Leader>ir    omy<Tab>$rgx_<Tab>= q//;<Esc>F_a
 	inoremap    <buffer>  <silent>  <Leader>ir     my<Tab>$rgx_<Tab>= q//;<Esc>F_a

@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                     May 23 2008
+*perlsupport.txt*                Perl Support                    June 25 2008
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 3.8
+                             Plugin version 3.8.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -12,6 +12,8 @@ complete statements, comments, idioms, code snippets, templates, and POD
 documentation.  Reading perldoc is integrated.  Syntax checking, running a
 script, running perltidy,  running perlcritics, starting a debugger and a
 profiler can be done with a keystroke.  
+This plugin can be used with Vim version 7.x . Most features should work with
+Vim version 6.x.
 
  1.      Usage with GUI                   |perlsupport-usage-gvim|
  1.1      Menu 'Comments'                 |perlsupport-comments|
@@ -264,46 +266,46 @@ marks the cursor position after insertion):
   |  }                                                       |
   |  while ( | );       # -----  end do-while  -----         |
   |                                                          |
-  +------------------+---------------------------------------+
-  |                  |                                       |
-  |  for ( |; ;  ) { |  foreach my $| (  ) {                 |
-  |    xxxxx         |    xxxxx                              |
-  |    xxxxx         |    xxxxx                              |
-  |  }               |  }       # -----  end foreach  -----  |
-  |                  |                                       |
-  +------------------+---------------------------------------+
-  |                  |                                       |
-  |  if ( | ) {      |  if ( | ) {                           |
-  |    xxxxx         |    xxxxx                              |
-  |    xxxxx         |    xxxxx                              |
-  |  }               |  }                                    |
-  |                  |  else {                               |
-  |                  |  }                                    |
-  |                  |                                       |
-  +------------------+---------------------------------------+
-  |                  |                                       |
-  |  unless ( | ) {  |  unless ( | ) {                       |
-  |    xxxxx         |    xxxxx                              |
-  |    xxxxx         |    xxxxx                              |
-  |  }               |  }                                    |
-  |                  |  else {                               |
-  |                  |  }                                    |
-  |                  |                                       |
-  +------------------+---------------------------------------+
-  |                  |                                       |
-  |  until ( | ) {   |  while ( | ) {                        |
-  |    xxxxx         |    xxxxx                              |
-  |    xxxxx         |    xxxxx                              |
-  |  }               |  }       # -----  end while  -----    |
-  |                  |                                       |
-  +------------------+---------------------------------------+
-  |                  |                                       |
-  |  {               |                                       |
-  |    xxxxx         |                                       |
-  |    xxxxx         |                                       |
-  |  }               |                                       |
-  |                  |                                       |
-  +----------------------------------------------------------+
+  +--------------------------+-------------------------------+
+  |                          |                               |
+  |  for ( my $|; ;  ) {     |  foreach my $| (  ) {         |
+  |    xxxxx                 |    xxxxx                      |
+  |    xxxxx                 |    xxxxx                      |
+  |  }                       |  }                            |
+  |                          |                               |
+  +--------------------------+-------------------------------+
+  |                          |                               |
+  |  if ( | ) {              |  if ( | ) {                   |
+  |    xxxxx                 |    xxxxx                      |
+  |    xxxxx                 |    xxxxx                      |
+  |  }                       |  }                            |
+  |                          |  else {                       |
+  |                          |  }                            |
+  |                          |                               |
+  +--------------------------+-------------------------------+
+  |                          |                               |
+  |  unless ( | ) {          |  unless ( | ) {               |
+  |    xxxxx                 |    xxxxx                      |
+  |    xxxxx                 |    xxxxx                      |
+  |  }                       |  }                            |
+  |                          |  else {                       |
+  |                          |  }                            |
+  |                          |                               |
+  +--------------------------+-------------------------------+
+  |                          |                               |
+  |  until ( | ) {           |  while ( | ) {                |
+  |    xxxxx                 |    xxxxx                      |
+  |    xxxxx                 |    xxxxx                      |
+  |  }                       |  }                            |
+  |                          |                               |
+  +--------------------------+-------------------------------+
+  |                          |                               |
+  |  {                       |                               |
+  |    xxxxx                 |                               |
+  |    xxxxx                 |                               |
+  |  }                       |                               |
+  |                          |                               |
+  +--------------------------+-------------------------------+
 
 The whole statement will be indented after insertion.
 
@@ -1050,13 +1052,13 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Idioms --------------------------------
 
-  \$       my $;                             (n   i)
-  \$=      my $ = ;                          (n   i)
-  \$$      my ( $, $ );                      (n   i)
-  \@       my @;                             (n   i)
-  \@=      my @ = (,,);                      (n   i)
-  \%       my %;                             (n   i)
-  \%=      my % = (=>,=>,);                  (n   i)
+  \$       my $;                (*)          (n   i)
+  \$=      my $ = ;             (*)          (n   i)
+  \$$      my ( $, $ );         (*)          (n   i)
+  \@       my @;                (*)          (n   i)
+  \@=      my @ = (,,);         (*)          (n   i)
+  \%       my %;                (*)          (n   i)
+  \%=      my % = (=>,=>,);     (*)          (n   i)
   \ir      my $regex_ = q//;                 (n   i)
   \im      $ =~ m//                          (n   i)
   \is      $ =~ s///                         (n   i)
@@ -1099,7 +1101,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \ra     set command line argument       (n)   see |perlsupport-cmdline-args|
   \rw     set Perl command line switches  (n)   see |perlsupport-perl-switches|
   \rd     start debugger                  (n)   see |perlsupport-run-debug|
-  \re     make script executable (*)      (n)   
+  \re     make script executable (**)     (n)   
   \rp     read perldoc                    (n)   see |perlsupport-perldoc|  
   \ri     show installed Perl modules     (n)   see |perlsupport-module-list|  
   \rg     generation Perl module list     (n)   see |perlsupport-module-list-generation|
@@ -1109,14 +1111,16 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \rt     save buffer with timestamp      (n)   see |perlsupport-timestamp|
   \rh     hardcopy buffer to FILENAME.ps  (n,v) see |perlsupport-hardcopy| 
   \rk     settings and hotkeys            (n)   
-  \rx     set xterm size (*)              (n)   see |perlsupport-xterm|
+  \rx     set xterm size (**)             (n)   see |perlsupport-xterm|
   \ro     change output destination       (n)   see |perlsupport-output|
 
   -- Help ----------------------------------
 
   \h      read perldoc                    (n)   see |perlsupport-perldoc|
 
-(*) Linux/UNIX only
+(*)  These key mappings start like Perl references. They are therefore not
+     available in insert mode for non-empty lines.
+(**) Linux/UNIX only
 
 File perl-hot-keys.pdf contains a reference card for these key mappings.
 Multi-line inserts and code snippets will be indented after insertion.
