@@ -30,6 +30,7 @@
 "                  Devel::ptkdb         (debugger frontend)
 "                  Devel::SmallProf     (profiler)
 "                  Perl::Critic         (stylechecker)
+"                  Perl::Tags           (generate Ctags style tags)
 "                  Perl::Tidy           (beautifier)
 "                  YAPE::Regex::Explain (regular expression analyzer)
 "
@@ -48,7 +49,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.44 2008/06/26 12:26:42 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.46 2008/11/23 12:36:12 mehner Exp $
 "------------------------------------------------------------------------------
 " 
 " Prevent duplicate loading: 
@@ -56,7 +57,7 @@
 if exists("g:Perl_Version") || &cp
  finish
 endif
-let g:Perl_Version= "3.8.1"
+let g:Perl_Version= "3.9"
 "        
 "###############################################################################################
 "
@@ -341,6 +342,7 @@ function! Perl_InitMenu ()
     exe "amenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    :call Perl_StatBlock( "a", "for ( my $; ;  ) {\n}","" )<CR>f$a'
     exe "amenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                :call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a'
     exe "amenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     :call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
+    exe "amenu <silent> ".s:Perl_Root.'&Statements.e&lsif\ \{\ \}                  :call Perl_StatBlock( "a", "elsif (  ) {\n}", "" )<CR>f(la'
     exe "amenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       :call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
     exe "amenu <silent> ".s:Perl_Root.'&Statements.&unless\ \{\ \}                 :call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la'
     exe "amenu <silent> ".s:Perl_Root.'&Statements.u&nless\ \{\ \}\ else\ \{\ \}   :call Perl_StatBlock( "a", "unless (  ) {\n}\nelse {\n}", "" )<CR>f(la'
@@ -351,6 +353,7 @@ function! Perl_InitMenu ()
     exe "imenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              <C-C>:call Perl_DoWhile("a")<CR>f(la'
     exe "imenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <C-C>:call Perl_StatBlock( "a", "for ( my $; ;  ) {\n}","" )<CR>f$a'
     exe "imenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                <C-C>:call Perl_StatBlock( "a", "foreach my $ (  ) {\n}", "" )<CR>f$a'
+    exe "imenu <silent> ".s:Perl_Root.'&Statements.e&lsif\ \{\ \}                  <C-C>:call Perl_StatBlock( "a", "elsif (  ) {\n}", "" )<CR>f(la'
     exe "imenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     <C-C>:call Perl_StatBlock( "a", "if (  ) {\n}", "" )<CR>f(la'
     exe "imenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       <C-C>:call Perl_StatBlock( "a", "if (  ) {\n}\nelse {\n}", "" )<CR>f(la'
     exe "imenu <silent> ".s:Perl_Root.'&Statements.&unless\ \{\ \}                 <C-C>:call Perl_StatBlock( "a", "unless (  ) {\n}", "" )<CR>f(la'
@@ -362,6 +365,7 @@ function! Perl_InitMenu ()
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.&do\ \{\ \}\ while              <C-C>:call Perl_DoWhile("v")<CR>f(la'
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.&for\ \{\ \}                    <C-C>:call Perl_StatBlock( "v", "for ( my $; ;  ) {", "}" )<CR>f$a'
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.f&oreach\ \{\ \}                <C-C>:call Perl_StatBlock( "v", "foreach my $ (  ) {", "}" )<CR>f$a'
+    exe "vmenu <silent> ".s:Perl_Root.'&Statements.e&lsif\ \{\ \}                  <C-C>:call Perl_StatBlock( "v", "elsif (  ) {", "}" )<CR>f(la'
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.&if\ \{\ \}                     <C-C>:call Perl_StatBlock( "v", "if (  ) {", "}" )<CR>f(la'
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.if\ \{\ \}\ &else\ \{\ \}       <C-C>:call Perl_StatBlock( "v", "if (  ) {", "}\nelse {\n}" )<CR>f(la'
     exe "vmenu <silent> ".s:Perl_Root.'&Statements.&unless\ \{\ \}                 <C-C>:call Perl_StatBlock( "v", "unless (  ) {", "}" )<CR>f(la'
@@ -982,14 +986,18 @@ let s:Perl_Active       = -1        " state variable controlling the Perl-menus
 "------------------------------------------------------------------------------
 "  Input after a highlighted prompt
 "------------------------------------------------------------------------------
-function! Perl_Input ( promp, text )
-  echohl Search                       " highlight prompt
-  call inputsave()                    " preserve typeahead
-  let retval=input( a:promp, a:text ) " read input
-  call inputrestore()                 " restore typeahead
+function! Perl_Input ( promp, text, completion )
+  echohl Search                       							" highlight prompt
+  call inputsave()                    							" preserve typeahead
+	if a:completion == ''
+		let retval	=input( a:promp, a:text )
+	else
+		let retval	=input( a:promp, a:text, a:completion )
+	endif
+  call inputrestore()                 							" restore typeahead
   let retval  = substitute( retval, '^\s\+', '', '' )
   let retval  = substitute( retval, '\s\+$', '', '' )
-  echohl None                         " reset highlighting
+  echohl None                         							" reset highlighting
   return retval
 endfunction   " ---------- end of function  Perl_Input  ----------
 
@@ -999,7 +1007,7 @@ endfunction   " ---------- end of function  Perl_Input  ----------
 function! Perl_GetLineEndCommCol ()
   let actcol  = virtcol(".")
   if actcol+1 == virtcol("$")
-    let b:Perl_LineEndCommentColumn = Perl_Input( 'start line-end comment at virtual column : ', actcol )
+    let b:Perl_LineEndCommentColumn = Perl_Input( 'start line-end comment at virtual column : ', actcol, '' )
   else
     let b:Perl_LineEndCommentColumn = virtcol(".") 
   endif
@@ -1391,7 +1399,7 @@ endfunction    " ----------  end of function Perl_CommentVimModeline  ----------
 "  Statements : subroutine
 "------------------------------------------------------------------------------
 function! Perl_Subroutine (mode)
-  let identifier=Perl_Input("subroutine name : ", "" )
+  let identifier=Perl_Input("subroutine name : ", "", '' )
   "
   if identifier==""
     return
@@ -1676,7 +1684,7 @@ endfunction   " ---------- end of function  Perl_OpenInputFile  ----------
 "------------------------------------------------------------------------------
 function! Perl_OpenOutputFile (mode)
 
-  let filehandle=Perl_Input( 'output file handle : $', 'OUTFILE' )
+  let filehandle=Perl_Input( 'output file handle : $', 'OUTFILE', '' )
   
   if filehandle==""
     let filehandle  = "OUTFILE"
@@ -1728,7 +1736,7 @@ endfunction   " ---------- end of function  Perl_OpenOutputFile  ----------
 "------------------------------------------------------------------------------
 function! Perl_OpenPipe (mode)
 
-  let pipehandle=Perl_Input( 'pipe handle : $', 'PIPE' )
+  let pipehandle=Perl_Input( 'pipe handle : $', 'PIPE', '' )
   
   if pipehandle==""
     let pipehandle  = "PIPE"
@@ -1863,7 +1871,7 @@ function! Perl_perldoc()
 		let cuc		= getline(".")[col(".") - 1]	" character under the cursor
     let item	= expand("<cword>")       		" word under the cursor 
 		if item == "" || match( item, cuc ) == -1	
-			let item=Perl_Input("perldoc - module, function or FAQ keyword : ", "")
+			let item=Perl_Input("perldoc - module, function or FAQ keyword : ", "", '')
 		endif
   endif
 
@@ -2175,9 +2183,9 @@ function! Perl_PerlSwitches ()
   endif
   let prompt   = 'perl command line switches for "'.filename.'" : '
   if exists("b:Perl_Switches")
-    let b:Perl_Switches= Perl_Input( prompt, b:Perl_Switches )
+    let b:Perl_Switches= Perl_Input( prompt, b:Perl_Switches, '' )
   else
-    let b:Perl_Switches= Perl_Input( prompt , "" )
+    let b:Perl_Switches= Perl_Input( prompt , "", '' )
   endif
 endfunction   " ---------- end of function  Perl_PerlSwitches  ----------
 "
@@ -2360,9 +2368,9 @@ function! Perl_Arguments ()
   endif
   let prompt   = 'command line arguments for "'.filename.'" : '
   if exists("b:Perl_CmdLineArgs")
-    let b:Perl_CmdLineArgs= Perl_Input( prompt, b:Perl_CmdLineArgs )
+    let b:Perl_CmdLineArgs= Perl_Input( prompt, b:Perl_CmdLineArgs, 'file' )
   else
-    let b:Perl_CmdLineArgs= Perl_Input( prompt , "" )
+    let b:Perl_CmdLineArgs= Perl_Input( prompt , "", 'file' )
   endif
 endfunction   " ---------- end of function  Perl_Arguments  ----------
 "
@@ -2375,9 +2383,9 @@ function! Perl_XtermSize ()
   let geom  = matchstr( s:Perl_XtermDefaults, regex )
   let geom  = matchstr( geom, '\d\+x\d\+' )
   let geom  = substitute( geom, 'x', ' ', "" )
-  let answer= Perl_Input("   xterm size (COLUMNS LINES) : ", geom )
+  let answer= Perl_Input("   xterm size (COLUMNS LINES) : ", geom, '' )
   while match(answer, '^\s*\d\+\s\+\d\+\s*$' ) < 0
-    let answer= Perl_Input(" + xterm size (COLUMNS LINES) : ", geom )
+    let answer= Perl_Input(" + xterm size (COLUMNS LINES) : ", geom, '' )
   endwhile
   let answer  = substitute( answer, '\s\+', "x", "" )           " replace inner whitespaces
   let s:Perl_XtermDefaults  = substitute( s:Perl_XtermDefaults, regex, "-geometry ".answer , "" )
@@ -2613,7 +2621,7 @@ function! Perl_Perltidy (mode)
   endif
   " ----- normal mode ----------------
   if a:mode=="n"
-    if Perl_Input("reformat whole file [y/n/Esc] : ", "y" ) != "y"
+    if Perl_Input("reformat whole file [y/n/Esc] : ", "y", '' ) != "y"
       return
     endif
     silent exe  ":update"
@@ -3148,7 +3156,7 @@ function! Perl_RegexPickFlag ( mode )
 		normal gvy
 		let s:Perl_PerlRegexVisualizeFlag	= eval('@"')
 	else
-		let s:Perl_PerlRegexVisualizeFlag = Perl_Input("regex modifier(s) [imsx] : ", s:Perl_PerlRegexVisualizeFlag )
+		let s:Perl_PerlRegexVisualizeFlag = Perl_Input("regex modifier(s) [imsx] : ", s:Perl_PerlRegexVisualizeFlag , '')
 	endif
 	let s:Perl_PerlRegexVisualizeFlag=substitute(s:Perl_PerlRegexVisualizeFlag, '[^imsx]', '', 'g')
 	echomsg "regex modifier(s) : '".s:Perl_PerlRegexVisualizeFlag."'"

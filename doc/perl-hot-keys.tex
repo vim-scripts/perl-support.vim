@@ -1,0 +1,233 @@
+%%=====================================================================================
+%%
+%%         File:  perl-hot-keys.tex
+%%
+%%  Description:  perl-support.vim : Key mappings for Vim without GUI.
+%%                
+%%                
+%%       Author:  Dr.-Ing. Fritz Mehner
+%%        Email:  mehner@fh-swf.de
+%%    Copyright:  Copyright (C)  2003-2008  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
+%%      Version:  see \Pluginversion
+%%      Created:  06.06.2003
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.12 2008/11/23 12:37:56 mehner Exp $
+%%                
+%%        Notes:  
+%%                
+%%=====================================================================================
+
+\newcommand{\Pluginversion}{3.9}
+\newcommand{\ReleaseDate}{November 2008}
+
+\documentclass[oneside,11pt,a4paper,DIV23]{scrartcl}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+
+\setlength\parindent{0pt}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+%%----------------------------------------------------------------------
+%%  fancyhdr
+%%----------------------------------------------------------------------
+\pagestyle{fancyplain}
+\fancyhf{}
+\fancyhead[C]{\scriptsize }
+\fancyfoot[L]{\small \ReleaseDate}
+\fancyfoot[R]{\small \textbf{Page \thepage{} / \pageref{LastPage}}}
+\renewcommand{\headrulewidth}{0.0pt}
+
+%%----------------------------------------------------------------------
+%%  luximono : Type1-font
+%%  Makes keyword stand out by using semibold letters.
+%%----------------------------------------------------------------------
+\usepackage[scaled]{luximono}
+
+%%----------------------------------------------------------------------
+%%  hyperref
+%%----------------------------------------------------------------------
+\usepackage[ps2pdf]{hyperref}
+\hypersetup{pdfauthor={Dr.-Ing. Fritz Mehner, FH Südwestfalen, Iserlohn, Germany}}
+\hypersetup{pdfkeywords={Vim, Perl}}
+\hypersetup{pdfsubject={Vim-plugin,  perl-support.vim, hot keys}}
+\hypersetup{pdftitle={Vim-plugin,  perl-support.vim, hot keys}}
+
+\twocolumn
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  START OF DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\begin{center}
+%
+%%======================================================================
+%%  title
+%%======================================================================
+\textbf{\textsc{\small{Vim-Plugin}}}\\
+\textbf{\large{perl-support.vim}}\\
+\textbf{\textsc{\small{Version \Pluginversion}}}\\
+\vspace{5mm}%
+\textbf{\textsc{\huge{Hot keys}}}\\ 
+\vspace{5mm}%
+\footnotesize{Key mappings for Vim and gVim.}\\
+\footnotesize{Plugin: http://vim.sourceforge.net}\\
+\footnotesize{Fritz Mehner (mehner@fh-swf.de)}\\
+\vspace{10.5mm}
+\small
+%%======================================================================
+%%  table, left part
+%%======================================================================
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{12mm}|p{58mm}|}
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{L}oad / \textbf{U}nload Perl Support}} \\
+\hline \verb'\lps'  & load menues  \hfill (n) \\
+\hline \verb'\ups'  & unload menues\hfill (n) \\
+\hline
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{C}omments}} \\
+\hline \verb'\cl'  & end-of-line comment               \hfill (n, v, i)\\
+\hline \verb'\cj'  & adjust end-of-line comments       \hfill (n, v, i)\\
+\hline \verb'\cs'  & set end-of-line comment col.      \hfill (n)    \\
+\hline \verb'\cfr' & frame comment                     \hfill (n, i)  \\
+\hline \verb'\cfu' & function description              \hfill (n, i)  \\
+\hline \verb'\cm'  & module description                \hfill (n, i)  \\
+\hline \verb'\ch'  & file header (.pl)                 \hfill (n)    \\
+\hline \verb'\ce'  & file header (.pm)                 \hfill (n)    \\
+\hline \verb'\ca'  & file header (.t)                  \hfill (n)    \\
+\hline \verb'\ckb' & keyword comm. \verb'BUG'          \hfill (n, i)  \\
+\hline \verb'\ckt' & keyword comm. \verb'TODO'         \hfill (n, i)  \\
+\hline \verb'\ckr' & keyword comm. \verb'TRICKY'       \hfill (n, i)  \\
+\hline \verb'\ckw' & keyword comm. \verb'WARNING'      \hfill (n, i)  \\
+\hline \verb'\cko' & keyword comm. \verb'WORKAROUND'   \hfill (n, i)  \\
+\hline \verb'\ckn' & keyword comm. \verb'new keyword'  \hfill (n, i)  \\
+\hline \verb'\cc'  & code $\leftrightarrow$ comment    \hfill (n, v)  \\
+\hline \verb'\cb'  & code block $\rightarrow$ comment  \hfill (n, v)  \\
+\hline \verb'\cn'  & uncomment code block              \hfill (n)    \\
+\hline \verb'\cd'  & date                              \hfill (n, i)  \\
+\hline \verb'\ct'  & date \& time                      \hfill (n, i)  \\
+\hline \verb'\cv'  & vim modeline                      \hfill (n, i)  \\
+\hline
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{S}tatements}} \\
+\hline \verb'\sd'  & \verb'do { } while'               \hfill (n, v, i)\\
+\hline \verb'\sf'  & \verb'for { }'                    \hfill (n, v, i)\\
+\hline \verb'\sfe' & \verb'foreach { }'                \hfill (n, v, i)\\
+\hline \verb'\sei' & \verb'elsif { }'                  \hfill (n, v, i)\\
+\hline \verb'\si'  & \verb'if { }'                     \hfill (n, v, i)\\
+\hline \verb'\sie' & \verb'if { } else { }'            \hfill (n, v, i)\\
+\hline \verb'\su'  & \verb'unless { }'                 \hfill (n, v, i)\\
+\hline \verb'\sue' & \verb'unless { } else { }'        \hfill (n, v, i)\\
+\hline \verb'\st'  & \verb'until { }'                  \hfill (n, v, i)\\
+\hline \verb'\sw'  & \verb'while { }'                  \hfill (n, v, i)\\
+\hline \verb'\s{'  & \verb'{ }'                        \hfill (n, v, i)\\
+\hline
+\hline \verb'\nr'  & read code snippet                 \hfill (n)\\
+\hline \verb'\nw'  & write code snippet                \hfill (n, v)\\
+\hline \verb'\nw'  & edit code snippet                 \hfill (n)\\
+\hline
+\hline
+\multicolumn{2}{|r|}{\textsl{Regular E\textbf{x}pressions}} \\
+\hline \verb'\xr' &  pick up Regex             \hfill (n, v)\\
+\hline \verb'\xs' &  pick up string            \hfill (n, v)\\
+\hline \verb'\xf' &  pick up flag(s)           \hfill (n, v)\\
+\hline \verb'\xm' &  match                     \hfill (n)\\
+\hline \verb'\xe' &  explain Regex             \hfill (n, v)\\
+\hline
+\end{tabular}%
+%~~~~~ TABULAR :  end  ~~~~~~~~~~
+\begin{flushleft}
+{\footnotesize
+{\normalsize (i)} insert mode, {\normalsize (n)} normal mode, {\normalsize (v)} visual mode
+}%
+\end{flushleft}
+
+\newpage 
+%%======================================================================
+%%  table, right part
+%%======================================================================
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{l}
+%   \\ [4.0ex]               %% Ausgleich
+\end{tabular} \\ 
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{10mm}|p{60mm}|}
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{I}dioms}}   \\
+\hline \verb'\$'   & \verb'my $;'              \hfill (n, i)\\
+\hline \verb'\$='  & \verb'my $ = ;'           \hfill (n, i)\\
+\hline \verb'\$$'  & \verb'my ( $, $ );'       \hfill (n, i)\\
+\hline \verb'\@'   & \verb'my @;'              \hfill (n, i)\\
+\hline \verb'\@='  & \verb'my @ = (,,);'       \hfill (n, i)\\
+\hline \verb'\%'   & \verb'my %;'              \hfill (n, i)\\
+\hline \verb'\%='  & \verb'my % = (=>,=>,);'   \hfill (n, i)\\
+\hline \verb'\ir'  & \verb'my $rgx_ = q//;'    \hfill (n, i)\\
+\hline \verb'\im'  & \verb'$ =~ m//xm'         \hfill (n, i)\\
+\hline \verb'\is'  & \verb'$ =~ s///xm'        \hfill (n, i)\\
+\hline \verb'\it'  & \verb'$ =~ tr///xm'       \hfill (n, i)\\
+\hline \verb'\isu' & \verb'subroutine'         \hfill (n, v, i)\\
+\hline \verb'\ip'  & \verb'print "...\n";'     \hfill (n ,i)\\
+\hline \verb'\ii'  & open input file           \hfill (n, v, i)\\
+\hline \verb'\io'  & open output file          \hfill (n, v, i)\\
+\hline \verb'\ipi' & open pipe                 \hfill (n, v, i)\\
+\hline
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{P}OSIX Character Classes}} \\
+\hline \verb'\pa' &  \verb'[:alnum:] '         \hfill (n, i)\\
+\hline \verb'\ph' &  \verb'[:alpha:] '         \hfill (n, i)\\
+\hline \verb'\pi' &  \verb'[:ascii:] '         \hfill (n, i)\\
+\hline \verb'\pb' &  \verb'[:blank:] '         \hfill (n, i)\\
+\hline \verb'\pc' &  \verb'[:cntrl:] '         \hfill (n, i)\\
+\hline \verb'\pd' &  \verb'[:digit:] '         \hfill (n, i)\\
+\hline \verb'\pg' &  \verb'[:graph:] '         \hfill (n, i)\\
+\hline \verb'\pl' &  \verb'[:lower:] '         \hfill (n, i)\\
+\hline \verb'\pp' &  \verb'[:print:] '         \hfill (n, i)\\
+\hline \verb'\pn' &  \verb'[:punct:] '         \hfill (n, i)\\
+\hline \verb'\ps' &  \verb'[:space:] '         \hfill (n, i)\\
+\hline \verb'\pu' &  \verb'[:upper:] '         \hfill (n, i)\\
+\hline \verb'\pw' &  \verb'[:word:]  '         \hfill (n, i)\\
+\hline \verb'\px' &  \verb'[:xdigit:]'         \hfill (n, i)\\
+\hline
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{R}un}} \\
+\hline \verb'\rr' & update file, run script         \hfill (n)\\
+\hline \verb'\rs' & update file, check syntax       \hfill (n)\\
+\hline \verb'\ra' & set command line arguments      \hfill (n)\\
+\hline \verb'\rw' & set Perl cmd.\ line switches    \hfill (n)\\
+\hline \verb'\rd' & start debugger                  \hfill (n)\\
+\hline \verb'\re' & make script executable          \hfill (n)\\
+\hline \verb'\rp' & read perldoc, same as \verb'\h' \hfill (n)\\
+\hline \verb'\ri' & show installed Perl modules     \hfill (n)\\
+\hline \verb'\rg' & generate Perl module list       \hfill (n)\\
+\hline \verb'\ry' & run \texttt{perltidy}           \hfill (n, v)\\
+\hline \verb'\rm' & run \texttt{SmallProf}          \hfill (n)\\
+\hline \verb'\rc' & run \texttt{perlcritic}         \hfill (n)\\
+\hline \verb'\rt' & save buffer with timestamp      \hfill (n)\\
+\hline \verb'\rh' & hardcopy buffer                 \hfill (n.v)\\
+\hline \verb'\rk' & settings and hotkeys            \hfill (n)\\
+\hline \verb'\rx' & set xterm size                  \hfill (n, {\tiny GUI only})\\
+\hline \verb'\ro' & change output destination       \hfill (n)\\
+\hline
+\hline
+\hline \verb'\h'   & read perldoc for word     \hfill (n) \newline under cursor \\
+\hline
+\end{tabular} \\
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+%%----- TABBING : begin ----------
+\begin{tabbing}
+\footnotesize{The following Ex commands set parameters} \\
+\footnotesize{for \texttt{perlcritic} (version 1.01+):}        \\[1.0ex]
+\hspace{1mm} \= \hspace{29mm} \= \hspace{50mm} \= \kill
+ \> \texttt{CriticSeverity}  \> \texttt{5\ \ \ \ \ \ 4\ \ \ \ \ 3\ \ \ \ \ 2\ \ \ \ \ 1} \\
+ \>                          \> \texttt{gentle stern harsh cruel brutal} \\
+ \> \texttt{CriticVerbosity} \> \texttt{1} $\ldots$ \texttt{11}\\
+ \> \texttt{CriticOptions}   \> option(s), see \texttt{perlcritic(1)} 
+\end{tabbing}
+%----- TABBING :  end  ----------
+\end{center}
+\end{document}

@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.8.1) / June 25 2008
+README for perl-support.vim (Version 3.9) / November 23 2008
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -85,10 +85,11 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.8.1
+  RELEASE NOTES FOR VERSION 3.9
 ---------------------------------------------------------------------------------------
-+ Bugfix: hot keys beginning like references (e.g. \$ ) now inactive in insert mode 
-  for non-empty lines.
++ New item in menu Statements: elsif (shortcut \sei)
+- Map leader for hotkeys now user definable: new global variable g:BASH_MapLeader
++ Specification of command line arguments (Run->cmd. line arg.): filename expansion active.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                    June 25 2008
+*perlsupport.txt*                Perl Support               November 23 2008
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plugin version 3.8.1
+                              Plugin version 3.9
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -300,10 +300,10 @@ marks the cursor position after insertion):
   |                          |                               |
   +--------------------------+-------------------------------+
   |                          |                               |
-  |  {                       |                               |
-  |    xxxxx                 |                               |
-  |    xxxxx                 |                               |
-  |  }                       |                               |
+  |  {                       |  elsif ( | ) {                |
+  |    xxxxx                 |    xxxxx                      |
+  |    xxxxx                 |    xxxxx                      |
+  |  }                       |  }                            |
   |                          |                               |
   +--------------------------+-------------------------------+
 
@@ -704,6 +704,8 @@ command line arguments. These arguments are forwarded to the script which
 is run by the 'run' item. The arguments are kept until you change them.
 The arguments can contain pipes and redirections, e.g.
   " infile.txt | sort -rn > result.txt"
+For the first and only the first argument file name expansion will work (use
+the Tab-key).
 
 The arguments belong to the current buffer (that is, each buffer can have its
 own arguments). The input dialog has a history.
@@ -1039,6 +1041,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \sf      for { }                           (n,v,i)
   \so      foreach { }                       (n,v,i)
   \si      if { }                            (n,v,i)
+  \sie     elsif { }                         (n,v,i)
   \se      if { } else { }                   (n,v,i)
   \su      unless { }                        (n,v,i)
   \sn      unless { } else { }               (n,v,i)
@@ -1130,6 +1133,16 @@ perl-support plugin package).
 
 The mappings can also be used with gVim.
 
+Changing the default map leader '\'
+-----------------------------------
+The map leader can be changed by the user by setting a global variable in the
+file .vimrc 
+
+ let g:BASH_MapLeader  = ','
+
+The map leader is now a comma. The 'line end comment' command is now defined
+as ',cl'. This setting will be used as a so called local leader and influences
+only files with filetype 'sh'.
 
 Resolving conflicts 
 -------------------
@@ -1143,7 +1156,7 @@ as map leader.
 (2) Change the map leader to another character, e.g. to the backtick with
       :let mapleader="`"
 You can make this change permanent by adding this line to the file .vimrc .
-
+CAVEAT: This setting is global and influences all filetypes.
 
 ==============================================================================
 3.  FUNCTION KEYS                                  *perlsupport-function-keys*
@@ -1273,6 +1286,7 @@ g:Perl_PerlcriticOptions       ""
 g:Perl_PerlRegexSubstitution   '$+'
 
 g:Perl_NoKeyMappings           - undefined -
+g:Perl_MapLeader               '\'
 
 The variable root_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
@@ -1318,6 +1332,7 @@ The variable root_dir will automatically be set to one of the following values:
           g:Perl_PerlcriticVerbosity     : perlcritic verbosity
           g:Perl_PerlcriticOptions       : additional perlcritic options
           g:Perl_NoKeyMappings           : suppress command mappings (|perlsupport-mappings|)
+          g:Perl_MapLeader               : map leader for hotkeys (|perlsupport-mappings|)
           g:Perl_PerlRegexSubstitution   : regex control character substitutions
 
 To override the defaults add appropriate assignments to .vimrc .
@@ -1598,11 +1613,15 @@ Compile Vim from the sources:
 
 (1) Get the tarball from http://vim.sourceforge.net/ and unpack it.
 (2) Configure with
-      ./configure --enable-perlinterp
+
+      ./configure --enable-perlinterp --enable-gui=gtk2
+
+    for Perl and your favorite GUI.
 (3) Make the binary the traditional way:
       make
       make test
       make install  (you must be root)
+    You may want to install patches before the first make.
 
 Depending on your GUI you will probably need some additional graphics
 libraries.
