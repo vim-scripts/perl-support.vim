@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.9
+---------------------------------------------------------------------------------------
++ New item in menu Statements: elsif (shortcut \sei)
+- Map leader for hotkeys now user definable: new global variable g:BASH_MapLeader
++ Specification of command line arguments (Run->cmd. line arg.): filename completion active.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.8.1
 ---------------------------------------------------------------------------------------
 + Bugfix: hot keys beginning like references (e.g. \$ ) now inactive in insert mode 

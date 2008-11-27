@@ -49,7 +49,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.46 2008/11/23 12:36:12 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.47 2008/11/27 07:55:31 mehner Exp $
 "------------------------------------------------------------------------------
 " 
 " Prevent duplicate loading: 
@@ -1631,7 +1631,7 @@ endfunction    " ----------  end of function Perl_Idiom  ----------
 "------------------------------------------------------------------------------
 function! Perl_OpenInputFile (mode)
 
-  let filehandle=Perl_Input( 'input file handle : $', 'INFILE' )
+  let filehandle=Perl_Input( 'input file handle : $', 'INFILE', '' )
   
   if filehandle==""
     let filehandle  = "INFILE"
