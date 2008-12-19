@@ -1,0 +1,91 @@
+§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== comment.file-description-pl == start ==
+#!/usr/bin/perl 
+#===============================================================================
+#
+#         FILE:  |FILENAME|
+#
+#        USAGE:  ./|FILENAME|  
+#
+#  DESCRIPTION:  <CURSOR>
+#
+#      OPTIONS:  ---
+# REQUIREMENTS:  ---
+#         BUGS:  ---
+#        NOTES:  ---
+#       AUTHOR:  |AUTHOR| (|AUTHORREF|), |EMAIL|
+#      COMPANY:  |COMPANY|
+#      VERSION:  1.0
+#      CREATED:  |DATE| |TIME|
+#     REVISION:  ---
+#===============================================================================
+
+use strict;
+use warnings;
+
+
+§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== comment.file-description-pm == start ==
+#
+#===============================================================================
+#
+#         FILE:  |FILENAME|
+#
+#  DESCRIPTION:  <CURSOR>
+#
+#        FILES:  ---
+#         BUGS:  ---
+#        NOTES:  ---
+#       AUTHOR:  |AUTHOR| (|AUTHORREF|), |EMAIL|
+#      COMPANY:  |COMPANY|
+#      VERSION:  1.0
+#      CREATED:  |DATE| |TIME|
+#     REVISION:  ---
+#===============================================================================
+
+use strict;
+use warnings;
+
+
+§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== comment.file-description-t == start ==
+#
+#===============================================================================
+#
+#         FILE:  |FILENAME|
+#
+#  DESCRIPTION:  <CURSOR>
+#
+#        FILES:  ---
+#         BUGS:  ---
+#        NOTES:  ---
+#       AUTHOR:  |AUTHOR| (|AUTHORREF|), |EMAIL|
+#      COMPANY:  |COMPANY|
+#      VERSION:  1.0
+#      CREATED:  |DATE| |TIME|
+#     REVISION:  ---
+#===============================================================================
+
+use strict;
+use warnings;
+
+use Test::More tests => 1;                      # last test to print
+
+
+§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== comment.file-description-pod == start ==
+#
+#===============================================================================
+#
+#         FILE:  |FILENAME|
+#
+#  DESCRIPTION:  |CURSOR|
+#
+#       AUTHOR:  |AUTHOR| (|AUTHORREF|), <|EMAIL|>
+#      COMPANY:  |COMPANY|
+#      CREATED:  |DATE|
+#     REVISION:  ---
+#===============================================================================
+
+
+§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

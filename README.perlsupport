@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 3.9.1) / November 27 2008
+README for perl-support.vim (Version 4.0) / December 11 2008
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -38,13 +38,17 @@ or $VIM\vimfiles (on the Windows platforms).
     This is the minimal content of the file '$HOME/.vimrc'. Create one if there
     is none. 
 
-(3) Set at least some personal details into .vimrc by overriding some defaults.
-    Here the minimal personalization (my settings as an example, of course):
+(3) Set at least some personal details into perl-support/templates/Templates 
+    by overriding the defaults.  Here the minimal personalization (my settings
+    as an example, of course):
 
-      let g:Perl_AuthorName      = 'Dr.-Ing. Fritz Mehner'     
-      let g:Perl_AuthorRef       = 'Mn'                         
-      let g:Perl_Email           = 'mehner@fh-swf.de'            
-      let g:Perl_Company         = 'FH Südwestfalen, Iserlohn'    
+      |AUTHOR|    = Dr. Fritz Mehner 
+      |AUTHORREF| = mn
+      |EMAIL|     = mehner@fh-swf.de
+      |COMPANY|   = FH Südwestfalen, Iserlohn
+      |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
+
+    Please read the documentation to fully understand the template system.
 
     The files customization.vimrc and customization.gvimrc are replacements or 
     extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
@@ -85,20 +89,26 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.9.1
+  RELEASE NOTES FOR VERSION 4.0
 ---------------------------------------------------------------------------------------
-+ Bugfix: idiom 'open input file' not usable (thanks to Marcus Aßhauer for
-  spotting and fixing it).
++ Completely new template system. Most menu items now user definable.
++ Plugin split into autoloadable modules (makes Vim startup faster).
++ Submenus for perlcritic severity and verbosity.
+In consequence there are some obsolete files and global variables, and some new
+files and hotkeys.
 
-=======================================================================================
+---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'
-=======================================================================================
+---------------------------------------------------------------------------------------
 
 =======================================================================================
   FILES
 =======================================================================================
 
 README.perlsupport                This file.
+
+autoload/perlsupportgui.vim       Menu definitions.
+autoload/perlsupportregex.vim     Regex analyser code.
 
 doc/perlsupport.txt               The help file for the local online help. 
                                   
@@ -116,12 +126,7 @@ perl-support/scripts/perltags.vim Vim script; use Perl::Tags (version 0.23) with
 perl-support/scripts/pmdesc3.pl   Perl script; generates a list of all installed Perl modules
 perl-support/scripts/wrapper.sh   The wrapper script for the use of an xterm.
 
-perl-support/templates/perl-file-header           -+-  Perl template files 
-perl-support/templates/perl-frame                  |   (see perlsupport.txt)
-perl-support/templates/perl-function-description   |
-perl-support/templates/perl-module-header          |
-perl-support/templates/perl-pod                    |
-perl-support/templates/perl-test-header           -+
+perl-support/templates/Templates  Perl template file
 
 perl-support/wordlists/perl.list  A file used as dictionary for automatic word completion.
                                   This file is referenced in the file customization.vimrc.
