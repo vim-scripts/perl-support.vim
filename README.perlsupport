@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.0) / December 11 2008
+README for perl-support.vim (Version 4.0.1) / January 02 2009
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -89,13 +89,9 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.0
+  RELEASE NOTES FOR VERSION 4.0.1
 ---------------------------------------------------------------------------------------
-+ Completely new template system. Most menu items now user definable.
-+ Plugin split into autoloadable modules (makes Vim startup faster).
-+ Submenus for perlcritic severity and verbosity.
-In consequence there are some obsolete files and global variables, and some new
-files and hotkeys.
++ Bugfix: Error message in some functions that issue a prompt.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

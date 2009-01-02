@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.0
+---------------------------------------------------------------------------------------
++ Completely new template system. Most menu items now user definable.
++ Plugin split into autoloadable modules (makes Vim startup faster).
++ Submenus for perlcritic severity and verbosity.
+In consequence there are some obsolete files and global variables, and some new
+files and hotkeys.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.9.1
 ---------------------------------------------------------------------------------------
 + Bugfix: idiom 'open input file' not usable (thanks to Marcus Aßhauer for

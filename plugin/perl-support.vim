@@ -46,7 +46,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.51 2008/12/11 19:32:15 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.52 2009/01/02 10:27:02 mehner Exp $
 "------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -54,7 +54,7 @@
 if exists("g:Perl_Version") || &compatible
  finish
 endif
-let g:Perl_Version= "4.0"
+let g:Perl_Version= "4.0.1"
 "
 "###############################################################################################
 "
@@ -252,7 +252,7 @@ let s:MsgInsNotAvail	= "insertion not available for a fold"
 function! Perl_Input ( promp, text, ... )
 	echohl Search																					" highlight prompt
 	call inputsave()																			" preserve typeahead
-	if a:0 == 0
+	if a:0 == 0 || a:1 == ''
 		let retval	=input( a:promp, a:text )
 	else
 		let retval	=input( a:promp, a:text, a:1 )
