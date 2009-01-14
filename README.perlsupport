@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.0.1) / January 02 2009
+README for perl-support.vim (Version 4.0.2) / January 13 2009
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -89,9 +89,9 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.0.1
+  RELEASE NOTES FOR VERSION 4.0.2
 ---------------------------------------------------------------------------------------
-+ Bugfix: Error message in some functions that issue a prompt.
++ Bugfix: 3 global variables without effect (format for date, time, year).
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

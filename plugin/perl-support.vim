@@ -46,7 +46,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.52 2009/01/02 10:27:02 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.53 2009/01/13 18:41:55 mehner Exp $
 "------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -54,7 +54,7 @@
 if exists("g:Perl_Version") || &compatible
  finish
 endif
-let g:Perl_Version= "4.0.1"
+let g:Perl_Version= "4.0.2"
 "
 "###############################################################################################
 "
@@ -183,6 +183,9 @@ call PerlSetLocalVariable("Perl_Printheader            ")
 call PerlSetLocalVariable("Perl_ProfilerTimestamp      ")
 call PerlSetLocalVariable("Perl_Template_Directory     ")
 call PerlSetLocalVariable("Perl_XtermDefaults          ")
+call PerlSetLocalVariable("Perl_FormatDate             ")
+call PerlSetLocalVariable("Perl_FormatTime             ")
+call PerlSetLocalVariable("Perl_FormatYear             ")
 "
 let s:Perl_PerlcriticMsg     = ""
 let s:Perl_PodCheckMsg       = ""
