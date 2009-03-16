@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.2 2008/12/16 17:32:10 mehner Exp $
+"      Revision:  $Id: perlsupportregex.vim,v 1.3 2009/02/22 18:43:16 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -452,3 +452,4 @@ function! perlsupportregex#Perl_PerlRegexSubstitutions ( string )
   endif
 endfunction    " ----------  end of function Perl_PerlRegexSubstitutions  ----------
 "
+" vim: tabstop=2 shiftwidth=2 foldmethod=marker

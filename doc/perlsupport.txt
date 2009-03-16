@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support               December 16 2008
+*perlsupport.txt*                Perl Support                   March 16 2009
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.0
+                              Plugin version 4.1
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -52,7 +52,7 @@ profiler can be done with a keystroke.
  1.9.7    Generate Perl module list       |perlsupport-module-list-generation|
  1.9.8    Show installed Perl modules     |perlsupport-module-list|
  1.9.9    Run perltidy                    |perlsupport-perltidy|
- 1.9.10   Run SmallProf                   |perlsupport-profile|
+ 1.9.10   Profiler                        |perlsupport-profiler|
  1.9.11   Run perlcritic                  |perlsupport-perlcritic|
  1.9.12   Save buffer with timestamp      |perlsupport-timestamp|
  1.9.13   Hardcopy                        |perlsupport-hardcopy|
@@ -72,20 +72,25 @@ profiler can be done with a keystroke.
  5.      Template files and tags          |perlsupport-templates|
  5.1      Template files                  |perlsupport-templates-files|
  5.2      Macros                          |perlsupport-templates-macros|
+ 5.2.1   Formats for date and time        |perlsupport-templates-date|
  5.3      Templates                       |perlsupport-templates-names|
  5.3.1    Template names                  |perlsupport-templates-names|
  5.3.2    Template definition             |perlsupport-templates-definition|
  5.3.3    Template expansion              |perlsupport-templates-expansion|
+ 5.3.4    The macros <+text+> etc.        |perlsupport-templates-jump|
+ 5.3.5    Command Ctrl-j                  |perlsupport-Ctrl-j|
+ 5.4     Switching between template sets  |perlsupport-templates-sets|
  6       Perl::Tags                       |perlsupport-perltags|
  7.      Perl Dictionary                  |perlsupport-dictionary|
  8.      Optional Dependencies            |perlsupport-dependencies|
  9.      Compiling Vim                    |perlsupport-compile-vim|
  10.     Folding                          |perlsupport-folding|
- 11.     Autoloading                      |perlsupport-autoload|
- 12.     MS-Windows particularities       |perlsupport-windows|
- 13.     Troubleshooting                  |perlsupport-troubleshooting|
- 14.     Release Notes / Change Log       |perlsupport-release-notes|
- 15.     Credits                          |perlsupport-credits|
+ 11.     Additional Mappings              |perlsupport-ad-mappings|
+ 12.     Autoloading                      |perlsupport-autoload|
+ 13.     MS-Windows particularities       |perlsupport-windows|
+ 14.     Troubleshooting                  |perlsupport-troubleshooting|
+ 15.     Release Notes / Change Log       |perlsupport-release-notes|
+ 16.     Credits                          |perlsupport-credits|
 
  How to add this help file to vim's help  |add-local-help|
 
@@ -493,9 +498,9 @@ REGEX-TEST:
 In addition the match will be highlighted in most cases. The match is done as
   $string =~ m{(?flags:$regexp)}
 by the Perl interface. For the flags see|perlsupport-regex-flags|).
-The brackets after a match object contain the starting position (starting with
-0) and the length of the object. Objects starting or ending with one or more
-spaces are enclosed in vertical bars.
+The brackets after a match object contain the starting position (starting 
+with 0) and the length of the object. Objects starting or ending with one or 
+more spaces are enclosed in vertical bars.
 
 Multiline regular expressions (like the string inside the braces below) are
 allowed. They work properly if the flag 'x' is set.
@@ -820,13 +825,24 @@ Perltidy has a lot of options. It is recommended to use a .perltidyrc
 initialization file to define the preferred style (see 'man 1 perltidy').
 See also |perlsupport-troubleshooting|.
 
-1.9.10  RUN SMALLPROF                                    *perlsupport-profile*
----------------------
-Profile the script in the current buffer using the profiler  Devel::SmallProf
-(see |perlsupport-dependencies|). The results will go to the file
-smallprof.out in the current directory. This file will be opened
-automatically.  Devel::SmallProf (version 2.00_03) is controlled by 4
-variables (default values shown here):
+1.9.10  PROFILER                                        *perlsupport-profiler*
+----------------
+
+This plugin is prepared to work with 3 profilers:
+
+  Devel::SmallProf     - per-line Perl profiler
+  Devel::FastProf      - "fast" per-line Perl profiler
+  Devel::NYTProf       - Powerful feature-rich perl source code profiler
+
+1.9.10.1  Devel::SmallProf                             *perlsupport-smallprof*
+--------------------------
+The menu item 'Profiler->SmallProf->run profiler' runs the profiler for the
+script in the current buffer.  The results will go to the file smallprof.out
+in the current directory. This file will be automatically loaded into a
+quickfix buffer.
+
+Devel::SmallProf (version 2.00_03) is controlled
+by 4 variables (default values shown here):
 
  $DB::drop_zeros  = 0;           # Do not show lines which were never called: 1
  $DB::grep_format = 0;           # Output on a format similar to grep : 1
@@ -838,6 +854,103 @@ directory. See the module documentation for more information.
 
 Command line arguments (see |perlsupport-cmdline-args|) will be passed on to
 the profiler.
+
+Hot spot list in the QuickFix window
+------------------------------------
+The profiler will be run by the following command:
+
+ SMALLPROF_CONFIG=gz perl -d:SmallProf <Perl script> [<arguments>]
+
+The leading part of this command turns on the grep like format (g) and drops
+lines which were never called (z). Point and click to go to the script hot
+spots.
+
+The report can be sorted using the criterion file-name, line-number,
+line-count, time (wall time), ctime (cpu time) using the appropriate menu
+item.
+
+In the absence of menus (console mode) sorting is done with the command
+
+ :SmallProfSort [ file-name | line-number | line-count | time | ctime ]
+
+Use command completion. Type :Small<Tab> to complete the command name and
+a blank and another <Tab> to show the list criteria. The selection will be
+highlighted.
+
+Resorting the profiling statistics uses sort(1) and a temporary file.
+Resorting is not available under MS-Windows.
+
+Additional hint
+---------------
+Use the configuration file '.smallprof' to set the deepth of the profiling, 
+e.g. with
+
+ %DB::packages    = ('main'=>1);  # Only profile code in a certain package.
+
+Please see the package documentation for more information.  The following
+setting in the file '~/.vimrc' seems also to influence the statistics:
+
+ "-----------------------------------------------------------------------------
+ " The current directory is the directory of the file in the current window.
+ "-----------------------------------------------------------------------------
+ if has("autocmd")
+   autocmd BufEnter * :lchdir %:p:h
+ endif
+
+Without this setting the report only includes the statistics for the file
+profiled. With this setting the report includes the other modules used.
+
+1.9.10.2  Devel::FastProf                               *perlsupport-fastprof*
+-------------------------
+The menu item 'Profiler->FastProf->run profiler' runs the profiler for the
+script in the current buffer.  The results will go to the file fastprof.out in
+the current directory. This file will be automatically loaded into a quickfix
+buffer.
+
+The report can be sorted using the criterion file-name, line-number, time,
+line-count using the appropriate menu item.
+
+In the absence of menus (console mode) sorting is done with the command
+
+ :FastProfSort [ file-name | line-number | time | line-count ]
+
+Use command completion. Type :Fast<Tab> to complete the command name and
+a blank and another <Tab> to show the list criteria. The selection will be
+highlighted.
+
+Resorting the profiling statistics uses sort(1) and a temporary file.
+Resorting is not available under MS-Windows.
+
+1.9.10.3  Devel::NYTProf                                 *perlsupport-nytprof*
+------------------------
+The menu item 'Profiler->NYTProf->run profiler' runs the profiler for the
+script in the current buffer.  The results will go to the subdirectory nytprof
+below the current directory. The profiler generates HTML- and CSV-files
+containing the results. Only the CSV-files can be loaded into the editor using
+the item 'Profiler->NYTProf->read CSV file'.  The selected file will be
+automatically loaded into a quickfix buffer.
+
+The report can be sorted using the criterion file-name, line-number, time, 
+calls, time/call using the appropriate menu item.
+
+In the absence of menus (console mode) sorting is done with the command
+
+ :FastProfSort [ file-name | line-number | time | calls | time-call ]
+
+Use command completion. Type :NYT<Tab> to complete the command name and
+a blank and another <Tab> to show the list criteria. The selection will be
+highlighted.
+
+Resorting the profiling statistics uses sort(1) and a temporary file.
+Resorting is not available under MS-Windows.
+
+Profiled library modules are opend as read-only copies in a temp directory.
+
+The Devel::NYTProf profiler generates also HTML-files to be viewed with a
+browser. To allow the generation of these files set a global variable in
+the file '~/.vimrc' to 'yes' (default is 'no'):
+
+  let g:Perl_NYTProf_html = 'yes'
 
 1.9.11 RUN PERLCRITIC                                 *perlsupport-perlcritic*
 ---------------------
@@ -857,13 +970,14 @@ Two perlcritic comand line options can be set by this plugin:
 
 SEVERITY
 --------
-Perlcritic (version 1.02) has 5 severity levels (perlcritic default level is
-5).  This plugin sets the default level to 3.  This can be changed by setting
-the variable g:Perl_PerlcriticSeverity in .vimrc to another value (1-5):
+Perlcritic (version 1.02) has 5 severity levels (perlcritic default level 
+is 5).  This plugin sets the default level to 3.  This can be changed by
+setting the variable g:Perl_PerlcriticSeverity in .vimrc to another value
+(1-5):
 
   let g:Perl_PerlcriticSeverity = 1
 
-I addition there is an Ex command to do that, e.g.:
+In addition there is an Ex command to do that, e.g.:
 
   :CriticSeverity 2
 
@@ -1124,7 +1238,9 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \ri     show installed Perl modules     (n)   see |perlsupport-module-list|
   \rg     generation Perl module list     (n)   see |perlsupport-module-list-generation|
   \ry     run perltidy                    (n,v) see |perlsupport-perltidy|
-  \rm     run SmallProf                   (n)   see |perlsupport-profile|
+  \rms    run Devel::SmallProf            (n)   see |perlsupport-smallprof|
+  \rmf    run Devel::FastProf             (n)   see |perlsupport-fastprof|
+  \rmn    run Devel::NYTProf              (n)   see |perlsupport-nytprof|
   \rc     run perlcritic                  (n)   see |perlsupport-perlcritic|
   \rt     save buffer with timestamp      (n)   see |perlsupport-timestamp|
   \rh     hardcopy buffer to FILENAME.ps  (n,v) see |perlsupport-hardcopy|
@@ -1221,7 +1337,14 @@ perl-support/scripts/efm_perl.pl  Perl script; Reformats the error messages of t
 perl-support/scripts/pmdesc3.pl   Perl script; generates a list of all installed Perl modules
 perl-support/scripts/wrapper.sh   The wrapper script for the use of an xterm.
 
-perl-support/templates/Templates  Perl template file
+perl-support/templates/Templates            Perl main template file
+perl-support/templates/comments.template    template file for comments
+perl-support/templates/idioms.template      template file for idioms
+perl-support/templates/pod.template         template file for pod statements
+perl-support/templates/statements.template  template file for statements
+
+
+
 
 perl-support/wordlists/perl.list  A file used as dictionary for automatic word completion.
                                   This file is referenced in the file customization.vimrc.
@@ -1267,6 +1390,7 @@ global variable                default value               tag (see below)
 g:Perl_GlobalTemplateFile      root_dir.'perl-support/templates/Templates'
 g:Perl_LocalTemplateFile       $HOME.'/.vim/perl-support/templates/Templates'
 g:Perl_TemplateOverwrittenMsg  'yes'
+g:Perl_Ctrl_j                  'on'
 
 g:Perl_CodeSnippets            root_dir.'perl-support/codesnippets/'
 g:Perl_LoadMenus               'yes'
@@ -1287,6 +1411,7 @@ g:Perl_PerlcriticSeverity      5
 g:Perl_PerlcriticVerbosity     5
 g:Perl_PerlcriticOptions       ""
 g:Perl_PerlRegexSubstitution   '$+'
+g:Perl_NYTProf_html            'no'
 
 g:Perl_NoKeyMappings           - undefined -
 g:Perl_MapLeader               '\'
@@ -1297,38 +1422,40 @@ The variable root_dir will automatically be set to one of the following values:
 
 ------------------------------------------------------------------------------
 
-1. group: Sets the template directory and the names of the template files (see below).
-          g:Perl_GlobalTemplateFile      : sets the global template file  (see|perlsupport-templates|)
-          g:Perl_LocalTemplateFile       : sets the local template file  (see|perlsupport-templates|)
-          g:Perl_TemplateOverwrittenMsg  : message if a template is overwritten
+ 1. group: Sets the template directory and the names of the template files (see below).
+           g:Perl_GlobalTemplateFile      : sets the global template file  (see|perlsupport-templates|)
+           g:Perl_LocalTemplateFile       : sets the local template file  (see|perlsupport-templates|)
+           g:Perl_TemplateOverwrittenMsg  : message if a template is overwritten
+           g:Perl_Ctrl_j                  : hotkey Ctrl-j  'on'/'off' (see|perlsupport-Ctrl-j|)
 
-2. group: g:Perl_CodeSnippets    : The name of the code snippet directory (see below).
-          g:Perl_LoadMenus       : Load menus and mappings ("yes", "no") at startup.
-          g:Perl_Dictionary_File : Path and filename of the Perl word list used for
-                                   dictionary completion (see below).
-          g:Perl_Root            : The name of the root menu item of this plugin
-                                   (see below).
-          g:Perl_MenuHeader      : Switch submenu titles on/off.
+ 2. group: g:Perl_CodeSnippets    : The name of the code snippet directory (see below).
+           g:Perl_LoadMenus       : Load menus and mappings ("yes", "no") at startup.
+           g:Perl_Dictionary_File : Path and filename of the Perl word list used for
+                                    dictionary completion (see below).
+           g:Perl_Root            : The name of the root menu item of this plugin
+                                    (see below).
+           g:Perl_MenuHeader      : Switch submenu titles on/off.
 
-3. group: g:Perl_PerlModuleList          : The name of the Perl module list (text file,
-                                           see below).
-          g:Perl_PerlModuleListGenerator : The command line which starts the
-                                           module list generation.
-          g:Perl_OutputGvim              : when script is running output goes to the vim
-                                           command line ("vim"), to a buffer ("buffer")
-                                           or to an xterm ("xterm").
-          g:Perl_XtermDefaults           : the xterm defaults
-          g:Perl_Debugger                : the debugger called by F9 (perl, ptkdb, ddd).
-          g:Perl_ProfilerTimestamp       : add time stamp to the profiler buffer name
-          g:Perl_LineEndCommColDefault   : default starting column for line end comments
-          g:Perl_PodcheckerWarnings      : podchecker warnings on/off
-          g:Perl_Printheader             : hardcopy header format
-          g:Perl_PerlcriticSeverity      : perlcritic severity
-          g:Perl_PerlcriticVerbosity     : perlcritic verbosity
-          g:Perl_PerlcriticOptions       : additional perlcritic options
-          g:Perl_NoKeyMappings           : suppress command mappings (|perlsupport-mappings|)
-          g:Perl_MapLeader               : map leader for hotkeys (|perlsupport-mappings|)
-          g:Perl_PerlRegexSubstitution   : regex control character substitutions
+ 3. group: g:Perl_PerlModuleList          : The name of the Perl module list (text file,
+                                            see below).
+           g:Perl_PerlModuleListGenerator : The command line which starts the
+                                            module list generation.
+           g:Perl_OutputGvim              : when script is running output goes to the vim
+                                            command line ("vim"), to a buffer ("buffer")
+                                            or to an xterm ("xterm").
+           g:Perl_XtermDefaults           : the xterm defaults
+           g:Perl_Debugger                : the debugger called by F9 (perl, ptkdb, ddd).
+           g:Perl_ProfilerTimestamp       : add time stamp to the profiler buffer name
+           g:Perl_LineEndCommColDefault   : default starting column for line end comments
+           g:Perl_PodcheckerWarnings      : podchecker warnings on/off
+           g:Perl_Printheader             : hardcopy header format
+           g:Perl_PerlcriticSeverity      : perlcritic severity
+           g:Perl_PerlcriticVerbosity     : perlcritic verbosity
+           g:Perl_PerlcriticOptions       : additional perlcritic options
+           g:Perl_NoKeyMappings           : suppress command mappings (|perlsupport-mappings|)
+           g:Perl_MapLeader               : map leader for hotkeys (|perlsupport-mappings|)
+           g:Perl_PerlRegexSubstitution   : regex control character substitutions
+           g:Perl_NYTProf_html            : Devel::NYTProf generates HTML-files (|perlsupport-nytprof|)
 
 
 ------------------------------------------------------------------------------
@@ -1411,9 +1538,9 @@ The taglist navigation window for the module Eliza.pm starts like this:
 Now you can navigate through the embedded POD with a mouse click on these
 entries. To enable this feature
 
-1) append rc/customization.ctags to $HOME/.ctags (or create this file)
+ (1) append rc/customization.ctags to $HOME/.ctags (or create this file)
 
-2) add the following lines to $HOME/.vimrc :
+ (2) add the following lines to $HOME/.vimrc :
 
   "
   "-----------------------------------------------------------------------------
@@ -1425,7 +1552,7 @@ entries. To enable this feature
 
   let tlist_perl_settings  = 'perl;c:constants;l:labels;p:package;s:subroutines;d:POD'
 
-3) restart vim/gvim
+(3) restart vim/gvim
 
 The two maps will toggle the taglist window (hotkey F11) in all editing modes.
 The assignment defines the headings for the Perl sections in the taglist
@@ -1555,6 +1682,7 @@ personalize templates.
 *|COMPANY|*         ""
 *|PROJECT|*         ""
 *|COPYRIGHTHOLDER|* ""
+*|STYLE|*           ""
 *|includefile|*     ""
 
 *|BASENAME|*        filename without path and suffix
@@ -1576,6 +1704,9 @@ macros and templates is possible.
  PREDEFINED TAGS
  ----------------------------------------------------------------------------
  <CURSOR>           The cursor position after insertion of a template
+ <+text+>,<-text->, Jump targets in templates. Jump with Ctrl-j.
+ {+text+},{-text-}  See |perlsupport-templates-jump|.
+
  <SPLIT>            The split point when inserting in visual mode
                     (see|perlsupport-templates-definition|)
 
@@ -1584,9 +1715,9 @@ need to have all user defined macros in the master file.
 When the first template definition is found (see below) macro definitions are
 no longer recognized.
 
- ----------------------------------------------------------------------------
- USER DEFINED FORMATS FOR DATE AND TIME         *perlsupport-templates-date*
- ----------------------------------------------------------------------------
+------------------------------------------------------------------------------
+5.2.1   USER DEFINED FORMATS FOR DATE AND TIME    *perlsupport-templates-date*
+------------------------------------------------------------------------------
 The format for *|DATE|* ,*|TIME|* , and*|YEAR|* can be set by the user. The
 defaults are
     *|DATE|*        '%x'
@@ -1728,7 +1859,7 @@ this template yields
 The templates with a visual mode are shown in the table under
 |perlsupport-templates-names|.
 
-5.3.3  Template expansion                       *perlsupport-templates-expansion*
+5.3.3  Template expansion                    *perlsupport-templates-expansion*
 
 There are additional ways to control the expansion of a template.
 
@@ -1767,6 +1898,132 @@ The keyword comment template is an example for the use of ':u' :
    # :*|?KEYWORD:u|* :*|DATE|* *|TIME|* :*|AUTHORREF|* : <CURSOR>
 
 The user specified keyword will be used in uppercase.
+
+5.3.4  The macros <+text+> etc.                   *perlsupport-templates-jump*
+
+There are four macro types which can be used as jump targets in templates:
+
+ <+text+>   Can be jumped to by hitting Ctrl-j.
+ {+text+}   Same as <+text+>. Used in cases where indentation gives unwanted
+            results with the first one.
+ 
+ <-text->   Same as the two above. Will be removed if the template is used
+ {-text-}   in visual mode.
+
+The text inside the brackets is userdefined and can be empty. The text
+can be composed from letters (uppercase and lowercase), digits, underscores
+and blanks. After the insertion of an template these jump targets will be
+highlighted. 
+
+5.3.5  Command Ctrl-j                                     *perlsupport-Ctrl-j*
+
+Use the command Ctrl-j to jump to the next target. The target will be removed
+and the mode will switched to insertion. Ctrl-j works in normal and in insert
+mode.
+
+The template for an if-else-statement can be written as follows:
+
+ == statements.if-else ==
+ if ( <CURSOR> ) {
+ <SPLIT>} else {
+   <+ELSE PART+>
+ }
+
+The cursor will be set between the parenthesis. When the condition is
+specified jump to the end of the line and hit Return to open a new line inside
+the if-block. When the block is written a Ctrl-j leads you to the else-part.
+The target <+ELSE PART+> disappears and you can type on.
+
+The following example shows the usage of the type {-text-}. The idiom for the
+opening of a file marks the line before the file is closed. This is also the
+line where the template will be split to surround a marked area. In this case
+(visual mode) the target is not needed and therefore removed (minus signs as
+mnemonic). In normal and insert mode the target is meaningful and will be
+therefore be present.  The form <-...-> would result in a wrong indentation of
+the file close statement. The brace type will be handled as a block and the
+indentation will be correct.
+
+ == idioms.open-input-file ==
+ my $|?FILEPOINTER|_file_name = '<CURSOR>';  # input file name
+ 
+ open  my $|FILEPOINTER|, '<', $|FILEPOINTER|_file_name
+ or die  "$0 : failed to open  input file '$|FILEPOINTER|_file_name' : $!\n";
+ 
+ <SPLIT>{-continue here-}
+ close  $|FILEPOINTER|
+ or warn "$0 : failed to close input file '$|FILEPOINTER|_file_name' : $!\n";
+
+How to switch the mapping for Ctrl-j off
+----------------------------------------
+The original meaning of Ctrl-j is 'move [n] lines downward' (see |CTRL-j|).
+If you are accustomed to use the deafult and don't like these jump targets you
+can switch them off.  Put the following line in the file .vimrc :
+
+  let g:Perl_Ctrl_j   = 'off'
+
+The default value of g:Perl_Ctrl_j is 'on'. You do not have to change the
+template files. All jump targets will be removed before a template will be
+inserted. 
+
+==============================================================================
+5.4  SWITCHING BETWEEN TEMPLATE SETS              *perlsupport-templates-sets*
+==============================================================================
+
+This plugin comes with two sets of templates. These are suggestions. You may
+want to have additional sets for different projects or occasionally want to
+use doxygen style comments.  To facilitate switching use the macro*|STYLE|*
+(|perlsupport-templates-files|) to define a unique name and the
+IF-ENDIF-construct to choose a particular set of files for example:
+
+   ...
+
+ *|STYLE|*    = my_style
+  $
+  $ =============================================================
+  $ ========== FILE INCLUDES ====================================
+  $ =============================================================
+  $
+  == IF *|STYLE|* IS generic  ==
+  $
+ *|includefile|* = comments.template
+  == ENDIF ==
+  $
+  == IF *|STYLE|* IS my_style  ==
+ *|includefile|* = my_comments.template
+  == ENDIF ==
+  $
+ *|includefile|* = statements.template
+ *|includefile|* = idioms.template
+ *|includefile|* = pod.template
+  $
+
+   ...
+
+The syntax is as follows:
+
+  == IF macro_name IS macro_value  ==
+   
+  == ENDIF ==
+
+IF, IS, and ENDIF are keywords.
+
+HINT. Use these constructs to avoid overwriting your templates when updating
+perlsupport. Copy and rename the set of files you want to change and surround the
+includes with an appropriate IF-construct:
+
+ *|STYLE|*    = MY_PERL
+  $
+   ...
+  $
+  == IF *|STYLE|* IS MY_PERL  ==
+ *|includefile|* = my_comments.template
+ *|includefile|* = my_statements.template
+ *|includefile|* = my_idioms.template
+ *|includefile|* = my_pod.template
+  == ENDIF ==
+
+Keep a copy of the main template file 'Templates' because this file will be
+overwritten if you do not update manually.
 
 
 ==============================================================================
@@ -1840,6 +2097,8 @@ The following modules have to be installed by the user/administrator in order
 to use them.
 
   Devel::SmallProf     - per-line Perl profiler
+  Devel::FastProf      - per-line Perl profiler
+  Devel::NYTProf       - per-line Perl profiler
   Devel::ptkdb         - Perl debugger using a Tk GUI
   Perl::Critic         - Critique Perl source code for best-practices
   Perl::Tags           - Generate Ctags style tags for Perl source code
@@ -1948,9 +2207,22 @@ have a visual mode, e.g. an if-statement:
 
 See |folding| for more information on folding.
 
+==============================================================================
+11.  Additional Mappings                             *perlsupport-ad-mappings*
+==============================================================================
+
+There are a few additional filetype specific key mappings defined in
+'~/.vim/ftplugin/perl.vim'.
+
+Open a block (modes: i,v):
+  '{<CR>' =>  {
+                |
+              }
+In visual mode the content of the new block will be indented.
+
 
 ==============================================================================
-11.  AUTOLOADING                                        *perlsupport-autoload*
+12.  AUTOLOADING                                        *perlsupport-autoload*
 ==============================================================================
 
 The this perlsupport plugin uses the Vim autoload mechanism to load parts of
@@ -1972,7 +2244,7 @@ Support' or the hotkey \lps is used.
 
 
 ==============================================================================
-12.  MS-Windows PARTICULARITIES                          *perlsupport-windows*
+13.  MS-Windows PARTICULARITIES                          *perlsupport-windows*
 ==============================================================================
 
 The plugins should go into the directory structure below the local
@@ -1990,7 +2262,7 @@ Configuration files:
 
 
 ==============================================================================
-13.  TROUBLESHOOTING                             *perlsupport-troubleshooting*
+14.  TROUBLESHOOTING                             *perlsupport-troubleshooting*
 ==============================================================================
 
 * I do not see any new main menu item.
@@ -2036,13 +2308,13 @@ Configuration files:
 
 
 ==============================================================================
-14.  RELEASE NOTES / CHANGELOG                     *perlsupport-release-notes*
+15.  RELEASE NOTES / CHANGELOG                     *perlsupport-release-notes*
 ==============================================================================
 
 See files 'README.perlsupport' and 'ChangeLog'.
 
 ==============================================================================
-15.  CREDITS                                             *perlsupport-credits*
+16.  CREDITS                                             *perlsupport-credits*
 ==============================================================================
 
 David Fishburn <fishburn@ianywhere.com> for the implementation of the

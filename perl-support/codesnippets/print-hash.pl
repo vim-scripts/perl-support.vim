@@ -8,5 +8,5 @@ sub print_hash {
   while ( my ( $key, $value ) = each %$hashref ) {
     print "'$key'\t=>\t'$value'\n";
   }       # -----  end while  -----
-} # ----------  end of subroutine print_hash_sorted  ----------
+} # ----------  end of subroutine print_hash  ----------
 

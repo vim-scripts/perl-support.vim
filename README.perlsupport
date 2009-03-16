@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.0.2) / January 13 2009
+README for perl-support.vim (Version 4.1) / March 16 2009
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -23,7 +23,11 @@ Vim version 6.x.
 
 The subdirectories in the zip archive  perl-support.zip  mirror the directory
 structure which is needed below the local installation directory $HOME/.vim/
-or $VIM\vimfiles (on the Windows platforms).
+for LINUX/UNIX ($VIM/vimfiles/ for Windows; find the value of $VIM with 
+":echo $VIM" from inside Vim).
+
+(0) Save the template files in '$HOME/.vim/perl-support/templates/Templates' if
+    you have changed any of them.
 
 (1) Copy the zip archive  perl-support.zip to $HOME/.vim and run
 
@@ -43,13 +47,18 @@ or $VIM\vimfiles (on the Windows platforms).
     as an example, of course):
 
       |AUTHOR|    = Dr. Fritz Mehner 
-      |AUTHORREF| = mn
+      |AUTHORREF| = fgm
       |EMAIL|     = mehner@fh-swf.de
       |COMPANY|   = FH Südwestfalen, Iserlohn
       |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
 
     Please read the documentation to fully understand the template system.
 
+    The files customization.vimrc and customization.gvimrc are replacements or 
+    extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
+    You may want to use parts of them. The files are documented. 
+
+(4) Consider additional settings in the file '$HOME/.vimrc'.
     The files customization.vimrc and customization.gvimrc are replacements or 
     extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
     You may want to use parts of them. The files are documented. 
@@ -89,9 +98,16 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.0.2
+  RELEASE NOTES FOR VERSION 4.1
 ---------------------------------------------------------------------------------------
-+ Bugfix: 3 global variables without effect (format for date, time, year).
++ Additional plugin-tags (jump targets in templates): <+text+>, <-text->.
++ Additional mapping Ctrl-j : jump to these new targets.
++ Template-file: additional macro |STYLE| and IF-ENDIF-construct to easily
+  choose between sets of templates.
++ SmallProf integration completely rewritten: hotspot report, report sortable.
++ FastProf and NYTProf integration.
++ Command completion for the command CriticSeverity.
++ Minor improvements and bugfixes.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'
@@ -122,7 +138,11 @@ perl-support/scripts/perltags.vim Vim script; use Perl::Tags (version 0.23) with
 perl-support/scripts/pmdesc3.pl   Perl script; generates a list of all installed Perl modules
 perl-support/scripts/wrapper.sh   The wrapper script for the use of an xterm.
 
-perl-support/templates/Templates  Perl template file
+perl-support/templates/Templates            Perl main template file
+perl-support/templates/comments.template    template file for comments
+perl-support/templates/idioms.template      template file for idioms
+perl-support/templates/pod.template         template file for pod statements
+perl-support/templates/statements.template  template file for statements
 
 perl-support/wordlists/perl.list  A file used as dictionary for automatic word completion.
                                   This file is referenced in the file customization.vimrc.

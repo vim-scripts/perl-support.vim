@@ -11,7 +11,7 @@
 "       Company:  Fachhochschule Südwestfalen, Iserlohn
 "       Version:  1.1
 "       Created:  11.04.2007 10:21:26 CEST
-"      Revision:  $Id: perltags.vim,v 1.3 2007/12/21 17:39:01 mehner Exp $
+"      Revision:  $Id: perltags.vim,v 1.4 2009/03/11 14:54:34 mehner Exp $
 "===============================================================================
 
 setlocal iskeyword+=:  " make tags with :: in them useful
@@ -39,9 +39,9 @@ endfunction
 "          NAME:  do_tags
 "   DESCRIPTION:  tag a new file
 "===============================================================================
-function s:do_tags(filename)
+function s:do_tags()
     perl <<EOF
-        my $filename = VIM::Eval('a:filename');
+        my $filename = VIM::Eval(expand('%');
 
         $naive_tagger->process(files => $filename, refresh=>1 );
 
@@ -65,6 +65,6 @@ endif
 " tag a new file 
 "
 if g:Perl_PerlTags == 'enabled'
-	call s:do_tags(expand('%'))
+	call s:do_tags( )
 endif
 

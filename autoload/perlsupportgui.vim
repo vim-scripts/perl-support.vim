@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.5 2008/12/17 11:13:01 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.11 2009/02/23 17:45:11 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -82,8 +82,10 @@ function! perlsupportgui#Perl_InitMenu ()
   "
   exe " menu  ".g:Perl_Root.'&Comments.&date               <Esc>:call Perl_InsertDateAndTime("d")<CR>'
   exe "imenu  ".g:Perl_Root.'&Comments.&date               <Esc>:call Perl_InsertDateAndTime("d")<CR>a'
+  exe "vmenu  ".g:Perl_Root.'&Comments.&date              s<Esc>:call Perl_InsertDateAndTime("d")<CR>a'
   exe " menu  ".g:Perl_Root.'&Comments.date\ &time         <Esc>:call Perl_InsertDateAndTime("dt")<CR>'
   exe "imenu  ".g:Perl_Root.'&Comments.date\ &time         <Esc>:call Perl_InsertDateAndTime("dt")<CR>a'
+  exe "vmenu  ".g:Perl_Root.'&Comments.date\ &time        s<Esc>:call Perl_InsertDateAndTime("dt")<CR>a'
 
   exe "amenu ".g:Perl_Root.'&Comments.-SEP3-                     :'
   "
@@ -129,6 +131,13 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "inoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).C&OPYRIGHTHOLDER  <Esc>:call Perl_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
   exe "inoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).&EMAIL            <Esc>:call Perl_InsertMacroValue("EMAIL")<CR>a'
   exe "inoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).&PROJECT          <Esc>:call Perl_InsertMacroValue("PROJECT")<CR>a'
+  "
+  exe "vnoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).&AUTHOR          s<Esc>:call Perl_InsertMacroValue("AUTHOR")<CR>a'
+  exe "vnoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).AUTHOR&REF       s<Esc>:call Perl_InsertMacroValue("AUTHORREF")<CR>a'
+  exe "vnoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).&COMPANY         s<Esc>:call Perl_InsertMacroValue("COMPANY")<CR>a'
+  exe "vnoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).C&OPYRIGHTHOLDER s<Esc>:call Perl_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
+  exe "vnoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).&EMAIL           s<Esc>:call Perl_InsertMacroValue("EMAIL")<CR>a'
+  exe "vnoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).&PROJECT         s<Esc>:call Perl_InsertMacroValue("PROJECT")<CR>a'
   "
   exe "amenu <silent>  ".g:Perl_Root.'&Comments.&vim\ modeline           :call Perl_CommentVimModeline()<CR>'
 
@@ -831,7 +840,46 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "amenu          ".g:Perl_Root.'&Run.-SEP4-                     :'
   exe "amenu <silent> ".g:Perl_Root.'&Run.run\ perltid&y                        :call Perl_Perltidy("n")<CR>'
   exe "vmenu <silent> ".g:Perl_Root.'&Run.run\ perltid&y                   <C-C>:call Perl_Perltidy("v")<CR>'
-  exe "amenu <silent> ".g:Perl_Root.'&Run.run\ S&mallProf                       :call Perl_Smallprof()<CR><CR>'
+	
+	if s:MSWIN
+		exe "amenu <silent> ".g:Perl_Root.'&Run.run\ S&mallProf                         :call Perl_Smallprof()<CR>'
+	else
+		"
+		" Perl_SmallProfSortQuickfix needs sort(1)
+		"
+		if g:Perl_MenuHeader == "yes"
+			exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.Profiler     <Nop>'
+			exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.-Sep41-       :'
+			exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&SmallProf.SmallProf     <Nop>'
+			exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&SmallProf.-Sep411-       :'
+			exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&FastProf.FastProf     <Nop>'
+			exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&FastProf.-Sep412-       :'
+			exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.NYTProf     <Nop>'
+			exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.-Sep413-       :'
+		endif
+		"
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&SmallProf.&run\ profiler                         :call perlsupportprofiling#Perl_Smallprof()<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&SmallProf.sort\ report:\ &file\ name             :call perlsupportprofiling#Perl_SmallProfSortQuickfix("file-name")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&SmallProf.sort\ report:\ &line\ number           :call perlsupportprofiling#Perl_SmallProfSortQuickfix("line-number")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&SmallProf.sort\ report:\ line\ &count            :call perlsupportprofiling#Perl_SmallProfSortQuickfix("line-count")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&SmallProf.sort\ report:\ &wall\ time\ (time)     :call perlsupportprofiling#Perl_SmallProfSortQuickfix("time")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&SmallProf.sort\ report:\ &cpu\ time\ \ (ctime)   :call perlsupportprofiling#Perl_SmallProfSortQuickfix("ctime")<CR>'
+		"                                                  
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&FastProf.&run\ profiler                          :call perlsupportprofiling#Perl_Fastprof()<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&FastProf.sort\ report:\ &file\ name              :call perlsupportprofiling#Perl_FastProfSortQuickfix("file-name")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&FastProf.sort\ report:\ &line\ number            :call perlsupportprofiling#Perl_FastProfSortQuickfix("line-number")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&FastProf.sort\ report:\ &time                    :call perlsupportprofiling#Perl_FastProfSortQuickfix("time")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&FastProf.sort\ report:\ line\ &count             :call perlsupportprofiling#Perl_FastProfSortQuickfix("line-count")<CR>'
+		"                                                  
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.&run\ profiler                          :call perlsupportprofiling#Perl_NYTprof()<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.read\ &CSV\ file                        :call perlsupportprofiling#Perl_NYTprofReadCSV()<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.sort\ report:\ &file\ name              :call perlsupportprofiling#Perl_NYTProfSortQuickfix("file-name")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.sort\ report:\ &line\ number            :call perlsupportprofiling#Perl_NYTProfSortQuickfix("line-number")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.sort\ report:\ &time                    :call perlsupportprofiling#Perl_NYTProfSortQuickfix("time")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.sort\ report:\ &calls                   :call perlsupportprofiling#Perl_NYTProfSortQuickfix("calls")<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf.sort\ report:\ t&ime/call               :call perlsupportprofiling#Perl_NYTProfSortQuickfix("time-call")<CR>'
+		"
+	endif
 
   exe "amenu          ".g:Perl_Root.'&Run.-SEP3-                     :'
   exe "amenu <silent> ".g:Perl_Root.'&Run.run\ perl&critic                      :call Perl_Perlcritic()<CR>:call Perl_PerlcriticMsg()<CR>'
@@ -887,3 +935,5 @@ function! perlsupportgui#Perl_InitMenu ()
   endif
   "
 endfunction   " ---------- end of function  Perl_InitMenu  ----------
+"
+" vim: tabstop=2 shiftwidth=2 foldmethod=marker
