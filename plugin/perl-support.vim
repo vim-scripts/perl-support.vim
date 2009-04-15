@@ -57,7 +57,7 @@
 if exists("g:Perl_Version") || &compatible
  finish
 endif
-let g:Perl_Version= "4.1"
+let g:Perl_Version= "4.1.1"
 "
 "###############################################################################################
 "
@@ -1284,7 +1284,7 @@ function! Perl_RereadTemplates ()
     call Perl_ReadTemplates(s:Perl_GlobalTemplateFile)
     echomsg "templates rebuilt from '".s:Perl_GlobalTemplateFile."'"
 		"
-		if s:installation == 'system' && filereadable( s:Perl_LocalTemplateFile )
+		if !s:MSWIN && s:installation == 'system' && filereadable( s:Perl_LocalTemplateFile )
 			call Perl_ReadTemplates( s:Perl_LocalTemplateFile )
 			echomsg " and from '".s:Perl_LocalTemplateFile."'"
 		endif
@@ -2336,7 +2336,7 @@ endfunction    " ----------  end of function Perl_InitializePerlInterface  -----
 "  READ THE TEMPLATE FILES
 "------------------------------------------------------------------------------
 call Perl_ReadTemplates(s:Perl_GlobalTemplateFile)
-if s:installation == 'system' && filereadable( s:Perl_LocalTemplateFile )
+if !s:MSWIN && s:installation == 'system' && filereadable( s:Perl_LocalTemplateFile )
 	call Perl_ReadTemplates( s:Perl_LocalTemplateFile )
 endif
 "
