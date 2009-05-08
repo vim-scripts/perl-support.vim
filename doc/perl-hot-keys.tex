@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2003-2009  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  see \Pluginversion
 %%      Created:  06.06.2003
-%%     Revision:  $Id: perl-hot-keys.tex,v 1.20 2009/03/11 16:39:45 mehner Exp $
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.25 2009/04/20 18:33:52 mehner Exp $
 %%                
 %%=====================================================================================
 
@@ -25,8 +25,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{4.1}
-\newcommand{\ReleaseDate}{ March 2009}
+\newcommand{\Pluginversion}{4.2}
+\newcommand{\ReleaseDate}{ April 2009}
 
 %%----------------------------------------------------------------------
 %%  fancyhdr
@@ -144,38 +144,15 @@ Fritz Mehner (mehner@fh-swf.de)\\
 \hline \verb'\sd'  & \verb'do { } while'               \hfill (n, v, i)\\
 \hline \verb'\sf'  & \verb'for { }'                    \hfill (n, v, i)\\
 \hline \verb'\sfe' & \verb'foreach { }'                \hfill (n, v, i)\\
-\hline \verb'\sei' & \verb'elsif { }'                  \hfill (n, v, i)\\
 \hline \verb'\si'  & \verb'if { }'                     \hfill (n, v, i)\\
 \hline \verb'\sie' & \verb'if { } else { }'            \hfill (n, v, i)\\
+\hline \verb'\se'  & \verb'else { }'                   \hfill (n, v, i)\\
+\hline \verb'\sei' & \verb'elsif { }'                  \hfill (n, v, i)\\
 \hline \verb'\su'  & \verb'unless { }'                 \hfill (n, v, i)\\
 \hline \verb'\sue' & \verb'unless { } else { }'        \hfill (n, v, i)\\
 \hline \verb'\st'  & \verb'until { }'                  \hfill (n, v, i)\\
 \hline \verb'\sw'  & \verb'while { }'                  \hfill (n, v, i)\\
 \hline \verb'\s{'  & \verb'{ }'                        \hfill (n, v, i)\\
-\hline
-%%----------------------------------------------------------------------
-%%  snippet menu
-%%----------------------------------------------------------------------
-\hline
-\multicolumn{2}{|r|}{\textsl{S\textbf{n}ippet}}             \\
-\hline \verb'\nr'  & read code snippet         \hfill (n)   \\
-\hline \verb'\nw'  & write code snippet        \hfill (n, v)\\
-\hline \verb'\nw'  & edit code snippet         \hfill (n)   \\
-%
-\hline \verb'\ntl' & edit local templates      \hfill (n)   \\
-\hline \verb'\ntg' & edit global templates     \hfill (n)   \\
-\hline \verb'\ntr' & reread the templates      \hfill (n)   \\
-\hline
-%%----------------------------------------------------------------------
-%%  menu regex menu
-%%----------------------------------------------------------------------
-\hline
-\multicolumn{2}{|r|}{\textsl{Regular E\textbf{x}pressions}} \\
-\hline \verb'\xr' &  pick up Regex             \hfill (n, v)\\
-\hline \verb'\xs' &  pick up string            \hfill (n, v)\\
-\hline \verb'\xf' &  pick up flag(s)           \hfill (n, v)\\
-\hline \verb'\xm' &  match                     \hfill (n)   \\
-\hline \verb'\xe' &  explain Regex             \hfill (n, v)\\
 \hline
 %%----------------------------------------------------------------------
 %%  menu idioms
@@ -194,10 +171,24 @@ Fritz Mehner (mehner@fh-swf.de)\\
 \hline \verb'\is'  & \verb'$ =~ s///xm'        \hfill (n, i)   \\
 \hline \verb'\it'  & \verb'$ =~ tr///xm'       \hfill (n, i)   \\
 \hline \verb'\isu' & \verb'subroutine'         \hfill (n, v, i)\\
+       \verb'\ifu' &                           \hfill (n, v, i)\\
 \hline \verb'\ip'  & \verb'print "...\n";'     \hfill (n ,i)   \\
 \hline \verb'\ii'  & open input file           \hfill (n, v, i)\\
 \hline \verb'\io'  & open output file          \hfill (n, v, i)\\
 \hline \verb'\ipi' & open pipe                 \hfill (n, v, i)\\
+\hline
+%%----------------------------------------------------------------------
+%%  snippet menu
+%%----------------------------------------------------------------------
+\hline
+\multicolumn{2}{|r|}{\textsl{S\textbf{n}ippet}}             \\
+\hline \verb'\nr'  & read code snippet         \hfill (n)   \\
+\hline \verb'\nw'  & write code snippet        \hfill (n, v)\\
+\hline \verb'\nw'  & edit code snippet         \hfill (n)   \\
+%
+\hline \verb'\ntl' & edit local templates      \hfill (n)   \\
+\hline \verb'\ntg' & edit global templates     \hfill (n)   \\
+\hline \verb'\ntr' & reread the templates      \hfill (n)   \\
 \hline
 \end{tabular}\\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
@@ -208,6 +199,18 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
 \begin{tabular}[]{|p{11mm}|p{58mm}|}
+%%----------------------------------------------------------------------
+%%  menu regex menu
+%%----------------------------------------------------------------------
+\hline
+\multicolumn{2}{|r|}{\textsl{Regular E\textbf{x}pressions}} \\
+\hline \verb'\xr' &  pick up Regex                 \hfill (n, v)\\
+\hline \verb'\xs' &  pick up string                \hfill (n, v)\\
+\hline \verb'\xf' &  pick up flag(s)               \hfill (n, v)\\
+\hline \verb'\xm' &  match                         \hfill (n)   \\
+\hline \verb'\xmm'&  match multiple (Regex/target) \hfill (n)   \\
+\hline \verb'\xe' &  explain Regex                 \hfill (n, v)\\
+\hline
 %%----------------------------------------------------------------------
 %%  menu Posix character classes
 %%----------------------------------------------------------------------

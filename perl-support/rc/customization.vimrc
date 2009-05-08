@@ -4,7 +4,7 @@
 "       AUTHOR:  Dr.-Ing. Fritz Mehner
 "      VERSION:  1.0
 "      CREATED:  23.05.2008
-"     REVISION:  --
+"     REVISION:  $Id: customization.vimrc,v 1.8 2009/04/03 09:54:21 mehner Exp $
 "===================================================================================
 "
 "===================================================================================
@@ -22,6 +22,7 @@ set nocompatible
 " Also load indent files, to automatically do language-dependent indenting.
 "-------------------------------------------------------------------------------
 filetype  plugin on
+filetype  indent on
 "
 "-------------------------------------------------------------------------------
 " Switch syntax highlighting on.
@@ -161,11 +162,9 @@ nnoremap  <C-q>    :wqall<CR>
 "-------------------------------------------------------------------------------
 " perl-support.vim
 "-------------------------------------------------------------------------------
-let g:Perl_AuthorName   = 'Dr.-Ing. Fritz Mehner'     
-let g:Perl_AuthorRef    = 'Mn'                         
-let g:Perl_Company      = 'Fachhochschule Südwestfalen, Iserlohn'    
-let g:Perl_Email        = 'mehner@fh-swf.de'            
-"                         
+"            
+" --empty --
+"
 "-------------------------------------------------------------------------------
 " plugin taglist.vim : toggle the taglist window
 " plugin taglist.vim : define the tag file entry for Perl

@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.1.1) / April 15 2009
+README for perl-support.vim (Version 4.2) / April 26 2009
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -54,11 +54,11 @@ for LINUX/UNIX ($VIM/vimfiles/ for Windows; find the value of $VIM with
 
     Please read the documentation to fully understand the template system.
 
-    The files customization.vimrc and customization.gvimrc are replacements or 
+(4) The files customization.vimrc and customization.gvimrc are replacements or 
     extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
     You may want to use parts of them. The files are documented. 
 
-(4) Consider additional settings in the file '$HOME/.vimrc'.
+(5) Consider additional settings in the file '$HOME/.vimrc'.
     The files customization.vimrc and customization.gvimrc are replacements or 
     extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
     You may want to use parts of them. The files are documented. 
@@ -98,10 +98,20 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.1.1
+  RELEASE NOTES FOR VERSION 4.2
 ---------------------------------------------------------------------------------------
++ Regex Analyser extended: check several regular expressions against several targets.
++ Regex Analyser extended: regular expressions with  match-time code evaluation possible.
++ Regex Analyser extended: g-modifier allowed; all matches will be shown.
++ Regex Analyser extended: qr/.../ can be picked up.
++ Comments menu: adjustment of end-of-line comments improved.
++ Statements menu: else block (key mapping \se).
++ Regex menu: new special variables (Perl 5.10)
++ Templates: handling of <SPLIT> improved.
 + Bugfix (Windows only): templates will be loaded twice, generating a long list 
   of error messages.
++ Bugfix: Perl::Tags integration not working.
++ Minor improvements and bugfixes.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

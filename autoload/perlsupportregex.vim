@@ -10,8 +10,8 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.3 2009/02/22 18:43:16 mehner Exp $
-"       License:  Copyright 2008 Dr. Fritz Mehner
+"      Revision:  $Id: perlsupportregex.vim,v 1.17 2009/05/08 09:13:02 mehner Exp $
+"       License:  Copyright 2008-2009 Dr. Fritz Mehner
 "===============================================================================
 "
 " Exit quickly when:
@@ -111,6 +111,8 @@ endfunction    " ----------  end of function Perl_RegexCodeEvaluation  ---------
 
 "------------------------------------------------------------------------------
 "   pick up string or regular expression     {{{1
+"   item : regexp | string
+"   mode : n | v
 "------------------------------------------------------------------------------
 function! perlsupportregex#Perl_RegexPick ( item, mode )
   "
@@ -132,10 +134,52 @@ function! perlsupportregex#Perl_RegexPick ( item, mode )
   if a:mode == 'v'
     " copy item to the yank-register (Windows has no selection register)
     normal gvy
-    let s:Perl_PerlRegexVisualize_{a:item}  = eval('@"')
+    let line  = eval('@"')
+    let line  = substitute( line, "\n$", '', '' )
+    let s:Perl_PerlRegexVisualize_{a:item}  = line
   endif
   "
-  echomsg a:item." : '".s:Perl_PerlRegexVisualize_{a:item}."'"
+  "-------------------------------------------------------------------------------
+  " try to separate the regular expression and the flags in representations
+  " like ' m{^[A-Z]{1,3}-[A-Z]{1,3}-[1-9][0-9]{0,3}$}xm   '
+  "-------------------------------------------------------------------------------
+  "
+  let showtheflags  = ''
+  if a:item == 'regexp' 
+    "
+    " optional 'm' followed by '/' or '?'
+    let mlist = matchlist( line, '^\s*\(m\|qr\)\?\([/?]\)\(.*\)\(\2\)\([imsxg]*\)\s*$' )
+    if empty(mlist)
+      " 'm' followed by any delimiter
+      let mlist = matchlist( line, '^\s*\(m\|qr\)\(.\)\(.*\)\(\2\|[})\]>]\)\([imsxg]*\)\s*$' )
+    endif
+    "
+    if  len(mlist) >= 5  && 
+  \   ( 
+  \        ( mlist[2] == mlist[4] ) 
+  \     || ( mlist[2] == "{" && mlist[4] == "}" ) 
+  \     || ( mlist[2] == "(" && mlist[4] == ")" ) 
+  \     || ( mlist[2] == "[" && mlist[4] == "]" ) 
+  \     || ( mlist[2] == "<" && mlist[4] == ">" ) 
+  \   )
+      let s:Perl_PerlRegexVisualize_{a:item}  = mlist[3]
+      let s:Perl_PerlRegexVisualizeFlag       = mlist[5]
+      let showtheflags                        = "flag(s) = '".mlist[5]."' | "
+    endif
+    "
+  endif
+  "
+  let message = s:Perl_PerlRegexVisualize_{a:item}
+  let message = substitute( message, '\t', '<Tab>', 'g' )
+  let message = substitute( message, '\n', '<CR>', 'g' )
+  let message = showtheflags.a:item." = '".message."'"
+
+  if len(message) < &columns
+    :redraw | echomsg message
+  else
+    :redraw | echomsg message[:&columns-6].' ...'
+  endif
+  "
 endfunction    " ----------  end of function Perl_RegexPick  ----------
 "
 "------------------------------------------------------------------------------
@@ -147,9 +191,9 @@ function! perlsupportregex#Perl_RegexPickFlag ( mode )
     normal gvy
     let s:Perl_PerlRegexVisualizeFlag = eval('@"')
   else
-    let s:Perl_PerlRegexVisualizeFlag = Perl_Input("regex modifier(s) [imsx] : ", s:Perl_PerlRegexVisualizeFlag , '')
+    let s:Perl_PerlRegexVisualizeFlag = Perl_Input("regex modifier(s) [imsxg] : ", s:Perl_PerlRegexVisualizeFlag , '')
   endif
-  let s:Perl_PerlRegexVisualizeFlag=substitute(s:Perl_PerlRegexVisualizeFlag, '[^imsx]', '', 'g')
+  let s:Perl_PerlRegexVisualizeFlag=substitute(s:Perl_PerlRegexVisualizeFlag, '[^imsxg]', '', 'g')
   echomsg "regex modifier(s) : '".s:Perl_PerlRegexVisualizeFlag."'"
 endfunction    " ----------  end of function Perl_RegexPickFlag  ----------
 "
@@ -183,16 +227,10 @@ function! perlsupportregex#Perl_RegexVisualize( )
 
   my  @substchar= split //, VIM::Eval('g:Perl_PerlRegexSubstitution');
 
-  if ( VIM::Eval('s:Perl_PerlRegexCodeEvaluation') eq 'on' ) {
-    ##use re 'eval';
-    ##no strict "vars";
+    use re 'eval';
     use utf8;                                   # Perl pragma to enable/disable UTF-8 in source
+
     regex_evaluate();
-    }
-  else {
-    use utf8;                                   # Perl pragma to enable/disable UTF-8 in source
-    regex_evaluate();
-    }
 
     #===  FUNCTION  ================================================================
     #         NAME:  regex_evaluate
@@ -219,6 +257,8 @@ function! perlsupportregex#Perl_RegexVisualize( )
       my  $format4    = "lines : %-3d         = %s\n";
       my  $format5    = "%-9s     [%3d] =%s\n";
       my  $format6    = "%-9s undefined\n";
+      my  $format7    = "%-9s           =%s\n";
+      my  $format8    = "%3d.MATCH [%3d,%3d] =%s\n";
       my  $linecount  = 1;
       my  $lineruler;
       my  $result     = '';
@@ -242,48 +282,113 @@ function! perlsupportregex#Perl_RegexVisualize( )
         #---------------------------------------------------------------------------
         #  match (single line / multiline)
         #---------------------------------------------------------------------------
-        if (   $string =~ m{(?$flag:$regexp)}   ) {
+        my  $gflag  = 0;
+        my  $prematch;
+        my  $match;
+        my  $postmatch;
+        my  $lastSubmatchResult;
+        my  $lastParenMatch;
+        my  $lastRegexpCodeResult;
+        my  @lastMatchStart;
+        my  @lastMatchEnd;
+        my  @parenMatch;
+        my  @hit;
+        my  @hit_start;
+        my  @hit_length;
+
+        $^R = undef;
+        if ( $flag =~ m{g} ) {
+          $gflag  = 1;
+          $flag =~ s/g//;
+          while ( $string =~ m{(?$flag:$regexp)}g ) {
+            push @hit, $&;
+            push @hit_start, $-[0];
+            push @hit_length, $+[0]-$-[0];
+            $prematch             = $`;
+            $match                = $&;
+            $postmatch            = $';
+            $lastSubmatchResult   = $^N;
+            $lastParenMatch       = $+;
+            $lastRegexpCodeResult = $^R;
+            @lastMatchStart       = @-;
+            @lastMatchEnd         = @+;
+            }
+          }
+        else {
+          @hit                  = ( $string =~ m{(?$flag:$regexp)} );
+          $prematch             = $`;
+          $match                = $&;
+          $postmatch            = $';
+          $lastSubmatchResult   = $^N;
+          $lastParenMatch       = $+;
+          $lastRegexpCodeResult = $^R;
+          @lastMatchStart       = @-;
+          @lastMatchEnd         = @+;
+          }
+
+        if (  @hit   ) {
           #
           # print the prematch, if not empty
           #
-          if ( $` ne '' ) {
-            $result .= sprintf $format2, 'prematch', 0, length $`,
-             marker_string( 0, prepare_stringout($`) );
+          if ( $prematch ne '' ) {
+            $result .= sprintf $format2, 'prematch', 0, length $prematch,
+             marker_string( 0, prepare_stringout($prematch) );
             }
           #
           # print the match
           #
-          $result .= sprintf $format2, 'MATCH', $-[0], length $&,
-           marker_string( $-[0], prepare_stringout($&) );
+          if ( defined $match ) {
+            $result .= sprintf $format2, 'MATCH', $lastMatchStart[0], length $match,
+            marker_string( $lastMatchStart[0], prepare_stringout($match) );
+            }
           #
           # print the postmatch, if not empty
           #
-          if ( $' ne '' ) {
-            $result .= sprintf $format2, 'postmatch', $+[0], length $',
-            marker_string( $+[0],  prepare_stringout($') );
+          if ( $postmatch ne '' ) {
+            $result .= sprintf $format2, 'postmatch', $lastMatchEnd[0], length $postmatch,
+            marker_string( $lastMatchEnd[0],  prepare_stringout($postmatch) );
             }
           $result .= "\n";
           #
           # print the numbered variables $1, $2, ...
           #
-          foreach my $n ( 1 .. (scalar( @-) -1) ) {
-            if ( defined eval( "\$$n" ) ) {
-            $result .= sprintf $format2, "\$$n", $-[$n], $+[$n] - $-[$n],
-              marker_string( $-[$n], prepare_stringout(substr( $string, $-[$n], $+[$n] - $-[$n] )) );
+          foreach my $n ( 1 .. (scalar( @lastMatchStart ) -1) ) {
+            if ( defined $hit[$n-1] ) {
+            $result .= sprintf $format2, "  \$$n", $lastMatchStart[$n], $lastMatchEnd[$n] - $lastMatchStart[$n],
+              marker_string( $lastMatchStart[$n], 
+                              prepare_stringout(substr( $string, $lastMatchStart[$n], $lastMatchEnd[$n] - $lastMatchStart[$n] )) );
               }
             else {
-            $result .= sprintf $format6, "\$$n";
+            $result .= sprintf $format6, "  \$$n";
               }
           }
           $result .= "\n";
           #
-          # print $+, $^N, $LAST_SUBMATCH_RESULT (only if not equal $+ )
+          # print $lastMatchEnd, $lastSubmatchResult, $LAST_SUBMATCH_RESULT (only if not equal $lastMatchEnd )
           #
-          if ( defined $+ && defined $^N && "$+" ne "$^N" ) {
-            $result .= sprintf $format5, '$+', length $+,
-                        marker_string( 0, prepare_stringout($+) );
-            $result .= sprintf $format5, '$^N', length $^N,
-                      marker_string( 0, prepare_stringout($^N) );
+          if ( defined $lastParenMatch && 
+               defined $lastSubmatchResult && 
+               $lastParenMatch ne $lastSubmatchResult 
+              ) {
+            $result .= sprintf $format5, '  $^N', length $lastSubmatchResult,
+                      marker_string( 0, prepare_stringout($lastSubmatchResult) );
+            }
+          #
+          # print last Regexp code result (if any)
+          #
+          if( defined $lastRegexpCodeResult ) {
+            $result .= sprintf $format7, '  $^R', marker_string( 0, prepare_stringout($lastRegexpCodeResult) );
+            }
+          #
+          # /g modifier
+          #
+          if ( $gflag == 1 ) {
+            my  $hitcount = 0;
+            foreach my $hit ( @hit ) {
+              $result .= sprintf $format8, ($hitcount+1), $hit_start[$hitcount], $hit_length[$hitcount],
+              marker_string( $hit_start[$hitcount], prepare_stringout($hit) );
+              $hitcount++;
+              }
             }
           #
           # show the control character replacement (if any)
@@ -291,13 +396,12 @@ function! perlsupportregex#Perl_RegexVisualize( )
           if ( $string ne $stringout ) {
             $result .= "\nControl character replacement: \\n -> '$substchar[0]'   \\t -> '$substchar[1]'"
             }
-
           #
           # do not assign matches containing ticks for coloring
           #
-          if ( $` !~ m{'} && $& !~ m{'} && $' !~ m{'} ) {
-            VIM::DoCommand("let s:Perl_PerlRegexPrematch  = '".prepare_stringout($`)."' ");
-            VIM::DoCommand("let s:Perl_PerlRegexMatch     = '".prepare_stringout($&)."' ");
+          if ( $prematch !~ m{'} && $match !~ m{'} && $postmatch !~ m{'} ) {
+            VIM::DoCommand("let s:Perl_PerlRegexPrematch  = '".prepare_stringout($prematch)."' ");
+            VIM::DoCommand("let s:Perl_PerlRegexMatch     = '".prepare_stringout($match)."' ");
             }
           else {
             VIM::DoCommand("let s:Perl_PerlRegexPrematch  = '' ");
@@ -431,6 +535,118 @@ EOF
   endif
 
 endfunction    " ----------  end of function Perl_RegexVisualize  ----------
+"
+"------------------------------------------------------------------------------
+"   visualize regular expression     {{{1
+"------------------------------------------------------------------------------
+function! perlsupportregex#Perl_RegexMatchSeveral( )
+  if !has('perl')
+    echomsg "*** Your version of Vim was not compiled with Perl interface. ***"
+    return
+  endif
+
+  let l:currentbuffernr = bufnr("%")
+  if bufloaded(s:Perl_PerlRegexVisualizeBufferName) != 0 && bufwinnr(s:Perl_PerlRegexVisualizeBufferNumber) != -1
+    silent exe bufwinnr(s:Perl_PerlRegexVisualizeBufferNumber) . "wincmd w"
+    " buffer number may have changed, e.g. after a 'save as'
+  else
+    silent exe ":topleft new ".s:Perl_PerlRegexVisualizeBufferName
+    let s:Perl_PerlRegexVisualizeBufferNumber=bufnr("%")
+    setlocal buftype=nofile
+    setlocal noswapfile
+    setlocal bufhidden=delete
+    setlocal syntax=OFF
+  endif
+  "
+  " remove content if any:
+  silent normal ggdG
+
+  perl <<EOF
+
+    use re 'eval';
+    use utf8;                                   # Perl pragma to enable/disable UTF-8 in source
+
+    regex_evaluate_multiple();
+
+    #===  FUNCTION  ================================================================
+    #         NAME:  regex_evaluate_multiple
+    #      PURPOSE:  evaluate regex with multiple targets, write result into a buffer
+    #   PARAMETERS:  ---
+    #      RETURNS:  ---
+    #===============================================================================
+    sub regex_evaluate_multiple {
+
+      my ( $regexp, $string, $flag );
+      my  $regexp1;
+      my  @string;
+      my  @regexp;
+      my  $result     = '';
+      my  $format3    = "\n%2d. REGEXP = m{%s}%s\n\n";
+      my  $rgxcounter = 0;
+      my  $linecount  = 0;
+      my  $matchstr;
+      my  $matchcount;
+
+      $flag     = VIM::Eval('s:Perl_PerlRegexVisualizeFlag');
+      $string   = VIM::Eval('s:Perl_PerlRegexVisualize_string') || '';
+      $regexp   = VIM::Eval('s:Perl_PerlRegexVisualize_regexp');
+
+      utf8::decode($string);
+      utf8::decode($regexp);
+
+      if ( defined($regexp) && $regexp ne '' ) {
+
+        @regexp = $flag =~ m/x/ ? ( $regexp ) : ( split '\n', $regexp );
+        @string = $flag =~ m/m/ ? ( $string ) : ( split '\n', $string );
+
+        foreach my $rgx ( @regexp ) {
+
+          $regexp1    = join "\n           ", ( split /\n/, $rgx );
+          $result    .= sprintf $format3, ++$rgxcounter, $regexp1, $flag;
+          $linecount  = 0;
+          $matchcount = 0;
+
+          foreach my $str ( @string ) {
+            $matchstr = $str =~ m{(?$flag:$rgx)} ? ( $matchcount++, '<MATCH>' ) : '       ';
+            $result .= sprintf "%4d %s %s\n", ++$linecount, $matchstr, splitstr($str, $flag);
+          }
+          $result .= sprintf "\n   -----  matches: %d/%d  -----\n", $matchcount, $linecount;
+
+        }
+
+        $curbuf->Append( 0, split(/\n/,$result) ); # put the result to the top of the buffer
+      }
+      else {
+        VIM::DoCommand("echomsg 'regexp is not defined or has zero length'");
+      }
+        return ;
+    } # ----------  end of subroutine regex_evaluate_multiple  ----------
+
+    #===  FUNCTION  ================================================================
+    #         NAME:  splitstr
+    #      PURPOSE:  arrange single-line and multi-line targets for printing
+    #===============================================================================
+    sub splitstr {
+    my  ( $s, $f )  = @_;                       # string, flag
+    my  $result = $s;                           # single-line target 
+    if ( $f =~ m/m/ ) {                         # flag 'm' ?
+      $result = join "'\n             '", split /\n/, $s;
+      }
+    return "'$result'";
+    } # ----------  end of subroutine splitstr  ----------
+EOF
+  "
+  if line('$') == 1
+    :close
+    return
+  endif
+  normal gg
+
+  if winheight(winnr()) >= line("$")
+    exe bufwinnr(l:currentbuffernr) . "wincmd w"
+  endif
+
+endfunction    " ----------  end of function Perl_RegexMatchSeveral  ----------
 "
 "-------------------------------------------------------------------------------
 "   read the substitution characters for \n, \t,  ... from the command line

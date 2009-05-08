@@ -4,7 +4,7 @@
 "       AUTHOR:  Dr.-Ing. Fritz Mehner
 "      VERSION:  1.0
 "      CREATED:  23.05.2008
-"     REVISION:  --
+"     REVISION:  $Id: customization.gvimrc,v 1.5 2009/04/04 08:26:53 mehner Exp $
 "===================================================================================
 "
 "===================================================================================
@@ -21,7 +21,6 @@ highlight NonText  guibg=grey80
 highlight Constant gui=NONE     guibg=grey95
 highlight Special  gui=NONE     guibg=grey95
 
-let c_comment_strings=1   " highlight strings inside C comments
 "
 "-------------------------------------------------------------------------------
 " Moving cursor to other windows:

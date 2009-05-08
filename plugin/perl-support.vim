@@ -49,7 +49,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.69 2009/03/16 20:56:46 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.78 2009/05/08 09:19:55 mehner Exp $
 "------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -57,7 +57,7 @@
 if exists("g:Perl_Version") || &compatible
  finish
 endif
-let g:Perl_Version= "4.1.1"
+let g:Perl_Version= "4.2"
 "
 "###############################################################################################
 "
@@ -141,7 +141,8 @@ else
 endif
 "
 let g:Perl_PluginDir	= s:plugin_dir        " used for communication with ftplugin/perl.vim
-let g:Perl_PerlTags		= 'enabled'						" enable use of Perl::Tags
+"
+call PerlSetGlobalVariable( 'Perl_PerlTags', 'enabled' )
 "
 "  Key word completion is enabled by the filetype plugin 'perl.vim'
 "  g:Perl_Dictionary_File  must be global
@@ -149,6 +150,8 @@ let g:Perl_PerlTags		= 'enabled'						" enable use of Perl::Tags
 if !exists("g:Perl_Dictionary_File")
   let g:Perl_Dictionary_File       = s:plugin_dir.'perl-support/wordlists/perl.list'
 endif
+"
+let g:Perl_PerlTagsTempfile	= ''
 "
 "  Modul global variables (with default values) which can be overridden.     {{{1
 "
@@ -179,14 +182,19 @@ let s:Perl_Printheader           = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page 
 let s:Perl_Wrapper                 = s:plugin_dir.'perl-support/scripts/wrapper.sh'
 let s:Perl_EfmPerl                 = s:plugin_dir.'perl-support/scripts/efm_perl.pl'
 let s:Perl_PerlModuleListGenerator = s:plugin_dir.'perl-support/scripts/pmdesc3.pl'
+"
 "------------------------------------------------------------------------------
 "
 "  Look for global variables (if any), to override the defaults.
 "
 call PerlSetLocalVariable("Perl_Ctrl_j                 ")
 call PerlSetLocalVariable("Perl_Debugger               ")
+call PerlSetLocalVariable("Perl_FormatDate             ")
+call PerlSetLocalVariable("Perl_FormatTime             ")
+call PerlSetLocalVariable("Perl_FormatYear             ")
 call PerlSetLocalVariable("Perl_LineEndCommColDefault  ")
 call PerlSetLocalVariable("Perl_LoadMenus              ")
+call PerlSetLocalVariable("Perl_NYTProf_html           ")
 call PerlSetLocalVariable("Perl_PerlcriticOptions      ")
 call PerlSetLocalVariable("Perl_PerlcriticSeverity     ")
 call PerlSetLocalVariable("Perl_PerlcriticVerbosity    ")
@@ -196,11 +204,8 @@ call PerlSetLocalVariable("Perl_PodcheckerWarnings     ")
 call PerlSetLocalVariable("Perl_Printheader            ")
 call PerlSetLocalVariable("Perl_ProfilerTimestamp      ")
 call PerlSetLocalVariable("Perl_Template_Directory     ")
+call PerlSetLocalVariable("Perl_TemplateOverwrittenMsg ")
 call PerlSetLocalVariable("Perl_XtermDefaults          ")
-call PerlSetLocalVariable("Perl_FormatDate             ")
-call PerlSetLocalVariable("Perl_FormatTime             ")
-call PerlSetLocalVariable("Perl_FormatYear             ")
-call PerlSetLocalVariable("Perl_NYTProf_html           ")
 "
 let s:Perl_PerlcriticMsg     = ""
 let s:Perl_PodCheckMsg       = ""
@@ -354,9 +359,15 @@ function! Perl_AlignLineEndComm ( mode ) range
 	while linenumber <= pos1
 		let	line= getline(".")
 		"
-		" look for a Perl comment; do not match $#arrayname
-		let idx1	= 1 + match( line, '\s*\$\@<!#.*$' )
-		let idx2	= 1 + match( line,    '\$\@<!#.*$' )
+		if     match( line, '^\s*#' ) == 0
+			" comment with leading whitespaces
+			let idx1	= 0
+			let idx2	= 0
+		else
+			" look for a Perl comment; do not match $#arrayname
+			let idx1	= 1 + match( line, '\s*\$\@<!#.*$' )
+			let idx2	= 1 + match( line,    '\$\@<!#.*$' )
+		endif
 
 		let	ln	= line(".")
 		call setpos(".", [ 0, ln, idx1, 0 ] )
@@ -755,6 +766,8 @@ function! Perl_perldoc()
     endif
     setlocal nomodifiable
     redraw!
+		" highlight the headlines
+		:match Search '^\S.*$'
   endif
 endfunction   " ---------- end of function  Perl_perldoc  ----------
 "
@@ -1573,7 +1586,12 @@ function! Perl_InsertTemplate ( key, ... )
 				return
 			endif
 
-			let part	= split( val, '<SPLIT>' )
+			if match( val, '<SPLIT>\s*\n' ) >= 0
+				let part	= split( val, '<SPLIT>\s*\n' )
+			else
+				let part	= split( val, '<SPLIT>' )
+			endif
+
 			if len(part) < 2
 				let part	= [ "" ] + part
 				echomsg 'SPLIT missing in template '.a:key
@@ -1613,7 +1631,7 @@ function! Perl_InsertTemplate ( key, ... )
 				exe "normal ".ins."=="
 			endif
 			"
-		endif
+		endif		" ---------- end visual mode
 	endif
 
 	" restore formatter programm
@@ -1624,14 +1642,19 @@ function! Perl_InsertTemplate ( key, ... )
   "------------------------------------------------------------------------------
   exe ":".pos1
   let mtch = search( '<CURSOR>', 'c', pos2 )
-  if mtch != 0
-    if  matchend( getline(mtch) ,'<CURSOR>') == match( getline(mtch) ,"$" )
-      normal 8x
-      :startinsert!
-    else
-      normal 8x
-      :startinsert
-    endif
+	if mtch != 0
+		let line	= getline(mtch)
+		if line =~ '<CURSOR>$'
+			call setline( mtch, substitute( line, '<CURSOR>', '', '' ) )
+			if  a:0 != 0 && a:1 == 'v' && getline(".") =~ '^\s*$'
+				normal J
+			else
+				:startinsert!
+			endif
+		else
+			call setline( mtch, substitute( line, '<CURSOR>', '', '' ) )
+			:startinsert
+		endif
 	else
 		" to the end of the block; needed for repeated inserts
 		if mode == 'below'
@@ -2257,6 +2280,24 @@ function! Perl_RemoveGuiMenus ()
     let s:Perl_MenuVisible = 0
   endif
 endfunction    " ----------  end of function Perl_RemoveGuiMenus  ----------
+
+"------------------------------------------------------------------------------
+"  Perl_do_tags     {{{1
+"  tag a new file (Perl::Tags)
+"------------------------------------------------------------------------------
+function! Perl_do_tags( filename, tagfile )
+	perl <<EOF
+	my $filename	= VIM::Eval('a:filename');
+
+	$naive_tagger->process(files => $filename, refresh=>1 );
+
+	my $tagsfile	= VIM::Eval('a:tagfile');
+	VIM::SetOption("tags+=$tagsfile");
+
+	# of course, it may not even output, for example, if there's nothing new to process
+	$naive_tagger->output( outfile => $tagsfile );
+EOF
+endfunction    " ----------  end of function Perl_do_tags  ----------
 "
 "------------------------------------------------------------------------------
 "  show / hide the menus
@@ -2283,7 +2324,11 @@ if has("autocmd")
 
 	autocmd BufNewFile  *.pl  call Perl_InsertTemplate('comment.file-description-pl')
 	autocmd BufNewFile  *.pm  call Perl_InsertTemplate('comment.file-description-pm')
-	autocmd BufNewFile  *.t   call Perl_InsertTemplate('comment.file-description-t') 
+	autocmd BufNewFile  *.t   call Perl_InsertTemplate('comment.file-description-t')
+
+	if g:Perl_PerlTags == 'enabled'
+		autocmd BufRead,BufWritePost *.pm,*.pl,*.t	call Perl_do_tags( expand('%'), g:Perl_PerlTagsTempfile )
+	endif
 
 	autocmd BufRead  *.pl  call Perl_HighlightJumpTargets()
 	autocmd BufRead  *.pm  call Perl_HighlightJumpTargets()
@@ -2329,7 +2374,23 @@ function! Perl_InitializePerlInterface( )
 		#
 EOF
 
-	endif
+		if g:Perl_PerlTags == 'enabled'
+			perl <<EOF
+					# ---------------------------------------------------------------
+					# initialize Perl::Tags usage
+					# ---------------------------------------------------------------
+					eval "require Perl::Tags";
+					if ( $@ ) {
+						VIM::DoCommand("let g:Perl_PerlTags = 'disabled' ");
+					}
+					else {
+						$naive_tagger = Perl::Tags::Naive->new( max_level=>2 );
+						# only go one level down by default
+					}
+EOF
+		endif " ----- g:Perl_PerlTags == 'enabled'
+
+	endif		" ----- has('perl')
 endfunction    " ----------  end of function Perl_InitializePerlInterface  ----------
 "
 "------------------------------------------------------------------------------

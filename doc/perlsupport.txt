@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                   March 16 2009
+*perlsupport.txt*                Perl Support                  April 26 2009
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.1
+                              Plugin version 4.2
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -34,9 +34,14 @@ profiler can be done with a keystroke.
  1.5.1     Compose regular expressions    |perlsupport-regex-compose|
  1.5.2     Explain regular expression     |perlsupport-regex-explain|
  1.5.3     Match                          |perlsupport-regex-match|
- 1.5.4     Submenu 'CharCls'              |perlsupport-regex-charcls|
- 1.5.5     Submenu 'Unicode property'     |perlsupport-regex-unicodeprop|
- 1.5.6     Submenu 'extended Regex'       |perlsupport-regex-ext|
+ 1.5.3.1    Visual mode                   |perlsupport-regex-visual-mode|
+ 1.5.3.2    Multiline strings             |perlsupport-regex-match-multiline|
+ 1.5.3.3    Modifier g                    |perlsupport-regex-modifier-g|
+ 1.5.3.4    Normal mode                   |perlsupport-regex-normal-mode|
+ 1.5.4     Match multiple                 |perlsupport-regex-match-multiple|
+ 1.5.5     Submenu 'CharCls'              |perlsupport-regex-charcls|
+ 1.5.6     Submenu 'Unicode property'     |perlsupport-regex-unicodeprop|
+ 1.5.7     Submenu 'extended Regex'       |perlsupport-regex-ext|
  1.6      Menu 'File-Tests'               |perlsupport-filetests|
  1.7      Menu 'Spec-Var'                 |perlsupport-specvar|
  1.8      Menu 'POD'                      |perlsupport-pod|
@@ -315,6 +320,13 @@ marks the cursor position after insertion):
   |  }                       |  }                            |
   |                          |                               |
   +--------------------------+-------------------------------+
+  |                          |                               |
+  |  else {                  |                               |
+  |    xxxxx                 |                               |
+  |    xxxxx                 |                               |
+  |  }                       |                               |
+  |                          |                               |
+  +--------------------------+-------------------------------+
 
 The whole statement will be indented after insertion.
 
@@ -476,7 +488,8 @@ course.
 If you have a Vim binary with Perl interface compiled in (see |perl|) you can
 test regular expressions very easily. This can be done in two ways.
 
-(1) Visual mode. Pick up a regular expression by selecting the appropriate
+1.5.3.1  VISUAL MODE                           *perlsupport-regex-visual-mode*
+Pick up a regular expression by selecting the appropriate
 string (v-mode; e.g.  inside the m// operator) and use the menu entry 'pick up
 regex'.  Pick up flags the same way with 'pick up flags'. Now pick up a string
 as target with 'pick up string' and select the menu entry 'match'. The regular
@@ -490,10 +503,10 @@ REGEX-TEST:
   MATCH     [  3, 45] =   | The quick brown fox jumped over the lazy dog|
   postmatch [ 48,  5] =                                                 . ###
 
-  $1        [  3, 21] =   | The quick brown fox |
-  $2        [ 24,  6] =                         jumped
-  $3        [ 30,  6] =                              | over |
-  $4        [ 36, 12] =                                     the lazy dog
+    $1      [  3, 21] =   | The quick brown fox |
+    $2      [ 24,  6] =                         jumped
+    $3      [ 30,  6] =                              | over |
+    $4      [ 36, 12] =                                     the lazy dog
 
 In addition the match will be highlighted in most cases. The match is done as
   $string =~ m{(?flags:$regexp)}
@@ -510,6 +523,22 @@ allowed. They work properly if the flag 'x' is set.
                   \d+
                   }x
 
+The most-recently-closed capturing parenthesis submatch ($^N) will be
+displayed if it differs from the last parenthesized submatch ($+).
+
+ REGEXP = m{(a|b)((a|b)(a|b))}
+ 
+ STRING    [  0,  3] = aba 
+ MATCH     [  0,  3] = aba
+ 
+   $1      [  0,  1] = a
+   $2      [  1,  2] =  ba
+   $3      [  1,  1] =  b
+   $4      [  2,  1] =   a
+ 
+   $^N         [  2] = ba
+
+1.5.3.2  MULTILINE STRINGS                 *perlsupport-regex-match-multiline*
 Multiline strings are also allowed.  The regular expression '(\n+)$' matches
 consecutive linefeeds at the end of a string or inside a string when used with
 the flag 'm'.  The string in the following example consists of the 6 lines
@@ -533,7 +562,7 @@ With the flag 'm' matching gives the following visualization:
   MATCH     [ 25,  1] =                          $
   postmatch [ 26,  6] =                           $eeee$
 
-  $1        [ 25,  1] =                          $
+    $1      [ 25,  1] =                          $
 
 
   Control character replacement: \n -> '$'   \t -> '~'
@@ -554,24 +583,41 @@ Linefeeds will now be replaced by '#' (the first character of the given pair),
 tabulators will be replaced by a space. Control characters are not allowed as
 replacements.
 
-Last parenthesized submatch ($+) and  most-recently-closed capturing
-parenthesis submatch ($^N). If the two results differ both are displayed:
+1.5.3.3  MODIFIER g                             *perlsupport-regex-modifier-g*
 
-  REGEXP = m{(Version: (.*)|Revision: (.*))}
+The modifier 'g' can be used. The match operator
 
-  STRING    [  0, 25] = ##   Revision:    5-6-pre
-  prematch  [  0,  5] =|##   |
-  MATCH     [  5, 20] =      Revision:    5-6-pre
+ m/(\d\d)/g
 
-  $1        [  5, 20] =      Revision:    5-6-pre
-  $2        undefined
-  $3        [ 15, 10] =               |   5-6-pre|
+applied to the string 
 
-  $+            [ 10] =|   5-6-pre|
-  $^N           [ 20] = Revision:    5-6-pre
+ 'aaa 1234567890 BBB 123'
+
+gives the following result:
+
+REGEXP = m{(\d\d)}g
+
+STRING    [  0, 22] = aaa 1234567890 BBB 123 
+prematch  [  0, 19] =|aaa 1234567890 BBB |
+MATCH     [ 19,  2] =                    12
+postmatch [ 21,  1] =                      3
+
+  $1      [ 19,  2] =                    12
+
+  1.MATCH [  4,  2] =     12
+  2.MATCH [  6,  2] =       34
+  3.MATCH [  8,  2] =         56
+  4.MATCH [ 10,  2] =           78
+  5.MATCH [ 12,  2] =             90
+  6.MATCH [ 19,  2] =                    12
+
+The match is done in a loop. Prematch, match and postmatch belong to the last
+match in this loop. All consecutive matches will be appended to the the
+submatches and the last code result.
 
 
-(2) Normal mode. You can use a scratch buffer or a scratch area to test your
+1.5.3.4  NORMAL MODE                           *perlsupport-regex-normal-mode*
+You can use a scratch buffer or a scratch area to test your
 regular expressions. Just write the naked regular expression in one line and
 the string on the next line:
 
@@ -579,7 +625,7 @@ the string on the next line:
   ### The quick brown fox jumped over the lazy dog. ###
 
 Now select 'pick up regex', 'pick up string', and 'match' in normal mode
-or use the hotkeys \xr, \xs, and \xm .
+or use the hotkeys \xr, \xs, \xm and \xmm .
 Leading and trailing whitespaces are removed from the regex and target string
 if picked up in normal mode. If one of these strings has such whitespaces pick
 it up in visual mode.
@@ -589,25 +635,94 @@ internal variables. After a change you have just to renew the changed item.
 The variable for the regular expression and for the flags is also used by the
 menu entry 'explain regex' (see|perlsupport-regex-explain|).
 
-Pick up flag(s)                                      *perlsupport-regex-flags*
+PICK UP FLAG(S)                                      *perlsupport-regex-flags*
 
 The menu item 'pick up flag(s)' asks for one of the regular expression flags
 'imsx' or any combination of them (hotkeys \xf ). You can also mark flags in
 visual mode and pick the selection up. Characters other than the allowed flags
 will be removed.
 
-LIMITATION. Regular expressions with  match-time code evaluation can not be
-handled in the current version.
+PICKING UP A MATCH OPERATOR m// WITH FLAGS
 
-1.5.4  SUBMENU  'CharCls'                          *perlsupport-regex-charcls*
+If a complete match operator (with flags, if any) is picked up, the plugin
+will try to seperate the regular expression and the flags from this line(s).
+This form is often be found in the code and saves marking the flags as an
+additional action.  The recognized flags and the regular expression will be
+shown in a message. The following forms are allowed (flags are optional):
+
+   /<regex>/<flags>    ?<regex>?<flags> 
+  m/<regex>/<flags>   m?<regex>?<flags> 
+
+  m<delimiter><regex><delimiter><flags>
+
+  m{<regex>}<flags> 
+  m(<regex>)<flags> 
+  m[<regex>]<flags> 
+  m<<regex>><flags> 
+
+Multiline expressions are also possible.
+
+
+1.5.4  MATCH MULTIPLE                       *perlsupport-regex-match-multiple*
+---------------------
+If you have a Vim binary with Perl interface compiled in (see |perl|) you can
+test several targets with several regular expressions:
+
+(1) Pick up one or more marked lines with 'pick up regex' or with \xr.
+
+(2) Pick up one or more target strings with 'pick up string' or \xs.
+
+(3) Pick up flags (if any) the same way with 'pick up flags' or \xf.
+
+(4) Select the menu entry 'match multiple' or use \xmm.
+
+The regular expressions, the targets and the matches are shown in a new window
+called REGEX-TEST:
+
+
+ 1. REGEXP = m{^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$}
+
+   1         'abc123'
+   2 <MATCH> 'BA99342bob'
+   3         '1232z123311'
+   4         'abcdef'
+   5         '123456'
+   6         '123'ABC'
+
+   -----  matches: 1/6  -----
+
+ 2. REGEXP = m{^(?=.*\d)(?=.*[a-zA-Z])(?!.*[\W_\x7B-\xFF]).{6,15}$}
+
+   1 <MATCH> 'abc123'
+   2 <MATCH> 'BA99342bob'
+   3 <MATCH> '1232z123311'
+   4         'abcdef'
+   5         '123456'
+   6         '123'ABC'
+
+   -----  matches: 3/6  -----
+
+This example shows two password validator expressions tested against 6
+passwords. The matches are marked.
+
+The following rules apply:
+
+ If several lines are selected as regular expression and the flag 'x' is set or
+ found, this lines are used as one extented expression.
+
+ If several lines are selected as targets and the flag 'm' is set or
+ found, this lines are used as one multiline target.
+
+
+1.5.5  SUBMENU  'CharCls'                          *perlsupport-regex-charcls*
 -------------------------
 The entries from this menus will be inserted at the cursor position.
 
-1.5.5  SUBMENU  'Unicode property'             *perlsupport-regex-unicodeprop*
+1.5.6  SUBMENU  'Unicode property'             *perlsupport-regex-unicodeprop*
 ----------------------------------
 The entries from this menus will be inserted at the cursor position.
 
-1.5.6  SUBMENU  'extended Regex'                       *perlsupport-regex-ext*
+1.5.7  SUBMENU  'extended Regex'                       *perlsupport-regex-ext*
 --------------------------------
 The entries from this menus will be inserted at the cursor position. The items
 have an visual mode too. With 'bbb' marked in the line
@@ -1165,12 +1280,13 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \sfe     foreach { }                       (n,v,i)
   \si      if { }                            (n,v,i)
   \sie     if { } else { }                   (n,v,i)
+  \se      else { }                          (n,v,i)
   \sei     elsif { }                         (n,v,i)
   \su      unless { }                        (n,v,i)
   \sue     unless { } else { }               (n,v,i)
   \st      until { }                         (n,v,i)
   \sw      while { }                         (n,v,i)
-  \s{      { }                               (n,v,i)
+  \s{ \sb  { }                               (n,v,i)
 
   -- Snippets ------------------------------
 
@@ -1207,6 +1323,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \xs      pick up string                    (n,v)
   \xf      pick up flags                     (n,v)
   \xm      match                             (n)
+  \xmm     match multiple                    (n)
   \xe      explain Regex                     (n,v)
 
   -- POSIX Character Classes ---------------
@@ -1767,6 +1884,7 @@ modes are also hard coded (see|perlsupport-templates-definition|for the use of
   statements.foreach                                         normal, visual
   statements.if                                              normal, visual
   statements.elsif                                           normal, visual
+  statements.else                                            normal, visual
   statements.if-else                                         normal, visual
   statements.unless                                          normal, visual
   statements.unless-else                                     normal, visual
