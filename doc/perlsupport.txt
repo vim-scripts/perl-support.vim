@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                  April 26 2009
+*perlsupport.txt*                Perl Support                    Mai 25 2009
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.2
+                              Plugin version 4.3
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -27,9 +27,9 @@ profiler can be done with a keystroke.
  1.3      Menu 'Idioms'                   |perlsupport-idioms|
  1.3.1      Stub subroutine               |perlsupport-stub-sub|
  1.3.2      Opening files                 |perlsupport-open-files|
- 1.4      Menu 'Snippets'                 |perlsupport-snippets|
- 1.4.1     Code Snippets                  |perlsupport-snippets|
- 1.4.2     Code Templates
+ 1.4      Menu 'Snippets'                 |perlsupport-snippets-menu|
+ 1.4.1     Code Snippets                  |perlsupport-snippets-menu|
+ 1.4.2     Code Templates                 |perlsupport-templates-menu|
  1.5      Menu 'Regex'                    |perlsupport-regex|
  1.5.1     Compose regular expressions    |perlsupport-regex-compose|
  1.5.2     Explain regular expression     |perlsupport-regex-explain|
@@ -172,6 +172,8 @@ my  $x111  = 1111;                              # comment 2
 
 my  $x1111 = 11111111;                          # comment 3
 
+The realignment function tries to interpret hash signs inside match and search
+operators not as a start of a comment. This may not be perfect.
 
 1.1.3  TOGGLE COMMENTS                               *perlsupport-comm-toggle*
 ----------------------
@@ -390,7 +392,7 @@ When a block is selected the code for opening a file/pipe will be inserted
 above this block, the close statement will be inserted below.
 
 ------------------------------------------------------------------------------
-1.4 MENU 'Snippets'                                     *perlsupport-snippets*
+1.4 MENU 'Snippets'                                *perlsupport-snippets-menu*
 ------------------------------------------------------------------------------
 
 1.4.1  Code Snippets
@@ -426,7 +428,18 @@ add the file extension "ni" or "noindent" to the snippet file name, e.g.
 There are some snippets belonging to this plugin package. These are examples.
 Add your own.
 
-1.4.2  Code Templates
+Snippet browser
+---------------
+Under a GUI a file requester will be put up. Without GUI the filename will be
+read from the command line. You can change this behavior by setting a global
+variable in your ~/.vimrc :
+
+ let g:Perl_GuiSnippetBrowser = 'commandline'
+
+The default value is 'gui'. 
+
+
+1.4.2  Code Templates                             *perlsupport-templates-menu*
 ---------------------
 Nearly all menu entries insert code snippets or comments. All these stuff is
 taken from template files and can be changed by the user to meet his
@@ -443,6 +456,16 @@ The menu item 'edit global templates' opens the main template file in a
 system-wide plugin installation (see |perlsupport-system-wide|). This is
 usually the file '$VIM./vimfiles/perl-support/templates/Templates'.
 
+Template browser
+----------------
+Under a GUI a file requester will be put up. Without GUI the filename will be
+read from the command line. You can change this behavior by setting a global
+variable in your ~/.vimrc :
+
+ let g:Perl_GuiTemplateBrowser = 'explorer'
+
+The default value is 'gui'. 'explorer' will start the file explorer
+(see help|:Explore|). To use the commandline asign 'commandline'.
 
 ------------------------------------------------------------------------------
 1.5  MENU 'Regex'                                          *perlsupport-regex*
@@ -1514,6 +1537,8 @@ g:Perl_LoadMenus               'yes'
 g:Perl_Dictionary_File         ''
 g:Perl_Root                    '&Perl.'
 g:Perl_MenuHeader              'yes'
+g:Perl_GuiSnippetBrowser       'gui'
+g:Perl_GuiTemplateBrowser      'gui'
 
 g:Perl_PerlModuleList          root_dir.'perl-support/modules/perl-modules.list'
 g:Perl_PerlModuleListGenerator root_dir.'perl-support/scripts/pmdesc3.pl'
@@ -1545,13 +1570,15 @@ The variable root_dir will automatically be set to one of the following values:
            g:Perl_TemplateOverwrittenMsg  : message if a template is overwritten
            g:Perl_Ctrl_j                  : hotkey Ctrl-j  'on'/'off' (see|perlsupport-Ctrl-j|)
 
- 2. group: g:Perl_CodeSnippets    : The name of the code snippet directory (see below).
-           g:Perl_LoadMenus       : Load menus and mappings ("yes", "no") at startup.
-           g:Perl_Dictionary_File : Path and filename of the Perl word list used for
-                                    dictionary completion (see below).
-           g:Perl_Root            : The name of the root menu item of this plugin
-                                    (see below).
-           g:Perl_MenuHeader      : Switch submenu titles on/off.
+ 2. group: g:Perl_CodeSnippets       : The name of the code snippet directory (see below).
+           g:Perl_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
+           g:Perl_Dictionary_File    : Path and filename of the Perl word list used for
+                                       dictionary completion (see below).
+           g:Perl_Root               : The name of the root menu item of this plugin
+                                       (see below).
+           g:Perl_MenuHeader         : Switch submenu titles on/off.
+           g:Perl_GuiSnippetBrowser  : code snippet browser: 'gui', 'commandline'
+           g:Perl_GuiTemplateBrowser : code template browser: 'gui', 'explorer', 'commandline' 
 
  3. group: g:Perl_PerlModuleList          : The name of the Perl module list (text file,
                                             see below).
@@ -2161,11 +2188,6 @@ statement like
 a CTRL-] let you jump into the file GnuplotIF.pm.  An easy way back is with
 the CTRL-T command.  See also the module documentation on how to use
 Perl::Tags.
-
-The script perl-support/scripts/perltags.vim (which is drawn from the
-Perl::Tags documentation) will be loaded from the filetype plugin
-'ftplugin/perl.vim'. The tag files will be created in '/tmp'. MS-Windows user
-have possibly to create this directory.
 
 
 ==============================================================================

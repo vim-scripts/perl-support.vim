@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.52 2009/04/02 19:37:38 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.53 2009/05/25 08:06:11 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -22,8 +22,8 @@ let s:MSWIN = has("win16") || has("win32")   || has("win64")    || has("win95")
 "  Uncomment the next two lines to force these settings for all files with
 "  filetype 'perl' .
 "
-"setlocal  tabstop=4
-"setlocal  shiftwidth=4
+setlocal  tabstop=4
+setlocal  shiftwidth=4
 "
 " ---------- Add ':' to the keyword characters -------------------------------
 "            Tokens like 'File::Find' are recognized as
@@ -86,11 +86,6 @@ if has("gui_running")
   "
    map    <buffer>  <silent>  <S-F1>             :call Perl_perldoc()<CR><CR>
   imap    <buffer>  <silent>  <S-F1>        <C-C>:call Perl_perldoc()<CR><CR>
-endif
-"
-if !exists("g:Perl_Ctrl_j") || ( exists("g:Perl_Ctrl_j") && g:Perl_Ctrl_j != 'off' )
-  nmap    <buffer>  <silent>  <C-j>    i<C-R>=Perl_JumpCtrlJ()<CR>
-  imap    <buffer>  <silent>  <C-j>     <C-R>=Perl_JumpCtrlJ()<CR>
 endif
 "
 "-------------------------------------------------------------------------------
@@ -390,4 +385,9 @@ endif
 "-------------------------------------------------------------------------------
 inoremap    <buffer>  {<CR>  {<CR>}<Esc>O
 vnoremap    <buffer>  {<CR> s{<CR>}<Esc>kp=iB
+"
+if !exists("g:Perl_Ctrl_j") || ( exists("g:Perl_Ctrl_j") && g:Perl_Ctrl_j != 'off' )
+  nmap    <buffer>  <silent>  <C-j>    i<C-R>=Perl_JumpCtrlJ()<CR>
+  imap    <buffer>  <silent>  <C-j>     <C-R>=Perl_JumpCtrlJ()<CR>
+endif
 " ----------------------------------------------------------------------------

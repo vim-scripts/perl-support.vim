@@ -1,4 +1,20 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.2
+---------------------------------------------------------------------------------------
++ Regex Analyser extended: check several regular expressions against several targets.
++ Regex Analyser extended: regular expressions with  match-time code evaluation possible.
++ Regex Analyser extended: g-modifier allowed; all matches will be shown.
++ Regex Analyser extended: qr/.../ can be picked up.
++ Comments menu: adjustment of end-of-line comments improved.
++ Statements menu: else block (key mapping \se).
++ Regex menu: new special variables (Perl 5.10)
++ Templates: handling of <SPLIT> improved.
++ Bugfix (Windows only): templates will be loaded twice, generating a long list 
+  of error messages.
++ Bugfix: Perl::Tags integration not working.
++ Minor improvements and bugfixes.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.1
 ---------------------------------------------------------------------------------------
 + Additional plugin-tags (jump targets in templates): <+text+>, <-text->.

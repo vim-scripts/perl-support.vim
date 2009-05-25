@@ -49,7 +49,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.78 2009/05/08 09:19:55 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.82 2009/05/25 08:07:35 mehner Exp $
 "------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -57,7 +57,7 @@
 if exists("g:Perl_Version") || &compatible
  finish
 endif
-let g:Perl_Version= "4.2"
+let g:Perl_Version= "4.3"
 "
 "###############################################################################################
 "
@@ -178,6 +178,8 @@ let s:Perl_PerlcriticOptions     = ""
 let s:Perl_PerlcriticSeverity    = 3
 let s:Perl_PerlcriticVerbosity   = 5
 let s:Perl_Printheader           = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
+let s:Perl_GuiSnippetBrowser     = 'gui'										" gui / commandline
+let s:Perl_GuiTemplateBrowser    = 'gui'										" gui / explorer / commandline
 "
 let s:Perl_Wrapper                 = s:plugin_dir.'perl-support/scripts/wrapper.sh'
 let s:Perl_EfmPerl                 = s:plugin_dir.'perl-support/scripts/efm_perl.pl'
@@ -187,6 +189,8 @@ let s:Perl_PerlModuleListGenerator = s:plugin_dir.'perl-support/scripts/pmdesc3.
 "
 "  Look for global variables (if any), to override the defaults.
 "
+call PerlSetLocalVariable('Perl_GuiSnippetBrowser      ')
+call PerlSetLocalVariable('Perl_GuiTemplateBrowser     ')
 call PerlSetLocalVariable("Perl_Ctrl_j                 ")
 call PerlSetLocalVariable("Perl_Debugger               ")
 call PerlSetLocalVariable("Perl_FormatDate             ")
@@ -334,6 +338,20 @@ endfunction   " ---------- end of function  Perl_LineEndComment  ----------
 "------------------------------------------------------------------------------
 "  Perl_AlignLineEndComm: adjust line-end comments     {{{1
 "------------------------------------------------------------------------------
+"
+" patterns to ignore when adjusting line-end comments (incomplete):
+let	s:AlignRegex	= [
+	\	'\$#' ,
+	\	'm#[^#]\+#' ,
+	\	'\(m\|qr\)\?\([/?]\)\(.*\)\(\2\)\([imsxg]*\)'  ,
+	\	'\(m\|qr\)\(.\)\(.*\)\(\2\|[})\]>]\)\([imsxg]*\)' ,
+	\	'\(s\|tr\)#[^#]\+#[^#]\+#' ,
+	\	'\(s\|tr\){[^}]\+}{[^}]\+}' ,
+	\	'"[^"]*"' ,
+	\	"'[^']*'" ,
+	\	"`[^`]*`" ,
+	\	]
+
 function! Perl_AlignLineEndComm ( mode ) range
 	"
 	if !exists("b:Perl_LineEndCommentColumn")
@@ -359,16 +377,24 @@ function! Perl_AlignLineEndComm ( mode ) range
 	while linenumber <= pos1
 		let	line= getline(".")
 		"
+		let idx1	= 1 + match( line, '\s*#.*$', 0 )
+		let idx2	= 1 + match( line,    '#.*$', 0 )
+
+		" comment with leading whitespaces
 		if     match( line, '^\s*#' ) == 0
-			" comment with leading whitespaces
 			let idx1	= 0
 			let idx2	= 0
-		else
-			" look for a Perl comment; do not match $#arrayname
-			let idx1	= 1 + match( line, '\s*\$\@<!#.*$' )
-			let idx2	= 1 + match( line,    '\$\@<!#.*$' )
 		endif
 
+		for regex in s:AlignRegex
+			if match( line, regex ) > -1
+				let start	= matchend( line, regex )
+				let idx1	= 1 + match( line, '\s*#.*$', start )
+				let idx2	= 1 + match( line,    '#.*$', start )
+				break
+			endif
+		endfor
+		"
 		let	ln	= line(".")
 		call setpos(".", [ 0, ln, idx1, 0 ] )
 		let vpos1	= virtcol(".")
@@ -583,7 +609,7 @@ function! Perl_CodeSnippet(mode)
     " read snippet file, put content below current line
     "
     if a:mode == "r"
-			if has("gui_running")
+			if has("gui_running") && s:Perl_GuiSnippetBrowser == 'gui'
 				let l:snippetfile=browse(0,"read a code snippet",g:Perl_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("read snippet ", g:Perl_CodeSnippets, "file" )
@@ -605,7 +631,7 @@ function! Perl_CodeSnippet(mode)
     " update current buffer / split window / edit snippet file
     "
     if a:mode == "e"
-			if has("gui_running")
+			if has("gui_running") && s:Perl_GuiSnippetBrowser == 'gui'
 				let l:snippetfile=browse(0,"edit a code snippet",g:Perl_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("edit snippet ", g:Perl_CodeSnippets, "file" )
@@ -618,7 +644,7 @@ function! Perl_CodeSnippet(mode)
     " write whole buffer or marked area into snippet file
     "
     if a:mode == "w" || a:mode == "wv"
-			if has("gui_running")
+			if has("gui_running") && s:Perl_GuiSnippetBrowser == 'gui'
 				let l:snippetfile=browse(0,"write a code snippet",g:Perl_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("write snippet ", g:Perl_CodeSnippets, "file" )
@@ -1304,56 +1330,47 @@ function! Perl_RereadTemplates ()
 endfunction    " ----------  end of function Perl_RereadTemplates  ----------
 
 "------------------------------------------------------------------------------
+"  Perl_BrowseTemplateFiles     {{{1
+"------------------------------------------------------------------------------
+function! Perl_BrowseTemplateFiles ( type )
+	if filereadable( eval( 's:Perl_'.a:type.'TemplateFile' ) )
+		if has("browse") && s:Perl_GuiTemplateBrowser == 'gui'
+			let	l:templatefile	= browse(0,"edit a template file", eval('s:Perl_'.a:type.'TemplateDir'), "" )
+		else
+				let	l:templatefile	= ''
+			if s:Perl_GuiTemplateBrowser == 'explorer'
+				exe ':Explore '.eval('s:Perl_'.a:type.'TemplateDir')
+			endif
+			if s:Perl_GuiTemplateBrowser == 'commandline'
+				let	l:templatefile	= input("edit a template file", eval('s:Perl_'.a:type.'TemplateDir'), "file" )
+			endif
+		endif
+		if l:templatefile != ""
+			:execute "update! | split | edit ".l:templatefile
+		endif
+	else
+		echomsg a:type." template file not readable."
+	endif
+endfunction    " ----------  end of function Perl_BrowseTemplateFiles  ----------
+
+"------------------------------------------------------------------------------
 "  Perl_EditTemplates     {{{1
 "------------------------------------------------------------------------------
 function! Perl_EditTemplates ( type )
 	"
 	if a:type == 'global'
 		if s:installation == 'system'
-			if filereadable( s:Perl_GlobalTemplateFile )
-				if has("browse")
-					let	l:templatefile	= browse(0,"edit a template file",s:Perl_GlobalTemplateDir,"")
-				else
-					let	l:templatefile	= input("edit a template file", s:Perl_GlobalTemplateDir, "file" )
-				endif
-				if l:templatefile != ""
-					:execute "update! | split | edit ".l:templatefile
-				endif
-			else
-				echomsg "global template file not readable"
-			endif
+			call Perl_BrowseTemplateFiles('Global')
 		else
-			echomsg "Perl Support is user installed: no global template file"
+			echomsg "C/C++-Support is user installed: no global template file"
 		endif
 	endif
 	"
 	if a:type == 'local'
 		if s:installation == 'system'
-			if filereadable( s:Perl_LocalTemplateFile )
-				if has("browse")
-					let	l:templatefile	= browse(0,"edit a template file",s:Perl_LocalTemplateDir,"")
-				else
-					let	l:templatefile=input("edit a template file", s:Perl_LocalTemplateDir, "file" )
-				endif
-				if l:templatefile != ""
-					:execute "update! | split | edit ".l:templatefile
-				endif
-			else
-				echomsg "local template file not readable"
-			endif
+			call Perl_BrowseTemplateFiles('Local')
 		else
-			if filereadable( s:Perl_GlobalTemplateFile )
-				if has("browse")
-					let	l:templatefile	= browse(0,"edit a template file",s:Perl_GlobalTemplateDir,"")
-				else
-					let	l:templatefile	= input("edit a template file", s:Perl_GlobalTemplateDir, "file" )
-				endif
-				if l:templatefile != ""
-					:execute "update! | split | edit ".l:templatefile
-				endif
-			else
-				echomsg "local template file not readable"
-			endif
+			call Perl_BrowseTemplateFiles('Global')
 		endif
 	endif
 	"
@@ -2326,10 +2343,6 @@ if has("autocmd")
 	autocmd BufNewFile  *.pm  call Perl_InsertTemplate('comment.file-description-pm')
 	autocmd BufNewFile  *.t   call Perl_InsertTemplate('comment.file-description-t')
 
-	if g:Perl_PerlTags == 'enabled'
-		autocmd BufRead,BufWritePost *.pm,*.pl,*.t	call Perl_do_tags( expand('%'), g:Perl_PerlTagsTempfile )
-	endif
-
 	autocmd BufRead  *.pl  call Perl_HighlightJumpTargets()
 	autocmd BufRead  *.pm  call Perl_HighlightJumpTargets()
 	autocmd BufRead  *.t   call Perl_HighlightJumpTargets() 
@@ -2388,6 +2401,12 @@ EOF
 						# only go one level down by default
 					}
 EOF
+
+		" if g:Perl_PerlTags is still enabled
+		if g:Perl_PerlTags == 'enabled'
+			autocmd BufRead,BufWritePost *.pm,*.pl,*.t	call Perl_do_tags( expand('%'), g:Perl_PerlTagsTempfile )
+		endif
+
 		endif " ----- g:Perl_PerlTags == 'enabled'
 
 	endif		" ----- has('perl')

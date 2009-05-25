@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.2) / April 26 2009
+README for perl-support.vim (Version 4.3) / Mai 25 2009
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -54,11 +54,7 @@ for LINUX/UNIX ($VIM/vimfiles/ for Windows; find the value of $VIM with
 
     Please read the documentation to fully understand the template system.
 
-(4) The files customization.vimrc and customization.gvimrc are replacements or 
-    extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
-    You may want to use parts of them. The files are documented. 
-
-(5) Consider additional settings in the file '$HOME/.vimrc'.
+(4) Consider additional settings in the file '$HOME/.vimrc'.
     The files customization.vimrc and customization.gvimrc are replacements or 
     extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
     You may want to use parts of them. The files are documented. 
@@ -98,20 +94,11 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.2
+  RELEASE NOTES FOR VERSION 4.3
 ---------------------------------------------------------------------------------------
-+ Regex Analyser extended: check several regular expressions against several targets.
-+ Regex Analyser extended: regular expressions with  match-time code evaluation possible.
-+ Regex Analyser extended: g-modifier allowed; all matches will be shown.
-+ Regex Analyser extended: qr/.../ can be picked up.
-+ Comments menu: adjustment of end-of-line comments improved.
-+ Statements menu: else block (key mapping \se).
-+ Regex menu: new special variables (Perl 5.10)
-+ Templates: handling of <SPLIT> improved.
-+ Bugfix (Windows only): templates will be loaded twice, generating a long list 
-  of error messages.
-+ Bugfix: Perl::Tags integration not working.
-+ Minor improvements and bugfixes.
++ File browser for code snippets and templates choosable (2 global variables).
++ Comments menu: adjustment of end-of-line comments further improved.
++ Bugfix: Error message when opening files and Perl::Tags is not installed.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'
@@ -124,6 +111,7 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 README.perlsupport                This file.
 
 autoload/perlsupportgui.vim       Menu definitions.
+autoload/perlsupportprofiling.vim Profiler support.
 autoload/perlsupportregex.vim     Regex analyser code.
 
 doc/perlsupport.txt               The help file for the local online help. 
@@ -138,7 +126,6 @@ perl-support/codesnippets-perl/*  Some Perl code snippets as a starting point.
 perl-support/modules/             Directory for the list of installed Perl modules
 
 perl-support/scripts/efm_perl.pl  Perl script; Reformats the error messages of the Perl interpreter
-perl-support/scripts/perltags.vim Vim script; use Perl::Tags (version 0.23) with Vim
 perl-support/scripts/pmdesc3.pl   Perl script; generates a list of all installed Perl modules
 perl-support/scripts/wrapper.sh   The wrapper script for the use of an xterm.
 

@@ -13,22 +13,21 @@
 #        AUTHOR:  Dr.-Ing. Fritz Mehner (Mn), mehner@fh-swf.de
 #       COMPANY:  Fachhochschule Südwestfalen, Iserlohn
 #       CREATED:  23.11.2004 18:04:01 CET
-#      REVISION:  $Id: wrapper.sh,v 1.3 2007/10/06 14:59:05 mehner Exp $
+#      REVISION:  $Id: wrapper.sh,v 1.4 2009/05/25 16:10:18 mehner Exp $
 #===============================================================================
 
-command=${@}                             # the complete command line
-executable=${1}                          # name of the executable; may be quoted
+command="${@}"                           # the complete command line
+executable="${1}"                        # name of the executable; may be quoted
 
-fullname=$(which $executable)
-[ $? -eq 0 ] && executable=$fullname
+fullname=$(which "$executable")
+[ $? -eq 0 ] && executable="$fullname"
 
 if [ ${#} -ge 1 ] && [ -x "$executable" ]
 then
   shift
-  "$executable" ${@}
+  "$executable" "${@}"
   echo -e "\"${command}\" returned ${?}"
 else
   echo -e "\n  !! file \"${executable}\" does not exist or is not executable !!"
 fi
-echo -e "  ... press return key ... "
-read dummy
+read -p "  ... press return key ... " dummy
