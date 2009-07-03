@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.3) / Mai 25 2009
+README for perl-support.vim (Version 4.4) / July 2 2009
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -94,11 +94,14 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.3
+  RELEASE NOTES FOR VERSION 4.4
 ---------------------------------------------------------------------------------------
-+ File browser for code snippets and templates choosable (2 global variables).
-+ Comments menu: adjustment of end-of-line comments further improved.
-+ Bugfix: Error message when opening files and Perl::Tags is not installed.
+- Hotkeys are shown in the menus.
+- Four hotkeys renamed.
+- Hardcopy (run menu) can print any buffer.
+- Bugfix (Windows only): syntax check for files with pathnames containing
+  blanks not working.
+- Minor improvements.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

@@ -49,7 +49,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.82 2009/05/25 08:07:35 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.84 2009/07/02 18:09:55 mehner Exp $
 "------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -57,7 +57,7 @@
 if exists("g:Perl_Version") || &compatible
  finish
 endif
-let g:Perl_Version= "4.3"
+let g:Perl_Version= "4.4"
 "
 "###############################################################################################
 "
@@ -845,8 +845,8 @@ function! Perl_perldoc_generate_module_list()
   echohl Search
   echo " ... generating Perl module list ... "
   if  s:MSWIN
-    silent exe ":!perl ".s:Perl_PerlModuleListGenerator." > ".s:Perl_PerlModuleList
-    silent exe ":!sort ".s:Perl_PerlModuleList." /O ".s:Perl_PerlModuleList
+    silent exe ":!perl \"".s:Perl_PerlModuleListGenerator."\" > \"".s:Perl_PerlModuleList."\""
+    silent exe ":!sort \"".s:Perl_PerlModuleList."\" /O \"".s:Perl_PerlModuleList."\""
   else
 		" direct STDOUT and STDERR to the module list file :
     silent exe ":!perl ".s:Perl_PerlModuleListGenerator." -s &> ".s:Perl_PerlModuleList
@@ -920,29 +920,32 @@ function! Perl_SyntaxCheck ()
   "
   " avoid filtering the Perl output if the file name does not contain blanks:
   "
-  if l:fullname !~ " "
+	if s:MSWIN && ( l:fullname =~ ' ' ||  s:Perl_EfmPerl =~ ' ' )
+    "
+    " Use tools/efm_perl.pl from the VIM distribution.
+    " This wrapper can handle filenames containing blanks.
+    " Errorformat from tools/efm_perl.pl .
+		" direct call 
+    "
+		let tmpfile = tempname()
+    exe ':setlocal errorformat=%f:%l:%m'
+		silent exe ":!\"".s:Perl_EfmPerl."\" -c % > ".tmpfile
+		exe ":cfile ".tmpfile
+  else
     "
 		" no whitespaces
     " Errorformat from compiler/perl.vim (VIM distribution).
     "
-    exe "set makeprg=perl\\ -cw\\ $*"
+    exe ':set makeprg=perl\ -c'
     exe ':setlocal errorformat=
         \%-G%.%#had\ compilation\ errors.,
         \%-G%.%#syntax\ OK,
         \%m\ at\ %f\ line\ %l.,
         \%+A%.%#\ at\ %f\ line\ %l\\,%.%#,
-        \%+C%.%#'
-  else
-    "
-    " Use tools/efm_perl.pl from the VIM distribution.
-    " This wrapper can handle filenames containing blanks.
-    " Errorformat from tools/efm_perl.pl .
-    "
-    exe "set makeprg=".s:Perl_EfmPerl."\\ -c\\ "
-    exe ':setlocal errorformat=%f:%l:%m'
+       \%+C%.%#'
+	  let	l:fullname	= escape( l:fullname, s:escfilename )
+  	silent exe  ':make -c '.l:fullname
   endif
-
-  silent exe  ":make ".escape( l:fullname, s:escfilename )
 
   exe ":botright cwindow"
   exe ':setlocal errorformat='
@@ -1362,7 +1365,7 @@ function! Perl_EditTemplates ( type )
 		if s:installation == 'system'
 			call Perl_BrowseTemplateFiles('Global')
 		else
-			echomsg "C/C++-Support is user installed: no global template file"
+			echomsg "Perl-Support is user installed: no global template file"
 		endif
 	endif
 	"
@@ -2015,28 +2018,33 @@ endfunction   " ---------- end of function  Perl_SaveWithTimestamp  ----------
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_Hardcopy (mode)
-  let Sou = expand("%")
-  if Sou == ""
+  let outfile = expand("%")
+  if outfile == ""
     redraw
     echohl WarningMsg | echo " no file name " | echohl None
     return
   endif
-  let target  = bufname("%")==s:Perl_PerldocBufferName ? '$HOME/' : './'
-  let Sou     = target.expand("%")
+	let outdir	= getcwd()
+	if filewritable(outdir) != 2
+		let outdir	= $HOME
+	endif
+	if  !s:MSWIN
+		let outdir	= outdir.'/'
+	endif
   let old_printheader=&printheader
   exe  ':set printheader='.s:Perl_Printheader
   " ----- normal mode ----------------
   if a:mode=="n"
-    silent exe  "hardcopy > ".Sou.".ps"
+    silent exe  'hardcopy > '.outdir.outfile.'.ps'
     if  !s:MSWIN
-      echo "file \"".Sou."\" printed to \"".Sou.".ps\""
+      echo 'file "'.outfile.'" printed to "'.outdir.outfile.'.ps"'
     endif
   endif
   " ----- visual mode ----------------
   if a:mode=="v"
-    silent exe  "*hardcopy > ".Sou.".ps"
+    silent exe  "*hardcopy > ".outdir.outfile.".ps"
     if  !s:MSWIN
-      echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
+      echo 'file "'.outfile.'" (lines '.line("'<").'-'.line("'>").') printed to "'.outdir.outfile.'.ps"'
     endif
   endif
   exe  ':set printheader='.escape( old_printheader, ' %' )

@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.3
+---------------------------------------------------------------------------------------
++ File browser for code snippets and templates choosable (2 global variables).
++ Comments menu: adjustment of end-of-line comments further improved.
++ Bugfix: Error message when opening files and Perl::Tags is not installed.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.2
 ---------------------------------------------------------------------------------------
 + Regex Analyser extended: check several regular expressions against several targets.

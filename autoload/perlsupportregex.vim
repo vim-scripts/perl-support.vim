@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.17 2009/05/08 09:13:02 mehner Exp $
+"      Revision:  $Id: perlsupportregex.vim,v 1.18 2009/06/11 09:13:34 mehner Exp $
 "       License:  Copyright 2008-2009 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -297,6 +297,10 @@ function! perlsupportregex#Perl_RegexVisualize( )
         my  @hit_length;
 
         $^R = undef;
+				#-------------------------------------------------------------------------------
+				#  g-modifier present
+				#  @hit will contain the consecutive matches
+				#-------------------------------------------------------------------------------
         if ( $flag =~ m{g} ) {
           $gflag  = 1;
           $flag =~ s/g//;
@@ -314,6 +318,10 @@ function! perlsupportregex#Perl_RegexVisualize( )
             @lastMatchEnd         = @+;
             }
           }
+				#-------------------------------------------------------------------------------
+				#  no g-modifier
+				#  @hit will contain the submatches $1, $2, ... , if any
+				#-------------------------------------------------------------------------------
         else {
           @hit                  = ( $string =~ m{(?$flag:$regexp)} );
           $prematch             = $`;
@@ -352,8 +360,8 @@ function! perlsupportregex#Perl_RegexVisualize( )
           #
           # print the numbered variables $1, $2, ...
           #
-          foreach my $n ( 1 .. (scalar( @lastMatchStart ) -1) ) {
-            if ( defined $hit[$n-1] ) {
+          foreach my $n ( 1 .. $#lastMatchStart ) {
+					  if ( defined $lastMatchStart[$n] ) {
             $result .= sprintf $format2, "  \$$n", $lastMatchStart[$n], $lastMatchEnd[$n] - $lastMatchStart[$n],
               marker_string( $lastMatchStart[$n], 
                               prepare_stringout(substr( $string, $lastMatchStart[$n], $lastMatchEnd[$n] - $lastMatchStart[$n] )) );

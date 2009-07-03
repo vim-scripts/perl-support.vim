@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                    Mai 25 2009
+*perlsupport.txt*                Perl Support                    July 2 2009
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.3
+                              Plugin version 4.4
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -1181,6 +1181,10 @@ The default value is "no".
 ---------------
 Generates a PostScript file from the whole buffer or from a marked region.
 On a MS-Windows system a printer dialog is displayed.
+The hardcopy goes to the current working directory.  If the buffer contains
+Perl documentation or other material from non-writable directories the
+hardcopy goes to the HOME directory. The otput destination will be shown in a
+message.
 
 The print header contains date and time for the current locale. The definition
 used is
@@ -1280,9 +1284,10 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \cfr     frame comment                     (n   i)
   \cfu     function description              (n   i)
   \cm      method description                (n   i)
-  \ch      file header (*.pl)                (n    )
-  \ce      file header (*.pm)                (n    )
-  \ca      file header (*.t)                 (n    )
+  \chpl    file header (*.pl)                (n    )
+  \chpm    file header (*.pm)                (n    )
+  \cht     file header (*.t)                 (n    )
+  \chpo    file header (*.t)                 (n    )
   \ckb     keyword comment BUG               (n   i)
   \ckt     keyword comment TODO              (n   i)
   \ckr     keyword comment TRICKY            (n   i)
@@ -1315,7 +1320,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   \nr      read code snippet                 (n)
   \nw      write code snippet                (n,v)
-  \ne      read code snippet                 (n)
+  \ne      edit code snippet                 (n)
 
   \ntl     edit local template file          (n)
   \ntg     edit global template file         (n)

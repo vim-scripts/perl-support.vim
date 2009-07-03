@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.53 2009/05/25 08:06:11 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.54 2009/06/11 19:29:35 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -115,18 +115,18 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   nnoremap    <buffer>  <silent>  <LocalLeader>cfr        :call Perl_InsertTemplate("comment.frame")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>cfu        :call Perl_InsertTemplate("comment.function")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>cm         :call Perl_InsertTemplate("comment.method")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>ch         :call Perl_InsertTemplate("comment.file-description-pl")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>ce         :call Perl_InsertTemplate("comment.file-description-pm")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>ca         :call Perl_InsertTemplate("comment.file-description-t")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>cp         :call Perl_InsertTemplate("comment.file-description-pod")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>chpl       :call Perl_InsertTemplate("comment.file-description-pl")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>chpm       :call Perl_InsertTemplate("comment.file-description-pm")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>cht        :call Perl_InsertTemplate("comment.file-description-t")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>chpo       :call Perl_InsertTemplate("comment.file-description-pod")<CR>
 
   inoremap    <buffer>  <silent>  <LocalLeader>cfr   <C-C>:call Perl_InsertTemplate("comment.frame")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>cfu   <C-C>:call Perl_InsertTemplate("comment.function")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>cm    <C-C>:call Perl_InsertTemplate("comment.method")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>ch    <C-C>:call Perl_InsertTemplate("comment.file-description-pl")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>ce    <C-C>:call Perl_InsertTemplate("comment.file-description-pm")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>ca    <C-C>:call Perl_InsertTemplate("comment.file-description-t")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>cp    <C-C>:call Perl_InsertTemplate("comment.file-description-pod")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>chpl  <C-C>:call Perl_InsertTemplate("comment.file-description-pl")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>chpm  <C-C>:call Perl_InsertTemplate("comment.file-description-pm")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>cht   <C-C>:call Perl_InsertTemplate("comment.file-description-t")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>chpo  <C-C>:call Perl_InsertTemplate("comment.file-description-pod")<CR>
 
   nnoremap    <buffer>  <silent>  <LocalLeader>ckb        $:call Perl_InsertTemplate("comment.keyword-bug")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>ckt        $:call Perl_InsertTemplate("comment.keyword-todo")<CR>
