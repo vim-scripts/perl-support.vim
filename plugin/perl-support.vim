@@ -32,6 +32,7 @@
 "                  Perl::Critic         (stylechecker)
 "                  Perl::Tags           (generate Ctags style tags)
 "                  Perl::Tidy           (beautifier)
+"                  Pod::Pdf             (Pod to Pdf conversion)
 "                  YAPE::Regex::Explain (regular expression analyzer)
 "
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
@@ -49,7 +50,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.84 2009/07/02 18:09:55 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.88 2009/09/20 16:22:06 mehner Exp $
 "------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -57,7 +58,7 @@
 if exists("g:Perl_Version") || &compatible
  finish
 endif
-let g:Perl_Version= "4.4"
+let g:Perl_Version= "4.5"
 "
 "###############################################################################################
 "
@@ -100,7 +101,7 @@ let s:UNIX	= has("unix")  || has("macunix") || has("win32unix")
 if  s:MSWIN
   " ==========  MS Windows  ======================================================
   let s:plugin_dir  	= $VIM.'\vimfiles\'
-  let s:escfilename 	= ''
+  let s:esc_chars 	  = ''
 	call PerlSetGlobalVariable( 'Perl_CodeSnippets','vim' )
   "
 	let s:Perl_Display  = ''
@@ -132,7 +133,7 @@ else
   endif
 
 	"
-	let s:escfilename = ' \%#[]'
+	let s:esc_chars   = ' \%#[]'
   "
 	call PerlSetGlobalVariable( 'Perl_CodeSnippets', s:Perl_root_dir.'/perl-support/codesnippets/' )
 	"
@@ -166,6 +167,7 @@ let s:Perl_Ctrl_j								 = 'on'
 let s:Perl_FormatDate						 = '%x'
 let s:Perl_FormatTime						 = '%X'
 let s:Perl_FormatYear						 = '%Y'
+let s:Perl_TimestampFormat       = '%Y%m%d.%H%M%S'
 
 let s:Perl_Template_Directory    = s:plugin_dir.'perl-support/templates/'
 let s:Perl_PerlModuleList        = s:plugin_dir.'perl-support/modules/perl-modules.list'
@@ -196,8 +198,10 @@ call PerlSetLocalVariable("Perl_Debugger               ")
 call PerlSetLocalVariable("Perl_FormatDate             ")
 call PerlSetLocalVariable("Perl_FormatTime             ")
 call PerlSetLocalVariable("Perl_FormatYear             ")
+call PerlSetLocalVariable("Perl_TimestampFormat        ")
 call PerlSetLocalVariable("Perl_LineEndCommColDefault  ")
 call PerlSetLocalVariable("Perl_LoadMenus              ")
+call PerlSetLocalVariable("Perl_NYTProf_browser        ")
 call PerlSetLocalVariable("Perl_NYTProf_html           ")
 call PerlSetLocalVariable("Perl_PerlcriticOptions      ")
 call PerlSetLocalVariable("Perl_PerlcriticSeverity     ")
@@ -884,7 +888,8 @@ function! Perl_Settings ()
 	endif
 	" ----- dictionaries ------------------------
   if g:Perl_Dictionary_File != ""
-    let ausgabe = substitute( g:Perl_Dictionary_File, ",", ",\n                          + ", "g" )
+		let ausgabe= &dictionary
+    let ausgabe = substitute( ausgabe, ",", ",\n                          + ", "g" )
     let txt     = txt."       dictionary file(s) :  ".ausgabe."\n"
   endif
   let txt = txt."    current output dest.  :  ".g:Perl_OutputGvim."\n"
@@ -943,7 +948,7 @@ function! Perl_SyntaxCheck ()
         \%m\ at\ %f\ line\ %l.,
         \%+A%.%#\ at\ %f\ line\ %l\\,%.%#,
        \%+C%.%#'
-	  let	l:fullname	= escape( l:fullname, s:escfilename )
+	  let	l:fullname	= fnameescape( l:fullname )
   	silent exe  ':make -c '.l:fullname
   endif
 
@@ -1015,7 +1020,7 @@ endfunction    " ----------  end of function Perl_Toggle_Gvim_Xterm ----------
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_PerlSwitches ()
-  let filename = escape(expand("%"),s:escfilename)
+  let filename = fnameescape( expand("%:p") )
   if filename == ""
     redraw
     echohl WarningMsg | echo " no file name " | echohl None
@@ -1040,7 +1045,7 @@ let s:Perl_OutputBufferNumber = -1
 function! Perl_Run ()
   "
   if &filetype != "perl"
-    echohl WarningMsg | echo expand("%").' seems not to be a Perl file' | echohl None
+    echohl WarningMsg | echo expand("%:p").' seems not to be a Perl file' | echohl None
     return
   endif
   let buffername  = expand("%")
@@ -1052,7 +1057,7 @@ function! Perl_Run ()
   let l:arguments       = exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
   let l:switches        = exists("b:Perl_Switches") ? b:Perl_Switches.' ' : ""
   let l:currentbuffer   = bufname("%")
-  let l:fullname        = escape( expand("%:p"), s:escfilename )
+  let l:fullname        = fnameescape( expand("%:p") )
   "
   silent exe ":update"
   silent exe ":cclose"
@@ -1145,7 +1150,7 @@ function! Perl_Debugger ()
   "
   silent exe  ":update"
   let l:arguments = exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
-  let Sou         = escape( expand("%"), s:escfilename )
+  let Sou         = fnameescape( expand("%:p") )
   "
   if  s:MSWIN
     let l:arguments = substitute( l:arguments, '^\s\+', ' ', '' )
@@ -1159,9 +1164,9 @@ function! Perl_Debugger ()
       silent exe "!perl -d \"".Sou.l:arguments."\""
     else
       if has("gui_running") || &term == "xterm"
-        silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d ./'.Sou.l:arguments.' &'
+        silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d '.Sou.l:arguments.' &'
       else
-        silent exe '!clear; perl -d ./'.Sou.l:arguments
+        silent exe '!clear; perl -d '.Sou.l:arguments
       endif
     endif
   endif
@@ -1174,7 +1179,7 @@ function! Perl_Debugger ()
       if  s:MSWIN
         silent exe "!perl -d:ptkdb \"".Sou.l:arguments."\""
       else
-        silent exe '!perl -d:ptkdb  ./'.Sou.l:arguments.' &'
+        silent exe '!perl -d:ptkdb  '.Sou.l:arguments.' &'
       endif
     endif
     "
@@ -1187,7 +1192,7 @@ function! Perl_Debugger ()
         echohl None
         return
       else
-        silent exe '!ddd ./'.Sou.l:arguments.' &'
+        silent exe '!ddd '.Sou.l:arguments.' &'
       endif
     endif
     "
@@ -1200,7 +1205,7 @@ endfunction   " ---------- end of function  Perl_Debugger  ----------
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_Arguments ()
-  let filename = escape(expand("%"),s:escfilename)
+  let filename = fnameescape( expand("%") )
   if filename == ""
     redraw
     echohl WarningMsg | echo " no file name " | echohl None
@@ -1237,7 +1242,7 @@ endfunction   " ---------- end of function  Perl_XtermSize  ----------
 "  Only on systems where execute permission is implemented
 "------------------------------------------------------------------------------
 function! Perl_MakeScriptExecutable ()
-  let filename  = escape( expand("%:p"), s:escfilename )
+  let filename  = fnameescape( expand("%:p") )
   if executable(filename) == 0                  " not executable
     silent exe "!chmod u+x ".filename
     redraw
@@ -1270,7 +1275,7 @@ function! Perl_PodCheck ()
 
   exe ':setlocal errorformat=***\ %m\ at\ line\ %l\ in\ file\ %f'
 
-  let l:fullname        = escape( expand("%:p"), s:escfilename )
+  let l:fullname        = fnameescape( expand("%:p") )
   "
 	if  s:MSWIN
 		silent exe  ":make \"".l:fullname."\""
@@ -1301,19 +1306,31 @@ endfunction   " ---------- end of function  Perl_PodCheckMsg  ----------
 "  run : POD -> html / man / text     {{{1
 "------------------------------------------------------------------------------
 function! Perl_POD ( format )
-  let filename  = escape( expand("%:p"), s:escfilename )
-  let target	  = escape( expand("%:p:r"), s:escfilename ).'.'.a:format
-  silent exe  ":update"
-	if  s:MSWIN
-		if a:format=='html'
-			silent exe  ":!pod2".a:format." \"--infile=".filename."\" \"--outfile=".target."\""
-		else
-			silent exe  ":!pod2".a:format." \"".filename."\" \"".target."\""
-		endif
+	let	source		= fnameescape( expand("%:p"),  )
+	let	path			= fnameescape( expand("%:p:h") )
+  let filename  = fnameescape( expand("%:p:t") )
+	if filewritable(path) == 2
+		" source directory is writable
+		let target	  = source.'.'.a:format
 	else
-		silent exe  ":!pod2".a:format." ".filename." > ".target
+		" source directory is NOT writable : write to $HOME
+		let target	  = $HOME.'/'.filename.'.'.a:format
 	endif
-  echo  " '".target."' generated"
+  silent exe  ":update"
+	if executable( 'pod2'.a:format )
+		if  s:MSWIN
+			if a:format=='html'
+				silent exe  ":!pod2".a:format." \"--infile=".source."\" \"--outfile=".target."\""
+			else
+				silent exe  ":!pod2".a:format." \"".source."\" \"".target."\""
+			endif
+		else
+			silent exe  ":!pod2".a:format." ".source." > ".target
+		endif
+		echo  "file '".target."' generated"
+	else
+		echomsg 'Application "pod2'.a:format.'" does not exist or is not executable.'
+	endif
 endfunction   " ---------- end of function  Perl_POD  ----------
 
 "------------------------------------------------------------------------------
@@ -1922,10 +1939,11 @@ let s:Perl_perltidy_module_executable      = 'no'
 function! Perl_Perltidy (mode)
 
   let Sou   = expand("%")               " name of the file in the current buffer
-  if &filetype != "perl"
-    echohl WarningMsg | echo Sou.' seems not to be a Perl file' | echohl None
-    return
-  endif
+	if   (&filetype != 'perl') && 
+				\ ( a:mode != 'v' || input( "'".Sou."' seems not to be a Perl file. Continue (y/n) : " ) != 'y' ) 
+		echomsg "'".Sou."' seems not to be a Perl file."
+		return
+	endif
   "
   " check if perltidy start script is executable
   "
@@ -1972,6 +1990,7 @@ function! Perl_Perltidy (mode)
   endif
   " ----- visual mode ----------------
   if a:mode=="v"
+
     let pos1  = line("'<")
     let pos2  = line("'>")
     if  s:MSWIN
@@ -1995,11 +2014,11 @@ endfunction   " ---------- end of function  Perl_Perltidy  ----------
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_SaveWithTimestamp ()
-  let file   = escape( expand("%"), s:escfilename ) " name of the file in the current buffer
+  let file   = fnameescape( expand("%") ) " name of the file in the current buffer
   if file == ""
 		" do we have a quickfix buffer : syntax errors / profiler report
 		if &filetype == 'qf'
-			let file	= s:Perl_CWD.'/Quickfix-List'
+			let file	= getcwd().'/Quickfix-List'
 		else
 			redraw
 			echohl WarningMsg | echo " no file name " | echohl None
@@ -2122,14 +2141,14 @@ function! Perl_Perlcritic ()
 	"
   exe  ':set makeprg=perlcritic\ -severity\ '.s:Perl_PerlcriticSeverity
       \                      .'\ -verbose\ '.eval("s:PCverbosityFormat".s:Perl_PerlcriticVerbosity)
-      \                      .'\ '.escape( s:Perl_PerlcriticOptions, s:escfilename )
+      \                      .'\ '.escape( s:Perl_PerlcriticOptions, s:esc_chars )
 	"
   exe  ':setlocal errorformat='.eval("s:PCerrorFormat".s:Perl_PerlcriticVerbosity)
   "
 	if  s:MSWIN
-		silent exe ':make "'.escape( expand("%:p"), s:escfilename )."\""
+		silent exe ':make "'.fnameescape( expand("%:p") )."\""
 	else
-		silent exe ':make '.escape( expand("%:p"), s:escfilename )
+		silent exe ':make '.fnameescape( expand("%:p") )
 	endif
   "
 	redraw!

@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.4) / July 2 2009
+README for perl-support.vim (Version 4.5) / October 4 2009
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -94,13 +94,15 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.4
+  RELEASE NOTES FOR VERSION 4.5
 ---------------------------------------------------------------------------------------
-- Hotkeys are shown in the menus.
-- Four hotkeys renamed.
-- Hardcopy (run menu) can print any buffer.
-- Bugfix (Windows only): syntax check for files with pathnames containing
-  blanks not working.
+- Profiler NYTProf: menu item and ex-command to start a html-viewer.
+- New conversion: Pod to Pdf (if Pod::Pdf is installed).
+- Perltidy,  v-mode: can be used in non-perl files (for embedded Perl).
+- Bugfix: hotkey \ifu not working.
+- Bugfix: running and starting the debugger causes error if working directory is not
+  the directory of the current file.
+- Bugfix: missing variable Perl_TimestampFormat.
 - Minor improvements.
 
 ---------------------------------------------------------------------------------------

@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2003-2009  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  see \Pluginversion
 %%      Created:  06.06.2003
-%%     Revision:  $Id: perl-hot-keys.tex,v 1.28 2009/07/03 08:22:31 mehner Exp $
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.30 2009/10/04 11:33:20 mehner Exp $
 %%                
 %%=====================================================================================
 
@@ -25,16 +25,16 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{4.4}
-\newcommand{\ReleaseDate}{ July 2009}
+\newcommand{\Pluginversion}{4.5}
+\newcommand{\ReleaseDate}{ October 2009}
 
 %%----------------------------------------------------------------------
 %%  fancyhdr
 %%----------------------------------------------------------------------
 \pagestyle{fancyplain}
 \fancyhf{}
-\fancyhead[C]{\scriptsize }
 \fancyfoot[L]{\small \ReleaseDate}
+\fancyfoot[C]{\small perl-support.vim}
 \fancyfoot[R]{\small \textbf{Page \thepage{} / \pageref{LastPage}}}
 \renewcommand{\headrulewidth}{0.0pt}
 
@@ -309,6 +309,8 @@ For \texttt{Devel::FastProf}\\[1.0ex]
 %
 For \texttt{Devel::NYTProf}\\[1.0ex]
 \texttt{ :NYTProfCSV}      \> Read a CSV-file.\\[1.0ex]
+%
+\texttt{ :NYTProfHTML}      \> Read the HTML-reports with an external viewer (GUI only).\\[1.0ex]
 %
 %
 \texttt{ :NYTProfSort}     \> \texttt{file-name|line-number|time|calls|time-call}\\

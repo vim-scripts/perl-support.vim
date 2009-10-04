@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  22.02.2009
-"      Revision:  $Id: perlsupportprofiling.vim,v 1.3 2009/02/23 17:16:12 mehner Exp $
+"      Revision:  $Id: perlsupportprofiling.vim,v 1.5 2009/09/16 16:48:46 mehner Exp $
 "       License:  Copyright 2009 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -306,6 +306,11 @@ if exists( 'g:Perl_NYTProf_html' )
 	let s:Perl_NYTProf_html	= g:Perl_NYTProf_html
 endif
 
+let s:Perl_NYTProf_browser	 	= 'konqueror'
+if exists( 'g:Perl_NYTProf_browser' )
+	let s:Perl_NYTProf_browser	= g:Perl_NYTProf_browser
+endif
+
 let s:Perl_csv2err            = s:plugin_dir.'perl-support/scripts/csv2err.pl'
 let s:Perl_NYTProfErrorFormat	= '%f:%l:%m'
 let s:Perl_NYTProfCSVfile			= ''
@@ -370,7 +375,11 @@ function! perlsupportprofiling#Perl_NYTprof ()
   endif
 	"
 	redraw!
-  echon ' profiling done -- read a CSV file'
+	if s:Perl_NYTProf_html == 'yes'
+		echon ' profiling done -- read a CSV file or load the HTML files'
+	else
+		echon ' profiling done -- read a CSV file'
+	endif
   "
 endfunction   " ---------- end of function  Perl_NYTprof  ----------
 
@@ -444,6 +453,35 @@ function! perlsupportprofiling#Perl_NYTprofReadCSV ()
   exe ':setlocal nowrap'
 
 endfunction   " ---------- end of function  Perl_NYTprofReadCSV  ----------
+"
+"------------------------------------------------------------------------------
+"  run : NYTProf, generate statistics     {{{1
+"  Also called in the filetype plugin perl.vim
+"------------------------------------------------------------------------------
+function! perlsupportprofiling#Perl_NYTprofReadHtml ()
+
+	if !has("gui_running")
+		echomsg "Function not available: no GUI running."
+		return
+	end
+
+	if  s:MSWIN
+		echomsg "** not yet implemented **"
+	else
+		let	index	= 'nytprof/index.html'
+		if !filereadable( index )
+			let	index	= getcwd()
+		endif
+		let errortext	= system( s:Perl_NYTProf_browser.' '.index.' &' )
+		"
+		if v:shell_error
+			redraw
+			echon errortext
+			return
+		endif
+	endif
+
+endfunction   " ---------- end of function  Perl_NYTprofReadHtml  ----------
 "
 "------------------------------------------------------------------------------
 "  run : NYTProf, sort report     {{{1

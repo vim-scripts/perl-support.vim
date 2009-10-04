@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.4
+---------------------------------------------------------------------------------------
+- Hotkeys are shown in the menus.
+- Four hotkeys renamed.
+- Hardcopy (run menu) can print any buffer.
+- Bugfix (Windows only): syntax check for files with pathnames containing
+  blanks not working.
+- Minor improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.3
 ---------------------------------------------------------------------------------------
 + File browser for code snippets and templates choosable (2 global variables).

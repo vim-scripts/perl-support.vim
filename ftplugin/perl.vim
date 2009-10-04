@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.54 2009/06/11 19:29:35 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.57 2009/09/16 16:48:21 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -42,7 +42,9 @@ endif
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
 "
 if exists("g:Perl_Dictionary_File")
-    silent! exec 'setlocal dictionary+='.g:Perl_Dictionary_File
+	let	save=&dictionary
+  silent! exe 'setlocal dictionary='.g:Perl_Dictionary_File
+  silent! exe 'setlocal dictionary+='.save
 endif
 "
 " ---------- commands --------------------------------------------------
@@ -64,6 +66,8 @@ command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_NYTProfSortList
         \ call  perlsupportprofiling#Perl_NYTProfSortQuickfix ( <f-args> )
 "
 command! -nargs=0  NYTProfCSV call perlsupportprofiling#Perl_NYTprofReadCSV  ()
+"
+command! -nargs=0  NYTProfHTML call perlsupportprofiling#Perl_NYTprofReadHtml  ()
 "
 " ---------- Key mappings : function keys ------------------------------------
 "
@@ -261,6 +265,10 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   nnoremap    <buffer>  <silent>  <LocalLeader>isu        :call Perl_InsertTemplate("idioms.subroutine")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>isu   <C-C>:call Perl_InsertTemplate("idioms.subroutine")<CR>
   vnoremap    <buffer>  <silent>  <LocalLeader>isu   <C-C>:call Perl_InsertTemplate("idioms.subroutine", "v")<CR>
+  "
+  nnoremap    <buffer>  <silent>  <LocalLeader>ifu        :call Perl_InsertTemplate("idioms.subroutine")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>ifu   <C-C>:call Perl_InsertTemplate("idioms.subroutine")<CR>
+  vnoremap    <buffer>  <silent>  <LocalLeader>ifu   <C-C>:call Perl_InsertTemplate("idioms.subroutine", "v")<CR>
   "
   " ----------------------------------------------------------------------------
   " Regex

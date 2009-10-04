@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.20 2009/06/29 12:58:59 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.23 2009/09/16 15:47:59 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -334,24 +334,24 @@ function! perlsupportgui#Perl_InitMenu ()
   "
   exe " noremenu ".g:Perl_Root.'Rege&x.-SEP5-                               :'
   if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Rege&x.CharC&ls.Regex-1<Tab>Perl   <Nop>'
-    exe "amenu ".g:Perl_Root.'Rege&x.CharC&ls.-Sep0-             :'
+    exe "amenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.Regex-1<Tab>Perl   <Nop>'
+    exe "amenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.-Sep0-             :'
   endif
   "
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&alnum:]   a[:alnum:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:alp&ha:]   a[:alpha:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:asc&ii:]   a[:ascii:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&blank:]   a[:blank:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&cntrl:]   a[:cntrl:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&digit:]   a[:digit:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&graph:]   a[:graph:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&lower:]   a[:lower:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&print:]   a[:print:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:pu&nct:]   a[:punct:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&space:]   a[:space:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&upper:]   a[:upper:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&word:]    a[:word:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.CharC&ls.[:&xdigit:]  a[:xdigit:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&alnum:]<Tab>\\pa   a[:alnum:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:alp&ha:]<Tab>\\ph   a[:alpha:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:asc&ii:]<Tab>\\pi   a[:ascii:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&blank:]<Tab>\\pb   a[:blank:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&cntrl:]<Tab>\\pc   a[:cntrl:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&digit:]<Tab>\\pd   a[:digit:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&graph:]<Tab>\\pg   a[:graph:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&lower:]<Tab>\\pl   a[:lower:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&print:]<Tab>\\pp   a[:print:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:pu&nct:]<Tab>\\pn   a[:punct:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&space:]<Tab>\\ps   a[:space:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&upper:]<Tab>\\pu   a[:upper:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&word:]<Tab>\\pw    a[:word:]'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&xdigit:]<Tab>\\px  a[:xdigit:]'
   "
   "---------- submenu : Unicode properties  --------------------------------------------
   "
@@ -832,6 +832,9 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "amenu <silent> ".g:Perl_Root.'&POD.POD\ ->\ html\ \ (&5)   :call Perl_POD("html")<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&POD.POD\ ->\ man\ \ (&6)    :call Perl_POD("man")<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&POD.POD\ ->\ text\ \ (&7)   :call Perl_POD("text")<CR>'
+	if executable('pod2pdf') == 1
+		exe "amenu <silent> ".g:Perl_Root.'&POD.POD\ ->\ pdf\ \ (&7)    :call Perl_POD("pdf")<CR>'
+	endif
   "
   "===============================================================================================
   "----- Menu : Run menu                              {{{2
@@ -898,6 +901,7 @@ function! perlsupportgui#Perl_InitMenu ()
 		"                                                  
 		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf<Tab>\\rpn.&run\ profiler                          :call perlsupportprofiling#Perl_NYTprof()<CR>'
 		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf<Tab>\\rpn.read\ &CSV\ file                        :call perlsupportprofiling#Perl_NYTprofReadCSV()<CR>'
+		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf<Tab>\\rpn.show\ &HTML\ file                        :call perlsupportprofiling#Perl_NYTprofReadHtml()<CR>'
 		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf<Tab>\\rpn.sort\ report:\ &file\ name              :call perlsupportprofiling#Perl_NYTProfSortQuickfix("file-name")<CR>'
 		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf<Tab>\\rpn.sort\ report:\ &line\ number            :call perlsupportprofiling#Perl_NYTProfSortQuickfix("line-number")<CR>'
 		exe "amenu <silent> ".g:Perl_Root.'&Run.Profiler.&NYTProf<Tab>\\rpn.sort\ report:\ &time                    :call perlsupportprofiling#Perl_NYTProfSortQuickfix("time")<CR>'
