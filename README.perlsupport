@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.5) / October 4 2009
+README for perl-support.vim (Version 4.6) / December 24 2009
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -94,15 +94,16 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.5
+  RELEASE NOTES FOR VERSION 4.6
 ---------------------------------------------------------------------------------------
-- Profiler NYTProf: menu item and ex-command to start a html-viewer.
-- New conversion: Pod to Pdf (if Pod::Pdf is installed).
-- Perltidy,  v-mode: can be used in non-perl files (for embedded Perl).
-- Bugfix: hotkey \ifu not working.
-- Bugfix: running and starting the debugger causes error if working directory is not
-  the directory of the current file.
-- Bugfix: missing variable Perl_TimestampFormat.
+- The profilers Devel::SmallProf and Devel::NYTProf can now be used under Windows.
+- New profiler menu.
+- New hotkeys for calling podchecker and the pod2xxx converter.
+- Pathnames can contain blanks.
+- Template completion: behavior of Ctrl-j improved.
+- Template system: new attributes 'indent', 'noindent'
+- Comment alignment improved.
+- Bugfix (Windows). snipet directory unreachable.
 - Minor improvements.
 
 ---------------------------------------------------------------------------------------

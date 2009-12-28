@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.57 2009/09/16 16:48:21 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.60 2009/12/28 12:47:05 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -59,8 +59,10 @@ command! -nargs=1 RegexSubstitutions    call perlsupportregex#Perl_PerlRegexSubs
 command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_SmallProfSortList SmallProfSort
         \ call  perlsupportprofiling#Perl_SmallProfSortQuickfix ( <f-args> )
 "
-command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_FastProfSortList FastProfSort
-        \ call  perlsupportprofiling#Perl_FastProfSortQuickfix ( <f-args> )
+if  !s:MSWIN
+	command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_FastProfSortList FastProfSort
+				\ call  perlsupportprofiling#Perl_FastProfSortQuickfix ( <f-args> )
+endif
 "
 command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_NYTProfSortList NYTProfSort
         \ call  perlsupportprofiling#Perl_NYTProfSortQuickfix ( <f-args> )
@@ -79,8 +81,8 @@ command! -nargs=0  NYTProfHTML call perlsupportprofiling#Perl_NYTprofReadHtml  (
 "
 if has("gui_running")
   "
-   map    <buffer>  <silent>  <A-F9>             :call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
-  imap    <buffer>  <silent>  <A-F9>        <C-C>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
+   map    <buffer>  <silent>  <A-F9>             :call Perl_SyntaxCheck()<CR>
+  imap    <buffer>  <silent>  <A-F9>        <C-C>:call Perl_SyntaxCheck()<CR>
   "
    map    <buffer>  <silent>  <C-F9>             :call Perl_Run()<CR>
   imap    <buffer>  <silent>  <C-F9>        <C-C>:call Perl_Run()<CR>
@@ -320,15 +322,33 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   inoremap    <buffer>  <silent>  <LocalLeader>px    [:xdigit:]
   "
   " ----------------------------------------------------------------------------
+  " POD
+  " ----------------------------------------------------------------------------
+  "
+   map    <buffer>  <silent>  <LocalLeader>pod         :call Perl_PodCheck()<CR>
+   map    <buffer>  <silent>  <LocalLeader>podh        :call Perl_POD('html')<CR>
+   map    <buffer>  <silent>  <LocalLeader>podm        :call Perl_POD('man')<CR>
+   map    <buffer>  <silent>  <LocalLeader>podt        :call Perl_POD('text')<CR>
+  "
+  " ----------------------------------------------------------------------------
+  " Profiling
+  " ----------------------------------------------------------------------------
+  "
+   map    <buffer>  <silent>  <LocalLeader>rps         :call perlsupportprofiling#Perl_Smallprof()<CR>
+   map    <buffer>  <silent>  <LocalLeader>rpf         :call perlsupportprofiling#Perl_Fastprof()<CR>
+   map    <buffer>  <silent>  <LocalLeader>rpn         :call perlsupportprofiling#Perl_NYTprof()<CR>
+   map    <buffer>  <silent>  <LocalLeader>rpnc        :call perlsupportprofiling#Perl_NYTprofReadCSV("read","line")<CR>
+  "
+  " ----------------------------------------------------------------------------
   " Run
   " ----------------------------------------------------------------------------
   "
    noremap    <buffer>  <silent>  <LocalLeader>rr         :call Perl_Run()<CR>
-   noremap    <buffer>  <silent>  <LocalLeader>rs         :call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
+   noremap    <buffer>  <silent>  <LocalLeader>rs         :call Perl_SyntaxCheck()<CR>
    noremap    <buffer>  <silent>  <LocalLeader>ra         :call Perl_Arguments()<CR>
    noremap    <buffer>  <silent>  <LocalLeader>rw         :call Perl_PerlSwitches()<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>rr    <C-C>:call Perl_Run()<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>rs    <C-C>:call Perl_SyntaxCheck()<CR>:redraw!<CR>:call Perl_SyntaxCheckMsg()<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>rs    <C-C>:call Perl_SyntaxCheck()<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>ra    <C-C>:call Perl_Arguments()<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>rw    <C-C>:call Perl_PerlSwitches()<CR>
   "
@@ -355,13 +375,8 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   "
    map    <buffer>  <silent>  <LocalLeader>ry         :call Perl_Perltidy("n")<CR>
   vmap    <buffer>  <silent>  <LocalLeader>ry    <C-C>:call Perl_Perltidy("v")<CR>
-  "
-   map    <buffer>  <silent>  <LocalLeader>rps         :call perlsupportprofiling#Perl_Smallprof()<CR>
-   map    <buffer>  <silent>  <LocalLeader>rpf         :call perlsupportprofiling#Perl_Fastprof()<CR>
-   map    <buffer>  <silent>  <LocalLeader>rpn         :call perlsupportprofiling#Perl_NYTprof()<CR>
-   map    <buffer>  <silent>  <LocalLeader>rpnc        :call perlsupportprofiling#Perl_NYTprofReadCSV()<CR>
    "
-   map    <buffer>  <silent>  <LocalLeader>rc         :call Perl_Perlcritic()<CR>:call Perl_PerlcriticMsg()<CR>
+   map    <buffer>  <silent>  <LocalLeader>rc         :call Perl_Perlcritic()<CR>
    map    <buffer>  <silent>  <LocalLeader>rt         :call Perl_SaveWithTimestamp()<CR>
    map    <buffer>  <silent>  <LocalLeader>rh         :call Perl_Hardcopy("n")<CR>
   vmap    <buffer>  <silent>  <LocalLeader>rh    <C-C>:call Perl_Hardcopy("v")<CR>

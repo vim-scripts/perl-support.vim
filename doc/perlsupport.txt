@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                 October 04 2009
+*perlsupport.txt*                Perl Support                December 28 2009
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.5
+                              Plugin version 4.6
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -1085,9 +1085,7 @@ In the absence of menus (console mode) sorting is done with the command
 Use command completion. Type :Fast<Tab> to complete the command name and a
 blank and another <Tab> to list the criteria. The selection will be
 highlighted.
-
-Resorting the profiling statistics uses sort(1) and a temporary file.
-Resorting is not available under MS-Windows.
+According to the documentation FastProf is not available for Windows.
 
 1.9.10.3  Devel::NYTProf                                 *perlsupport-nytprof*
 ------------------------
@@ -1114,9 +1112,6 @@ In the absence of menus (console mode) sorting is done with the command
 Use command completion. Type :NYT<Tab> to complete the command name and
 a blank and another <Tab> to list the criteria. The selection will be
 highlighted.
-
-Resorting the profiling statistics uses sort(1) and a temporary file.
-Resorting is not available under MS-Windows.
 
 Profiled library modules are opend as read-only copies in a temp directory.
 
@@ -1418,6 +1413,20 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \pw        [:word:]                          (n   i)
   \px        [:xdigit:]                        (n   i)
 
+  -- POD -----------------------------------------------
+
+  \pod       run podchecker                            (n)
+  \podh      convert POD data to .html file            (n)
+  \podm      convert POD data to *troff input (manual) (n)
+  \podt      convert POD data to ASCII text            (n)
+
+  -- Profiling -----------------------------------------
+
+  \rps       run Devel::SmallProf            (n)   see |perlsupport-smallprof|
+  \rpf       run Devel::FastProf             (n)   see |perlsupport-fastprof|
+  \rpn       run Devel::NYTProf              (n)   see |perlsupport-nytprof|
+  \rpnc      run CSV file (NYTProf)          (n)   see |perlsupport-nytprof|
+
   -- Run -----------------------------------------------
 
   \rr        update file, run script         (n)   see |perlsupport-run-script|
@@ -1430,9 +1439,6 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \ri        show installed Perl modules     (n)   see |perlsupport-module-list|
   \rg        generation Perl module list     (n)   see |perlsupport-module-list-generation|
   \ry        run perltidy                    (n,v) see |perlsupport-perltidy|
-  \rms       run Devel::SmallProf            (n)   see |perlsupport-smallprof|
-  \rmf       run Devel::FastProf             (n)   see |perlsupport-fastprof|
-  \rmn       run Devel::NYTProf              (n)   see |perlsupport-nytprof|
   \rc        run perlcritic                  (n)   see |perlsupport-perlcritic|
   \rt        save buffer with timestamp      (n)   see |perlsupport-timestamp|
   \rh        hardcopy buffer to FILENAME.ps  (n,v) see |perlsupport-hardcopy|
@@ -1606,7 +1612,7 @@ g:Perl_PerlcriticVerbosity     5
 g:Perl_PerlcriticOptions       ""
 g:Perl_PerlRegexSubstitution   '$+'
 g:Perl_NYTProf_html            'no'
-g:Perl_NYTProf_browser	 	     'konqueror'
+g:Perl_NYTProf_browser         'konqueror'
 
 g:Perl_NoKeyMappings           - undefined -
 g:Perl_MapLeader               '\'
@@ -1653,7 +1659,7 @@ The variable root_dir will automatically be set to one of the following values:
            g:Perl_MapLeader               : map leader for hotkeys (|perlsupport-mappings|)
            g:Perl_PerlRegexSubstitution   : regex control character substitutions
            g:Perl_NYTProf_html            : Devel::NYTProf generates HTML-files (|perlsupport-nytprof|)
-           g:Perl_NYTProf_browser	 	      : specifies the default HTML-viewer
+           g:Perl_NYTProf_browser         : specifies the default HTML-viewer
 
 
 ------------------------------------------------------------------------------
@@ -2012,7 +2018,7 @@ modes are also hard coded (see|perlsupport-templates-definition|for the use of
 A template definition starts with a template head line with the following
 syntax:
 
-  == templatename == [ position == ]
+  == templatename == [ position == ] [ indentation == ]
 
 The templatename is one of the above template identifiers. The position
 attribute is optional. Possible attribute values are:
@@ -2022,6 +2028,11 @@ attribute is optional. Possible attribute values are:
   below     insert the template below the current line (default)
   insert    insert the template at the cursor position
   start     insert the template before the first line of the buffer
+
+The indentation attributes are 
+
+ indent     indent the inserted template (default)
+ noindent   do not indent the inserted template
 
 An example:
 
@@ -2151,6 +2162,13 @@ indentation will be correct.
  <SPLIT>{-continue here-}
  close  $|FILEPOINTER|
  or warn "$0 : failed to close input file '$|FILEPOINTER|_file_name' : $!\n";
+
+Extra feature of Ctrl-j
+-----------------------
+If none of the above described targets is left Ctrl-j can be used to jump
+behind closing brackets, parenthesis, braces,  or string terminators ('"`).
+This feature is limited to the current line. Ctrl-j does not jump behind the
+last character in a line.
 
 How to switch the mapping for Ctrl-j off
 ----------------------------------------

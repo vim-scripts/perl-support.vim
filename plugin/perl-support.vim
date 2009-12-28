@@ -50,15 +50,15 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.88 2009/09/20 16:22:06 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.95 2009/12/24 14:56:16 mehner Exp $
 "------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
 "
 if exists("g:Perl_Version") || &compatible
- finish
+	finish
 endif
-let g:Perl_Version= "4.5"
+let g:Perl_Version= "4.6"
 "
 "###############################################################################################
 "
@@ -102,7 +102,7 @@ if  s:MSWIN
   " ==========  MS Windows  ======================================================
   let s:plugin_dir  	= $VIM.'\vimfiles\'
   let s:esc_chars 	  = ''
-	call PerlSetGlobalVariable( 'Perl_CodeSnippets','vim' )
+	call PerlSetGlobalVariable( 'Perl_CodeSnippets', s:plugin_dir.'perl-support/codesnippets/' )
   "
 	let s:Perl_Display  = ''
 	let s:installation	= 'system'
@@ -122,7 +122,7 @@ else
 	else
 		" user installation assumed
 		let s:plugin_dir  	= $HOME.'/.vim/'
-	end
+	endif
 
 	" user defined perl-support directories
   if exists("g:Perl_Support_Root_Dir")
@@ -215,9 +215,6 @@ call PerlSetLocalVariable("Perl_Template_Directory     ")
 call PerlSetLocalVariable("Perl_TemplateOverwrittenMsg ")
 call PerlSetLocalVariable("Perl_XtermDefaults          ")
 "
-let s:Perl_PerlcriticMsg     = ""
-let s:Perl_PodCheckMsg       = ""
-let s:Perl_SyntaxCheckMsg    = ""
 "
 " set default geometry if not specified
 "
@@ -242,8 +239,10 @@ let s:Perl_InterfaceVersion = ''
 "------------------------------------------------------------------------------
 "  Control variables (not user configurable)
 "------------------------------------------------------------------------------
-let s:Attribute                = { 'below':'', 'above':'', 'start':'', 'append':'', 'insert':'' }
-let s:Perl_Attribute           = {}
+let s:InsertionAttribute       = { 'below':'', 'above':'', 'start':'', 'append':'', 'insert':'' }
+let s:IndentAttribute          = { 'noindent':'', 'indent':'' }
+let s:Perl_InsertionAttribute  = {}
+let s:Perl_IndentAttribute     = {}
 let s:Perl_ExpansionLimit      = 10
 let s:Perl_FileVisited         = []
 "
@@ -254,8 +253,10 @@ let s:Perl_ExpansionRegex				 = '|?'.s:Perl_MacroNameRegex.'\(:\a\)\?|'
 let s:Perl_NonExpansionRegex		 = '|'.s:Perl_MacroNameRegex.'\(:\a\)\?|'
 "
 let s:Perl_TemplateNameDelimiter = '-+_,\. '
+"let s:Perl_TemplateLineRegex		 = '^==\s*\([a-zA-Z][0-9a-zA-Z'.s:Perl_TemplateNameDelimiter
+"let s:Perl_TemplateLineRegex		.= ']\+\)\s*==\s*\([a-z]\+\s*==\)\?'
 let s:Perl_TemplateLineRegex		 = '^==\s*\([a-zA-Z][0-9a-zA-Z'.s:Perl_TemplateNameDelimiter
-let s:Perl_TemplateLineRegex		.= ']\+\)\s*==\s*\([a-z]\+\s*==\)\?'
+let s:Perl_TemplateLineRegex		.= ']\+\)\s*==\(\s*[a-z]\+\s*==\)*'
 let s:Perl_TemplateIf						 = '^==\s*IF\s\+|STYLE|\s\+IS\s\+'.s:Perl_MacroNameRegex.'\s*=='
 let s:Perl_TemplateEndif				 = '^==\s*ENDIF\s*=='
 "
@@ -344,16 +345,20 @@ endfunction   " ---------- end of function  Perl_LineEndComment  ----------
 "------------------------------------------------------------------------------
 "
 " patterns to ignore when adjusting line-end comments (incomplete):
+" some heuristics used (only Perl can parse Perl)
 let	s:AlignRegex	= [
 	\	'\$#' ,
-	\	'm#[^#]\+#' ,
-	\	'\(m\|qr\)\?\([/?]\)\(.*\)\(\2\)\([imsxg]*\)'  ,
-	\	'\(m\|qr\)\(.\)\(.*\)\(\2\|[})\]>]\)\([imsxg]*\)' ,
+	\	'"[^"]\+"' ,
+	\	"'[^']\\+'" ,
+	\	"`[^`]\+`" ,
+	\	'\(m\|qr\)#[^#]\+#' ,
+	\	'\(m\|qr\)\?\([\?\/]\)\(.*\)\(\2\)\([imsxg]*\)'  ,
+	\	'\(m\|qr\)\([[:punct:]]\)\(.*\)\(\2\)\([imsxg]*\)'  ,
+	\	'\(m\|qr\){\(.*\)}\([imsxg]*\)'  ,
+	\	'\(m\|qr\)(\(.*\))\([imsxg]*\)'  ,
+	\	'\(m\|qr\)\[\(.*\)\]\([imsxg]*\)'  ,
 	\	'\(s\|tr\)#[^#]\+#[^#]\+#' ,
 	\	'\(s\|tr\){[^}]\+}{[^}]\+}' ,
-	\	'"[^"]*"' ,
-	\	"'[^']*'" ,
-	\	"`[^`]*`" ,
 	\	]
 
 function! Perl_AlignLineEndComm ( mode ) range
@@ -373,7 +378,7 @@ function! Perl_AlignLineEndComm ( mode ) range
 	else
 		let pos0	= line(".")
 		let pos1	= pos0
-	end
+	endif
 
 	let	linenumber	= pos0
 	exe ":".pos0
@@ -381,51 +386,60 @@ function! Perl_AlignLineEndComm ( mode ) range
 	while linenumber <= pos1
 		let	line= getline(".")
 		"
-		let idx1	= 1 + match( line, '\s*#.*$', 0 )
-		let idx2	= 1 + match( line,    '#.*$', 0 )
-
-		" comment with leading whitespaces
-		if     match( line, '^\s*#' ) == 0
-			let idx1	= 0
-			let idx2	= 0
-		endif
-
-		for regex in s:AlignRegex
-			if match( line, regex ) > -1
-				let start	= matchend( line, regex )
-				let idx1	= 1 + match( line, '\s*#.*$', start )
-				let idx2	= 1 + match( line,    '#.*$', start )
-				break
-			endif
-		endfor
+		" line is not a pure comment but may contains a comment:
 		"
-		let	ln	= line(".")
-		call setpos(".", [ 0, ln, idx1, 0 ] )
-		let vpos1	= virtcol(".")
-		call setpos(".", [ 0, ln, idx2, 0 ] )
-		let vpos2	= virtcol(".")
+		if match( line, '^\s*#' ) < 0 && match( line, '#.*$' ) > 0
+      "
+      " disregard comments starting in a string
+      "
+			let	idx1	      = -1
+			let	idx2	      = -1
+			let	commentstart= -2
+			let	commentend	= 0
+			while commentstart < idx2 && idx2 < commentend
+				let start	      = commentend
+				let idx2	      = match( line, '#.*$', start )
+				" loop over the items to ignore
+        for regex in s:AlignRegex
+          if match( line, regex ) > -1
+            let commentstart	= match   ( line, regex, start )
+            let commentend		= matchend( line, regex, start )
+            break
+          endif
+        endfor
+			endwhile
+      "
+      " try to adjust the comment
+      "
+			let idx1	= 1 + match( line, '\s*#.*$', start )
+			let idx2	= 1 + idx2
+			call setpos(".", [ 0, linenumber, idx1, 0 ] )
+			let vpos1	= virtcol(".")
+			call setpos(".", [ 0, linenumber, idx2, 0 ] )
+			let vpos2	= virtcol(".")
 
-		if   ! (   vpos2 == b:Perl_LineEndCommentColumn
-					\	|| vpos1 > b:Perl_LineEndCommentColumn
-					\	|| idx2  == 0 )
+			if   ! (   vpos2 == b:Perl_LineEndCommentColumn
+						\	|| vpos1 > b:Perl_LineEndCommentColumn
+						\	|| idx2  == 0 )
 
-			exe ":.,.retab"
-			" insert some spaces
-			if vpos2 < b:Perl_LineEndCommentColumn
-				let	diff	= b:Perl_LineEndCommentColumn-vpos2
-				call setpos(".", [ 0, ln, vpos2, 0 ] )
-				let	@"	= ' '
-				exe "normal	".diff."P"
-			end
+				exe ":.,.retab"
+				" insert some spaces
+				if vpos2 < b:Perl_LineEndCommentColumn
+					let	diff	= b:Perl_LineEndCommentColumn-vpos2
+					call setpos(".", [ 0, linenumber, vpos2, 0 ] )
+					let	@"	= ' '
+					exe "normal	".diff."P"
+				endif
 
-			" remove some spaces
-			if vpos1 < b:Perl_LineEndCommentColumn && vpos2 > b:Perl_LineEndCommentColumn
-				let	diff	= vpos2 - b:Perl_LineEndCommentColumn
-				call setpos(".", [ 0, ln, b:Perl_LineEndCommentColumn, 0 ] )
-				exe "normal	".diff."x"
-			end
+				" remove some spaces
+				if vpos1 < b:Perl_LineEndCommentColumn && vpos2 > b:Perl_LineEndCommentColumn
+					let	diff	= vpos2 - b:Perl_LineEndCommentColumn
+					call setpos(".", [ 0, linenumber, b:Perl_LineEndCommentColumn, 0 ] )
+					exe "normal	".diff."x"
+				endif
 
-		end
+			endif
+		endif
 		let linenumber=linenumber+1
 		normal j
 	endwhile
@@ -617,7 +631,7 @@ function! Perl_CodeSnippet(mode)
 				let l:snippetfile=browse(0,"read a code snippet",g:Perl_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("read snippet ", g:Perl_CodeSnippets, "file" )
-			end
+			endif
       if filereadable(l:snippetfile)
         let linesread= line("$")
         let l:old_cpoptions = &cpoptions " Prevent the alternate buffer from being set to this files
@@ -639,7 +653,7 @@ function! Perl_CodeSnippet(mode)
 				let l:snippetfile=browse(0,"edit a code snippet",g:Perl_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("edit snippet ", g:Perl_CodeSnippets, "file" )
-			end
+			endif
       if l:snippetfile != ""
         :execute "update! | split | edit ".l:snippetfile
       endif
@@ -652,7 +666,7 @@ function! Perl_CodeSnippet(mode)
 				let l:snippetfile=browse(0,"write a code snippet",g:Perl_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("write snippet ", g:Perl_CodeSnippets, "file" )
-			end
+			endif
       if l:snippetfile != ""
         if filereadable(l:snippetfile)
           if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
@@ -663,7 +677,7 @@ function! Perl_CodeSnippet(mode)
 					:execute ":write! ".l:snippetfile
 				else
 					:execute ":*write! ".l:snippetfile
-				end
+				endif
       endif
     endif
 
@@ -917,7 +931,6 @@ endfunction   " ---------- end of function  Perl_Settings  ----------
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! Perl_SyntaxCheck ()
-  let s:Perl_SyntaxCheckMsg = ""
   exe ":cclose"
   let l:currentbuffer   = bufname("%")
 	let l:fullname        = expand("%:p")
@@ -959,7 +972,10 @@ function! Perl_SyntaxCheck ()
   " message in case of success
   "
   if l:currentbuffer ==  bufname("%")
-    let s:Perl_SyntaxCheckMsg = l:currentbuffer." : Syntax is OK"
+			redraw
+			echohl Search
+			echomsg l:currentbuffer." : Syntax is OK"
+			echohl None
     return 0
   else
     setlocal wrap
@@ -967,13 +983,6 @@ function! Perl_SyntaxCheck ()
   endif
   return 1
 endfunction   " ---------- end of function  Perl_SyntaxCheck  ----------
-"
-"  Also called in the filetype plugin perl.vim
-function! Perl_SyntaxCheckMsg ()
-    echohl Search
-    echo s:Perl_SyntaxCheckMsg
-    echohl None
-endfunction   " ---------- end of function  Perl_SyntaxCheckMsg  ----------
 "
 "----------------------------------------------------------------------
 "  run : toggle output destination     {{{1
@@ -1001,7 +1010,7 @@ function! Perl_Toggle_Gvim_Xterm ()
 				let	g:Perl_OutputGvim	= "xterm"
 			else
 				let	g:Perl_OutputGvim	= "vim"
-			end
+			endif
 		else
 			" ---------- output : xterm -> gvim
 			if has("gui_running")
@@ -1057,7 +1066,8 @@ function! Perl_Run ()
   let l:arguments       = exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
   let l:switches        = exists("b:Perl_Switches") ? b:Perl_Switches.' ' : ""
   let l:currentbuffer   = bufname("%")
-  let l:fullname        = fnameescape( expand("%:p") )
+  let l:fullname        = expand("%:p")
+  let l:fullname_esc    = fnameescape( expand("%:p") )
   "
   silent exe ":update"
   silent exe ":cclose"
@@ -1075,9 +1085,9 @@ function! Perl_Run ()
   if g:Perl_OutputGvim == "vim"
     "
     if  s:MSWIN
-      exe "!perl \"".l:switches.l:fullname." ".l:arguments."\""
+      exe "!perl ".l:switches.'"'.l:fullname.'" '.l:arguments
     else
-      exe "!perl ".l:switches.l:fullname.l:arguments
+      exe "!perl ".l:switches.l:fullname_esc.l:arguments
     endif
     "
   endif
@@ -1112,9 +1122,9 @@ function! Perl_Run ()
       setlocal  modifiable
       silent exe ":update"
       if  s:MSWIN
-        exe "%!perl \"".l:switches.l:fullname.l:arguments."\""
+        exe ":%!perl ".l:switches.'"'.l:fullname.l:arguments.'"'
       else
-        exe "%!perl ".l:switches.l:fullname.l:arguments
+        exe ":%!perl ".l:switches.l:fullname_esc.l:arguments
       endif
       setlocal  nomodifiable
       "
@@ -1134,7 +1144,7 @@ function! Perl_Run ()
       " same as "vim"
       exe "!perl \"".l:switches.l:fullname." ".l:arguments."\""
     else
-      silent exe '!xterm -title '.l:fullname.' '.s:Perl_XtermDefaults.' -e '.s:Perl_Wrapper.' perl '.l:switches.l:fullname.l:arguments
+      silent exe '!xterm -title '.l:fullname_esc.' '.s:Perl_XtermDefaults.' -e '.s:Perl_Wrapper.' perl '.l:switches.l:fullname_esc.l:arguments
 			:redraw!
     endif
     "
@@ -1149,8 +1159,9 @@ endfunction    " ----------  end of function Perl_Run  ----------
 function! Perl_Debugger ()
   "
   silent exe  ":update"
-  let l:arguments = exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
-  let Sou         = fnameescape( expand("%:p") )
+  let l:arguments 	= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
+  let filename      = expand("%:p")
+  let filename_esc  = fnameescape( expand("%:p") )
   "
   if  s:MSWIN
     let l:arguments = substitute( l:arguments, '^\s\+', ' ', '' )
@@ -1161,12 +1172,12 @@ function! Perl_Debugger ()
   "
   if s:Perl_Debugger == "perl"
     if  s:MSWIN
-      silent exe "!perl -d \"".Sou.l:arguments."\""
+      exe '!perl -d "'.filename.l:arguments.'"'
     else
       if has("gui_running") || &term == "xterm"
-        silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d '.Sou.l:arguments.' &'
+        silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d '.filename_esc.l:arguments.' &'
       else
-        silent exe '!clear; perl -d '.Sou.l:arguments
+        silent exe '!clear; perl -d '.filename_esc.l:arguments
       endif
     endif
   endif
@@ -1177,9 +1188,9 @@ function! Perl_Debugger ()
     "
     if s:Perl_Debugger == "ptkdb"
       if  s:MSWIN
-        silent exe "!perl -d:ptkdb \"".Sou.l:arguments."\""
+				exe '!perl -d:ptkdb "'.filename.l:arguments.'"'
       else
-        silent exe '!perl -d:ptkdb  '.Sou.l:arguments.' &'
+        silent exe '!perl -d:ptkdb  '.filename_esc.l:arguments.' &'
       endif
     endif
     "
@@ -1192,7 +1203,7 @@ function! Perl_Debugger ()
         echohl None
         return
       else
-        silent exe '!ddd '.Sou.l:arguments.' &'
+        silent exe '!ddd '.filename_esc.l:arguments.' &'
       endif
     endif
     "
@@ -1261,7 +1272,6 @@ endfunction   " ---------- end of function  Perl_MakeScriptExecutable  ---------
 "  run POD checker     {{{1
 "------------------------------------------------------------------------------
 function! Perl_PodCheck ()
-  let s:Perl_PodCheckMsg = ""
   exe ":cclose"
   let l:currentbuffer   = bufname("%")
   silent exe  ":update"
@@ -1271,16 +1281,13 @@ function! Perl_PodCheck ()
   else
     let PodcheckerWarnings  = '-warnings '
   endif
-  exe ':set makeprg=podchecker\ '.PodcheckerWarnings
+  :set makeprg=podchecker
 
   exe ':setlocal errorformat=***\ %m\ at\ line\ %l\ in\ file\ %f'
-
-  let l:fullname        = fnameescape( expand("%:p") )
-  "
 	if  s:MSWIN
-		silent exe  ":make \"".l:fullname."\""
+		silent exe  ':make '.PodcheckerWarnings.'"'.expand("%:p").'"'
 	else
-		silent exe  ":make ".l:fullname
+		silent exe  ':make '.PodcheckerWarnings.fnameescape( expand("%:p") )
 	endif
 
   exe ":botright cwindow"
@@ -1290,42 +1297,38 @@ function! Perl_PodCheck ()
   " message in case of success
   "
   if l:currentbuffer ==  bufname("%")
-    let s:Perl_PodCheckMsg = l:currentbuffer." : POD syntax is OK"
+		redraw
+    echohl Search
+    echomsg  l:currentbuffer." : POD syntax is OK"
+    echohl None
     return 0
   endif
   return 1
 endfunction   " ---------- end of function  Perl_PodCheck  ----------
 "
-function! Perl_PodCheckMsg ()
-    echohl Search
-    echo s:Perl_PodCheckMsg
-    echohl None
-endfunction   " ---------- end of function  Perl_PodCheckMsg  ----------
-"
 "------------------------------------------------------------------------------
 "  run : POD -> html / man / text     {{{1
 "------------------------------------------------------------------------------
 function! Perl_POD ( format )
-	let	source		= fnameescape( expand("%:p"),  )
-	let	path			= fnameescape( expand("%:p:h") )
-  let filename  = fnameescape( expand("%:p:t") )
-	if filewritable(path) == 2
-		" source directory is writable
-		let target	  = source.'.'.a:format
-	else
-		" source directory is NOT writable : write to $HOME
-		let target	  = $HOME.'/'.filename.'.'.a:format
-	endif
+	let	source			= expand("%:p")
+	let	source_esc	= fnameescape( expand("%:p"),  )
+	let target	  	= source.'.'.a:format
+	let target_esc	= source_esc.'.'.a:format
+
   silent exe  ":update"
 	if executable( 'pod2'.a:format )
 		if  s:MSWIN
 			if a:format=='html'
-				silent exe  ":!pod2".a:format." \"--infile=".source."\" \"--outfile=".target."\""
+				silent exe  ':!pod2'.a:format.' "--infile='.source.'"  "--outfile='.target.'"'
 			else
-				silent exe  ":!pod2".a:format." \"".source."\" \"".target."\""
+				silent exe  ':!pod2'.a:format.' "'.source.'" "'.target.'"'
 			endif
 		else
-			silent exe  ":!pod2".a:format." ".source." > ".target
+			if a:format=='html'
+				silent exe  ':!pod2'.a:format.' --infile='.source_esc.' --outfile='.target_esc
+			else
+				silent exe  ':!pod2'.a:format.' '.source_esc.' '.target_esc
+			endif
 		endif
 		echo  "file '".target."' generated"
 	else
@@ -1476,9 +1479,18 @@ function! Perl_ReadTemplates ( templatefile )
         let s:Perl_Template[item] = ''
 				let skipmacros	= 1
         "
-        let s:Perl_Attribute[item] = 'below'
-        if has_key( s:Attribute, get( part, 1, 'NONE' ) )
-          let s:Perl_Attribute[item] = part[1]
+				" control insertion
+				"
+        let s:Perl_InsertionAttribute[item] = 'below'
+        if has_key( s:InsertionAttribute, get( part, 1, 'NONE' ) )
+          let s:Perl_InsertionAttribute[item] = part[1]
+        endif
+        "
+				" control indentation
+				"
+        let s:Perl_IndentAttribute[item] = 'indent'
+        if has_key( s:IndentAttribute, get( part, 2, 'NONE' ) )
+          let s:Perl_IndentAttribute[item] = part[2]
         endif
       else
         if item != ''
@@ -1535,7 +1547,8 @@ function! Perl_InsertTemplate ( key, ... )
 	let	equalprg_save	= &equalprg
 	set equalprg=
 
-  let mode  = s:Perl_Attribute[a:key]
+  let mode  = s:Perl_InsertionAttribute[a:key]
+  let indent = s:Perl_IndentAttribute[a:key]
 
 	" remove <SPLIT> and insert the complete macro
 	"
@@ -1552,18 +1565,22 @@ function! Perl_InsertTemplate ( key, ... )
 			put  =val
 			let pos2  = line(".")
 			" proper indenting
-			exe ":".pos1
-			let ins	= pos2-pos1+1
-			exe "normal ".ins."=="
+			if indent == 'indent'
+				exe ":".pos1
+				let ins	= pos2-pos1+1
+				exe "normal ".ins."=="
+			endif
 			"
 		elseif mode == 'above'
 			let pos1  = line(".")
 			put! =val
 			let pos2  = line(".")
 			" proper indenting
-			exe ":".pos1
-			let ins	= pos2-pos1+1
-			exe "normal ".ins."=="
+			if indent == 'indent'
+				exe ":".pos1
+				let ins	= pos2-pos1+1
+				exe "normal ".ins."=="
+			endif
 			"
 		elseif mode == 'start'
 			normal gg
@@ -1572,9 +1589,11 @@ function! Perl_InsertTemplate ( key, ... )
 			put! =val
 			let pos2  = line(".")
 			" proper indenting
-			exe ":".pos1
-			let ins	= pos2-pos1+1
-			exe "normal ".ins."=="
+			if indent == 'indent'
+				exe ":".pos1
+				let ins	= pos2-pos1+1
+				exe "normal ".ins."=="
+			endif
 			"
 		elseif mode == 'append'
 			if &foldenable && foldclosed(".") >= 0
@@ -1603,7 +1622,7 @@ function! Perl_InsertTemplate ( key, ... )
 				let @"=val
 				normal p
 				" reformat only multiline inserts and previously empty lines
-				if pos2-pos1 > 0 || currentline =~ ''
+				if ( pos2-pos1 > 0 || currentline =~ '' ) && indent == 'indent'
 					exe ":".pos1
 					let ins	= pos2-pos1+1
 					exe "normal ".ins."=="
@@ -1661,11 +1680,12 @@ function! Perl_InsertTemplate ( key, ... )
 
 				let pos1  = line("'<") - len(split(part[0], '\n' ))
 				let pos2  = line("'>") + len(split(part[1], '\n' ))
-				""			echo part[0] part[1] pos1 pos2
 				"			" proper indenting
-				exe ":".pos1
-				let ins	= pos2-pos1+1
-				exe "normal ".ins."=="
+				if indent == 'indent'
+					exe ":".pos1
+					let ins	= pos2-pos1+1
+					exe "normal ".ins."=="
+				endif
 			endif
 			"
 		endif		" ---------- end visual mode
@@ -1731,8 +1751,10 @@ function! Perl_JumpCtrlJ ()
 		" remove the target
 		call setline( match, substitute( getline('.'), s:Perl_TemplateJumpTarget1.'\|'.s:Perl_TemplateJumpTarget2, '', '' ) )
 	else
-		" try to jump behind parenthesis or strings 
-		call search( "[\]})\"'`]", 'W' )
+		" try to jump behind parenthesis or strings in the current line 
+		if match( getline(".")[col(".") - 1], "[\]})\"'`]"  ) != 0
+			call search( "[\]})\"'`]", '', line(".") )
+		endif
 		normal l
 	endif
 	return ''
@@ -1986,7 +2008,7 @@ function! Perl_Perltidy (mode)
       silent exe  "%!perltidy 2>/dev/null"
     endif
     exe ':'.pos1
-    echo "File \"".Sou."\" reformatted."
+    echo 'File "'.Sou.'" reformatted.'
   endif
   " ----- visual mode ----------------
   if a:mode=="v"
@@ -1998,7 +2020,7 @@ function! Perl_Perltidy (mode)
     else
       silent exe  pos1.",".pos2."!perltidy 2>/dev/null"
     endif
-    echo "File \"".Sou."\" (lines ".pos1."-".pos2.") reformatted."
+    echo 'File "'.Sou.'" (lines '.pos1.'-'.pos2.') reformatted.'
   endif
   "
   if filereadable("perltidy.ERR")
@@ -2098,14 +2120,14 @@ endfunction    " ----------  end of function Perl_HelpPerlsupport ----------
 let s:PCverbosityFormat1 	= 1
 let s:PCverbosityFormat2 	= 2
 let s:PCverbosityFormat3 	= 3
-let s:PCverbosityFormat4 	= '\"\\%f:\\%l:\\%c:\\%m\.\ \ \\%e\ \ (Severity:\ \\%s)\\n\"'
-let s:PCverbosityFormat5 	= '\"\\%f:\\%l:\\%c:\\%m\.\ \ \\%e\ \ (Severity:\ \\%s)\\n\"'
-let s:PCverbosityFormat6 	= '\"\\%f:\\%l:\\%m,\ near\ ' . "'\\\\%r'\." . '\ \ (Severity:\ \\%s)\\n\"'
-let s:PCverbosityFormat7 	= '\"\\%f:\\%l:\\%m,\ near\ ' . "'\\\\%r'\." . '\ \ (Severity:\ \\%s)\\n\"'
-let s:PCverbosityFormat8 	= '\"\\%f:\\%l:\\%c:[\\%p]\ \\%m\.\ (Severity:\ \\%s)\\n\"'
-let s:PCverbosityFormat9 	= '\"\\%f:\\%l:[\\%p]\ \\%m,\ near\ ' . "'\\\\%r'" . '\.\ (Severity:\ \\%s)\\n\"'
-let s:PCverbosityFormat10	= '\"\\%f:\\%l:\\%c:\\%m\.\\n\ \ \\%p\ (Severity:\ \\%s)\\n\\%d\\n\"'
-let s:PCverbosityFormat11	= '\"\\%f:\\%l:\\%m,\ near\ ' . "'\\\\%r'" . '\.\\n\ \ \\%p\ (Severity:\ \\%s)\\n\\%d\\n\"'
+let s:PCverbosityFormat4 	= escape( '"%f:%l:%c:%m.  %e  (Severity: %s)\n"', '%' )
+let s:PCverbosityFormat5 	= escape( '"%f:%l:%c:%m.  %e  (Severity: %s)\n"', '%' )
+let s:PCverbosityFormat6 	= escape( '"%f:%l:%m, near ' . "'%r'." . '  (Severity: %s)\n"', '%' )
+let s:PCverbosityFormat7 	= escape( '"%f:%l:%m, near ' . "'%r'." . '  (Severity: %s)\n"', '%' )
+let s:PCverbosityFormat8 	= escape( '"%f:%l:%c:[%p] %m. (Severity: %s)\n"', '%' )
+let s:PCverbosityFormat9 	= escape( '"%f:%l:[%p] %m, near ' . "'%r'" . '. (Severity: %s)\n"', '%' )
+let s:PCverbosityFormat10	= escape( '"%f:%l:%c:%m.\n  %p (Severity: %s)\n%d\n"', '%' )
+let s:PCverbosityFormat11	= escape( '"%f:%l:%m, near ' . "'%r'" . '.\n  %p (Severity: %s)\n%d\n"', '%' )
 "
 " parses output for different verbosity levels:
 "
@@ -2139,16 +2161,19 @@ function! Perl_Perlcritic ()
   exe ":cclose"
   silent exe  ":update"
 	"
-  exe  ':set makeprg=perlcritic\ -severity\ '.s:Perl_PerlcriticSeverity
-      \                      .'\ -verbose\ '.eval("s:PCverbosityFormat".s:Perl_PerlcriticVerbosity)
-      \                      .'\ '.escape( s:Perl_PerlcriticOptions, s:esc_chars )
+  let perlcriticoptions	=
+		  \      ' -severity '.s:Perl_PerlcriticSeverity
+      \     .' -verbose '.eval("s:PCverbosityFormat".s:Perl_PerlcriticVerbosity)
+      \     .' '.escape( s:Perl_PerlcriticOptions, s:esc_chars )
+      \     .' '
 	"
   exe  ':setlocal errorformat='.eval("s:PCerrorFormat".s:Perl_PerlcriticVerbosity)
+	:set makeprg=perlcritic
   "
 	if  s:MSWIN
-		silent exe ':make "'.fnameescape( expand("%:p") )."\""
+		silent exe ':make '.perlcriticoptions.'"'.expand("%:p").'"'
 	else
-		silent exe ':make '.fnameescape( expand("%:p") )
+		silent exe ':make '.perlcriticoptions.fnameescape( expand("%:p") )
 	endif
   "
 	redraw!
@@ -2169,14 +2194,10 @@ function! Perl_Perlcritic ()
     setlocal linebreak
 		let s:Perl_PerlcriticMsg	= 'perlcritic : '.sev_and_verb
   endif
+	redraw
+  echohl Search | echo s:Perl_PerlcriticMsg | echohl None
 
 endfunction   " ---------- end of function  Perl_Perlcritic  ----------
-"
-function! Perl_PerlcriticMsg ()
-  if s:Perl_PerlcriticMsg != ""
-    echohl Search | echo s:Perl_PerlcriticMsg | echohl None
-  endif
-endfunction   " ---------- end of function  Perl_PerlcriticMsg  ----------
 "
 "-------------------------------------------------------------------------------
 "   set severity for perlcritic     {{{1
@@ -2266,7 +2287,7 @@ function! Perl_PerlCriticOptions ( ... )
 	let s:Perl_PerlcriticOptions = ""
 	if a:0 > 0
 		let s:Perl_PerlcriticOptions = a:1
-	end
+	endif
 endfunction    " ----------  end of function Perl_PerlCriticOptions  ----------
 "
 "------------------------------------------------------------------------------
@@ -2312,6 +2333,7 @@ function! Perl_RemoveGuiMenus ()
       aunmenu <silent> File-Tests
       aunmenu <silent> Spec-Var
       aunmenu <silent> POD
+      aunmenu <silent> Profiling
       aunmenu <silent> Run
       aunmenu <silent> help
     else

@@ -3,20 +3,21 @@
 #
 #         FILE:  csv2err.pl
 #
-#        USAGE:  ./csv2err.pl [-hH] -i CSV-FILE [ -t TEMPDIR ]
+#        USAGE:  ./csv2err.pl [-hH] -i CSV-file -n source-file [ -o outfile ][ -s criterion ]
 #
 #  DESCRIPTION:  Generate a Vim-quickfix compatible errorfile from a CSV-file 
 #                produced by Devel::NYTProf.
-#
+#                Specify CSV-file with full path.
+#                Specify source-file with full path.
 #      OPTIONS:  ---
 # REQUIREMENTS:  ---
 #         BUGS:  ---
 #        NOTES:  ---
 #       AUTHOR:  Dr. Fritz Mehner (fgm), mehner@fh-swf.de
 #      COMPANY:  FH Südwestfalen, Iserlohn
-#      VERSION:  1.0
+#      VERSION:  2.0
 #      CREATED:  13.02.2009 17:04:00
-#     REVISION:  $Id: csv2err.pl,v 1.1 2009/02/19 19:21:01 mehner Exp $
+#     REVISION:  $Id: csv2err.pl,v 1.4 2009/12/27 17:32:34 mehner Exp $
 #===============================================================================
 
 use strict;
@@ -25,87 +26,182 @@ use warnings;
 use Getopt::Std;
 use File::Basename;
 
-our($opt_H, $opt_h, $opt_i, $opt_t);
-getopts('hHi:t:');                      	      # process command line arguments
+our( $opt_H, $opt_h, $opt_i, $opt_o, $opt_s, $opt_n );
+getopts('hHi:o:s:n:');                            # process command line arguments
 
-if ( defined $opt_h ) {                         # process option -h
-print <<EOF;
-usage: $0 [-hH] -i CSV-FILE -o ERR-FILE
-  -h       this message
-  -H       hot spots only ( time, calls, and time/call are zero)
-  -i       input file (CSV)
-  -t       temp dir to keep the extracted source file and the quickfix file (optional)
-EOF
-  exit 0;
+#-------------------------------------------------------------------------------
+#  check for parameters
+#-------------------------------------------------------------------------------
+if ( defined $opt_h || !defined $opt_i ) {      # process option -h
+	usage();
 }
 
-if ( ! defined $opt_i ) {
-  die "\nusage: $0 [-hH] -i CSV-FILE -o ERR-FILE\n";
-}
+my	$criterion		= 'file line time calls time_per_call';
+my	$sortcriterion	= 'none';
 
-my	$tmpdir	= '';
-if ( defined $opt_t ) {
-	$tmpdir	= $opt_t.'/';
+if ( defined $opt_s ) {
+	$sortcriterion	= $opt_s;
+	usage() until $criterion =~ m/\b$opt_s\b/;
 }
 
 my  $csv_file_name = $opt_i;                    # input file name
 
+#-------------------------------------------------------------------------------
+#  output file
+#-------------------------------------------------------------------------------
+
+if ( defined $opt_o ) {
+	open  FILE,  "> $opt_o" or do {
+		warn "Couldn't open $opt_o: $!.  Using STDOUT instead.\n";
+		undef $opt_o;
+	};
+}
+
+my $handle = ( defined $opt_o ? \*FILE : \*STDOUT );
+
+if ( defined $opt_o ) {
+	close  FILE
+		or warn "$0 : failed to close output file '$opt_o' : $!\n";
+	unlink $opt_o;
+}
+
+#-------------------------------------------------------------------------------
+#  prepare file names
+#  The quickfix format needs the absolute file name of the source file.
+#  This file name is constructed from the mame of the csv-file, e.g.
+#    PATH/nytprof/test-pl-line.csv
+#  gives
+#    PATH/test.pl
+#  The name of the output file is also constructed:
+#    PATH/nytprof/test.pl.err
+#-------------------------------------------------------------------------------
+my  $src_filename	= $opt_n;
+
+#-------------------------------------------------------------------------------
+#  read the CSV-file
+#-------------------------------------------------------------------------------
 open  my $csv, '<', $csv_file_name
   or die  "$0 : failed to open  input file '$csv_file_name' : $!\n";
 
-my  $rawline;
-my  $cookedline;
-my  @linepart;
-my  $sourcelinenumber = 0;
-my  $sourceline;
-my  $src_file_name		= $csv_file_name;
-my  $err_file_name;
+my  $line;
+foreach my $i ( 1..3 ) {                        # read the header
+	$line = <$csv>;
+	print $line;
+}
+$line = <$csv>;                                 # skip NYTProf format line
 
-$src_file_name 	=~ s/-(block|line|sub)\.csv$//;
-$src_file_name	= basename($src_file_name);    # remove path
+print "#\n# sort criterion:  $sortcriterion\n";
+print    "#         FORMAT:  filename : line number : time : calls : time/call : code\n#\n";
 
-$err_file_name	= $src_file_name;
-$err_file_name	.= '.err';
+my  @rawline= <$csv>;                           # rest of the CSV-file
+chomp @rawline;
 
-open  my $err, '>', $tmpdir.$err_file_name
-  or die  "$0 : failed to open  output file '$tmpdir.$err_file_name' : $!\n";
-
-open  my $src, '>', $tmpdir.$src_file_name
-	or die  "$0 : failed to open  output file '$tmpdir.$src_file_name' : $!\n";
-
+close  $csv
+  or warn "$0 : failed to close input file '$csv_file_name' : $!\n";
 
 #---------------------------------------------------------------------------
 # filter lines
 #  input format: <time>,<calls>,<time/call>,<source line> 
 # output format: <filename>:<line>:<time>:<calls>:<time/call>: <source line>
 #---------------------------------------------------------------------------
-while ( $rawline = <$csv> ) {
-  if ( $rawline =~ /^#/ ) {                     # comments produced by the profiler
-    print {$err} $rawline;
-  } else {                                      # timed source lines
-    $sourcelinenumber++;
-    @linepart   = split ( /,/, $rawline );
-    $sourceline	= join( ',', @linepart[3..$#linepart] );
-    $cookedline = $src_file_name.':'.$sourcelinenumber.':';
-    $cookedline .= join( ':', @linepart[0..2] ).': ';
-    $cookedline .= $sourceline;
-    if ( defined $opt_H ) {                     # drop lines which were never called?
-      if ( ($linepart[0]+$linepart[1]+$linepart[2] != 0 ) ) {
-        print {$err} $cookedline;
-      }
-    } else {
-      print {$err} $cookedline;
-    }
-      print {$src} $sourceline;
-  }
+my  $sourcelinenumber 	= 0;
+my  $sourceline;
+my  $cookedline;
+my  @linepart;
+my  @line;
+my	$delim	= ':';
+
+
+foreach my $n ( 0..$#rawline ) {
+	$sourcelinenumber++;
+	@linepart    = split ( /,/, $rawline[$n] );
+	$sourceline	 = join( ',', @linepart[3..$#linepart] );
+	$cookedline  = $src_filename.$delim.$sourcelinenumber.$delim;
+	$cookedline .= join( $delim, @linepart[0..2] ).$delim.' ';
+	$cookedline .= $sourceline;
+	unless ( defined $opt_H && ( $linepart[0]+$linepart[1]+$linepart[2] == 0 ) ) {
+		push @line, $cookedline;
+	}
 }
 
-close  $csv
-  or warn "$0 : failed to close input file '$csv_file_name' : $!\n";
+#-------------------------------------------------------------------------------
+#  sort file names (field index 0)
+#-------------------------------------------------------------------------------
+if ( $sortcriterion eq 'file' ) {
+	@line	= sort {
+		my $ind	= ( $a !~ m/^[[:alpha:]]$delim/ ) ? 0 : 1;
+		my @a	= split /$delim/, $a;
+		my @b	= split /$delim/, $b;
+        $a[$ind] cmp $b[$ind];                  # ascending
+	} @line;
+}
 
-close  $err
-  or warn "$0 : failed to close output file '$err_file_name' : $!\n";
+#-------------------------------------------------------------------------------
+#  sort line numbers (field index 1)
+#-------------------------------------------------------------------------------
+if ( $sortcriterion eq 'line' ) {
+	@line	= sort {
+		my $ind	= ( $a !~ m/^[[:alpha:]]$delim/ ) ? 1 : 2;
+		my @a	= split /$delim/, $a;
+		my @b	= split /$delim/, $b;
+        $a[$ind] <=> $b[$ind];                  # ascending
+	} @line;
+}
 
-close  $src
-	or warn "$0 : failed to close output file '$src_file_name' : $!\n";
+#-------------------------------------------------------------------------------
+#  sort time (index 2)
+#-------------------------------------------------------------------------------
+if ( $sortcriterion eq 'time'  ) {
+	@line	= sort {
+		my $ind	= ( $a !~ m/^[[:alpha:]]$delim/ ) ? 2 : 3;
+		my @a	= split /$delim/, $a;
+		my @b	= split /$delim/, $b;
+        $b[$ind] <=> $a[$ind];                  # descending
+	} @line;
+}
 
+#-------------------------------------------------------------------------------
+#  sort calls (index 3)
+#-------------------------------------------------------------------------------
+if ( $sortcriterion eq 'calls'  ) {
+	@line	= sort {
+		my $ind	= ( $a !~ m/^[[:alpha:]]$delim/ ) ? 3 : 4;
+		my @a	= split /$delim/, $a;
+		my @b	= split /$delim/, $b;
+        $b[$ind] <=> $a[$ind];                  # descending
+	} @line;
+}
+
+#-------------------------------------------------------------------------------
+#  sort time_per_call (index 4)
+#-------------------------------------------------------------------------------
+if ( $sortcriterion eq 'time_per_call'  ) {
+	@line	= sort {
+		my $ind	= ( $a !~ m/^[[:alpha:]]$delim/ ) ? 4 : 5;
+		my @a	= split /$delim/, $a;
+		my @b	= split /$delim/, $b;
+        $b[$ind] <=> $a[$ind];                  # descending
+	} @line;
+}
+
+#-------------------------------------------------------------------------------
+#  write result
+#-------------------------------------------------------------------------------
+foreach my $line ( @line ) {
+	print $line, "\n";
+}
+
+#-------------------------------------------------------------------------------
+#  subroutine usage()
+#-------------------------------------------------------------------------------
+sub usage {
+print <<EOF;
+usage: $0 [-hH] -i CSV-file -n source-file  [ -o outfile ][ -s criterion ]
+  -h       this message
+  -H       hot spots only ( time, calls, and time/call are zero)
+  -i       input file (CSV)
+  -n       source file (*.pl or *.pm)
+  -s       sort criterion (file, line,  time, calls, time_per_call)
+EOF
+exit 0;
+}	# ----------  end of subroutine usage  ----------

@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  22.02.2009
-"      Revision:  $Id: perlsupportprofiling.vim,v 1.5 2009/09/16 16:48:46 mehner Exp $
+"      Revision:  $Id: perlsupportprofiling.vim,v 1.9 2009/12/27 17:33:30 mehner Exp $
 "       License:  Copyright 2009 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -34,7 +34,7 @@ if  s:MSWIN
 	"
 else
   " ==========  Linux/Unix  ======================================================
-	let s:escfilename = ' \%#[]'
+	let s:escfilename 	= ' \%#[]'
 	let s:installation	= 'local'
 	if match( expand("<sfile>"), $VIM ) >= 0
 		" system wide installation
@@ -50,9 +50,6 @@ endif
 "------------------------------------------------------------------------------
 "  run : SmallProf, data structures     {{{1
 "------------------------------------------------------------------------------
-let s:Perl_ProfTempSrc		      = ''
-let s:Perl_ProfTempErr		      = ''
-let s:Perl_ProfTempDir		      = ''
 let s:Perl_CWD									= ''
 let s:Perl_SmallProfOutput   		= 'smallprof.out'
 let s:Perl_SmallProfErrorFormat	= '%f:%l:%m'
@@ -90,7 +87,17 @@ function! perlsupportprofiling#Perl_Smallprof ()
 	let s:Perl_CWD	= getcwd()
   echohl Search | echon ' ... profiling ... ' | echohl None
   "
-	let	profilercmd	= 'SMALLPROF_CONFIG=gz perl -d:SmallProf '.Sou.l:arguments
+	if  s:MSWIN
+		if filereadable( '.smallprof' )
+			let	profilercmd	= 'perl -d:SmallProf "'.Sou.l:arguments.'"'
+		else
+			echon "you need a config file '.smallprof' / please see the plugin help"
+			return
+		endif
+	else
+		" g : grep format / z : drop zeros (lines which were never called)
+		let	profilercmd	= 'SMALLPROF_CONFIG=gz perl -d:SmallProf '.Sou.l:arguments
+	endif
 	let errortext	= system(profilercmd)
   "
   if v:shell_error
@@ -102,18 +109,37 @@ function! perlsupportprofiling#Perl_Smallprof ()
 	redraw!
   echon ' profiling done '
   "
-  exe ':setlocal errorformat='.s:Perl_SmallProfErrorFormat
-	exe ':cfile '.s:Perl_SmallProfOutput
-	exe ':copen'
-	exe ':match Visual '.s:Perl_SmallProfSortQuickfixHL['time']
-  exe ':setlocal nowrap'
+	call perlsupportprofiling#Perl_Smallprof_OpenQuickfix ()
 
 endfunction   " ---------- end of function  Perl_Smallprof  ----------
+"
+"------------------------------------------------------------------------------
+"  run : SmallProf, open existing statistics file    {{{1
+"------------------------------------------------------------------------------
+function! perlsupportprofiling#Perl_Smallprof_OpenQuickfix ()
+	if filereadable( s:Perl_SmallProfOutput )
+		exe ':setlocal errorformat='.s:Perl_SmallProfErrorFormat
+		exe ':cfile '.s:Perl_SmallProfOutput
+		exe ':copen'
+		exe ':match Visual '.s:Perl_SmallProfSortQuickfixHL['time']
+		exe ':setlocal nowrap'
+	else
+		echon "No profiling statistics file '".s:Perl_SmallProfOutput."' found."
+	endif
+endfunction    " ----------  end of function Perl_Smallprof_OpenQuickfix  ----------
 "
 "------------------------------------------------------------------------------
 "  run : SmallProf, sort report     {{{1
 "  Rearrange the profiler report.
 "------------------------------------------------------------------------------
+let s:Perl_SmallProfSortSkipRegex	= {
+	\		 'file-name'   : '' , 
+	\		 'line-number' : '  n /^[^:]\+:/' , 
+	\		 'line-count'  : '! n /^[^:]\+:\d\+:/' , 
+	\		 'time'        : '! n /^[^:]\+:\d\+:\d\+:/' , 
+	\		 'ctime'       : '! n /^[^:]\+:\d\+:\d\+:\d\+:/' , 
+	\		 }
+
 function! perlsupportprofiling#Perl_SmallProfSortQuickfix ( mode )
 	"
 	if &filetype == 'qf'
@@ -122,29 +148,19 @@ function! perlsupportprofiling#Perl_SmallProfSortQuickfix ( mode )
 			echomsg	'Allowed sort keys : ['.join( keys(s:Perl_SmallProfSortQuickfixField), '|' ).'].'
 			return
 		endif
-		let	reverse	= ' --reverse'
-		if s:Perl_SmallProfSortQuickfixField[a:mode] <= 2
-			let	reverse	= ''
-		endif
-		if s:Perl_ProfTempErr	== ''
-			let	s:Perl_ProfTempErr	= tempname()
-		endif
-		let sortcmd		= 'sort '.reverse
-		let sortcmd	 .= ' --numeric-sort'
-		let sortcmd	 .= ' --field-separator=:'
-		let sortcmd	 .= ' --key='.s:Perl_SmallProfSortQuickfixField[a:mode]
-		let sortcmd	 .= ' --output='.s:Perl_ProfTempErr
-		let sortcmd	 .= ' '.s:Perl_CWD.'/smallprof.out'
-		let	rval		= system( sortcmd )
-		if v:shell_error
-			echomsg	"Shell command '".sortcmd."' failed."
-			return
-		endif
+		"
+		let filename	= escape( s:Perl_CWD.'/'.s:Perl_SmallProfOutput, s:escfilename )
+		exe ':edit '.filename
+		exe ':2,$sort'.s:Perl_SmallProfSortSkipRegex[a:mode]
+		let currentbuffer	= bufnr("%")
+		:exit
+		exe ':bdelete '.currentbuffer
+
 		exe ':setlocal errorformat='.s:Perl_SmallProfErrorFormat
-		exe ':cfile '.s:Perl_ProfTempErr
-		exe ':copen'
+		exe ':cfile '.filename
+		:copen
 		exe ':match Visual '.s:Perl_SmallProfSortQuickfixHL[a:mode]
-		exe ':setlocal nowrap'
+		:setlocal nowrap
 		"
 	else
 		echomsg 'the current buffer is not a QuickFix List (error list)'
@@ -224,33 +240,52 @@ function! perlsupportprofiling#Perl_Fastprof ()
     return
   endif
   "
-	if s:Perl_Fprofpp	== ''
-		let	s:Perl_Fprofpp	= tempname()
-	endif
-	let	profilercmd	= 'fprofpp > '.s:Perl_Fprofpp
-	let errortext	= system( profilercmd )
-  "
-  if v:shell_error
-    redraw
-		echon errortext
-    return
-  endif
+	call perlsupportprofiling#Perl_FastProf_OpenQuickfix ()
 	"
 	redraw!
   echon ' profiling done '
-  "
-  exe ':setlocal errorformat='.s:Perl_FastProfErrorFormat
-	exe ':cfile '.s:Perl_Fprofpp
-	exe ':copen'
-	exe ':match Visual '.s:Perl_FastProfSortQuickfixHL['time']
-  exe ':setlocal nowrap'
 
 endfunction   " ---------- end of function  Perl_Fastprof  ----------
 "
 "------------------------------------------------------------------------------
+"  run : FastProf, open existing statistics file    {{{1
+"------------------------------------------------------------------------------
+function! perlsupportprofiling#Perl_FastProf_OpenQuickfix ()
+  "
+	if filereadable( s:Perl_FastProfOutput )
+		if s:Perl_Fprofpp	== ''
+			let	s:Perl_Fprofpp	= tempname()
+		endif
+		let	profilercmd	= 'fprofpp > '.s:Perl_Fprofpp
+		let errortext	= system( profilercmd )
+		"
+		if v:shell_error
+			redraw
+			echon errortext
+			return
+		endif
+		"
+		exe ':setlocal errorformat='.s:Perl_FastProfErrorFormat
+		exe ':cfile '.s:Perl_Fprofpp
+		exe ':copen'
+		exe ':match Visual '.s:Perl_FastProfSortQuickfixHL['time']
+		exe ':setlocal nowrap'
+	else
+		echon "No profiling statistics file '".s:Perl_FastProfOutput."' found."
+	endif
+endfunction   " ---------- end of function  Perl_FastProf_OpenQuickfix  ----------
+
+"------------------------------------------------------------------------------
 "  run : FastProf, sort report     {{{1
 "  Rearrange the profiler report.
 "------------------------------------------------------------------------------
+let s:Perl_FastProfSortSkipRegex	= {
+	\		 'file-name'   : '' , 
+	\		 'line-number' : '  n /^[^:]\+:/' , 
+	\		 'time'        : '  n /^[^:]\+:/d\+ ' , 
+	\		 'line-count'  : '! n /^[^:]\+:\d\+ \d\+\.\d\+ /' , 
+	\		 }
+
 function! perlsupportprofiling#Perl_FastProfSortQuickfix ( mode )
 	"
 	if &filetype == 'qf'
@@ -259,31 +294,30 @@ function! perlsupportprofiling#Perl_FastProfSortQuickfix ( mode )
 			echomsg	'Allowed sort keys : ['.join( keys(s:Perl_FastProfSortQuickfixField), '|' ).'].'
 			return
 		endif
-		let	reverse	= ' --reverse'
-		if a:mode == 'file-name' || a:mode == 'line-number'
-			let	reverse	= ''
+		"
+		if a:mode == 'time'
+			" generate new data to avoid sorting
+			let	profilercmd	= 'fprofpp -r > '.s:Perl_Fprofpp
+			let errortext	= system( profilercmd )
+			"
+			if v:shell_error
+				redraw
+				echon errortext
+				return
+			endif
+		else
+			exe ':edit '.s:Perl_Fprofpp
+			exe ':3,$sort'.s:Perl_FastProfSortSkipRegex[a:mode]
+			let currentbuffer	= bufnr("%")
+			:exit
+			exe ':bdelete '.currentbuffer
 		endif
-		if s:Perl_ProfTempErr	== ''
-			let	s:Perl_ProfTempErr	= tempname()
-		endif
-		let sortcmd		= 'sort '.reverse
-		let sortcmd	 .= ' --numeric-sort'
-		if a:mode == 'line-number'
-			let sortcmd	 .= ' --field-separator=:'
-		endif
-		let sortcmd	 .= ' --key='.s:Perl_FastProfSortQuickfixField[a:mode]
-		let sortcmd	 .= ' --output='.s:Perl_ProfTempErr
-		let sortcmd	 .= ' '.s:Perl_Fprofpp
-		let	rval		= system( sortcmd )
-		if v:shell_error
-			echomsg	"Shell command '".sortcmd."' failed."
-			return
-		endif
+		"
 		exe ':setlocal errorformat='.s:Perl_FastProfErrorFormat
-		exe ':cfile '.s:Perl_ProfTempErr
-		exe ':copen'
+		exe ':cfile '.s:Perl_Fprofpp
+		:copen
 		exe ':match Visual '.s:Perl_FastProfSortQuickfixHL[a:mode]
-		exe ':setlocal nowrap'
+		:setlocal nowrap
 		"
 	else
 		echomsg 'the current buffer is not a QuickFix List (error list)'
@@ -313,22 +347,14 @@ endif
 
 let s:Perl_csv2err            = s:plugin_dir.'perl-support/scripts/csv2err.pl'
 let s:Perl_NYTProfErrorFormat	= '%f:%l:%m'
-let s:Perl_NYTProfCSVfile			= ''
-
-let s:Perl_NYTProfSortQuickfixField	= {
-	\		 'file-name'   : 1 , 
-	\		 'line-number' : 2 , 
-	\		 'time'        : 3 , 
-	\		 'calls'       : 4 , 
-	\		 'time-call'   : 5 , 
-	\		 }
+let g:Perl_NYTProfCSVfile			= ''
 
 let s:Perl_NYTProfSortQuickfixHL	= {
-	\		 'file-name'   : '/^[^|]\+/' , 
-	\		 'line-number' : '/|\d\+|/' , 
-	\		 'time'        : '/\(| \)\@<=\d\+\.\d\+:\@=/' , 
-	\		 'calls'       : '/:\@<=\d\+:\@=/' , 
-	\		 'time-call'   : '/:\@<=\d\+\.\d\+\(: \)\@=/' , 
+	\		 'file'   			 : '/^[^|]\+/' , 
+	\		 'line' 				 : '/|\d\+|/' , 
+	\		 'time'       	 : '/\(| \)\@<=\d\+\.\d\+:\@=/' , 
+	\		 'calls'   		   : '/:\@<=\d\+:\@=/' , 
+	\		 'time_per_call' : '/:\@<=\d\+\.\d\+\(: \)\@=/' , 
 	\		 }
 
 "------------------------------------------------------------------------------
@@ -345,10 +371,13 @@ function! perlsupportprofiling#Perl_NYTprof ()
   "
   let l:arguments       = exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
   "
-	let s:Perl_CWD	= getcwd()
   echohl Search | echon ' ... profiling ... ' | echohl None
   "
-	let	profilercmd	= 'perl -d:NYTProf '.Sou.l:arguments
+	if  s:MSWIN
+		let	profilercmd	= 'perl -d:NYTProf "'.Sou.l:arguments.'"'
+	else
+		let	profilercmd	= 'perl -d:NYTProf '.Sou.l:arguments
+	endif
 	let errortext	= system(profilercmd)
   "
   if v:shell_error
@@ -386,73 +415,85 @@ endfunction   " ---------- end of function  Perl_NYTprof  ----------
 "------------------------------------------------------------------------------
 "  run : NYTProf, generate statistics     {{{1
 "  Also called in the filetype plugin perl.vim
+"  mode				: read, sort
+"  criterion	: file, line, time, calls, time_per_call
 "------------------------------------------------------------------------------
-function! perlsupportprofiling#Perl_NYTprofReadCSV ()
+function! perlsupportprofiling#Perl_NYTprofReadCSV ( mode, criterion )
 
-"	let s:Perl_CWD	= getcwd()
-	if has("gui_running")
-		let s:Perl_NYTProfCSVfile	= browse( 0, 'read a Devel::NYTProf CSV-file', '', '' )
-	else
-		let	s:Perl_NYTProfCSVfile	= input( 'read a Devel::NYTProf CSV-file : ', '', "file" )
-	end
-	let s:Perl_NYTProfCSVfile	= substitute( s:Perl_NYTProfCSVfile, '^\s\+', '', '' )
-	let s:Perl_NYTProfCSVfile	= substitute( s:Perl_NYTProfCSVfile, '\s\+$', '', '' )
-	"
-	" return if command canceled
-	if s:Perl_NYTProfCSVfile =~ '^$'
+	if a:mode == 'sort' && &filetype != 'qf'
+		echomsg 'the current buffer is not a QuickFix List (error list)'
 		return
 	endif
+
+	if a:mode == 'read' || g:Perl_NYTProfCSVfile == ''
+		if has("gui_running")
+			let g:Perl_NYTProfCSVfile	= browse( 0, 'read a Devel::NYTProf CSV-file', 'nytprof', '*.csv' )
+		else
+			let	g:Perl_NYTProfCSVfile	= input( 'read a Devel::NYTProf CSV-file : ', '', "file" )
+		end
+		let g:Perl_NYTProfCSVfile	= substitute( g:Perl_NYTProfCSVfile, '^\s\+', '', '' )
+		let g:Perl_NYTProfCSVfile	= substitute( g:Perl_NYTProfCSVfile, '\s\+$', '', '' )
+		"
+		" return if command canceled
+		if g:Perl_NYTProfCSVfile =~ '^$'
+			return
+		endif
+		"
+		" return if not a CSV file
+		if g:Perl_NYTProfCSVfile !~ '\.csv$'
+			echohl WarningMsg | echo g:Perl_NYTProfCSVfile.' seems not to be a CSV file' | echohl None
+			return
+		endif
+		" full path, remove filename and last directory:
+		let	currentworkingdirectory	= fnamemodify( g:Perl_NYTProfCSVfile, ":p:h:h" )
+		let g:Perl_NYTProfCSVfile		= currentworkingdirectory.'/'.g:Perl_NYTProfCSVfile
+	endif
 	"
-	" return if not a CSV file
-	if s:Perl_NYTProfCSVfile !~ '-\(block\|line\|sub\)\.csv$'
-    echohl WarningMsg | echo s:Perl_NYTProfCSVfile.' seems not to be a CSV file' | echohl None
-    return
-  endif
+	let sourcefilename	= substitute( g:Perl_NYTProfCSVfile, '-\(pl\|pm\)-\(block\|line\|sub\)\.csv$', '.\1', '' )
+	let sourcefilename	= substitute( sourcefilename, '\/nytprof', '', '' )
 
-	let	s:Perl_CWD = fnamemodify( s:Perl_NYTProfCSVfile, ":p:h:h" )
-
-  " get the name of the current temp directory
-	if s:Perl_ProfTempDir	== ''
-		let	s:Perl_ProfTempDir	= fnamemodify( tempname(), ":p:h" )
+	if !filereadable( sourcefilename )
+		let	sourcefilename_save	= sourcefilename
+		let sourcefilename	= findfile( fnamemodify( sourcefilename, ":t") )
+		if sourcefilename == ''
+			echomsg "Could not find file '".sourcefilename_save."'"
+			return
+		endif
 	endif
-	" get the name of the source file corresponding to the CSSV file
-	let	s:Perl_ProfTempSrc	= substitute( s:Perl_NYTProfCSVfile, '-\(block\|line\|sub\)\.csv$', '', '' )
-	if s:Perl_ProfTempSrc =~ '/'
-		let	s:Perl_ProfTempSrc	= split( s:Perl_ProfTempSrc, '/' )[-1]
-	endif
-
-	let	sourcepresent	= 'yes'
-
-	if findfile( s:Perl_ProfTempSrc, s:Perl_CWD ) != ''
-		let	s:Perl_ProfTempErr	= s:Perl_ProfTempDir.'/'.s:Perl_ProfTempSrc.'.err'
-		let	s:Perl_ProfTempSrc	= s:Perl_CWD.'/'.s:Perl_ProfTempSrc
+	"
+	let	makeprg_saved	= &makeprg
+	exe ':setlocal errorformat='.s:Perl_NYTProfErrorFormat
+	"
+	exe ":setlocal makeprg=perl"
+	if  s:MSWIN
+		silent exe ':make "'.s:Perl_csv2err.'" -s '.a:criterion
+					\							.' -i "'.g:Perl_NYTProfCSVfile.'"'
+					\							.' -n "'.sourcefilename.'"'
 	else
-		let	s:Perl_ProfTempSrc	= s:Perl_ProfTempDir.'/'.s:Perl_ProfTempSrc
-		let	s:Perl_ProfTempErr	= s:Perl_ProfTempSrc.'.err'
-		let	sourcepresent	= 'no'
+		silent exe ':make  '.s:Perl_csv2err.'  -s '.a:criterion
+					\						.' -i  '.escape( g:Perl_NYTProfCSVfile, s:escfilename )
+					\						.' -n  '.escape( sourcefilename, s:escfilename )
 	endif
-
-	let	profilercmd	= 'perl '.s:Perl_csv2err.' -H -i '.s:Perl_NYTProfCSVfile.' -t '.s:Perl_ProfTempDir
-	let errortext	= system( profilercmd )
-  "
-  if v:shell_error
-    redraw
-		echon errortext
-    return
-  endif
-  "
-  exe ':setlocal errorformat='.s:Perl_NYTProfErrorFormat
-	if sourcepresent == 'yes'
-		exe ':edit  '.s:Perl_ProfTempSrc
-	else
-		exe ':view  '.s:Perl_ProfTempSrc
-		exe ':lchdir '.s:Perl_ProfTempDir
-	endif
-	exe ':cfile '.s:Perl_ProfTempErr
-	exe ':copen'
+	"
+	exe ":setlocal makeprg=".makeprg_saved
+	exe	":botright cwindow"
+	copen
+	setlocal modifiable
+	exe ':match Visual '.s:Perl_NYTProfSortQuickfixHL[a:criterion]
   exe ':setlocal nowrap'
+	setlocal nomodifiable
 
 endfunction   " ---------- end of function  Perl_NYTprofReadCSV  ----------
+
+"------------------------------------------------------------------------------
+"  run : NYTProf, generate statistics     {{{1
+"  Also called in the filetype plugin perl.vim
+"  mode				: read, sort
+"  criterion	: file, line, time, calls, time_per_call
+"------------------------------------------------------------------------------
+function! perlsupportprofiling#Perl_NYTProfSortQuickfix ( criterion )
+	call perlsupportprofiling#Perl_NYTprofReadCSV( 'sort', a:criterion )
+endfunction   " ---------- end of function Perl_NYTProfSortQuickfix   ----------
 "
 "------------------------------------------------------------------------------
 "  run : NYTProf, generate statistics     {{{1
@@ -484,52 +525,10 @@ function! perlsupportprofiling#Perl_NYTprofReadHtml ()
 endfunction   " ---------- end of function  Perl_NYTprofReadHtml  ----------
 "
 "------------------------------------------------------------------------------
-"  run : NYTProf, sort report     {{{1
-"  Rearrange the profiler report.
-"------------------------------------------------------------------------------
-function! perlsupportprofiling#Perl_NYTProfSortQuickfix ( mode )
-	"
-	if &filetype == 'qf'
-		"
-		if ! has_key( s:Perl_NYTProfSortQuickfixField, a:mode )
-			echomsg	'Allowed sort keys : ['.join( keys(s:Perl_NYTProfSortQuickfixField), '|' ).'].'
-			return
-		endif
-		let	reverse	= ' --reverse'
-		if s:Perl_NYTProfSortQuickfixField[a:mode] <= 2
-			let	reverse	= ''
-		endif
-		if s:Perl_ProfTempErr	== ''
-			let	s:Perl_ProfTempErr	= tempname()
-		endif
-		let sortcmd		= 'sort '.reverse
-		let sortcmd	 .= ' --numeric-sort'
-		let sortcmd	 .= ' --field-separator=:'
-		let sortcmd	 .= ' --key='.s:Perl_NYTProfSortQuickfixField[a:mode]
-		let sortcmd	 .= ' --output='.s:Perl_ProfTempErr
-		let sortcmd	 .= ' '.s:Perl_ProfTempErr
-		let	rval		= system( sortcmd )
-		if v:shell_error
-			echomsg	"Shell command '".sortcmd."' failed."
-			return
-		endif
-		exe ':setlocal errorformat='.s:Perl_NYTProfErrorFormat
-		exe ':cfile '.s:Perl_ProfTempErr
-		exe ':copen'
-		exe ':match Visual '.s:Perl_NYTProfSortQuickfixHL[a:mode]
-		exe ':setlocal nowrap'
-		"
-	else
-		echomsg 'the current buffer is not a QuickFix List (error list)'
-	endif
-	"
-endfunction    " ----------  end of function Perl_NYTProfSortQuickfix  ----------
-"
-"------------------------------------------------------------------------------
 "  run : NYTProf, ex command tab expansion     {{{1
 "------------------------------------------------------------------------------
 function!	perlsupportprofiling#Perl_NYTProfSortList ( ArgLead, CmdLine, CursorPos )
-	return	perlsupportprofiling#Perl_ProfSortList( a:ArgLead, keys(s:Perl_NYTProfSortQuickfixField) )
+	return	perlsupportprofiling#Perl_ProfSortList( a:ArgLead, keys(s:Perl_NYTProfSortQuickfixHL) )
 endfunction    " ----------  end of function Perl_NYTProfSortList  ----------
 
 " vim: tabstop=2 shiftwidth=2 foldmethod=marker

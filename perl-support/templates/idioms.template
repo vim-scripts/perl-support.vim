@@ -45,7 +45,7 @@ sub |?FUNCTION_NAME| {
 <SPLIT>	return ;
 }	# ----------  end of subroutine |FUNCTION_NAME|  ----------
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.print ==
+== idioms.print == insert ==
 print "<CURSOR>\n";
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.open-input-file ==
