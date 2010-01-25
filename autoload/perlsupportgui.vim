@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.29 2009/12/28 12:47:05 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.30 2010/01/06 17:33:46 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -71,7 +71,7 @@ function! perlsupportgui#Perl_InitMenu ()
   "
   exe "amenu <silent>  ".g:Perl_Root."&Comments.toggle\\ &comment<Tab>\\cc         :call Perl_CommentToggle()<CR>j"
   exe "imenu <silent>  ".g:Perl_Root."&Comments.toggle\\ &comment<Tab>\\cc    <C-C>:call Perl_CommentToggle()<CR>j"
-  exe "vmenu <silent>  ".g:Perl_Root."&Comments.toggle\\ &comment<Tab>\\cc    <C-C>:'<,'>call Perl_CommentToggle()<CR>j"
+	exe "vmenu <silent>  ".g:Perl_Root."&Comments.toggle\\ &comment<Tab>\\\\cc  <C-C>:call Perl_CommentToggleRange()<CR>j"
 
   exe "amenu <silent>  ".g:Perl_Root.'&Comments.comment\ &block<Tab>\\cb           :call Perl_CommentBlock("a")<CR>'
   exe "imenu <silent>  ".g:Perl_Root.'&Comments.comment\ &block<Tab>\\cb      <C-C>:call Perl_CommentBlock("a")<CR>'

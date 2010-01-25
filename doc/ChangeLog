@@ -1,4 +1,17 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.6
+---------------------------------------------------------------------------------------
+- The profilers Devel::SmallProf and Devel::NYTProf can now be used under Windows.
+- New profiler menu.
+- New hotkeys for calling podchecker and the pod2xxx converter.
+- Pathnames can contain blanks.
+- Template completion: behavior of Ctrl-j improved.
+- Template system: new attributes 'indent', 'noindent'
+- Comment alignment improved.
+- Bugfix (Windows). snippet directory unreachable.
+- Minor improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.5
 ---------------------------------------------------------------------------------------
 - Profiler NYTProf: menu item and ex-command to start a html-viewer.

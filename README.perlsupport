@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.6) / December 24 2009
+README for perl-support.vim (Version 4.6.1) / January 23 2010
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -33,9 +33,11 @@ for LINUX/UNIX ($VIM/vimfiles/ for Windows; find the value of $VIM with
 
       unzip perl-support.zip
 
-    If you have already an older version of perl-support and you have modified
-    the template files you may want to save your templates first or copy the 
-    files from the archive by hand.
+    If you have already an older version of bash-support and you have modified
+    the template files you may want to save your templates first and suppress
+    overwriting them with
+
+      unzip perl-support.zip  -x *Templates *.template
 
 (2) Loading of plugin files must be enabled. If not use
       :filetype plugin on
@@ -94,17 +96,10 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.6
+  RELEASE NOTES FOR VERSION 4.6.1
 ---------------------------------------------------------------------------------------
-- The profilers Devel::SmallProf and Devel::NYTProf can now be used under Windows.
-- New profiler menu.
-- New hotkeys for calling podchecker and the pod2xxx converter.
-- Pathnames can contain blanks.
-- Template completion: behavior of Ctrl-j improved.
-- Template system: new attributes 'indent', 'noindent'
-- Comment alignment improved.
-- Bugfix (Windows). snipet directory unreachable.
-- Minor improvements.
+- Bugfix (Vim, not gVim): screen isn't refreshing properly when using syntax
+	check and a few other commands (thanks to Iain Arnell).
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

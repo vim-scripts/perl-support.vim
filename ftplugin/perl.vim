@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.60 2009/12/28 12:47:05 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.62 2010/01/23 18:02:15 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -42,7 +42,7 @@ endif
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
 "
 if exists("g:Perl_Dictionary_File")
-	let	save=&dictionary
+  let save=&dictionary
   silent! exe 'setlocal dictionary='.g:Perl_Dictionary_File
   silent! exe 'setlocal dictionary+='.save
 endif
@@ -60,8 +60,8 @@ command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_SmallProfSortLi
         \ call  perlsupportprofiling#Perl_SmallProfSortQuickfix ( <f-args> )
 "
 if  !s:MSWIN
-	command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_FastProfSortList FastProfSort
-				\ call  perlsupportprofiling#Perl_FastProfSortQuickfix ( <f-args> )
+  command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_FastProfSortList FastProfSort
+        \ call  perlsupportprofiling#Perl_FastProfSortQuickfix ( <f-args> )
 endif
 "
 command! -nargs=1 -complete=customlist,perlsupportprofiling#Perl_NYTProfSortList NYTProfSort
@@ -149,7 +149,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   inoremap    <buffer>  <silent>  <LocalLeader>ckn   <C-C>$:call Perl_InsertTemplate("comment.keyword-keyword")<CR>
 
   nnoremap    <buffer>  <silent>  <LocalLeader>cc              :call Perl_CommentToggle()<CR>j
-  vnoremap    <buffer>  <silent>  <LocalLeader>cc    <C-C>:'<,'>call Perl_CommentToggle()<CR>j
+  vnoremap    <buffer>  <silent>  <LocalLeader>cc    <C-C>:'<,'>call Perl_CommentToggleRange()<CR>j
 
   nnoremap    <buffer>  <silent>  <LocalLeader>cd    <Esc>:call Perl_InsertDateAndTime("d")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>cd    <Esc>:call Perl_InsertDateAndTime("d")<CR>a
@@ -170,7 +170,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   nnoremap    <buffer>  <silent>  <LocalLeader>sfe             :call Perl_InsertTemplate("statements.foreach")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>si              :call Perl_InsertTemplate("statements.if")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>sie             :call Perl_InsertTemplate("statements.if-else")<CR>
-	nnoremap    <buffer>  <silent>  <LocalLeader>se              :call Perl_InsertTemplate("statements.else")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>se              :call Perl_InsertTemplate("statements.else")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>sei             :call Perl_InsertTemplate("statements.elsif")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>su              :call Perl_InsertTemplate("statements.unless")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>sue             :call Perl_InsertTemplate("statements.unless-else")<CR>
@@ -184,7 +184,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   vnoremap    <buffer>  <silent>  <LocalLeader>sfe   <C-C>:call Perl_InsertTemplate("statements.foreach", "v" )<CR>
   vnoremap    <buffer>  <silent>  <LocalLeader>si    <C-C>:call Perl_InsertTemplate("statements.if", "v" )<CR>
   vnoremap    <buffer>  <silent>  <LocalLeader>sie   <C-C>:call Perl_InsertTemplate("statements.if-else", "v" )<CR>
-	vnoremap    <buffer>  <silent>  <LocalLeader>se    <C-C>:call Perl_InsertTemplate("statements.else", "v" )<CR>
+  vnoremap    <buffer>  <silent>  <LocalLeader>se    <C-C>:call Perl_InsertTemplate("statements.else", "v" )<CR>
   vnoremap    <buffer>  <silent>  <LocalLeader>sei   <C-C>:call Perl_InsertTemplate("statements.elsif", "v" )<CR>
   vnoremap    <buffer>  <silent>  <LocalLeader>su    <C-C>:call Perl_InsertTemplate("statements.unless", "v" )<CR>
   vnoremap    <buffer>  <silent>  <LocalLeader>sue   <C-C>:call Perl_InsertTemplate("statements.unless-else", "v" )<CR>
@@ -198,7 +198,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   inoremap    <buffer>  <silent>  <LocalLeader>sfe   <C-C>:call Perl_InsertTemplate("statements.foreach")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>si    <C-C>:call Perl_InsertTemplate("statements.if")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>sie   <C-C>:call Perl_InsertTemplate("statements.if-else")<CR>
-	inoremap    <buffer>  <silent>  <LocalLeader>se    <C-C>:call Perl_InsertTemplate("statements.else")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>se    <C-C>:call Perl_InsertTemplate("statements.else")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>sei   <C-C>:call Perl_InsertTemplate("statements.elsif")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>su    <C-C>:call Perl_InsertTemplate("statements.unless")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>sue   <C-C>:call Perl_InsertTemplate("statements.unless-else")<CR>
@@ -352,15 +352,9 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   inoremap    <buffer>  <silent>  <LocalLeader>ra    <C-C>:call Perl_Arguments()<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>rw    <C-C>:call Perl_PerlSwitches()<CR>
   "
-  if has("gui_running")
-     noremap    <buffer>  <silent>  <LocalLeader>rd         :call Perl_Debugger()<CR>
-     noremap    <buffer>  <silent>    <F9>             :call Perl_Debugger()<CR>
-    inoremap    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>
-  else
-     noremap    <buffer>  <silent>  <LocalLeader>rd         :call Perl_Debugger()<CR>:redraw!<CR>
-     noremap    <buffer>  <silent>    <F9>             :call Perl_Debugger()<CR>:redraw!<CR>
-    inoremap    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>:redraw!<CR>
-  endif
+   noremap    <buffer>  <silent>  <LocalLeader>rd    :call Perl_Debugger()<CR>
+   noremap    <buffer>  <silent>    <F9>             :call Perl_Debugger()<CR>
+  inoremap    <buffer>  <silent>    <F9>        <C-C>:call Perl_Debugger()<CR>
   "
   if s:UNIX
      noremap    <buffer>  <silent>  <LocalLeader>re         :call Perl_MakeScriptExecutable()<CR>
@@ -371,7 +365,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
    map    <buffer>  <silent>  <LocalLeader>h          :call Perl_perldoc()<CR>
   "
    map    <buffer>  <silent>  <LocalLeader>ri         :call Perl_perldoc_show_module_list()<CR>
-   map    <buffer>  <silent>  <LocalLeader>rg         :call Perl_perldoc_generate_module_list()<CR>:redraw!<CR>
+   map    <buffer>  <silent>  <LocalLeader>rg         :call Perl_perldoc_generate_module_list()<CR>
   "
    map    <buffer>  <silent>  <LocalLeader>ry         :call Perl_Perltidy("n")<CR>
   vmap    <buffer>  <silent>  <LocalLeader>ry    <C-C>:call Perl_Perltidy("v")<CR>
@@ -397,10 +391,10 @@ endif
 "  Controlled by g:Perl_PerlTags, enabled by default.
 " ----------------------------------------------------------------------------
 if has('perl') && g:Perl_PerlTags == 'enabled'
-	let g:Perl_PerlTagsTempfile = tempname()
-	if getfsize( expand('%') ) > 0
-		call Perl_do_tags( expand('%'), g:Perl_PerlTagsTempfile )
-	endif
+  let g:Perl_PerlTagsTempfile = tempname()
+  if getfsize( expand('%') ) > 0
+    call Perl_do_tags( expand('%'), g:Perl_PerlTagsTempfile )
+  endif
 endif
 "
 "-------------------------------------------------------------------------------

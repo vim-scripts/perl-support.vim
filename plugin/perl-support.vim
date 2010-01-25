@@ -1,4 +1,4 @@
-"###############################################################################################
+"#################################################################################
 "
 "       Filename:  perl-support.vim
 "
@@ -14,8 +14,9 @@
 "                  speed and comfort when writing Perl. Please read the
 "                  documentation.
 "
-"  Configuration:  There are at least some personal details which should be configured
-"                  (see the files README.perlsupport and perlsupport.txt).
+"  Configuration:  There are at least some personal details which should be 
+"  									configured (see the files README.perlsupport and
+"  									perlsupport.txt).
 "
 "   Dependencies:  perl           pod2man
 "                  podchecker     pod2text
@@ -39,28 +40,28 @@
 "
 "        Version:  see variable  g:Perl_Version  below
 "        Created:  09.07.2001
-"        License:  Copyright (c) 2001-2009, Fritz Mehner
-"                  This program is free software; you can redistribute it and/or
-"                  modify it under the terms of the GNU General Public License as
-"                  published by the Free Software Foundation, version 2 of the
-"                  License.
+"        License:  Copyright (c) 2001-2010, Fritz Mehner
+"                  This program is free software; you can redistribute it
+"                  and/or modify it under the terms of the GNU General Public
+"                  License as published by the Free Software Foundation,
+"                  version 2 of the License.
 "                  This program is distributed in the hope that it will be
 "                  useful, but WITHOUT ANY WARRANTY; without even the implied
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.95 2009/12/24 14:56:16 mehner Exp $
-"------------------------------------------------------------------------------
+"       Revision:  $Id: perl-support.vim,v 1.98 2010/01/23 18:02:42 mehner Exp $
+"-------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
 "
 if exists("g:Perl_Version") || &compatible
 	finish
 endif
-let g:Perl_Version= "4.6"
+let g:Perl_Version= "4.6.1"
 "
-"###############################################################################################
+"#################################################################################
 "
 "  Global variables (with default values) which can be overridden.
 "
@@ -601,14 +602,42 @@ endfunction    " ----------  end of function Perl_UncommentBlock ----------
 "  toggle comments     {{{1
 "------------------------------------------------------------------------------
 function! Perl_CommentToggle ()
-  if match( getline("."), '^\s*#' ) != -1
+  if match( getline("."), '^#' ) == 0
 		" remove comment sign, keep leading whitespaces
-		exe ":s/^\\(\\s*\\)#/\\1/"
+		exe ":s/^#//"
 	else
 		" add comment leader
 		exe ":s/^/#/"
 	endif
 endfunction    " ----------  end of function Perl_CommentToggle  ----------
+"
+"------------------------------------------------------------------------------
+"  Comments : toggle comments (range)   {{{1
+"------------------------------------------------------------------------------
+function! Perl_CommentToggleRange ()
+	let	comment=1									" 
+	let pos0	= line("'<")
+	let pos1	= line("'>")
+	for line in getline( pos0, pos1 )
+		if match( line, '^#') == -1					" no comment 
+			let comment = 0
+		endif
+	endfor
+
+	let	linenumber	= pos0
+	if comment == 0
+		while linenumber <= pos1
+			call setline( linenumber, '#'.getline(linenumber) )
+			let linenumber=linenumber+1
+		endwhile
+	else
+		while linenumber <= pos1
+			call setline( linenumber, substitute( getline(linenumber), '^#', '', '' ) )
+			let linenumber=linenumber+1
+		endwhile
+	endif
+
+endfunction    " ----------  end of function Perl_CommentToggleRange  ----------
 "
 "------------------------------------------------------------------------------
 "  Comments : vim modeline     {{{1
@@ -682,7 +711,7 @@ function! Perl_CodeSnippet(mode)
     endif
 
   else
-    redraw
+    redraw!
     echohl ErrorMsg
     echo "code snippet directory ".g:Perl_CodeSnippets." does not exist"
     echohl None
@@ -821,7 +850,7 @@ endfunction   " ---------- end of function  Perl_perldoc  ----------
 "------------------------------------------------------------------------------
 function! Perl_perldoc_show_module_list()
   if !filereadable(s:Perl_PerlModuleList)
-    redraw
+    redraw!
     echohl WarningMsg | echo 'Have to create '.s:Perl_PerlModuleList.' for the first time:'| echohl None
     call Perl_perldoc_generate_module_list()
   endif
@@ -839,7 +868,7 @@ function! Perl_perldoc_show_module_list()
     setlocal syntax=none
   endif
   normal gg
-  redraw
+  redraw!
   if has("gui_running")
     echohl Search | echomsg 'use S-F1 to show a manual' | echohl None
   else
@@ -869,6 +898,7 @@ function! Perl_perldoc_generate_module_list()
 		" direct STDOUT and STDERR to the module list file :
     silent exe ":!perl ".s:Perl_PerlModuleListGenerator." -s &> ".s:Perl_PerlModuleList
   endif
+	redraw!
   echo " DONE "
   echohl None
 endfunction   " ---------- end of function  Perl_perldoc_generate_module_list  ----------
@@ -962,7 +992,7 @@ function! Perl_SyntaxCheck ()
         \%+A%.%#\ at\ %f\ line\ %l\\,%.%#,
        \%+C%.%#'
 	  let	l:fullname	= fnameescape( l:fullname )
-  	silent exe  ':make -c '.l:fullname
+  	silent exe  ':make  '.l:fullname
   endif
 
   exe ":botright cwindow"
@@ -971,8 +1001,8 @@ function! Perl_SyntaxCheck ()
   "
   " message in case of success
   "
+	redraw!
   if l:currentbuffer ==  bufname("%")
-			redraw
 			echohl Search
 			echomsg l:currentbuffer." : Syntax is OK"
 			echohl None
@@ -981,7 +1011,6 @@ function! Perl_SyntaxCheck ()
     setlocal wrap
     setlocal linebreak
   endif
-  return 1
 endfunction   " ---------- end of function  Perl_SyntaxCheck  ----------
 "
 "----------------------------------------------------------------------
@@ -1031,7 +1060,7 @@ endfunction    " ----------  end of function Perl_Toggle_Gvim_Xterm ----------
 function! Perl_PerlSwitches ()
   let filename = fnameescape( expand("%:p") )
   if filename == ""
-    redraw
+    redraw!
     echohl WarningMsg | echo " no file name " | echohl None
     return
   endif
@@ -1209,6 +1238,7 @@ function! Perl_Debugger ()
     "
   endif
   "
+	redraw!
 endfunction   " ---------- end of function  Perl_Debugger  ----------
 "
 "------------------------------------------------------------------------------
@@ -1218,7 +1248,7 @@ endfunction   " ---------- end of function  Perl_Debugger  ----------
 function! Perl_Arguments ()
   let filename = fnameescape( expand("%") )
   if filename == ""
-    redraw
+    redraw!
     echohl WarningMsg | echo " no file name " | echohl None
     return
   endif
@@ -1256,7 +1286,7 @@ function! Perl_MakeScriptExecutable ()
   let filename  = fnameescape( expand("%:p") )
   if executable(filename) == 0                  " not executable
     silent exe "!chmod u+x ".filename
-    redraw
+    redraw!
     if v:shell_error
       echohl WarningMsg
       echo 'Could not make "'.filename.'" executable !'
@@ -1265,6 +1295,8 @@ function! Perl_MakeScriptExecutable ()
       echo 'Made "'.filename.'" executable.'
     endif
     echohl None
+	else
+		echo '"'.filename.'" is already executable.'
   endif
 endfunction   " ---------- end of function  Perl_MakeScriptExecutable  ----------
 "
@@ -1296,8 +1328,8 @@ function! Perl_PodCheck ()
   "
   " message in case of success
   "
+	redraw!
   if l:currentbuffer ==  bufname("%")
-		redraw
     echohl Search
     echomsg  l:currentbuffer." : POD syntax is OK"
     echohl None
@@ -1330,8 +1362,10 @@ function! Perl_POD ( format )
 				silent exe  ':!pod2'.a:format.' '.source_esc.' '.target_esc
 			endif
 		endif
+		redraw!
 		echo  "file '".target."' generated"
 	else
+		redraw!
 		echomsg 'Application "pod2'.a:format.'" does not exist or is not executable.'
 	endif
 endfunction   " ---------- end of function  Perl_POD  ----------
@@ -2042,7 +2076,7 @@ function! Perl_SaveWithTimestamp ()
 		if &filetype == 'qf'
 			let file	= getcwd().'/Quickfix-List'
 		else
-			redraw
+			redraw!
 			echohl WarningMsg | echo " no file name " | echohl None
 			return
 		endif
@@ -2061,7 +2095,7 @@ endfunction   " ---------- end of function  Perl_SaveWithTimestamp  ----------
 function! Perl_Hardcopy (mode)
   let outfile = expand("%")
   if outfile == ""
-    redraw
+    redraw!
     echohl WarningMsg | echo " no file name " | echohl None
     return
   endif
@@ -2194,50 +2228,22 @@ function! Perl_Perlcritic ()
     setlocal linebreak
 		let s:Perl_PerlcriticMsg	= 'perlcritic : '.sev_and_verb
   endif
-	redraw
+	redraw!
   echohl Search | echo s:Perl_PerlcriticMsg | echohl None
-
 endfunction   " ---------- end of function  Perl_Perlcritic  ----------
 "
 "-------------------------------------------------------------------------------
 "   set severity for perlcritic     {{{1
 "-------------------------------------------------------------------------------
-let s:PCseverityName0	= [ "brutal", "cruel", "harsh", "stern", "gentle" ]
-let s:PCseverityName	= [ "DUMMY" ] + s:PCseverityName0 
+let s:PCseverityName	= [ "DUMMY", "brutal", "cruel", "harsh", "stern", "gentle" ]
 let s:PCverbosityName	= [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11' ]
 
 function!	Perl_PerlCriticSeverityList ( ArgLead, CmdLine, CursorPos )
-	"
-	" show all types
-	if a:ArgLead == ''
-		return s:PCseverityName0
-	endif
-	"
-	" show types beginning with a:ArgLead
-	let	expansions	= []
-	for item in s:PCseverityName0
-		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
-			call add( expansions, item )
-		endif
-	endfor
-	return	expansions
+	return filter( copy( s:PCseverityName[1:] ), 'v:val =~ "\\<'.a:ArgLead.'\\w*"' )
 endfunction    " ----------  end of function Perl_PerlCriticSeverityList  ----------
 
 function!	Perl_PerlCriticVerbosityList ( ArgLead, CmdLine, CursorPos )
-	"
-	" show all types
-	if a:ArgLead == ''
-		return s:PCverbosityName
-	endif
-	"
-	" show types beginning with a:ArgLead
-	let	expansions	= []
-	for item in s:PCverbosityName
-		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
-			call add( expansions, item )
-		endif
-	endfor
-	return	expansions
+	return filter( copy( s:PCverbosityName), 'v:val =~ "\\<'.a:ArgLead.'\\w*"' )
 endfunction    " ----------  end of function Perl_PerlCriticVerbosityList  ----------
 
 function! Perl_PerlCriticSeverity ( severity )
@@ -2252,9 +2258,9 @@ function! Perl_PerlCriticSeverity ( severity )
 		"
 	elseif sev =~ '^\a\+$' 
 		" parameter is a word
-		let	nr	= index( s:PCseverityName[1:], tolower(sev) )
-		if nr > -1
-			let s:Perl_PerlcriticSeverity = nr+1
+		let	nr	= index( s:PCseverityName, tolower(sev) )
+		if nr > 0
+			let s:Perl_PerlcriticSeverity = nr
 		endif
 	else
 		"
