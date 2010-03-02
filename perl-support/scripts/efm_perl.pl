@@ -94,12 +94,9 @@ foreach my $line (@lines) {
 	chomp($line);
 	my ($file, $lineno, $message, $rest);
 	
-	# :TRICKY:08.04.2005:Mn: original line:
+	# original line:
 	#	if ($line =~ /^(.*)\sat\s(.*)\sline\s(\d+)(\.|,\snear\s\".*\")$/) {
-	# The last " should be optional to allow strings to spread multiple lines
-	#
-	
-	if ($line =~ /^(.*)\sat\s(.*)\sline\s(\d+)(\.|,\snear\s\".*\"?)$/) {
+	if ($line =~ /^(.*)\sat\s(.*)\sline\s(\d+)(\.|,\s(?:near\s\".*\"?|at end of line))$/) {
 
 		($message, $file, $lineno, $rest) = ($1, $2, $3, $4);
 		$errors++;

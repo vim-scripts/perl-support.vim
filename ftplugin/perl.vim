@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.62 2010/01/23 18:02:15 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.64 2010/03/02 13:30:20 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -148,8 +148,8 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   inoremap    <buffer>  <silent>  <LocalLeader>cko   <C-C>$:call Perl_InsertTemplate("comment.keyword-workaround")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>ckn   <C-C>$:call Perl_InsertTemplate("comment.keyword-keyword")<CR>
 
-  nnoremap    <buffer>  <silent>  <LocalLeader>cc              :call Perl_CommentToggle()<CR>j
-  vnoremap    <buffer>  <silent>  <LocalLeader>cc    <C-C>:'<,'>call Perl_CommentToggleRange()<CR>j
+  nnoremap    <buffer>  <silent>  <LocalLeader>cc         :call Perl_CommentToggle()<CR>j
+  vnoremap    <buffer>  <silent>  <LocalLeader>cc    <C-C>:call Perl_CommentToggleRange()<CR>j
 
   nnoremap    <buffer>  <silent>  <LocalLeader>cd    <Esc>:call Perl_InsertDateAndTime("d")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>cd    <Esc>:call Perl_InsertDateAndTime("d")<CR>a
@@ -347,10 +347,14 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
    noremap    <buffer>  <silent>  <LocalLeader>rs         :call Perl_SyntaxCheck()<CR>
    noremap    <buffer>  <silent>  <LocalLeader>ra         :call Perl_Arguments()<CR>
    noremap    <buffer>  <silent>  <LocalLeader>rw         :call Perl_PerlSwitches()<CR>
+   noremap    <buffer>  <silent>  <LocalLeader>rm         :call Perl_Make()<CR>
+   noremap    <buffer>  <silent>  <LocalLeader>rma        :call Perl_MakeArguments()<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>rr    <C-C>:call Perl_Run()<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>rs    <C-C>:call Perl_SyntaxCheck()<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>ra    <C-C>:call Perl_Arguments()<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>rw    <C-C>:call Perl_PerlSwitches()<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>rm    <C-C>:call Perl_Make()<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>rma   <C-C>:call Perl_MakeArguments()<CR>
   "
    noremap    <buffer>  <silent>  <LocalLeader>rd    :call Perl_Debugger()<CR>
    noremap    <buffer>  <silent>    <F9>             :call Perl_Debugger()<CR>

@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.6.1) / January 23 2010
+README for perl-support.vim (Version 4.7) / March 02 2010
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -96,10 +96,11 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.6.1
+  RELEASE NOTES FOR VERSION 4.7
 ---------------------------------------------------------------------------------------
-- Bugfix (Vim, not gVim): screen isn't refreshing properly when using syntax
-	check and a few other commands (thanks to Iain Arnell).
+- Run make (+arguments) from the 'Run' menu; 2 additional hotkeys.
+- Bugfix (Windows): syntax check does not catch error message if a closing
+	brace is missing (thanks to Dave DelGreco for fixing this bug).
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

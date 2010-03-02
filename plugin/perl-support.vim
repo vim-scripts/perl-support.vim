@@ -51,7 +51,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.98 2010/01/23 18:02:42 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.100 2010/03/02 13:33:19 mehner Exp $
 "-------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -59,7 +59,7 @@
 if exists("g:Perl_Version") || &compatible
 	finish
 endif
-let g:Perl_Version= "4.6.1"
+let g:Perl_Version= "4.6.2"
 "
 "#################################################################################
 "
@@ -602,12 +602,12 @@ endfunction    " ----------  end of function Perl_UncommentBlock ----------
 "  toggle comments     {{{1
 "------------------------------------------------------------------------------
 function! Perl_CommentToggle ()
-  if match( getline("."), '^#' ) == 0
-		" remove comment sign, keep leading whitespaces
-		exe ":s/^#//"
+	let	linenumber	= line(".")
+	let line				= getline(linenumber)
+	if match( line, '^#' ) == 0
+		call setline( linenumber, strpart(line, 1) )
 	else
-		" add comment leader
-		exe ":s/^/#/"
+		call setline( linenumber, '#'.line )
 	endif
 endfunction    " ----------  end of function Perl_CommentToggle  ----------
 "
@@ -619,22 +619,24 @@ function! Perl_CommentToggleRange ()
 	let pos0	= line("'<")
 	let pos1	= line("'>")
 	for line in getline( pos0, pos1 )
-		if match( line, '^#') == -1					" no comment 
-			let comment = 0
+		if match( line, '^\s*$' ) != 0					" skip empty lines
+			if match( line, '^#') == -1						" no comment 
+				let comment = 0
+				break
+			endif
 		endif
 	endfor
 
-	let	linenumber	= pos0
 	if comment == 0
-		while linenumber <= pos1
-			call setline( linenumber, '#'.getline(linenumber) )
-			let linenumber=linenumber+1
-		endwhile
+		for linenumber in range( pos0, pos1 )
+			if match( line, '^\s*$' ) != 0					" skip empty lines
+				call setline( linenumber, '#'.getline(linenumber) )
+			endif
+		endfor
 	else
-		while linenumber <= pos1
+		for linenumber in range( pos0, pos1 )
 			call setline( linenumber, substitute( getline(linenumber), '^#', '', '' ) )
-			let linenumber=linenumber+1
-		endwhile
+		endfor
 	endif
 
 endfunction    " ----------  end of function Perl_CommentToggleRange  ----------
@@ -1180,6 +1182,23 @@ function! Perl_Run ()
   endif
   "
 endfunction    " ----------  end of function Perl_Run  ----------
+"
+"------------------------------------------------------------------------------
+"  Perl_MakeArguments : run make(1)       {{{1
+"------------------------------------------------------------------------------
+
+let s:Perl_MakeCmdLineArgs   = ""     " command line arguments for Run-make; initially empty
+
+function! Perl_MakeArguments ()
+	let	s:Perl_MakeCmdLineArgs= Perl_Input("make command line arguments : ",s:Perl_MakeCmdLineArgs, 'file' )
+endfunction    " ----------  end of function Perl_MakeArguments ----------
+"
+function! Perl_Make()
+	" update : write source file if necessary
+	exe	":update"
+	" run make
+	exe		":!make ".s:Perl_MakeCmdLineArgs
+endfunction    " ----------  end of function Perl_Make ----------
 "
 "------------------------------------------------------------------------------
 "  run : start debugger     {{{1
@@ -2100,29 +2119,30 @@ function! Perl_Hardcopy (mode)
     return
   endif
 	let outdir	= getcwd()
-	if filewritable(outdir) != 2
+	if outdir == substitute( s:Perl_PerlModuleList, '/[^/]\+$', '', '' ) || filewritable(outdir) != 2
 		let outdir	= $HOME
 	endif
 	if  !s:MSWIN
 		let outdir	= outdir.'/'
 	endif
-  let old_printheader=&printheader
-  exe  ':set printheader='.s:Perl_Printheader
-  " ----- normal mode ----------------
-  if a:mode=="n"
-    silent exe  'hardcopy > '.outdir.outfile.'.ps'
-    if  !s:MSWIN
-      echo 'file "'.outfile.'" printed to "'.outdir.outfile.'.ps"'
-    endif
-  endif
-  " ----- visual mode ----------------
-  if a:mode=="v"
-    silent exe  "*hardcopy > ".outdir.outfile.".ps"
-    if  !s:MSWIN
-      echo 'file "'.outfile.'" (lines '.line("'<").'-'.line("'>").') printed to "'.outdir.outfile.'.ps"'
-    endif
-  endif
-  exe  ':set printheader='.escape( old_printheader, ' %' )
+
+	let old_printheader=&printheader
+	exe  ':set printheader='.s:Perl_Printheader
+	" ----- normal mode ----------------
+	if a:mode=="n"
+		silent exe  'hardcopy > '.outdir.outfile.'.ps'
+		if  !s:MSWIN
+			echo 'file "'.outfile.'" printed to "'.outdir.outfile.'.ps"'
+		endif
+	endif
+	" ----- visual mode ----------------
+	if a:mode=="v"
+		silent exe  "*hardcopy > ".outdir.outfile.".ps"
+		if  !s:MSWIN
+			echo 'file "'.outfile.'" (lines '.line("'<").'-'.line("'>").') printed to "'.outdir.outfile.'.ps"'
+		endif
+	endif
+	exe  ':set printheader='.escape( old_printheader, ' %' )
 endfunction   " ---------- end of function  Perl_Hardcopy  ----------
 "
 "------------------------------------------------------------------------------

@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2003-2009  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  see \Pluginversion
 %%      Created:  06.06.2003
-%%     Revision:  $Id: perl-hot-keys.tex,v 1.32 2009/12/27 17:37:53 mehner Exp $
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.33 2010/03/02 13:29:47 mehner Exp $
 %%                
 %%=====================================================================================
 
@@ -25,8 +25,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{4.6}
-\newcommand{\ReleaseDate}{ December 2009}
+\newcommand{\Pluginversion}{4.7}
+\newcommand{\ReleaseDate}{ March 2010}
 
 %%----------------------------------------------------------------------
 %%  fancyhdr
@@ -140,19 +140,19 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%  menu statements
 %%----------------------------------------------------------------------
 \hline
-\multicolumn{2}{|r|}{\textsl{\textbf{S}tatements}}                     \\[1.0ex]
-\hline \verb'\sd'  & \verb'do { } while'               \hfill (n, v, i)\\
-\hline \verb'\sf'  & \verb'for { }'                    \hfill (n, v, i)\\
-\hline \verb'\sfe' & \verb'foreach { }'                \hfill (n, v, i)\\
-\hline \verb'\si'  & \verb'if { }'                     \hfill (n, v, i)\\
-\hline \verb'\sie' & \verb'if { } else { }'            \hfill (n, v, i)\\
-\hline \verb'\se'  & \verb'else { }'                   \hfill (n, v, i)\\
-\hline \verb'\sei' & \verb'elsif { }'                  \hfill (n, v, i)\\
-\hline \verb'\su'  & \verb'unless { }'                 \hfill (n, v, i)\\
-\hline \verb'\sue' & \verb'unless { } else { }'        \hfill (n, v, i)\\
-\hline \verb'\st'  & \verb'until { }'                  \hfill (n, v, i)\\
-\hline \verb'\sw'  & \verb'while { }'                  \hfill (n, v, i)\\
-\hline \verb'\s{ \sb'  & \verb'{ }'                        \hfill (n, v, i)\\
+\multicolumn{2}{|r|}{\textsl{\textbf{S}tatements}}                    \\[1.0ex]
+\hline \verb'\sd'      & \verb'do { } while'          \hfill (n, v, i)\\
+\hline \verb'\sf'      & \verb'for { }'               \hfill (n, v, i)\\
+\hline \verb'\sfe'     & \verb'foreach { }'           \hfill (n, v, i)\\
+\hline \verb'\si'      & \verb'if { }'                \hfill (n, v, i)\\
+\hline \verb'\sie'     & \verb'if { } else { }'       \hfill (n, v, i)\\
+\hline \verb'\se'      & \verb'else { }'              \hfill (n, v, i)\\
+\hline \verb'\sei'     & \verb'elsif { }'             \hfill (n, v, i)\\
+\hline \verb'\su'      & \verb'unless { }'            \hfill (n, v, i)\\
+\hline \verb'\sue'     & \verb'unless { } else { }'   \hfill (n, v, i)\\
+\hline \verb'\st'      & \verb'until { }'             \hfill (n, v, i)\\
+\hline \verb'\sw'      & \verb'while { }'             \hfill (n, v, i)\\
+\hline \verb'\s{ \sb'  & \verb'{ }'                   \hfill (n, v, i)\\
 \hline
 %%----------------------------------------------------------------------
 %%  menu idioms
@@ -203,7 +203,7 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%  menu regex menu
 %%----------------------------------------------------------------------
 \hline
-\multicolumn{2}{|r|}{\textsl{Regular E\textbf{x}pressions}} \\[1.0ex]
+\multicolumn{2}{|r|}{\textsl{Regular E\textbf{x}pressions}}     \\[1.0ex]
 \hline \verb'\xr' &  pick up Regex                 \hfill (n, v)\\
 \hline \verb'\xs' &  pick up string                \hfill (n, v)\\
 \hline \verb'\xf' &  pick up flag(s)               \hfill (n, v)\\
@@ -235,21 +235,21 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%  menu POD
 %%----------------------------------------------------------------------
 \hline
-\multicolumn{2}{|r|}{\textsl{\textbf{P}OD}} \\[1.0ex]
-\hline \verb'\pod'    & run \verb'podchecker'           \hfill (n)   \\
-\hline \verb'\podh'   & convert POD data to .html file  \hfill (n)   \\
-\hline \verb'\podm'   & Convert POD data to *roff input \hfill (n)   \\
-\hline \verb'\podt'   & Convert POD data to ASCII text  \hfill (n)   \\
+\multicolumn{2}{|r|}{\textsl{\textbf{P}OD}}                       \\[1.0ex]
+\hline \verb'\pod'    & run \verb'podchecker'           \hfill (n)\\
+\hline \verb'\podh'   & convert POD data to .html file  \hfill (n)\\
+\hline \verb'\podm'   & Convert POD data to *roff input \hfill (n)\\
+\hline \verb'\podt'   & Convert POD data to ASCII text  \hfill (n)\\
 \hline
 %%----------------------------------------------------------------------
 %%  menu Profiling
 %%----------------------------------------------------------------------
 \hline
-\multicolumn{2}{|r|}{\textsl{\textbf{P}rofiling}} \\[1.0ex]
-\hline \verb'\rps'    & run \verb'SmallProf' \hfill (n)   \\
-\hline \verb'\rpf'    & run \verb'FastProf'  \hfill (n)   \\
-\hline \verb'\rpn'    & run \verb'NYTProf'   \hfill (n)   \\
-\hline \verb'\rpnc'   & open CSV file (\verb'NYTProf')   \hfill (n)   \\
+\multicolumn{2}{|r|}{\textsl{\textbf{P}rofiling}}                 \\[1.0ex]
+\hline \verb'\rps'    & run \verb'SmallProf'            \hfill (n)\\
+\hline \verb'\rpf'    & run \verb'FastProf'             \hfill (n)\\
+\hline \verb'\rpn'    & run \verb'NYTProf'              \hfill (n)\\
+\hline \verb'\rpnc'   & open CSV file (\verb'NYTProf')  \hfill (n)\\
 \hline
 \end{tabular}%
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
@@ -271,22 +271,24 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%----------------------------------------------------------------------
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{R}un}} \\[1.0ex]
-\hline \verb'\rr'    & update file, run script              \hfill (n)   \\
-\hline \verb'\rs'    & update file, check syntax            \hfill (n)   \\
-\hline \verb'\ra'    & set command line arguments           \hfill (n)   \\
-\hline \verb'\rw'    & set Perl cmd.\ line switches         \hfill (n)   \\
-\hline \verb'\rd'    & start debugger                       \hfill (n)   \\
-\hline \verb'\re'    & make script executable               \hfill (n)   \\
-\hline \verb'\rp \h' & read perldoc for word under cursor   \hfill (n)   \\
-\hline \verb'\ri'    & show installed Perl modules          \hfill (n)   \\
-\hline \verb'\rg'    & generate Perl module list            \hfill (n)   \\
-\hline \verb'\ry'    & run \verb'perltidy'                  \hfill (n, v)\\
-\hline \verb'\rc'    & run \verb'perlcritic'                \hfill (n)   \\
-\hline \verb'\rt'    & save buffer with timestamp           \hfill (n)   \\
-\hline \verb'\rh'    & hardcopy buffer                      \hfill (n, v)\\
-\hline \verb'\rk'    & settings and hotkeys                 \hfill (n)   \\
-\hline \verb'\rx'    & set xterm size                       \hfill (n, {\tiny GUI only})\\
-\hline \verb'\ro'    & change output destination            \hfill (n)   \\
+\hline \verb'\rr'    & update file, run script                  \hfill (n)   \\
+\hline \verb'\rs'    & update file, check syntax                \hfill (n)   \\
+\hline \verb'\ra'    & set command line arguments               \hfill (n)   \\
+\hline \verb'\rw'    & set Perl cmd.\ line switches             \hfill (n)   \\
+\hline \verb'\rm'    & run \texttt{make}                        \hfill (n)   \\
+\hline \verb'\rma'   & command line arguments for \texttt{make} \hfill (n)   \\
+\hline \verb'\rd'    & start debugger                           \hfill (n)   \\
+\hline \verb'\re'    & make script executable                   \hfill (n)   \\
+\hline \verb'\rp \h' & read perldoc for word under cursor       \hfill (n)   \\
+\hline \verb'\ri'    & show installed Perl modules              \hfill (n)   \\
+\hline \verb'\rg'    & generate Perl module list                \hfill (n)   \\
+\hline \verb'\ry'    & run \verb'perltidy'                      \hfill (n, v)\\
+\hline \verb'\rc'    & run \verb'perlcritic'                    \hfill (n)   \\
+\hline \verb'\rt'    & save buffer with timestamp               \hfill (n)   \\
+\hline \verb'\rh'    & hardcopy buffer                          \hfill (n, v)\\
+\hline \verb'\rk'    & settings and hotkeys                     \hfill (n)   \\
+\hline \verb'\rx'    & set xterm size                           \hfill (n, {\tiny GUI only})\\
+\hline \verb'\ro'    & change output destination                \hfill (n)   \\
 \hline
 \end{tabular}%
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~

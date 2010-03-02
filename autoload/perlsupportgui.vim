@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.30 2010/01/06 17:33:46 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.31 2010/03/02 13:29:29 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -898,6 +898,8 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "amenu          ".g:Perl_Root.'&Run.update,\ check\ &syntax<Tab>\\rs\ \ <A-F9>       :call Perl_SyntaxCheck()<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.cmd\.\ line\ &arg\.<Tab>\\ra\ \ <S-F9>           :call Perl_Arguments()<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.perl\ s&witches<Tab>\\rw                         :call Perl_PerlSwitches()<CR>'
+  exe "amenu <silent> ".g:Perl_Root.'&Run.run &make<Tab>\\rm                               :call Perl_Make()<CR>'
+  exe "amenu <silent> ".g:Perl_Root.'&Run.cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rma         :call Perl_MakeArguments()<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.start\ &debugger<Tab>\\rd\ \ <F9>                :call Perl_Debugger()<CR>'
   "
   "   set execution rights for user only ( user may be root ! )
