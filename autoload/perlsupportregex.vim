@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.18 2009/06/11 09:13:34 mehner Exp $
+"      Revision:  $Id: perlsupportregex.vim,v 1.20 2010/04/09 19:14:36 mehner Exp $
 "       License:  Copyright 2008-2009 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -227,9 +227,6 @@ function! perlsupportregex#Perl_RegexVisualize( )
 
   my  @substchar= split //, VIM::Eval('g:Perl_PerlRegexSubstitution');
 
-    use re 'eval';
-    use utf8;                                   # Perl pragma to enable/disable UTF-8 in source
-
     regex_evaluate();
 
     #===  FUNCTION  ================================================================
@@ -240,6 +237,7 @@ function! perlsupportregex#Perl_RegexVisualize( )
     #===============================================================================
     sub regex_evaluate {
 
+		use re 'eval';
     my ( $regexp, $string, $flag );
 
     $flag     = VIM::Eval('s:Perl_PerlRegexVisualizeFlag');
@@ -571,9 +569,6 @@ function! perlsupportregex#Perl_RegexMatchSeveral( )
 
   perl <<EOF
 
-    use re 'eval';
-    use utf8;                                   # Perl pragma to enable/disable UTF-8 in source
-
     regex_evaluate_multiple();
 
     #===  FUNCTION  ================================================================
@@ -583,6 +578,8 @@ function! perlsupportregex#Perl_RegexMatchSeveral( )
     #      RETURNS:  ---
     #===============================================================================
     sub regex_evaluate_multiple {
+
+		use re 'eval';
 
       my ( $regexp, $string, $flag );
       my  $regexp1;

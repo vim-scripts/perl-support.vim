@@ -883,12 +883,12 @@ the buffer with the new name.
 1.9.5  RUN MAKE                                         *perlsupport-run-make*
 ---------------
 The item 'run make' tries to run the make(1) utility. This comes in handy e.g.
-for a module developer who needs to start 'make test' frequently in order run
-tests. The item 'cmd. line arg. for make' takes the necessary arguments, e.g.
+for a module developer who needs to start 'make test' frequently in order to
+run tests. The item 'cmd. line arg. for make' takes the necessary arguments, e.g.
 
  -C /home/mehner/Path-To-Module/  test
 
-to switch to the module main directory and run make from there.
+to switch to the module main directory and to run make from there.
 
 1.9.6  DEBUG                                           *perlsupport-run-debug*
 ------------

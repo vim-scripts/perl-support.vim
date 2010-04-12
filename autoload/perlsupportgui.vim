@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.31 2010/03/02 13:29:29 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.32 2010/03/30 11:47:21 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -338,20 +338,35 @@ function! perlsupportgui#Perl_InitMenu ()
     exe "amenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.-Sep0-             :'
   endif
   "
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&alnum:]<Tab>\\pa   a[:alnum:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:alp&ha:]<Tab>\\ph   a[:alpha:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:asc&ii:]<Tab>\\pi   a[:ascii:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&blank:]<Tab>\\pb   a[:blank:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&cntrl:]<Tab>\\pc   a[:cntrl:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&digit:]<Tab>\\pd   a[:digit:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&graph:]<Tab>\\pg   a[:graph:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&lower:]<Tab>\\pl   a[:lower:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&print:]<Tab>\\pp   a[:print:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:pu&nct:]<Tab>\\pn   a[:punct:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&space:]<Tab>\\ps   a[:space:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&upper:]<Tab>\\pu   a[:upper:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&word:]<Tab>\\pw    a[:word:]'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&xdigit:]<Tab>\\px  a[:xdigit:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&alnum:]<Tab>\\pa   a[:alnum:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:alp&ha:]<Tab>\\ph   a[:alpha:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:asc&ii:]<Tab>\\pi   a[:ascii:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&blank:]<Tab>\\pb   a[:blank:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&cntrl:]<Tab>\\pc   a[:cntrl:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&digit:]<Tab>\\pd   a[:digit:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&graph:]<Tab>\\pg   a[:graph:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&lower:]<Tab>\\pl   a[:lower:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&print:]<Tab>\\pp   a[:print:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:pu&nct:]<Tab>\\pn   a[:punct:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&space:]<Tab>\\ps   a[:space:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&upper:]<Tab>\\pu   a[:upper:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&word:]<Tab>\\pw    a[:word:]'
+  exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&xdigit:]<Tab>\\px  a[:xdigit:]'
+  "
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&alnum:]<Tab>\\pa    [:alnum:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:alp&ha:]<Tab>\\ph    [:alpha:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:asc&ii:]<Tab>\\pi    [:ascii:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&blank:]<Tab>\\pb    [:blank:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&cntrl:]<Tab>\\pc    [:cntrl:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&digit:]<Tab>\\pd    [:digit:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&graph:]<Tab>\\pg    [:graph:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&lower:]<Tab>\\pl    [:lower:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&print:]<Tab>\\pp    [:print:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:pu&nct:]<Tab>\\pn    [:punct:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&space:]<Tab>\\ps    [:space:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&upper:]<Tab>\\pu    [:upper:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&word:]<Tab>\\pw     [:word:]'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&xdigit:]<Tab>\\px   [:xdigit:]'
   "
   "---------- submenu : Unicode properties  --------------------------------------------
   "

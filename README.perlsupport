@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.7) / March 02 2010
+README for perl-support.vim (Version 4.7.1) / April 12 2010
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -96,11 +96,12 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.7
+  RELEASE NOTES FOR VERSION 4.7.1
 ---------------------------------------------------------------------------------------
-- Run make (+arguments) from the 'Run' menu; 2 additional hotkeys.
-- Bugfix (Windows): syntax check does not catch error message if a closing
-	brace is missing (thanks to Dave DelGreco for fixing this bug).
+- Bugfixes: insertion of Posix classes from the menu not working properly.
+- Bugfixes, Regex Tester: accented characters can be used.
+- Bugfixes, Regex Tester: embedded Perl code can be used.
+- Bugfixes: local installation looks like a system-wide installation in seldom cases.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

@@ -51,7 +51,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.100 2010/03/02 13:33:19 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.105 2010/04/12 17:31:18 mehner Exp $
 "-------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -59,7 +59,7 @@
 if exists("g:Perl_Version") || &compatible
 	finish
 endif
-let g:Perl_Version= "4.6.2"
+let g:Perl_Version= "4.7.1"
 "
 "#################################################################################
 "
@@ -116,7 +116,7 @@ else
 	" user / system wide installation
 	"
 	let s:installation	= 'local'
-	if match( expand("<sfile>"), $VIM ) >= 0
+	if match( expand("<sfile>"), $VIM ) == 0
 		" system wide installation
 		let s:plugin_dir  	= $VIM.'/vimfiles/'
 		let s:installation	= 'system'
@@ -330,14 +330,11 @@ function! Perl_LineEndComment ( comment )
   " ----- trim whitespaces -----
 	exe 's/\s*$//'
   let linelength= virtcol("$") - 1
-  if linelength < b:Perl_LineEndCommentColumn
-    let diff  = b:Perl_LineEndCommentColumn -1 -linelength
-    exe "normal ".diff."A "
-  endif
-  " append at least one blank
-  if linelength >= b:Perl_LineEndCommentColumn
-    exe "normal A "
-  endif
+	let	diff	= 1
+	if linelength < b:Perl_LineEndCommentColumn
+		let diff	= b:Perl_LineEndCommentColumn -1 -linelength
+	endif
+	exe "normal	".diff."A "
   exe "normal A# ".a:comment
 endfunction   " ---------- end of function  Perl_LineEndComment  ----------
 "
@@ -461,26 +458,14 @@ function! Perl_MultiLineEndComments ()
   "
   let pos0  = line("'<")
   let pos1  = line("'>")
+	"
   " ----- trim whitespaces -----
-  :'<,'>s/\s*$//
+  exe pos0.','.pos1.'s/\s*$//'
+	"
   " ----- find the longest line -----
-  let maxlength   = 0
-  let linenumber  = pos0
-  normal '<
-  while linenumber <= pos1
-    if  getline(".") !~ "^\\s*$"  && maxlength<virtcol("$")
-      let maxlength= virtcol("$")
-    endif
-    let linenumber=linenumber+1
-    normal j
-  endwhile
-  "
-  if maxlength < b:Perl_LineEndCommentColumn
-    let maxlength = b:Perl_LineEndCommentColumn
-  else
-    let maxlength = maxlength+1   " at least 1 blank
-  endif
-  "
+	let maxlength	= max( map( range(pos0, pos1), "virtcol([v:val, '$'])" ) )
+	let	maxlength	= max( [b:Perl_LineEndCommentColumn, maxlength+1] )
+	"
   " ----- fill lines with blanks -----
   let linenumber  = pos0
   normal '<
@@ -2440,6 +2425,9 @@ function! Perl_InitializePerlInterface( )
 	if has('perl')
     perl <<EOF
 		#
+    use utf8;                                   # Perl pragma to enable/disable UTF-8 in source
+		use encoding ("utf8");
+
 		# ---------------------------------------------------------------
 		# find out the version of the Perl interface
 		# ---------------------------------------------------------------

@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.7
+---------------------------------------------------------------------------------------
+- Run make (+arguments) from the 'Run' menu; 2 additional hotkeys.
+- Bugfix (Windows): syntax check does not catch error message if a closing
+	brace is missing (thanks to Dave DelGreco for fixing this bug).
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.6
 ---------------------------------------------------------------------------------------
 - The profilers Devel::SmallProf and Devel::NYTProf can now be used under Windows.
