@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.20 2010/04/09 19:14:36 mehner Exp $
+"      Revision:  $Id: perlsupportregex.vim,v 1.22 2010/05/10 14:49:05 mehner Exp $
 "       License:  Copyright 2008-2009 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -74,7 +74,7 @@ function! perlsupportregex#Perl_RegexExplain( mode )
   "
   silent normal ggdG
 
-  perl <<EOF
+  perl <<EOF_RegexExplain
       my $explanation;
       my ( $success, $regexp ) = VIM::Eval('s:MSWIN');
 
@@ -94,7 +94,7 @@ function! perlsupportregex#Perl_RegexExplain( mode )
 
       # put the explanation to the top of the buffer
       $curbuf->Append( 0, @explanation );
-EOF
+EOF_RegexExplain
 
 endfunction    " ----------  end of function Perl_RegexExplain  ----------
 "
@@ -223,7 +223,7 @@ function! perlsupportregex#Perl_RegexVisualize( )
   " remove content if any:
   silent normal ggdG
 
-  perl <<EOF
+  perl <<EOF_regex_evaluate
 
   my  @substchar= split //, VIM::Eval('g:Perl_PerlRegexSubstitution');
 
@@ -494,7 +494,7 @@ function! perlsupportregex#Perl_RegexVisualize( )
       }
       return ($result, $linecount);
     } # ----------  end of subroutine lineruler  ----------
-EOF
+EOF_regex_evaluate
   "
   if line('$') == 1
     :close
@@ -526,13 +526,19 @@ EOF
       :highlight color_match ctermbg=green guibg=green
       let delim   = nr2char(nr)
       " escape Vim regexp metacharacters
-      let match0  = escape( s:Perl_PerlRegexPrematch , '*$~' )
-      let match1  = escape( s:Perl_PerlRegexMatch    , '*$~' )
+      let match0  = escape( s:Perl_PerlRegexPrematch , '][*$~\' )
+      let match1  = escape( s:Perl_PerlRegexMatch    , '][*$~\' )
       "
       " the first part of the following regular expression describes the
       " beginnning of $format1 in sub regex_evaluate
       "
-      exe ':match color_match '.delim.'\(^STRING\s\+\[\s*\d\+,\s*\d\+\] =[ |]'.match0.'\)\@<='.match1.delim
+			try 
+				exe ':match color_match '.delim.'\(^STRING\s\+\[\s*\d\+,\s*\d\+\] =[ |]'.match0.'\)\@<='.match1.delim
+			catch //
+				echo "Internal error (" . v:exception . ")"
+				echo " - occurred at " . v:throwpoint
+			finally 
+			endtry
     endif
   endif
 
@@ -567,7 +573,7 @@ function! perlsupportregex#Perl_RegexMatchSeveral( )
   " remove content if any:
   silent normal ggdG
 
-  perl <<EOF
+  perl <<EOF_evaluate_multiple
 
     regex_evaluate_multiple();
 
@@ -639,7 +645,7 @@ function! perlsupportregex#Perl_RegexMatchSeveral( )
       }
     return "'$result'";
     } # ----------  end of subroutine splitstr  ----------
-EOF
+EOF_evaluate_multiple
   "
   if line('$') == 1
     :close

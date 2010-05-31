@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2003-2009  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  see \Pluginversion
 %%      Created:  06.06.2003
-%%     Revision:  $Id: perl-hot-keys.tex,v 1.33 2010/03/02 13:29:47 mehner Exp $
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.35 2010/05/10 14:50:21 mehner Exp $
 %%                
 %%=====================================================================================
 
@@ -25,8 +25,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{4.7}
-\newcommand{\ReleaseDate}{ March 2010}
+\newcommand{\Pluginversion}{4.8}
+\newcommand{\ReleaseDate}{May 2010}
 
 %%----------------------------------------------------------------------
 %%  fancyhdr
@@ -135,7 +135,7 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%======================================================================
 %
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{13mm}|p{56mm}|}
+\begin{tabular}[]{|p{18mm}|p{49mm}|}
 %%----------------------------------------------------------------------
 %%  menu statements
 %%----------------------------------------------------------------------
@@ -159,13 +159,14 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%----------------------------------------------------------------------
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{I}dioms}}                 \\[1.0ex]
-\hline \verb'\$'   & \verb'my $;'              \hfill (n, i)   \\
-\hline \verb'\$='  & \verb'my $ = ;'           \hfill (n, i)   \\
-\hline \verb'\$$'  & \verb'my ( $, $ );'       \hfill (n, i)   \\
-\hline \verb'\@'   & \verb'my @;'              \hfill (n, i)   \\
-\hline \verb'\@='  & \verb'my @ = (,,);'       \hfill (n, i)   \\
-\hline \verb'\%'   & \verb'my %;'              \hfill (n, i)   \\
-\hline \verb'\%='  & \verb'my % = (=>,=>,);'   \hfill (n, i)   \\
+\hline \verb'\id  ' [\verb'\$ ']  & \verb'my $;'              \hfill (n, i)   \\
+\hline \verb'\id= ' [\verb'\$=']  & \verb'my $ = ;'           \hfill (n, i)   \\
+\hline \verb'\idd ' [\verb'\$$']  & \verb'my ( $, $ );'       \hfill (n, i)   \\
+\hline \verb'\ia  ' [\verb'\@ ']  & \verb'my @;'              \hfill (n, i)   \\
+\hline \verb'\ia= ' [\verb'\@=']  & \verb'my @ = (,,);'       \hfill (n, i)   \\
+\hline \verb'\ih  ' [\verb'\% ']  & \verb'my %;'              \hfill (n, i)   \\
+\hline \verb'\ih= ' [\verb'\%=']  & \verb'my % = (=>,=>,);'   \hfill (n, i)   \\
+%
 \hline \verb'\ir'  & \verb'my $rgx_ = q//;'    \hfill (n, i)   \\
 \hline \verb'\im'  & \verb'$ =~ m//xm'         \hfill (n, i)   \\
 \hline \verb'\is'  & \verb'$ =~ s///xm'        \hfill (n, i)   \\

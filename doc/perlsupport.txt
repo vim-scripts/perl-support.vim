@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                   March 02 2010
+*perlsupport.txt*                Perl Support                   April 28 2010
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.7
+                              Plugin version 4.8
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -1371,13 +1371,13 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Idioms --------------------------------------------
 
-  \$         my $;                (*)          (n   i)
-  \$=        my $ = ;             (*)          (n   i)
-  \$$        my ( $, $ );         (*)          (n   i)
-  \@         my @;                (*)          (n   i)
-  \@=        my @ = (,,);         (*)          (n   i)
-  \%         my %;                (*)          (n   i)
-  \%=        my % = (=>,=>,);     (*)          (n   i)
+  \id  [\$ ] my $;                (*)          (n   i)
+  \id= [\$=] my $ = ;             (*)          (n   i)
+  \idd [\$$] my ( $, $ );         (*)          (n   i)
+  \ia  [\@ ] my @;                (*)          (n   i)
+  \ia= [\@=] my @ = (,,);         (*)          (n   i)
+  \ih  [\% ] my %;                (*)          (n   i)
+  \ih= [\%=] my % = (=>,=>,);     (*)          (n   i)
   \ir        my $regex_ = q//;                 (n   i)
   \im        $ =~ m//                          (n   i)
   \is        $ =~ s///                         (n   i)
@@ -1453,8 +1453,10 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   \hp        help (plugin)                   (n,i) see |perlsupport-help|
 
-(*)  These key mappings start like Perl references. They are therefore not
-     available in insert mode for non-empty lines.
+(*)  The optional key mappings in brackets start like Perl references. They
+      are available for backward compatibility if you have 
+        let g:Perl_DollarKeys  = 'yes'
+     in your "$HOME/.vimrc".
 (**) Linux/UNIX only
 
 File perl-hot-keys.pdf contains a reference card for these key mappings.

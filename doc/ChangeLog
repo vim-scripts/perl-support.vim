@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.7.1
+---------------------------------------------------------------------------------------
+- Bugfixes: insertion of Posix classes from the menu not working properly.
+- Bugfixes, Regex Tester: accented characters can be used.
+- Bugfixes, Regex Tester: embedded Perl code can be used.
+- Bugfixes: local installation looks like a system-wide installation in seldom cases.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.7
 ---------------------------------------------------------------------------------------
 - Run make (+arguments) from the 'Run' menu; 2 additional hotkeys.

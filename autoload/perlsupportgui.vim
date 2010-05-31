@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.32 2010/03/30 11:47:21 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.34 2010/05/29 16:35:19 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -198,22 +198,36 @@ function! perlsupportgui#Perl_InitMenu ()
     exe "amenu ".g:Perl_Root.'&Idioms.-Sep0-       :'
   endif
   "
-  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\$                    :call Perl_InsertTemplate("idioms.scalar")<CR>'
-  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\$=              :call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
-  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\$$         :call Perl_InsertTemplate("idioms.scalar2")<CR>'
-  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@;<Tab>\\@                    :call Perl_InsertTemplate("idioms.array")<CR>'
-  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\@=          :call Perl_InsertTemplate("idioms.array-assign")<CR>'
-  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\%                    :call Perl_InsertTemplate("idioms.hash")<CR>'
-  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\%=         :call Perl_InsertTemplate("idioms.hash-assign")<CR>'
+"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\$                    :call Perl_InsertTemplate("idioms.scalar")<CR>'
+"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\$=              :call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
+"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\$$         :call Perl_InsertTemplate("idioms.scalar2")<CR>'
+  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\id                   :call Perl_InsertTemplate("idioms.scalar")<CR>'
+  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\id=             :call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
+  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\idd        :call Perl_InsertTemplate("idioms.scalar2")<CR>'
+  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@;<Tab>\\ia                   :call Perl_InsertTemplate("idioms.array")<CR>'
+  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\ia=         :call Perl_InsertTemplate("idioms.array-assign")<CR>'
+  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\ih                   :call Perl_InsertTemplate("idioms.hash")<CR>'
+  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\ih=        :call Perl_InsertTemplate("idioms.hash-assign")<CR>'
+"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@;<Tab>\\@                    :call Perl_InsertTemplate("idioms.array")<CR>'
+"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\@=          :call Perl_InsertTemplate("idioms.array-assign")<CR>'
+"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\%                    :call Perl_InsertTemplate("idioms.hash")<CR>'
+"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\%=         :call Perl_InsertTemplate("idioms.hash-assign")<CR>'
   exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $&rgx_\ =\ qr//;<Tab>\\ir      :call Perl_InsertTemplate("idioms.regex")<CR>'
   "
-  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\$               <C-C>:call Perl_InsertTemplate("idioms.scalar")<CR>'
-  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\$=         <C-C>:call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
-  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\$$    <C-C>:call Perl_InsertTemplate("idioms.scalar2")<CR>'
-  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@;<Tab>\\@               <C-C>:call Perl_InsertTemplate("idioms.array")<CR>'
-  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\@=     <C-C>:call Perl_InsertTemplate("idioms.array-assign")<CR>'
-  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\%               <C-C>:call Perl_InsertTemplate("idioms.hash")<CR>'
-  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\%=    <C-C>:call Perl_InsertTemplate("idioms.hash-assign")<CR>'
+"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\$               <C-C>:call Perl_InsertTemplate("idioms.scalar")<CR>'
+"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\$=         <C-C>:call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
+"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\$$    <C-C>:call Perl_InsertTemplate("idioms.scalar2")<CR>'
+  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\id              <C-C>:call Perl_InsertTemplate("idioms.scalar")<CR>'
+  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\id=        <C-C>:call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
+  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\idd   <C-C>:call Perl_InsertTemplate("idioms.scalar2")<CR>'
+  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@;<Tab>\\ia              <C-C>:call Perl_InsertTemplate("idioms.array")<CR>'
+  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\ia=    <C-C>:call Perl_InsertTemplate("idioms.array-assign")<CR>'
+  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\ih              <C-C>:call Perl_InsertTemplate("idioms.hash")<CR>'
+  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\ih=   <C-C>:call Perl_InsertTemplate("idioms.hash-assign")<CR>'
+"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@;<Tab>\\@               <C-C>:call Perl_InsertTemplate("idioms.array")<CR>'
+"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\@=     <C-C>:call Perl_InsertTemplate("idioms.array-assign")<CR>'
+"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\%               <C-C>:call Perl_InsertTemplate("idioms.hash")<CR>'
+"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\%=    <C-C>:call Perl_InsertTemplate("idioms.hash-assign")<CR>'
   exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $&rgx_\ =\ qr//;<Tab>\\ir <C-C>:call Perl_InsertTemplate("idioms.regex")<CR>'
   "
   exe "anoremenu ".g:Perl_Root.'&Idioms.-SEP3-                        :'
@@ -913,7 +927,7 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "amenu          ".g:Perl_Root.'&Run.update,\ check\ &syntax<Tab>\\rs\ \ <A-F9>       :call Perl_SyntaxCheck()<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.cmd\.\ line\ &arg\.<Tab>\\ra\ \ <S-F9>           :call Perl_Arguments()<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.perl\ s&witches<Tab>\\rw                         :call Perl_PerlSwitches()<CR>'
-  exe "amenu <silent> ".g:Perl_Root.'&Run.run &make<Tab>\\rm                               :call Perl_Make()<CR>'
+  exe "amenu <silent> ".g:Perl_Root.'&Run.run\ &make<Tab>\\rm                              :call Perl_Make()<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rma         :call Perl_MakeArguments()<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.start\ &debugger<Tab>\\rd\ \ <F9>                :call Perl_Debugger()<CR>'
   "

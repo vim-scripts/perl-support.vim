@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.64 2010/03/02 13:30:20 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.65 2010/04/28 19:10:13 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -222,22 +222,39 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   " Idioms
   " ----------------------------------------------------------------------------
   "
-  nnoremap    <buffer>  <silent>  <LocalLeader>$         :call Perl_InsertTemplate("idioms.scalar")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>$=        :call Perl_InsertTemplate("idioms.scalar-assign")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>$$        :call Perl_InsertTemplate("idioms.scalar2")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>@         :call Perl_InsertTemplate("idioms.array")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>@=        :call Perl_InsertTemplate("idioms.array-assign")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>%         :call Perl_InsertTemplate("idioms.hash")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>%=        :call Perl_InsertTemplate("idioms.hash-assign")<CR>
+	if exists("g:Perl_DollarKeys") && g:Perl_DollarKeys == 'yes'
+		nnoremap    <buffer>  <silent>  <LocalLeader>$         :call Perl_InsertTemplate("idioms.scalar")<CR>
+		nnoremap    <buffer>  <silent>  <LocalLeader>$=        :call Perl_InsertTemplate("idioms.scalar-assign")<CR>
+		nnoremap    <buffer>  <silent>  <LocalLeader>$$        :call Perl_InsertTemplate("idioms.scalar2")<CR>
+		nnoremap    <buffer>  <silent>  <LocalLeader>@         :call Perl_InsertTemplate("idioms.array")<CR>
+		nnoremap    <buffer>  <silent>  <LocalLeader>@=        :call Perl_InsertTemplate("idioms.array-assign")<CR>
+		nnoremap    <buffer>  <silent>  <LocalLeader>%         :call Perl_InsertTemplate("idioms.hash")<CR>
+		nnoremap    <buffer>  <silent>  <LocalLeader>%=        :call Perl_InsertTemplate("idioms.hash-assign")<CR>
+		inoremap    <buffer>  <silent>  <LocalLeader>$    <C-C>:call Perl_InsertTemplate("idioms.scalar")<CR>
+		inoremap    <buffer>  <silent>  <LocalLeader>$=   <C-C>:call Perl_InsertTemplate("idioms.scalar-assign")<CR>
+		inoremap    <buffer>  <silent>  <LocalLeader>$$   <C-C>:call Perl_InsertTemplate("idioms.scalar2")<CR>
+		inoremap    <buffer>  <silent>  <LocalLeader>@    <C-C>:call Perl_InsertTemplate("idioms.array")<CR>
+		inoremap    <buffer>  <silent>  <LocalLeader>@=   <C-C>:call Perl_InsertTemplate("idioms.array-assign")<CR>
+		inoremap    <buffer>  <silent>  <LocalLeader>%    <C-C>:call Perl_InsertTemplate("idioms.hash")<CR>
+		inoremap    <buffer>  <silent>  <LocalLeader>%=   <C-C>:call Perl_InsertTemplate("idioms.hash-assign")<CR>
+	endif
+"
+  nnoremap    <buffer>  <silent>  <LocalLeader>id        :call Perl_InsertTemplate("idioms.scalar")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>id=       :call Perl_InsertTemplate("idioms.scalar-assign")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>idd       :call Perl_InsertTemplate("idioms.scalar2")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>ia        :call Perl_InsertTemplate("idioms.array")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>ia=       :call Perl_InsertTemplate("idioms.array-assign")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>ih        :call Perl_InsertTemplate("idioms.hash")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>ih=       :call Perl_InsertTemplate("idioms.hash-assign")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>ir        :call Perl_InsertTemplate("idioms.regex")<CR>
   "
-  inoremap    <buffer>  <silent>  <LocalLeader>$    <C-C>:call Perl_InsertTemplate("idioms.scalar")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>$=   <C-C>:call Perl_InsertTemplate("idioms.scalar-assign")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>$$   <C-C>:call Perl_InsertTemplate("idioms.scalar2")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>@    <C-C>:call Perl_InsertTemplate("idioms.array")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>@=   <C-C>:call Perl_InsertTemplate("idioms.array-assign")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>%    <C-C>:call Perl_InsertTemplate("idioms.hash")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>%=   <C-C>:call Perl_InsertTemplate("idioms.hash-assign")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>id   <C-C>:call Perl_InsertTemplate("idioms.scalar")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>id=  <C-C>:call Perl_InsertTemplate("idioms.scalar-assign")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>idd  <C-C>:call Perl_InsertTemplate("idioms.scalar2")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>ia   <C-C>:call Perl_InsertTemplate("idioms.array")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>ia=  <C-C>:call Perl_InsertTemplate("idioms.array-assign")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>ih   <C-C>:call Perl_InsertTemplate("idioms.hash")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>ih=  <C-C>:call Perl_InsertTemplate("idioms.hash-assign")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>ir   <C-C>:call Perl_InsertTemplate("idioms.regex")<CR>
   "
 

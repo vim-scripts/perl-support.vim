@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.7.1) / April 12 2010
+README for perl-support.vim (Version 4.8) / May 29 2010
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -96,12 +96,10 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.7.1
+  RELEASE NOTES FOR VERSION 4.8
 ---------------------------------------------------------------------------------------
-- Bugfixes: insertion of Posix classes from the menu not working properly.
-- Bugfixes, Regex Tester: accented characters can be used.
-- Bugfixes, Regex Tester: embedded Perl code can be used.
-- Bugfixes: local installation looks like a system-wide installation in seldom cases.
+- Hotkeys \$x, \@x and \%x renamed (to avoid conflicts when writing references).
+- Bugfix, Regex-Tester: colouring matches shows an error message in a few cases.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'
