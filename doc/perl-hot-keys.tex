@@ -7,10 +7,10 @@
 %%                
 %%       Author:  Dr.-Ing. Fritz Mehner
 %%        Email:  mehner@fh-swf.de
-%%    Copyright:  Copyright (C)  2003-2009  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
+%%    Copyright:  Copyright (C)  2003-2010  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  see \Pluginversion
 %%      Created:  06.06.2003
-%%     Revision:  $Id: perl-hot-keys.tex,v 1.35 2010/05/10 14:50:21 mehner Exp $
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.38 2010/12/07 19:47:20 mehner Exp $
 %%                
 %%=====================================================================================
 
@@ -25,8 +25,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{4.8}
-\newcommand{\ReleaseDate}{May 2010}
+\newcommand{\Pluginversion}{4.9}
+\newcommand{\ReleaseDate}{December 2010}
 
 %%----------------------------------------------------------------------
 %%  fancyhdr
@@ -188,7 +188,7 @@ Fritz Mehner (mehner@fh-swf.de)\\
 \hline \verb'\ne'  & edit code snippet         \hfill (n)   \\
 %
 \hline \verb'\ntl' & edit local templates      \hfill (n)   \\
-\hline \verb'\ntg' & edit global templates     \hfill (n)   \\
+\hline \verb'\ntg' & edit global templates$^1$ \hfill (n)   \\
 \hline \verb'\ntr' & reread the templates      \hfill (n)   \\
 \hline
 \end{tabular}\\
@@ -252,11 +252,20 @@ Fritz Mehner (mehner@fh-swf.de)\\
 \hline \verb'\rpn'    & run \verb'NYTProf'              \hfill (n)\\
 \hline \verb'\rpnc'   & open CSV file (\verb'NYTProf')  \hfill (n)\\
 \hline
-\end{tabular}%
+\end{tabular}\\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
+%
+\begin{minipage}[b]{75mm}%
+\scriptsize{%
+\vspace{10mm}
+\hrulefill\\
+$^1$ {systemwide installation only}\\
+}%
+\end{minipage}\\
 %
 \end{center}%
 \end{multicols}%
+%
 \newpage
 %%----------------------------------------------------------------------
 %%  PAGE 2

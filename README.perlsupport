@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.8) / May 29 2010
+README for perl-support.vim (Version 4.9) / November 30 2010
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -17,36 +17,40 @@ documentation.
 This plugin can be used with Vim version 7.x . Most features should work with
 Vim version 6.x.
 
-=======================================================================================
+================================================================================
   INSTALLATION
-=======================================================================================
+================================================================================
+
+(1)  LINUX
+----------
 
 The subdirectories in the zip archive  perl-support.zip  mirror the directory
 structure which is needed below the local installation directory $HOME/.vim/
-for LINUX/UNIX ($VIM/vimfiles/ for Windows; find the value of $VIM with 
-":echo $VIM" from inside Vim).
+(find the value of $HOME with ":echo $HOME" from inside Vim).
 
-(0) Save the template files in '$HOME/.vim/perl-support/templates/Templates' if
+(1.0) Save the template files in '$HOME/.vim/perl-support/templates/Templates' if
     you have changed any of them.
 
-(1) Copy the zip archive  perl-support.zip to $HOME/.vim and run
+(1.1) Copy the zip archive perl-support.zip to $HOME/.vim and run
 
       unzip perl-support.zip
 
-    If you have already an older version of bash-support and you have modified
+    If you have already an older version of perl-support and you have modified
     the template files you may want to save your templates first and suppress
     overwriting them with
 
       unzip perl-support.zip  -x *Templates *.template
 
-(2) Loading of plugin files must be enabled. If not use
-      :filetype plugin on
-    This is the minimal content of the file '$HOME/.vimrc'. Create one if there
-    is none. 
+(1.2) Loading of plugin files must be enabled. If not use
 
-(3) Set at least some personal details into perl-support/templates/Templates 
-    by overriding the defaults.  Here the minimal personalization (my settings
-    as an example, of course):
+      :filetype plugin on
+
+    This is the minimal content of the file '$HOME/.vimrc'. Create one if there
+    is none or use the files in $HOME/.vim/perl-support/rc as a starting point.
+
+(1.3) Set at least some personal details in the file 
+    '$HOME/.vim/perl-support/templates/Templates' 
+    Here is the minimal personalization (my settings as an example):
 
       |AUTHOR|    = Dr. Fritz Mehner 
       |AUTHORREF| = fgm
@@ -54,12 +58,57 @@ for LINUX/UNIX ($VIM/vimfiles/ for Windows; find the value of $VIM with
       |COMPANY|   = FH Südwestfalen, Iserlohn
       |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
 
-    Please read the documentation to fully understand the template system.
+    (Read more about the template system in the plugin documentation)
 
-(4) Consider additional settings in the file '$HOME/.vimrc'.
-    The files customization.vimrc and customization.gvimrc are replacements or 
-    extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
-    You may want to use parts of them. The files are documented. 
+(1.4) Consider additional settings in the file '$HOME/.vimrc'.  The files
+    customization.vimrc and customization.gvimrc are replacements or extensions
+    for your .vimrc and .gvimrc.  You may want to use parts of them. The files
+    are documented. 
+
+
+(2)  WINDOWS
+------------
+
+The subdirectories in the zip archive  perl-support.zip  mirror the directory
+structure which is needed below the local installation directory
+$HOME/vimfiles/ (find the value of $HOME with ":echo $HOME" from inside Vim).
+
+(2.0) Save the template files in '$HOME/vimfiles/perl-support/templates/Templates'
+    if you have changed any of them.
+
+(2.1) Copy the zip archive perl-support.zip to $HOME/vimfiles and run
+
+      unzip perl-support.zip
+
+    If you have already an older version of perl-support and you have modified
+    the template files you may want to save your templates first and suppress
+    overwriting them with
+
+      unzip perl-support.zip  -x *Templates *.template
+
+(2.2) Loading of plugin files must be enabled. If not use
+
+      :filetype plugin on
+
+    This is the minimal content of the file '$HOME/_vimrc'. Create one if there
+    is none or use the files in $HOME/vimfiles/perl-support/rc as a starting point.
+
+(2.3) Set at least some personal details in the file 
+    '$HOME/vimfiles/perl-support/templates/Templates' 
+    Here is the minimal personalization (my settings as an example):
+
+      |AUTHOR|    = Dr. Fritz Mehner 
+      |AUTHORREF| = fgm
+      |EMAIL|     = mehner@fh-swf.de
+      |COMPANY|   = FH Südwestfalen, Iserlohn
+      |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
+
+    (Read more about the template system in the plugin documentation)
+
+(2.4) Consider additional settings in the file '$HOME/_vimrc'.  The files
+    customization.vimrc and customization.gvimrc are replacements or extensions
+    for your _vimrc and _gvimrc. You may want to use parts of them.  The files
+    are documented. 
 
 There are a lot of features and options which can be used and influenced:
 
@@ -96,10 +145,11 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.8
+  RELEASE NOTES FOR VERSION 4.9
 ---------------------------------------------------------------------------------------
-- Hotkeys \$x, \@x and \%x renamed (to avoid conflicts when writing references).
-- Bugfix, Regex-Tester: colouring matches shows an error message in a few cases.
+- Windows: user and system installation.
+- Integration of Perl::Tags reworked.
+- Several minor bugfixes.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

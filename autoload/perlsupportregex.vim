@@ -10,8 +10,8 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.22 2010/05/10 14:49:05 mehner Exp $
-"       License:  Copyright 2008-2009 Dr. Fritz Mehner
+"      Revision:  $Id: perlsupportregex.vim,v 1.23 2010/11/22 20:15:40 mehner Exp $
+"       License:  Copyright 2008-2010 Dr. Fritz Mehner
 "===============================================================================
 "
 " Exit quickly when:
@@ -55,7 +55,7 @@ function! perlsupportregex#Perl_RegexExplain( mode )
   endif
 
   if a:mode == 'v'
-    call Perl_RegexPick ( "regexp", "v" )
+    call perlsupportregex#Perl_RegexPick ( "regexp", "v" )
   endif
 
   if bufloaded(s:Perl_PerlRegexBufferName) != 0 && bufwinnr(s:Perl_PerlRegexBufferNumber) != -1

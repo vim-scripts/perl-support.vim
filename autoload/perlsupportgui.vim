@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.34 2010/05/29 16:35:19 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.37 2010/11/29 22:20:02 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -69,9 +69,9 @@ function! perlsupportgui#Perl_InitMenu ()
 
   exe "amenu ".g:Perl_Root.'&Comments.-SEP1-                     :'
   "
-  exe "amenu <silent>  ".g:Perl_Root."&Comments.toggle\\ &comment<Tab>\\cc         :call Perl_CommentToggle()<CR>j"
-  exe "imenu <silent>  ".g:Perl_Root."&Comments.toggle\\ &comment<Tab>\\cc    <C-C>:call Perl_CommentToggle()<CR>j"
-	exe "vmenu <silent>  ".g:Perl_Root."&Comments.toggle\\ &comment<Tab>\\\\cc  <C-C>:call Perl_CommentToggleRange()<CR>j"
+  exe "amenu <silent>  ".g:Perl_Root.'&Comments.toggle\ &comment<Tab>\\cc         :call Perl_CommentToggle()<CR>j'
+  exe "imenu <silent>  ".g:Perl_Root.'&Comments.toggle\ &comment<Tab>\\cc    <C-C>:call Perl_CommentToggle()<CR>j'
+	exe "vmenu <silent>  ".g:Perl_Root.'&Comments.toggle\ &comment<Tab>\\cc    <C-C>:call Perl_CommentToggleRange()<CR>j'
 
   exe "amenu <silent>  ".g:Perl_Root.'&Comments.comment\ &block<Tab>\\cb           :call Perl_CommentBlock("a")<CR>'
   exe "imenu <silent>  ".g:Perl_Root.'&Comments.comment\ &block<Tab>\\cb      <C-C>:call Perl_CommentBlock("a")<CR>'
@@ -283,12 +283,14 @@ function! perlsupportgui#Perl_InitMenu ()
     exe "amenu <silent>  ".g:Perl_Root.'S&nippets.-SEP1-                  :'
   endif
   "
-  exe "amenu  <silent>  ".g:Perl_Root.'S&nippets.edit\ &local\ templates<Tab>\\ntl          :call Perl_EditTemplates("local")<CR>'
-  exe "amenu  <silent>  ".g:Perl_Root.'S&nippets.edit\ &global\ templates<Tab>\\ntg         :call Perl_EditTemplates("global")<CR>'
-  exe "amenu  <silent>  ".g:Perl_Root.'S&nippets.reread\ &templates<Tab>\\ntr               :call Perl_RereadTemplates()<CR>'
-  exe "imenu  <silent>  ".g:Perl_Root.'S&nippets.edit\ &local\ templates<Tab>\\ntl     <C-C>:call Perl_EditTemplates("local")<CR>'
-  exe "imenu  <silent>  ".g:Perl_Root.'S&nippets.edit\ &global\ templates<Tab>\\ntg    <C-C>:call Perl_EditTemplates("global")<CR>'
-  exe "imenu  <silent>  ".g:Perl_Root.'S&nippets.reread\ &templates <Tab>\\ntr         <C-C>:call Perl_RereadTemplates()<CR>'
+  exe "amenu  <silent>  ".g:Perl_Root.'S&nippets.edit\ &local\ templates<Tab>\\ntl          :call Perl_BrowseTemplateFiles("Local")<CR>'
+  exe "imenu  <silent>  ".g:Perl_Root.'S&nippets.edit\ &local\ templates<Tab>\\ntl     <C-C>:call Perl_BrowseTemplateFiles("Local")<CR>'
+	if g:Perl_Installation == 'system'
+		exe "amenu  <silent>  ".g:Perl_Root.'S&nippets.edit\ &global\ templates<Tab>\\ntg         :call Perl_BrowseTemplateFiles("Global")<CR>'
+		exe "imenu  <silent>  ".g:Perl_Root.'S&nippets.edit\ &global\ templates<Tab>\\ntg    <C-C>:call Perl_BrowseTemplateFiles("Global")<CR>'
+	endif
+  exe "amenu  <silent>  ".g:Perl_Root.'S&nippets.reread\ &templates<Tab>\\ntr               :call Perl_RereadTemplates("yes")<CR>'
+  exe "imenu  <silent>  ".g:Perl_Root.'S&nippets.reread\ &templates <Tab>\\ntr         <C-C>:call Perl_RereadTemplates("yes")<CR>'
   "
   "===============================================================================================
   "----- Menu : Regex menu                              {{{2
@@ -299,50 +301,50 @@ function! perlsupportgui#Perl_InitMenu ()
     exe "amenu ".g:Perl_Root.'Rege&x.-Sep0-         :'
   endif
   "
-  exe "anoremenu ".g:Perl_Root.'Rege&x.&grouping<Tab>(\ )               a()<Left>'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        a(\|)<Left><Left>'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.char\.\ &class<Tab>[\ ]          a[]<Left>'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  a{}<Left>'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  a{,}<Left><Left>'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.&grouping,\ (\ )               a()<Left>'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.&alternation,\ (\ \|\ )        a(\|)<Left><Left>'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.char\.\ &class,\ [\ ]          a[]<Left>'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.c&ount,\ {\ }                  a{}<Left>'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.co&unt\ (at\ least),\ {\ ,\ }  a{,}<Left><Left>'
   "
-  exe "inoremenu ".g:Perl_Root.'Rege&x.&grouping<Tab>(\ )               ()<Left>'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        (\|)<Left><Left>'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.char\.\ &class<Tab>[\ ]          []<Left>'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  {}<Left>'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  {,}<Left><Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.&grouping,\ (\ )               ()<Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.&alternation,\ (\ \|\ )        (\|)<Left><Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.char\.\ &class,\ [\ ]          []<Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.c&ount,\ {\ }                  {}<Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.co&unt\ (at\ least),\ {\ ,\ }  {,}<Left><Left>'
 
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.&grouping<Tab>(\ )               s()<Esc>P'
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.&alternation<Tab>(\ \|\ )        s(\|)<Esc>hPf)i'
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.char\.\ &class<Tab>[\ ]          s[]<Esc>P'
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.c&ount<Tab>{\ }                  s{}<Esc>P'
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.co&unt\ (at\ least)<Tab>{\ ,\ }  s{,}<Esc>hPf}i'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.&grouping,\ (\ )               s()<Esc>P'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.&alternation,\ (\ \|\ )        s(\|)<Esc>hPf)i'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.char\.\ &class,\ [\ ]          s[]<Esc>P'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.c&ount,\ {\ }                  s{}<Esc>P'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.co&unt\ (at\ least),\ {\ ,\ }  s{,}<Esc>hPf}i'
   "
   exe " menu ".g:Perl_Root.'Rege&x.-SEP3-                             :'
   "
-  exe "anoremenu ".g:Perl_Root.'Rege&x.word\ &boundary<Tab>\\b              a\b'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.word\ &boundary<Tab>\\b               \b'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.&digit<Tab>\\d                       a\d'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.&digit<Tab>\\d                        \d'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.white&space<Tab>\\s                  a\s'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.white&space<Tab>\\s                   \s'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.&word\ character<Tab>\\w             a\w'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.&word\ character<Tab>\\w              \w'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.match\ &property<Tab>\\p{}           a\p{}<Left>'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.match\ &property<Tab>\\p{}            \p{}<Left>'
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.match\ &property<Tab>\\p{}           s\p{}<Esc>P'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.word\ &boundary,\ \\b              a\b'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.word\ &boundary,\ \\b               \b'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.&digit,\ \\d                       a\d'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.&digit,\ \\d                        \d'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.white&space,\ \\s                  a\s'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.white&space,\ \\s                   \s'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.&word\ character,\ \\w             a\w'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.&word\ character,\ \\w              \w'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}           a\p{}<Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}            \p{}<Left>'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}           s\p{}<Esc>P'
 
   exe "anoremenu ".g:Perl_Root.'Rege&x.-SEP4-                         :'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.non-(word\ &bound\.)<Tab>\\B         a\B'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.non-(word\ &bound\.)<Tab>\\B          \B'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.non-&digit<Tab>\\D                   a\D'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.non-&digit<Tab>\\D                    \D'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.non-white&space<Tab>\\S              a\S'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.non-white&space<Tab>\\S               \S'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.non-(&word\ char\.)<Tab>\\W          a\W'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.non-(&word\ char\.)<Tab>\\W           \W'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.<Tab>\\P{}    a\P{}<Left>'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.<Tab>\\P{}     \P{}<Left>'
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.<Tab>\\P{}    s\P{}<Esc>P'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.non-word\ &bound\.,\ \\B         a\B'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.non-word\ &bound\.,\ \\B          \B'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.non-&digit,\ \\D                   a\D'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.non-&digit,\ \\D                    \D'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.non-white&space,\ \\S              a\S'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.non-white&space,\ \\S               \S'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.non-&word\ char\.,\ \\W          a\W'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.non-&word\ char\.,\ \\W           \W'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}    a\P{}<Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}     \P{}<Left>'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}    s\P{}<Esc>P'
   "
   "---------- submenu : POSIX character classes --------------------------------------------
   "

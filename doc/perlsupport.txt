@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                   April 28 2010
+*perlsupport.txt*                Perl Support                November 30 2010
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.8
+                              Plugin version 4.9
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -76,6 +76,7 @@ profiler can be done with a keystroke.
  4.4      Navigate through PODs           |perlsupport-custom-navigate|
  4.5      Tabulator width                 |perlsupport-custom-tab|
  4.6      System-wide installation        |perlsupport-system-wide|
+ 4.7      Non-standard installation       |perlsupport-non-standard|
  5.      Template files and tags          |perlsupport-templates|
  5.1      Template files                  |perlsupport-templates-files|
  5.2      Macros                          |perlsupport-templates-macros|
@@ -1615,6 +1616,9 @@ g:Perl_Printheader             "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 g:Perl_PerlcriticSeverity      5
 g:Perl_PerlcriticVerbosity     5
 g:Perl_PerlcriticOptions       ""
+================================================================================
+  DESCRIPTION
+================================================================================
 g:Perl_PerlRegexSubstitution   '$+'
 g:Perl_NYTProf_html            'no'
 g:Perl_NYTProf_browser         'konqueror'
@@ -1634,7 +1638,7 @@ The variable root_dir will automatically be set to one of the following values:
            g:Perl_TemplateOverwrittenMsg  : message if a template is overwritten
            g:Perl_Ctrl_j                  : hotkey Ctrl-j  'on'/'off' (see|perlsupport-Ctrl-j|)
 
- 2. group: g:Perl_CodeSnippets       : The name of the code snippet directory (see below).
+ 2. group: g:Perl_CodeSnippets       : The name of the (non-standard) code snippet directory (see below).
            g:Perl_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
            g:Perl_Dictionary_File    : Path and filename of the Perl word list used for
                                        dictionary completion (see below).
@@ -1795,9 +1799,11 @@ As *** SUPERUSER *** :
 (1) Find the Vim installation directory.
 The Vim ex command ':echo $VIM' gives '/usr/local/share/vim' or something like
 that. Beyond this directory you will find the Vim installation,  e.g. in
-'/usr/local/share/vim/vim71' if Vim version 7.1 has been installed.
+'/usr/local/share/vim/vim73' if Vim version 7.3 has been installed (Windows:
+'C:\Program Files\Vim').
 
-(2) Create a new subdirectory 'vimfiles', e.g. '/usr/local/share/vim/vimfiles'.
+(2) Create a new subdirectory 'vimfiles', e.g. '/usr/local/share/vim/vimfiles'
+(Windows: 'C:\Program Files\Vim\vimfiles').
 
 (3) Install Perl Support
 Copy the archive perl-support.zip to this new directory and unpack it:
@@ -1816,6 +1822,39 @@ Create your private snippet directory:
 You may want to copy the snippets comming with this plugin (in
 $VIM/vimfiles/perl-support/codesnippets) into the new directory or to set a
 link to the global directory.
+
+Create your private template directory:
+
+  mkdir --parents  ~/.vim/perl-support/template
+
+Create a private template file 'Templates' (compulsory) in this directory to
+overwrite some macros, e.g.
+
+ *|AUTHOR|*    = your name
+ *|AUTHORREF|* = ...
+ *|EMAIL|*     = ...
+ *|COMPANY|*   = ...
+ *|COPYRIGHT|* = ...
+
+You can also have local templates which overwrite the global ones. To suppress
+the messages in this case set a global variable in '~/.vimrc' (Windows:
+'~\_vimrc') :
+
+  let g:Perl_TemplateOverwrittenMsg= 'no'
+
+The default is 'yes'.
+
+------------------------------------------------------------------------------
+4.7  Non-standard installation                      *perlsupport-non-standard*
+------------------------------------------------------------------------------
+
+The place of the code snippets is "$HOME/.vim/perl-support/codesnippets/".
+For convenience this directory can be moved to another place. In this case the
+new directory has to be specified in "$HOME/.vimrc":
+
+ let g:Perl_CodeSnippets  = "/home/username/ ... /"
+
+Please note the trailing slash.
 
 ==============================================================================
 5.  TEMPLATE FILES AND TAGS                            *perlsupport-templates*
@@ -2251,10 +2290,10 @@ overwritten if you do not update manually.
 6.  Perl::Tags                                          *perlsupport-perltags*
 ==============================================================================
 
-The use of the module Perl::Tags (version 0.23; see CPAN) is encouraged.  In
-order to use this feature you need a Vim binary with Perl interface compiled
-in (see |perlsupport-compile-vim|) and Perl::Tags must be installed,  of
-course.
+The use of the module Perl::Tags (version >= 0.23; see CPAN) is encouraged.
+In order to use this feature you need a Vim binary with Perl interface
+compiled in (see |perlsupport-compile-vim|) and Perl::Tags must be installed,
+of course.
 
 Usage. If the cursor is on the module name in a perl 'use' ore 'require'
 statement like
@@ -2464,19 +2503,23 @@ Support' or the hotkey \lps is used.
 13.  MS-Windows PARTICULARITIES                          *perlsupport-windows*
 ==============================================================================
 
-The plugins should go into the directory structure below the local
-installation directory $HOME/.vim/ for LINUX/UNIX and $VIM/vimfiles/ for
-MS-Windows.
+For a user installation the plugin should go into the directory structure below 
+  $HOME/vimfiles/
+for a system installation below
+  $VIM/vimfiles/
+
 The values of the two variables can be found from inside Vim:
    :echo $VIM
 or
    :echo $HOME
 
-Configuration files:
+The configuration files for a user are
 
-  LINUX/UNIX :   $HOME/.vimrc  and  $HOME/.gvimrc
-  MS-Windows :   $VIM/_vimrc   and  $VIM/_gvimrc
+  $HOME/_vimrc   and  $HOME/_gvimrc
 
+for the system
+
+  $VIM/_vimrc   and  $VIM/_gvimrc
 
 ==============================================================================
 14.  TROUBLESHOOTING                             *perlsupport-troubleshooting*

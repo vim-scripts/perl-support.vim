@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.8
+---------------------------------------------------------------------------------------
+- Hotkeys \$x, \@x and \%x renamed (to avoid conflicts when writing references).
+- Bugfix, Regex-Tester: colouring matches shows an error message in a few cases.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.7.1
 ---------------------------------------------------------------------------------------
 - Bugfixes: insertion of Posix classes from the menu not working properly.
