@@ -51,7 +51,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.110 2010/11/29 22:22:05 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.113 2011/02/05 20:20:40 mehner Exp $
 "-------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -59,7 +59,7 @@
 if exists("g:Perl_Version") || &compatible
   finish
 endif
-let g:Perl_Version= "4.9"
+let g:Perl_Version= "4.10"
 "
 "#################################################################################
 "
@@ -99,20 +99,20 @@ let s:MSWIN = has("win16") || has("win32")   || has("win64")    || has("win95")
 let s:UNIX	= has("unix")  || has("macunix") || has("win32unix")
 "
 let g:Perl_Installation				= 'local'
-let s:vimfiles						= $VIM
-let	s:sourced_script_file	= expand("<sfile>")
-let s:Perl_GlobalTemplateFile= ''
-let s:Perl_GlobalTemplateDir = ''
+let s:vimfiles								= $VIM
+let	s:sourced_script_file			= expand("<sfile>")
+let s:Perl_GlobalTemplateFile	= ''
+let s:Perl_GlobalTemplateDir	= ''
 "
 if  s:MSWIN
   " ==========  MS Windows  ======================================================
 	"
 	if match( s:sourced_script_file, escape( s:vimfiles, ' \' ) ) == 0
 		" system wide installation
-		let g:Perl_Installation						= 'system'
+		let g:Perl_Installation				= 'system'
 		let s:plugin_dir							= $VIM.'/vimfiles/'
-		let s:Perl_GlobalTemplateFile	= s:plugin_dir.'perl-support/templates/Templates'
-		let s:Perl_GlobalTemplateDir	= fnamemodify( s:Perl_GlobalTemplateFile, ":p:h" ).'/'
+		let s:Perl_GlobalTemplateDir	= s:plugin_dir.'perl-support/templates'
+		let s:Perl_GlobalTemplateFile	= s:Perl_GlobalTemplateDir.'/Templates'
 	else
 		" user installation assumed
 		let s:plugin_dir  						= $HOME.'/vimfiles/'
@@ -127,22 +127,22 @@ if  s:MSWIN
 else
   " ==========  Linux/Unix  ======================================================
 	"
-	if match( expand("<sfile>"), $VIM ) == 0
-		" system wide installation
-		let g:Perl_Installation						= 'system'
-		let s:plugin_dir  						= $VIM.'/vimfiles/'
-		let s:Perl_GlobalTemplateFile	= s:plugin_dir.'perl-support/templates/Templates'
-		let s:Perl_GlobalTemplateDir	= fnamemodify( s:Perl_GlobalTemplateFile, ":p:h" ).'/'
-	else
+	if match( expand("<sfile>"), expand( "$HOME" ) ) == 0
 		" user installation assumed
 		let s:plugin_dir  						= $HOME.'/.vim/'
+	else
+		" system wide installation
+		let g:Perl_Installation				= 'system'
+		let s:plugin_dir  						= $VIM.'/vimfiles/'
+		let s:Perl_GlobalTemplateDir	= s:plugin_dir.'perl-support/templates'
+		let s:Perl_GlobalTemplateFile	= s:Perl_GlobalTemplateDir.'/Templates'
 	endif
 	"
 	let s:Perl_LocalTemplateFile		= $HOME.'/.vim/perl-support/templates/Templates'
 	let s:Perl_LocalTemplateDir			= fnamemodify( s:Perl_LocalTemplateFile, ":p:h" ).'/'
 	let s:Perl_CodeSnippets  				= $HOME.'/.vim/perl-support/codesnippets/'
-	let s:escfilename   = ' \%#[]'
-	let s:Perl_Display	= "$DISPLAY"
+	let s:escfilename   						= ' \%#[]'
+	let s:Perl_Display							= "$DISPLAY"
 	"
   " ==============================================================================
 endif
@@ -216,6 +216,11 @@ call Perl_SetLocalVariable("Perl_Printheader            ")
 call Perl_SetLocalVariable("Perl_ProfilerTimestamp      ")
 call Perl_SetLocalVariable("Perl_TemplateOverwrittenMsg ")
 call Perl_SetLocalVariable("Perl_XtermDefaults          ")
+call Perl_SetLocalVariable("Perl_GlobalTemplateFile     ")
+
+if exists('g:Perl_GlobalTemplateFile') && g:Perl_GlobalTemplateFile != ''
+	let s:Perl_GlobalTemplateDir	= fnamemodify( s:Perl_GlobalTemplateFile, ":h" )
+endif
 "
 "
 " set default geometry if not specified
@@ -914,11 +919,12 @@ function! Perl_Settings ()
   let txt = txt.'                 company  :  "'.s:Perl_Macro['|COMPANY|']."\"\n"
   let txt = txt.'                 project  :  "'.s:Perl_Macro['|PROJECT|']."\"\n"
   let txt = txt.'        copyright holder  :  "'.s:Perl_Macro['|COPYRIGHTHOLDER|']."\"\n"
+  let txt = txt.'  code snippet directory  :  "'.g:Perl_CodeSnippets."\"\n"
 	let txt = txt.'           template style :  "'.s:Perl_Macro['|STYLE|']."\"\n"
-  let txt = txt."  code snippet directory  :  ".g:Perl_CodeSnippets."\n"
+	let txt = txt.'      plugin installation :  "'.g:Perl_Installation."\"\n"
 	" ----- template files  ------------------------
 	if g:Perl_Installation == 'system'
-		let txt = txt.'global template directory :  '.s:Perl_GlobalTemplateDir."\n"
+		let txt = txt.'global template directory :  "'.s:Perl_GlobalTemplateDir."\"\n"
 		if filereadable( s:Perl_LocalTemplateFile )
 			let txt = txt.' local template directory :  '.s:Perl_LocalTemplateDir."\n"
 		endif
@@ -1400,7 +1406,7 @@ function! Perl_RereadTemplates ( msg )
 			if filereadable( s:Perl_GlobalTemplateFile )
 				call Perl_ReadTemplates( s:Perl_GlobalTemplateFile )
 			else
-				echomsg "Global template '.s:Perl_GlobalTemplateFile.' file not readable."
+				echomsg "Global template file '.s:Perl_GlobalTemplateFile.' not readable."
 				return
 			endif
 			let	messsage	= "Templates read from '".s:Perl_GlobalTemplateFile."'"
@@ -1416,7 +1422,7 @@ function! Perl_RereadTemplates ( msg )
 				call Perl_ReadTemplates( s:Perl_LocalTemplateFile )
 				let	messsage	= "Templates read from '".s:Perl_LocalTemplateFile."'"
 			else
-				echomsg "Local template '".s:Perl_LocalTemplateFile."' file not readable." 
+				echomsg "Local template file '".s:Perl_LocalTemplateFile."' not readable." 
 				return
 			endif
 			"

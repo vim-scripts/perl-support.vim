@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.9
+---------------------------------------------------------------------------------------
+- Windows: user and system installation.
+- Integration of Perl::Tags reworked.
+- Several minor bugfixes.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.8
 ---------------------------------------------------------------------------------------
 - Hotkeys \$x, \@x and \%x renamed (to avoid conflicts when writing references).

@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                November 30 2010
+*perlsupport.txt*                Perl Support                January 25 2011
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.9
+                              Plugin version 4.10
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -106,8 +106,8 @@ profiler can be done with a keystroke.
 1.  USAGE WITH GUI  (gVim)                            *perlsupport-usage-gvim*
 ==============================================================================
 
-Nearly all menu entries insert code snippets or comments. All these stuff is
-taken from template files and can be changed by the user to meet his
+Nearly all menu entries insert code snippets or comments. All of these are
+contained within template files and can be changed by the user to meet their
 requirements (see|perlsupport-templates|).
 
 If the root menu 'Perl' is not visible call it with the item
@@ -140,7 +140,7 @@ my  $x1111     = 1111;                          #
 
 my  $x11111111 = 11111111;                      #
 
-The cursor position above is marked by '|' . Empty lines will be ignored.
+The cursor position above is marked by '|'. Empty lines will be ignored.
 
 The default starting column is 49 ( = (multiple of 2,4, or 8) + 1 ).  This can
 be changed by setting a global variable in the file .vimrc , e.g. :
@@ -148,7 +148,7 @@ be changed by setting a global variable in the file .vimrc , e.g. :
   let g:Perl_LineEndCommColDefault    = 45
 
 The starting column can also be set by the menu item 'Comments->Set End Comm.
-Col.' . Just position the cursor in an arbitrary column (column number is
+Col.'. Just position the cursor in an arbitrary column (column number is
 shown in the Vim status line) and choose this menu item.  This setting is
 buffer related.
 
@@ -434,8 +434,8 @@ The default value is 'gui'.
 
 1.4.2  Code Templates                             *perlsupport-templates-menu*
 ---------------------
-Nearly all menu entries insert code snippets or comments. All these stuff is
-taken from template files and can be changed by the user to meet his
+Nearly all menu entries insert code snippets or comments. All of these are
+contained within template files and can be changed by the user to meet their
 requirements (see|perlsupport-templates|on how to use the template system).
 
 The menu item 'edit local templates' opens the main template file in a local
@@ -1279,7 +1279,7 @@ This menu has three states:
 
 The first (uppercase) item shows the current method.  The default is 'vim'.
 This can be changed by setting the variable g:Perl_OutputGvim to another
-value.  Possible values are 'vim', 'buffer' and 'xterm' .
+value.  Possible values are 'vim', 'buffer' and 'xterm'.
 
 Vim (non-GUI) : The output destination can be toggled between (1) and (2)
                 using the hotkey \ro .
@@ -1763,7 +1763,8 @@ entries. To enable this feature
    noremap <silent> <F11>       :Tlist<CR>
   inoremap <silent> <F11>  <C-C>:Tlist<CR>
 
-  let tlist_perl_settings  = 'perl;c:constants;l:labels;p:package;s:subroutines;d:POD'
+  let tlist_perl_settings   = 'perl;c:constants;f:formats;l:labels;p:packages;'.
+                            \ 's:subroutines;d:subroutines;o:POD;t:Keyword Comments'
 
 (3) restart vim/gvim
 
@@ -1785,7 +1786,7 @@ setting for all files with file type 'perl' by uncommenting the two lines
   "setlocal tabstop=4
   "setlocal shiftwidth=4
 
-in the file type plugin '~/.vim/ftplugin/perl.vim' .
+in the file type plugin '~/.vim/ftplugin/perl.vim'.
 
 ------------------------------------------------------------------------------
 4.6  System-wide installation (Unix/Linux only)      *perlsupport-system-wide*
@@ -1811,6 +1812,14 @@ Copy the archive perl-support.zip to this new directory and unpack it:
 
 (4) Generate the help tags:
   :helptags $VIM/vimfiles/doc
+
+SPECIAL CASES. Some Linux distributions use non-standard names for Vim
+directories. SUSE has a directory '/usr/share/vim/site' to put plugins in.
+These directories will not be found automatically.  After installing the
+plugin below '/usr/share/vim/site' the use of the templates will be enabled by
+the following line in '~/.vimrc':
+
+  let g:Perl_GlobalTemplateFile = '/usr/share/vim/site/perl-support/templates/Templates'
 
 
 As *** USER *** :
@@ -1864,8 +1873,8 @@ Please note the trailing slash.
 5.1  TEMPLATE FILES                              *perlsupport-templates-files*
 ------------------------------------------------------------------------------
 
-Nearly all menu entries insert code snippets or comments. All these stuff is
-taken from template files and can be changed by the user to meet his
+Nearly all menu entries insert code snippets or comments. All of these are
+contained within template files and can be changed by the user to meet their
 requirements.
 
 The master template file is '$HOME/.vim/perl-support/templates/Templates' for

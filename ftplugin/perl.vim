@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.69 2010/11/29 22:20:39 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.70 2011/01/21 11:49:32 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -420,7 +420,7 @@ if has('perl') && exists("g:Perl_PerlTags") && g:Perl_PerlTags == 'enabled'
 	if ! exists("s:defined_functions")
 		function s:init_tags()
 			perl <<EOF
-			use Perl::Tags;
+			require Perl::Tags;
 			$naive_tagger = Perl::Tags::Naive->new( max_level=>2 );
 			# only go one level down by default
 EOF
