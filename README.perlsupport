@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.10) / February 05 2011
+README for perl-support.vim (Version 4.11) / April 21 2011
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -145,10 +145,12 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.10
+  RELEASE NOTES FOR VERSION 4.11
 ---------------------------------------------------------------------------------------
-- Bugfix: detection of a systemwide installation can fail.
-- Minor improvements.
+- Perl::Critic integration: severity and verbosity will be taken from the
+	configuration file if specificed.
+- Bugfix (Windows only): wrong quoting with command line parameters.
+- Several minor improvements.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

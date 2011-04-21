@@ -40,7 +40,7 @@
 "
 "        Version:  see variable  g:Perl_Version  below
 "        Created:  09.07.2001
-"        License:  Copyright (c) 2001-2010, Fritz Mehner
+"        License:  Copyright (c) 2001-2011, Fritz Mehner
 "                  This program is free software; you can redistribute it
 "                  and/or modify it under the terms of the GNU General Public
 "                  License as published by the Free Software Foundation,
@@ -51,7 +51,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.113 2011/02/05 20:20:40 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.116 2011/04/21 07:33:24 mehner Exp $
 "-------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -59,7 +59,7 @@
 if exists("g:Perl_Version") || &compatible
   finish
 endif
-let g:Perl_Version= "4.10"
+let g:Perl_Version= "4.11"
 "
 "#################################################################################
 "
@@ -1106,12 +1106,6 @@ function! Perl_Run ()
   silent exe ":update"
   silent exe ":cclose"
   "
-  if  s:MSWIN
-    let l:arguments = substitute( l:arguments, '^\s\+', ' ', '' )
-    let l:arguments = substitute( l:arguments, '\s\+', "\" \"", 'g')
-    let l:switches  = substitute( l:switches, '^\s\+', ' ', '' )
-    let l:switches  = substitute( l:switches, '\s\+', "\" \"", 'g')
-  endif
   "
   "------------------------------------------------------------------------------
   "  run : run from the vim command line
@@ -1156,7 +1150,7 @@ function! Perl_Run ()
       setlocal  modifiable
       silent exe ":update"
       if  s:MSWIN
-        exe ":%!perl ".l:switches.'"'.l:fullname.l:arguments.'"'
+        exe ":%!perl ".l:switches.'"'.l:fullname.'" '.l:arguments
       else
         exe ":%!perl ".l:switches.l:fullname_esc.l:arguments
       endif
@@ -1176,7 +1170,7 @@ function! Perl_Run ()
     "
     if  s:MSWIN
       " same as "vim"
-      exe "!perl \"".l:switches.l:fullname." ".l:arguments."\""
+      exe "!perl ".l:switches.'"'.l:fullname.'" '.l:arguments
     else
       silent exe '!xterm -title '.l:fullname_esc.' '.s:Perl_XtermDefaults.' -e '.s:Perl_Wrapper.' perl '.l:switches.l:fullname_esc.l:arguments
 			:redraw!
@@ -2222,6 +2216,45 @@ function! Perl_Perlcritic ()
   exe ":cclose"
   silent exe  ":update"
 	"
+	" check for a configuration file
+	"
+	let	perlCriticRcFile			= ''
+	let	perlCriticRcFileUsed	= 'no'
+	if exists("$PERLCRITIC")
+		let	perlCriticRcFile	= $PERLCRITIC
+	elseif filereadable( '.perlcriticrc' )
+		let	perlCriticRcFile	= '.perlcriticrc'
+	elseif filereadable( $HOME.'/.perlcriticrc' )
+		let	perlCriticRcFile	= $HOME.'/.perlcriticrc'
+	endif
+	"
+	" read severity and/or verbosity from the configuration file if specified
+	"
+	if perlCriticRcFile != ''
+		for line in readfile(perlCriticRcFile)
+			" default settings come before the first named block
+			if line =~ '^\s*['
+				break
+			else
+				let	list = matchlist( line, '^\s*severity\s*=\s*\([12345]\)' )
+				if !empty(list)
+					let s:Perl_PerlcriticSeverity	= list[1]
+					let	perlCriticRcFileUsed	= 'yes'
+				endif
+				let	list = matchlist( line, '^\s*severity\s*=\s*\(brutal\|cruel\|harsh\|stern\|gentle\)' )
+				if !empty(list)
+					let s:Perl_PerlcriticSeverity	= index( s:PCseverityName, list[1] )
+					let	perlCriticRcFileUsed	= 'yes'
+				endif
+				let	list = matchlist( line, '^\s*verbose\s*=\s*\(\d\+\)' )
+				if !empty(list) && 1<= list[1] && list[1] <= 11
+					let s:Perl_PerlcriticVerbosity	= list[1]
+					let	perlCriticRcFileUsed	= 'yes'
+				endif
+			endif
+		endfor
+	endif
+	" 
   let perlcriticoptions	=
 		  \      ' -severity '.s:Perl_PerlcriticSeverity
       \     .' -verbose '.eval("s:PCverbosityFormat".s:Perl_PerlcriticVerbosity)
@@ -2248,12 +2281,16 @@ function! Perl_Perlcritic ()
 				\				      ' ['.s:PCseverityName[s:Perl_PerlcriticSeverity].']'.
 				\							', verbosity '.s:Perl_PerlcriticVerbosity
 	"
+	let rcfile	= ''
+	if perlCriticRcFileUsed == 'yes'
+		let rcfile	= " ( configcfile '".perlCriticRcFile."' )"
+	endif
   if l:currentbuffer ==  bufname("%")
-		let s:Perl_PerlcriticMsg	= l:currentbuffer.' :  NO CRITIQUE  ('.sev_and_verb.')'
+		let s:Perl_PerlcriticMsg	= l:currentbuffer.' :  NO CRITIQUE, '.sev_and_verb.' '.rcfile
   else
     setlocal wrap
     setlocal linebreak
-		let s:Perl_PerlcriticMsg	= 'perlcritic : '.sev_and_verb
+		let s:Perl_PerlcriticMsg	= 'perlcritic : '.sev_and_verb.rcfile
   endif
 	redraw!
   echohl Search | echo s:Perl_PerlcriticMsg | echohl None

@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2003-2010  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  see \Pluginversion
 %%      Created:  06.06.2003
-%%     Revision:  $Id: perl-hot-keys.tex,v 1.38 2010/12/07 19:47:20 mehner Exp $
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.39 2011/04/19 18:40:39 mehner Exp $
 %%                
 %%=====================================================================================
 
@@ -25,8 +25,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{4.9}
-\newcommand{\ReleaseDate}{December 2010}
+\newcommand{\Pluginversion}{4.11}
+\newcommand{\ReleaseDate}{April 2011}
 
 %%----------------------------------------------------------------------
 %%  fancyhdr
@@ -97,6 +97,7 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%----------------------------------------------------------------------
 \hline 
 \multicolumn{2}{|r|}{\textsl{\textbf{H}elp}}    \\[1.0ex]
+\hline \verb'\rp \h' & read perldoc for word under cursor       \hfill (n)   \\
 \hline \verb'\hp'   & help (plugin) \hfill (n,i)\\
 \hline 
 %%----------------------------------------------------------------------
@@ -289,7 +290,6 @@ $^1$ {systemwide installation only}\\
 \hline \verb'\rma'   & command line arguments for \texttt{make} \hfill (n)   \\
 \hline \verb'\rd'    & start debugger                           \hfill (n)   \\
 \hline \verb'\re'    & make script executable                   \hfill (n)   \\
-\hline \verb'\rp \h' & read perldoc for word under cursor       \hfill (n)   \\
 \hline \verb'\ri'    & show installed Perl modules              \hfill (n)   \\
 \hline \verb'\rg'    & generate Perl module list                \hfill (n)   \\
 \hline \verb'\ry'    & run \verb'perltidy'                      \hfill (n, v)\\
@@ -316,9 +316,9 @@ $^1$ {systemwide installation only}\\
 %
 Ex commands for \texttt{perlcritic} (version 1.01+)\\
 Use tab expansion to choose the severity or the verbosity.\\[2.0ex]
-\texttt{ :CriticSeverity}  \> \texttt{1\ \ \ \ \ \ 2\ \ \ \ \ 3\ \ \ \ \ 4\ \ \ \ \ 5} \\
-                           \> \texttt{brutal cruel harsh stern gentle} \\[1.0ex]
-\texttt{ :CriticVerbosity} \> \texttt{1} $\ldots$ \texttt{11}\\[1.0ex]
+\texttt{ :CriticSeverity}  \> \texttt{\ 1\ \ \ \ \ \ 2\ \ \ \ \ 3\ \ \ \ \ 4\ \ \ \ \ 5} \\
+                           \> \texttt{\ brutal cruel harsh stern gentle} \\[1.0ex]
+\texttt{ :CriticVerbosity} \> \texttt{\ 1} $\ldots$ \texttt{11}\\[1.0ex]
 \texttt{ :CriticOptions}   \> option(s), see \texttt{perlcritic(1)}\\[5.5ex]
 %
 \hspace{30mm} \= \hspace{50mm} \= \kill

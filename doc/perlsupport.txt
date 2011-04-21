@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                January 25 2011
+*perlsupport.txt*                Perl Support                   April 21 2011
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.10
+                              Plugin version 4.11
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -1146,16 +1146,15 @@ buffer will be saved and run through perlcritic. The reported violations will
 be displayed in a separate quickfix error window.
 
 Two perlcritic comand line options can be set by this plugin:
- -severity N  :  Directs perlcritic to only report violations of Policies with
-                 a severity greater than N.
- -vebose   N  :  Sets the verbosity level for reporting violations.
+ severity N  :  Directs perlcritic to only report violations of Policies with
+                a severity greater than N.
+ vebose   N  :  Sets the verbosity level for reporting violations.
 
 SEVERITY
 --------
-Perlcritic (version 1.02) has 5 severity levels (perlcritic default level 
-is 5).  This plugin sets the default level to 3.  This can be changed by
-setting the variable g:Perl_PerlcriticSeverity in .vimrc to another value
-(1-5):
+Perlcritic  has 5 severity levels (perlcritic default level is 5).  This
+plugin sets the default level to 3.  This can be changed by setting the
+variable g:Perl_PerlcriticSeverity in .vimrc to another value (1-5):
 
   let g:Perl_PerlcriticSeverity = 1
 
@@ -1163,17 +1162,19 @@ In addition there is an Ex command to do that, e.g.:
 
   :CriticSeverity 2
 
-The severity names can also be used (gentle, stern, harsh, cruel, brutal).
+The severity names can also be used: gentle (=5), stern (=4), harsh (=3),
+cruel (=2), brutal(=1).
+A setting of the severity in a configuration file overrides the setting from
+the menu or thee command line (see CONFIGURATION FILES below).
 
 VERBOSITY
 ---------
-Perlcritic (version 1.02) has 11 verbosity levels (default level is 4). Some
-levels are equal except for the filename and are therefore treated equal
-because the quickfix error system used by this plugin needs a filename.
-The message format will not be exactly the same as from a command line
-execution of perlcritic but the information displayed will be the same for the
-different verbosity levels. The reason also lies in some peculiarities of the
-quickfix error system used by Vim.
+Perlcritic  has 11 verbosity levels (default level is 4). Some levels are
+equal except for the filename and are therefore treated equal because the
+quickfix error system used by this plugin needs a filename.  The message
+format will not be exactly the same as from a command line execution of
+perlcritic but the information displayed will be the same.  The reason lies in
+some peculiarities of the quickfix error system used by Vim.
 
 See the perlcritic documentation for details.
 
@@ -1185,6 +1186,23 @@ g:Perl_PerlcriticVerbosity in .vimrc to another value (1-11):
 I addition there is an Ex command to do that, e.g.:
 
   :CriticVerbosity 9
+
+A setting of the verbosity in a configuration file overrides the setting from
+the menu or thee command line (see CONFIGURATION FILES below).
+
+CONFIGURATION FILES
+-------------------
+The severity and verbosity setting will be taken from a configuration file
+if such a file exists and contains lines like
+
+  severity = 3
+  verbose  = 4
+A configuration file can be specified by the environment variable PERLCRITIC.
+This plugin looks next for the file '.perlcriticrc' in the local directory
+and than for '.perlcriticrc' in the home directory. Please see the perlcritic
+documentation for more.
+If the severity or the verbosity level was taken from a configuration file the
+filename will be reported after a perlcritic run.
 
 OPTIONS
 -------
@@ -1439,7 +1457,6 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \rma       command line argument for make  (n)   see |perlsupport-perl-make|
   \rd        start debugger                  (n)   see |perlsupport-run-debug|
   \re        make script executable (**)     (n)
-  \rp        read perldoc                    (n)   see |perlsupport-perldoc|
   \ri        show installed Perl modules     (n)   see |perlsupport-module-list|
   \rg        generation Perl module list     (n)   see |perlsupport-module-list-generation|
   \ry        run perltidy                    (n,v) see |perlsupport-perltidy|
@@ -1452,6 +1469,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Help ----------------------------------------------
 
+  \rp \h     read perldoc                    (n)   see |perlsupport-perldoc|
   \hp        help (plugin)                   (n,i) see |perlsupport-help|
 
 (*)  The optional key mappings in brackets start like Perl references. They

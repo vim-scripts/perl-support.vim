@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.37 2010/11/29 22:20:02 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.38 2011/04/09 12:00:11 mehner Exp $
 "       License:  Copyright 2008 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -940,7 +940,6 @@ function! perlsupportgui#Perl_InitMenu ()
   endif
   exe "amenu          ".g:Perl_Root.'&Run.-SEP2-                     :'
 
-  exe "amenu <silent> ".g:Perl_Root.'&Run.read\ &perldoc<Tab>\\rp\ \ <S-F1>         :call Perl_perldoc()<CR><CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.show\ &installed\ Perl\ modules<Tab>\\ri  :call Perl_perldoc_show_module_list()<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Run.&generate\ Perl\ module\ list<Tab>\\rg    :call Perl_perldoc_generate_module_list()<CR><CR>'
   "
@@ -999,7 +998,8 @@ function! perlsupportgui#Perl_InitMenu ()
   "===============================================================================================
   "
   if g:Perl_Root != ""
-    exe "amenu  <silent>  ".g:Perl_Root.'&help\ \(plugin\)<Tab>\\hp    :call Perl_HelpPerlsupport()<CR>'
+  	exe "amenu <silent> ".g:Perl_Root.'read\ &perldoc<Tab><S-F1>\ \ \\h    :call Perl_perldoc()<CR><CR>'
+    exe "amenu <silent> ".g:Perl_Root.'&help\ \(plugin\)<Tab>\\hp           :call Perl_HelpPerlsupport()<CR>'
   endif
   "
 endfunction   " ---------- end of function  Perl_InitMenu  ----------

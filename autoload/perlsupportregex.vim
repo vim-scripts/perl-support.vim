@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.23 2010/11/22 20:15:40 mehner Exp $
+"      Revision:  $Id: perlsupportregex.vim,v 1.24 2011/04/09 12:02:28 mehner Exp $
 "       License:  Copyright 2008-2010 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -222,6 +222,7 @@ function! perlsupportregex#Perl_RegexVisualize( )
   "
   " remove content if any:
   silent normal ggdG
+	let s:Perl_PerlRegexMatch                 = ''
 
   perl <<EOF_regex_evaluate
 
@@ -508,6 +509,7 @@ EOF_regex_evaluate
   " Vim regex pattern (range 33 ... 126 or '!' ... '~').
   "-------------------------------------------------------------------------------
   exe ":match none"
+
   if s:Perl_PerlRegexMatch != ''
     let nr    = char2nr('!')
     let tilde = char2nr('~')
