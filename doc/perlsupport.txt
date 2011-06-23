@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                   April 21 2011
+*perlsupport.txt*                Perl Support                    June 20 2011
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.11
+                              Plugin version 4.12
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -966,6 +966,9 @@ help window using the hot keys <Shift-F1>, \h or \rp .
 Looking up help with Shift-F1 works also in the perldoc help window.
 Vim (without GUI): only \h and \rp are working.
 
+The module list can be folded (see |folding|). The Folding is defined by the
+Perl package name separator '::'.
+
 1.9.10  RUN PERLTIDY                                    *perlsupport-perltidy*
 --------------------
 The buffer can be formatted with perltidy. If nothing is marked the whole
@@ -994,6 +997,12 @@ When using gVim you can mark a region of a non-Perl file to be processed by
 perltidy by using the menu item 'Run->run perltidy'. This can be used to
 format embedded Perl code.
 
+Perltidy can be used as standard beautifier (commands "={motion}", see |=| )
+by setting a global variable in the file .vimrc :
+
+  let g:Perl_Perltidy  = 'on'
+
+The default is 'off'.
 
 1.9.11  PROFILER                                        *perlsupport-profiler*
 ----------------
@@ -1101,6 +1110,8 @@ An alternative way to open these files is the ex-command
 
  :NYTProfCSV
 
+or using the hotkey \rpnc.
+
 After the Return you are asked for a file (file browser or command line with
 tab-expansion).
 
@@ -1127,12 +1138,13 @@ The menu item 'Profiler->NYTProf->show HTML files' calls a viewer for the file
 'nytprof/index.html'.  The default HTML-viewer is the konqueror. To change the
 viewer set a global variable in the file '~/.vimrc', e.g.
 
-  let g:Perl_NYTProf_browser = 'xterm -e w3m'
+  let g:Perl_NYTProf_browser = 'firefox'
 
 The viewer can also be called from the command line:
 
  :NYTProfHTML
 
+or using the hotkey \rpnh.
 
 1.9.12 RUN PERLCRITIC                                 *perlsupport-perlcritic*
 ---------------------
@@ -1352,7 +1364,6 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \chpo      file header (*.t)                 (n    )
   \ckb       keyword comment BUG               (n   i)
   \ckt       keyword comment TODO              (n   i)
-  \ckr       keyword comment TRICKY            (n   i)
   \ckw       keyword comment WARNING           (n   i)
   \cko       keyword comment WORKAROUND        (n   i)
   \ckn       keyword comment new keyword       (n   i)
@@ -1445,7 +1456,8 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \rps       run Devel::SmallProf            (n)   see |perlsupport-smallprof|
   \rpf       run Devel::FastProf             (n)   see |perlsupport-fastprof|
   \rpn       run Devel::NYTProf              (n)   see |perlsupport-nytprof|
-  \rpnc      run CSV file (NYTProf)          (n)   see |perlsupport-nytprof|
+  \rpnc      open CSV file (NYTProf)         (n)   see |perlsupport-nytprof|
+  \rpnh      browse HTML files (NYTProf)     (n)   see |perlsupport-nytprof|
 
   -- Run -----------------------------------------------
 
@@ -1617,10 +1629,10 @@ g:Perl_Ctrl_j                  'on'
 g:Perl_CodeSnippets            root_dir.'perl-support/codesnippets/'
 g:Perl_LoadMenus               'yes'
 g:Perl_Dictionary_File         ''
-g:Perl_Root                    '&Perl.'
 g:Perl_MenuHeader              'yes'
 g:Perl_GuiSnippetBrowser       'gui'
 g:Perl_GuiTemplateBrowser      'gui'
+g:Perl_PerlTags                'off'
 
 g:Perl_PerlModuleList          root_dir.'perl-support/modules/perl-modules.list'
 g:Perl_PerlModuleListGenerator root_dir.'perl-support/scripts/pmdesc3.pl'
@@ -1660,11 +1672,10 @@ The variable root_dir will automatically be set to one of the following values:
            g:Perl_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
            g:Perl_Dictionary_File    : Path and filename of the Perl word list used for
                                        dictionary completion (see below).
-           g:Perl_Root               : The name of the root menu item of this plugin
-                                       (see below).
            g:Perl_MenuHeader         : Switch submenu titles on/off.
            g:Perl_GuiSnippetBrowser  : code snippet browser: 'gui', 'commandline'
            g:Perl_GuiTemplateBrowser : code template browser: 'gui', 'explorer', 'commandline' 
+           g:Perl_PerlTags           : switch use of Perl::Tags on/off ( 'on', 'off' )
 
  3. group: g:Perl_PerlModuleList          : The name of the Perl module list (text file,
                                             see below).
@@ -1698,16 +1709,7 @@ the single gVim root menu item in which the Perl submenus are contained. The
 default is
                   '&Perl.'
 
-Please note the terminating dot. A single root menu item is appropriate if the
-screen is limited or several plugins are in use.
-
-If set to '' (empty string) with
-
-  let g:Perl_Root = ''
-
-this single root menu item will not appear.  Now all submenus are put into the
-gVim root menu. Nice for a Perl-only-programmer and Perl courses with wide
-screens.
+Please note the terminating dot. 
 
 If you want to set the plugin root menu as a submenu into another menu, e.g.
 your own with the name 'Plugin', this is done by the following line in
@@ -1723,7 +1725,6 @@ variable g:Perl_LoadMenus. The line
 prevents the root menu item from appearing when the editor starts. You can
 switch it on (and off again) from the tools menu. The default for this
 variable is 'yes'.
-
 
 ------------------------------------------------------------------------------
 4.4  NAVIGATE THROUGH PODs                       *perlsupport-custom-navigate*
@@ -2331,6 +2332,12 @@ a CTRL-] let you jump into the file GnuplotIF.pm.  An easy way back is with
 the CTRL-T command.  See also the module documentation on how to use
 Perl::Tags.
 
+The availability of Perl::Tags is automatically detected. To switch this 
+feature on put the following line into .vimrc :
+
+  let g:Perl_PerlTags						= 'on'
+
+The default value is 'off'.
 
 ==============================================================================
 7.  PERL DICTIONARY                                   *perlsupport-dictionary*

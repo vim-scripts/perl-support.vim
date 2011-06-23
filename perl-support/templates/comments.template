@@ -3,99 +3,97 @@
 # <CURSOR>
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == comment.frame ==
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #  <CURSOR>
-#---------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == comment.function ==
 #===  FUNCTION  ================================================================
-#         NAME:  |?FUNCTION_NAME|
-#      PURPOSE:  <CURSOR>
-#   PARAMETERS:  ????
-#      RETURNS:  ????
-#  DESCRIPTION:  ????
-#       THROWS:  no exceptions
-#     COMMENTS:  none
-#     SEE ALSO:  n/a
+#         NAME: |?FUNCTION_NAME|
+#      PURPOSE: <CURSOR>
+#   PARAMETERS: ????
+#      RETURNS: ????
+#  DESCRIPTION: ????
+#       THROWS: no exceptions
+#     COMMENTS: none
+#     SEE ALSO: n/a
 #===============================================================================
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == comment.method ==
 #===  CLASS METHOD  ============================================================
-#        CLASS:  |?CLASSNAME|
-#       METHOD:  |?METHODNAME|
-#   PARAMETERS:  ????
-#      RETURNS:  ????
-#  DESCRIPTION:  <CURSOR>
-#       THROWS:  no exceptions
-#     COMMENTS:  none
-#     SEE ALSO:  n/a
+#        CLASS: |?CLASSNAME|
+#       METHOD: |?METHODNAME|
+#   PARAMETERS: ????
+#      RETURNS: ????
+#  DESCRIPTION: <CURSOR>
+#       THROWS: no exceptions
+#     COMMENTS: none
+#     SEE ALSO: n/a
 #===============================================================================
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description-pl == start ==
+== comment.file-description-pl == start == noindent ==
 #!/usr/bin/perl 
 #===============================================================================
 #
-#         FILE:  |FILENAME|
+#         FILE: |FILENAME|
 #
-#        USAGE:  ./|FILENAME|  
+#        USAGE: ./|FILENAME|  
 #
-#  DESCRIPTION:  <CURSOR>
+#  DESCRIPTION: |CURSOR|
 #
-#      OPTIONS:  ---
-# REQUIREMENTS:  ---
-#         BUGS:  ---
-#        NOTES:  ---
-#       AUTHOR:  |AUTHOR| (|AUTHORREF|), |EMAIL|
-#      COMPANY:  |COMPANY|
-#      VERSION:  1.0
-#      CREATED:  |DATE| |TIME|
-#     REVISION:  ---
+#      OPTIONS: ---
+# REQUIREMENTS: ---
+#         BUGS: ---
+#        NOTES: ---
+#       AUTHOR: |AUTHOR| (|AUTHORREF|), |EMAIL|
+#      COMPANY: |COMPANY|
+#      VERSION: 1.0
+#      CREATED: |DATE| |TIME|
+#     REVISION: ---
 #===============================================================================
 
 use strict;
 use warnings;
 
-
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description-pm == start ==
+== comment.file-description-pm == start == noindent ==
 #
 #===============================================================================
 #
-#         FILE:  |FILENAME|
+#         FILE: |FILENAME|
 #
-#  DESCRIPTION:  <CURSOR>
+#  DESCRIPTION: |CURSOR|
 #
-#        FILES:  ---
-#         BUGS:  ---
-#        NOTES:  ---
-#       AUTHOR:  |AUTHOR| (|AUTHORREF|), |EMAIL|
-#      COMPANY:  |COMPANY|
-#      VERSION:  1.0
-#      CREATED:  |DATE| |TIME|
-#     REVISION:  ---
+#        FILES: ---
+#         BUGS: ---
+#        NOTES: ---
+#       AUTHOR: |AUTHOR| (|AUTHORREF|), |EMAIL|
+#      COMPANY: |COMPANY|
+#      VERSION: 1.0
+#      CREATED: |DATE| |TIME|
+#     REVISION: ---
 #===============================================================================
 
 use strict;
 use warnings;
-
-
+>
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description-t == start ==
+== comment.file-description-t == start == noindent ==
 #
 #===============================================================================
 #
-#         FILE:  |FILENAME|
+#         FILE: |FILENAME|
 #
-#  DESCRIPTION:  <CURSOR>
+#  DESCRIPTION: |CURSOR|
 #
-#        FILES:  ---
-#         BUGS:  ---
-#        NOTES:  ---
-#       AUTHOR:  |AUTHOR| (|AUTHORREF|), |EMAIL|
-#      COMPANY:  |COMPANY|
-#      VERSION:  1.0
-#      CREATED:  |DATE| |TIME|
-#     REVISION:  ---
+#        FILES: ---
+#         BUGS: ---
+#        NOTES: ---
+#       AUTHOR: |AUTHOR| (|AUTHORREF|), |EMAIL|
+#      COMPANY: |COMPANY|
+#      VERSION: 1.0
+#      CREATED: |DATE| |TIME|
+#     REVISION: ---
 #===============================================================================
 
 use strict;
@@ -109,26 +107,24 @@ use Test::More tests => 1;                      # last test to print
 #
 #===============================================================================
 #
-#         FILE:  |FILENAME|
+#         FILE: |FILENAME|
 #
-#  DESCRIPTION:  |CURSOR|
+#  DESCRIPTION: |CURSOR|
 #
-#       AUTHOR:  |AUTHOR| (|AUTHORREF|), <|EMAIL|>
-#      COMPANY:  |COMPANY|
-#      CREATED:  |DATE|
-#     REVISION:  ---
+#       AUTHOR: |AUTHOR| (|AUTHORREF|), <|EMAIL|>
+#      COMPANY: |COMPANY|
+#      CREATED: |DATE|
+#     REVISION: ---
 #===============================================================================
 
 
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == comment.keyword-bug == append ==
- # :BUG:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
+ # :BUG       :|DATE| |TIME|:|AUTHORREF|: <CURSOR>
 == comment.keyword-todo == append ==
- # :TODO:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-tricky == append ==
- # :TRICKY:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
+ # :TODO      :|DATE| |TIME|:|AUTHORREF|: <CURSOR>
 == comment.keyword-warning == append ==
- # :WARNING:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
+ # :WARNING   :|DATE| |TIME|:|AUTHORREF|: <CURSOR>
 == comment.keyword-workaround == append ==
  # :WORKAROUND:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
 == comment.keyword-keyword == append ==

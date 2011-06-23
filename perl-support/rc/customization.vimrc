@@ -4,7 +4,7 @@
 "       AUTHOR:  Dr.-Ing. Fritz Mehner
 "      VERSION:  1.0
 "      CREATED:  23.05.2008
-"     REVISION:  $Id: customization.vimrc,v 1.8 2009/04/03 09:54:21 mehner Exp $
+"     REVISION:  $Id: customization.vimrc,v 1.9 2011/05/05 17:49:18 mehner Exp $
 "===================================================================================
 "
 "===================================================================================
@@ -173,5 +173,5 @@ nnoremap  <C-q>    :wqall<CR>
  noremap <silent> <F11>       :TlistToggle<CR>
 inoremap <silent> <F11>  <C-C>:TlistToggle<CR>
 "
-let tlist_perl_settings  = 'perl;c:constants;f:formats;l:labels;p:packages;s:subroutines;d:subroutines;o:POD'
+let tlist_perl_settings  = 'perl;c:constants;f:formats;l:labels;p:packages;s:subroutines;d:subroutines;o:POD;k:comments'
 "

@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.11
+---------------------------------------------------------------------------------------
+- Perl::Critic integration: severity and verbosity will be taken from the
+	configuration file if specificed.
+- Bugfix (Windows only): wrong quoting with command line parameters.
+- Several minor improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.10
 ---------------------------------------------------------------------------------------
 - Bugfix: detection of a systemwide installation can fail.

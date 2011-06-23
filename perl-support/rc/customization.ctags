@@ -6,5 +6,5 @@
 --regex-perl=/^=head4[[:space:]]*(.+)$/... \1/o,pod/
 --regex-perl=/^=for[[:space:]]+([^:]+):(.*)$/*\1:\2/o,pod/
 --regex-perl=/^__(DATA|END)__$/__\1__/l,labels/
---regex-perl=/:([[:upper:]]+):([^[:space:]]+) ([^[:space:]]+) (.*)$/\1 '\4'/t,kcomments/
+--regex-perl=/# :([[:upper:]]+\s*):([^[:space:]]+) ([^[:space:]]+):(.*)$/\1 \2/k,comments/
 

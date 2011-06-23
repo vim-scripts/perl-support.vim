@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: perl.vim,v 1.70 2011/01/21 11:49:32 mehner Exp $
+"   Revision :  $Id: perl.vim,v 1.74 2011/06/19 15:34:19 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -144,7 +144,6 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
 
   inoremap    <buffer>  <silent>  <LocalLeader>ckb   <C-C>$:call Perl_InsertTemplate("comment.keyword-bug")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>ckt   <C-C>$:call Perl_InsertTemplate("comment.keyword-todo")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>ckr   <C-C>$:call Perl_InsertTemplate("comment.keyword-tricky")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>ckw   <C-C>$:call Perl_InsertTemplate("comment.keyword-warning")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>cko   <C-C>$:call Perl_InsertTemplate("comment.keyword-workaround")<CR>
   inoremap    <buffer>  <silent>  <LocalLeader>ckn   <C-C>$:call Perl_InsertTemplate("comment.keyword-keyword")<CR>
@@ -358,6 +357,7 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
    map    <buffer>  <silent>  <LocalLeader>rpf         :call perlsupportprofiling#Perl_Fastprof()<CR>
    map    <buffer>  <silent>  <LocalLeader>rpn         :call perlsupportprofiling#Perl_NYTprof()<CR>
    map    <buffer>  <silent>  <LocalLeader>rpnc        :call perlsupportprofiling#Perl_NYTprofReadCSV("read","line")<CR>
+   map    <buffer>  <silent>  <LocalLeader>rpnh        :call perlsupportprofiling#Perl_NYTprofReadHtml()<CR>
   "
   " ----------------------------------------------------------------------------
   " Run
@@ -414,8 +414,7 @@ endif
 "  Generate (possibly exuberant) Ctags style tags for Perl sourcecode.
 "  Controlled by g:Perl_PerlTags, enabled by default.
 " ----------------------------------------------------------------------------
-if has('perl') && exists("g:Perl_PerlTags") && g:Perl_PerlTags == 'enabled'
-
+if has('perl') && exists("g:Perl_PerlTags") && g:Perl_PerlTags == 'on'
 
 	if ! exists("s:defined_functions")
 		function s:init_tags()
@@ -454,3 +453,7 @@ if !exists("g:Perl_Ctrl_j") || ( exists("g:Perl_Ctrl_j") && g:Perl_Ctrl_j != 'of
   imap    <buffer>  <silent>  <C-j>     <C-R>=Perl_JumpCtrlJ()<CR>
 endif
 " ----------------------------------------------------------------------------
+"
+if exists('g:Perl_Perltidy') && g:Perl_Perltidy == 'on' && executable("perltidy")
+	set equalprg='perltidy'
+endif

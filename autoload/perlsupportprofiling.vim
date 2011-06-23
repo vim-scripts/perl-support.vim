@@ -10,8 +10,8 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  22.02.2009
-"      Revision:  $Id: perlsupportprofiling.vim,v 1.9 2009/12/27 17:33:30 mehner Exp $
-"       License:  Copyright 2009 Dr. Fritz Mehner
+"      Revision:  $Id: perlsupportprofiling.vim,v 1.12 2011/06/20 06:14:42 mehner Exp $
+"       License:  Copyright 2009-2011 Dr. Fritz Mehner
 "===============================================================================
 "
 " Exit quickly when:
@@ -25,27 +25,42 @@ let g:loaded_perlsupportregex = "v1.0"
 "
 let s:MSWIN = has("win16") || has("win32")   || has("win64")    || has("win95")
 let s:UNIX	= has("unix")  || has("macunix") || has("win32unix")
+"
+let s:installation				= 'local'
+let s:vimfiles						= $VIM
+let	s:sourced_script_file	= expand("<sfile>")
 
 if  s:MSWIN
   " ==========  MS Windows  ======================================================
-  let s:escfilename 	= ''
-  let s:plugin_dir  	= $VIM.'\vimfiles\'
-	let s:installation	= 'system'
+	"
+	if match( s:sourced_script_file, escape( s:vimfiles, ' \' ) ) == 0
+		" system wide installation
+		let s:installation	= 'system'
+		let s:plugin_dir							= $VIM.'/vimfiles'
+	else
+		" user installation assumed
+		let s:plugin_dir  						= $HOME.'/vimfiles'
+	endif
+	"
+  let s:escfilename 	  					= ''
 	"
 else
   " ==========  Linux/Unix  ======================================================
-	let s:escfilename 	= ' \%#[]'
-	let s:installation	= 'local'
-	if match( expand("<sfile>"), $VIM ) >= 0
-		" system wide installation
-		let s:plugin_dir  	= $VIM.'/vimfiles/'
-		let s:installation	= 'system'
-	else
-		" user installation assumed
-		let s:plugin_dir  	= $HOME.'/.vim/'
-	end
 	"
+	if match( s:sourced_script_file, expand( "$HOME" ) ) == 0
+		" user installation assumed
+		let s:plugin_dir  						= expand("<sfile>:p:h:h")
+	else
+		" system wide installation
+		let s:installation						= 'system'
+		let s:plugin_dir  						= $VIM.'/vimfiles'
+	endif
+	"
+	let s:escfilename   						= ' \%#[]'
+	"
+  " ==============================================================================
 endif
+"
 "
 "------------------------------------------------------------------------------
 "  run : SmallProf, data structures     {{{1
@@ -345,7 +360,7 @@ if exists( 'g:Perl_NYTProf_browser' )
 	let s:Perl_NYTProf_browser	= g:Perl_NYTProf_browser
 endif
 
-let s:Perl_csv2err            = s:plugin_dir.'perl-support/scripts/csv2err.pl'
+let s:Perl_csv2err            = s:plugin_dir.'/perl-support/scripts/csv2err.pl'
 let s:Perl_NYTProfErrorFormat	= '%f:%l:%m'
 let g:Perl_NYTProfCSVfile			= ''
 
@@ -449,7 +464,7 @@ function! perlsupportprofiling#Perl_NYTprofReadCSV ( mode, criterion )
 		let g:Perl_NYTProfCSVfile		= currentworkingdirectory.'/'.g:Perl_NYTProfCSVfile
 	endif
 	"
-	let sourcefilename	= substitute( g:Perl_NYTProfCSVfile, '-\(pl\|pm\)-\(block\|line\|sub\)\.csv$', '.\1', '' )
+	let sourcefilename	= substitute( g:Perl_NYTProfCSVfile, '-\(pl\|pm\)\(-\(\d\+\)\)\?-\(block\|line\|sub\)\.csv$', '.\1', '' )
 	let sourcefilename	= substitute( sourcefilename, '\/nytprof', '', '' )
 
 	if !filereadable( sourcefilename )
@@ -505,6 +520,10 @@ function! perlsupportprofiling#Perl_NYTprofReadHtml ()
 		echomsg "Function not available: no GUI running."
 		return
 	end
+	if executable( s:Perl_NYTProf_browser ) != 1
+		echomsg 'Browser '.s:Perl_NYTProf_browser.' does not exist or is not executable.'
+		return
+	endif
 
 	if  s:MSWIN
 		echomsg "** not yet implemented **"

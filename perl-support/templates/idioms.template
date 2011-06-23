@@ -1,29 +1,29 @@
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.scalar ==
+== idioms.scalar == insert ==
 my	$<CURSOR>;
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.scalar-assign ==
+== idioms.scalar-assign == insert ==
 my	$<CURSOR>	= <+val+>;
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.scalar2 ==
+== idioms.scalar2 == insert ==
 my	( $<CURSOR>, $<+name+> );
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.array ==
+== idioms.array == insert ==
 my	@<CURSOR>;
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.array-assign ==
+== idioms.array-assign == insert ==
 my	@<CURSOR>	= ( <+val+>, <+val+>, );
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.hash ==
 my	%<CURSOR>;
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.hash-assign ==
+== idioms.hash-assign == insert ==
 my	%<CURSOR>	= (
 	<+key1+> => <+val1+>,
 	<+key2+> => <+val2+>,
 	);
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.regex ==
+== idioms.regex == insert ==
 my	$rgx_<CURSOR>	= qr/<+regexp+>/;
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.match == insert ==
@@ -43,7 +43,7 @@ $<CURSOR> =~ tr/<+searchlist+>/<+replacementlist+>/
 sub |?FUNCTION_NAME| {
 	my	( $par1<CURSOR> )	= @_;
 <SPLIT>	return ;
-}	# ----------  end of subroutine |FUNCTION_NAME|  ----------
+} ## --- end sub |FUNCTION_NAME|
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.print == insert ==
 print "<CURSOR>\n";

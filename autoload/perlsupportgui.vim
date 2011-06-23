@@ -9,8 +9,8 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.38 2011/04/09 12:00:11 mehner Exp $
-"       License:  Copyright 2008 Dr. Fritz Mehner
+"      Revision:  $Id: perlsupportgui.vim,v 1.39 2011/05/29 08:12:03 mehner Exp $
+"       License:  Copyright 2008-2011 Dr. Fritz Mehner
 "===============================================================================
 "
 " Exit quickly when:
@@ -34,22 +34,14 @@ function! perlsupportgui#Perl_InitMenu ()
   "===============================================================================================
   "----- Menu : Main menu                              {{{2
   "===============================================================================================
-  if g:Perl_Root != ""
-    if g:Perl_MenuHeader == "yes"
-      exe "amenu ".g:Perl_Root.'Perl     <Nop>'
-      exe "amenu ".g:Perl_Root.'-Sep0-        :'
-    endif
-  endif
+	if g:Perl_MenuHeader == "yes"
+		call Perl_InitMenuHeader()
+	endif
   "
   "===============================================================================================
   "----- Menu : Comments menu                              {{{2
   "===============================================================================================
   "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&Comments.&Comments<Tab>Perl     <Nop>'
-    exe "amenu ".g:Perl_Root.'&Comments.-Sep0-        :'
-  endif
-
   exe "amenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl                   :call Perl_LineEndComment("")<CR>A'
   exe "imenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl              <C-C>:call Perl_LineEndComment("")<CR>A'
   exe "vmenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl              <C-C>:call Perl_MultiLineEndComments()<CR>A'
@@ -91,32 +83,27 @@ function! perlsupportgui#Perl_InitMenu ()
   "
   "--------- submenu : KEYWORD -------------------------------------------------------------
   "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&Comments.&KEYWORD+comm\..Comments-1<Tab>Perl   <Nop>'
-    exe "amenu ".g:Perl_Root.'&Comments.&KEYWORD+comm\..-Sep0-      :'
-  endif
+	if g:Perl_MenuHeader == "yes"
+		exe "amenu ".g:Perl_Root.'&Comments.&KEYWORD+comm\..Comments-1<Tab>Perl   :call Perl_MenuTitle()<CR>'
+		exe "amenu ".g:Perl_Root.'&Comments.&KEYWORD+comm\..-Sep0-      :'
+		exe "amenu ".g:Perl_Root.'&Comments.ta&gs\ (plugin).Comments-2<Tab>Perl   :call Perl_MenuTitle()<CR>'
+		exe "amenu ".g:Perl_Root.'&Comments.ta&gs\ (plugin).-Sep0-      :'
+	endif
   "
   exe "amenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:&BUG\:               $:call Perl_InsertTemplate("comment.keyword-bug")<CR>'
   exe "amenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:&TODO\:              $:call Perl_InsertTemplate("comment.keyword-todo")<CR>'
-  exe "amenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:T&RICKY\:            $:call Perl_InsertTemplate("comment.keyword-tricky")<CR>'
   exe "amenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:&WARNING\:           $:call Perl_InsertTemplate("comment.keyword-warning")<CR>'
   exe "amenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:W&ORKAROUND\:        $:call Perl_InsertTemplate("comment.keyword-workaround")<CR>'
   exe "amenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:&new\ keyword\:      $:call Perl_InsertTemplate("comment.keyword-keyword")<CR>'
 "
   exe "imenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:&BUG\:          <Esc>$:call Perl_InsertTemplate("comment.keyword-bug")<CR>'
   exe "imenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:&TODO\:         <Esc>$:call Perl_InsertTemplate("comment.keyword-todo")<CR>'
-  exe "imenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:T&RICKY\:       <Esc>$:call Perl_InsertTemplate("comment.keyword-tricky")<CR>'
   exe "imenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:&WARNING\:      <Esc>$:call Perl_InsertTemplate("comment.keyword-warning")<CR>'
   exe "imenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:W&ORKAROUND\:   <Esc>$:call Perl_InsertTemplate("comment.keyword-workaround")<CR>'
   exe "imenu   ".g:Perl_Root.'&Comments.&KEYWORD+comm\..\:&new\ keyword\: <Esc>$:call Perl_InsertTemplate("comment.keyword-keyword")<CR>'
   "
   "
   "----- Submenu :  Tags  ----------------------------------------------------------
-  "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&Comments.ta&gs\ (plugin).Comments-2<Tab>Perl   <Nop>'
-    exe "amenu ".g:Perl_Root.'&Comments.ta&gs\ (plugin).-Sep0-      :'
-  endif
   "
   exe "anoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).&AUTHOR                :call Perl_InsertMacroValue("AUTHOR")<CR>'
   exe "anoremenu  ".g:Perl_Root.'&Comments.ta&gs\ (plugin).AUTHOR&REF             :call Perl_InsertMacroValue("AUTHORREF")<CR>'
@@ -144,11 +131,6 @@ function! perlsupportgui#Perl_InitMenu ()
   "===============================================================================================
   "----- Menu : Statements Menu                              {{{2
   "===============================================================================================
-
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&Statements.&Statements<Tab>Perl     <Nop>'
-    exe "amenu ".g:Perl_Root.'&Statements.-Sep0-        :'
-  endif
   "
   exe "amenu <silent> ".g:Perl_Root.'&Statements.&do\ \{\ \}\ while<Tab>\\sd              :call Perl_InsertTemplate("statements.do-while")<CR>'
   exe "amenu <silent> ".g:Perl_Root.'&Statements.&for\ \{\ \}<Tab>\\sf                    :call Perl_InsertTemplate("statements.for")<CR>'
@@ -193,14 +175,6 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : Idioms menu                              {{{2
   "===============================================================================================
   "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&Idioms.&Idioms<Tab>Perl    <Nop>'
-    exe "amenu ".g:Perl_Root.'&Idioms.-Sep0-       :'
-  endif
-  "
-"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\$                    :call Perl_InsertTemplate("idioms.scalar")<CR>'
-"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\$=              :call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
-"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\$$         :call Perl_InsertTemplate("idioms.scalar2")<CR>'
   exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\id                   :call Perl_InsertTemplate("idioms.scalar")<CR>'
   exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\id=             :call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
   exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\idd        :call Perl_InsertTemplate("idioms.scalar2")<CR>'
@@ -208,15 +182,8 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\ia=         :call Perl_InsertTemplate("idioms.array-assign")<CR>'
   exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\ih                   :call Perl_InsertTemplate("idioms.hash")<CR>'
   exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\ih=        :call Perl_InsertTemplate("idioms.hash-assign")<CR>'
-"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@;<Tab>\\@                    :call Perl_InsertTemplate("idioms.array")<CR>'
-"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\@=          :call Perl_InsertTemplate("idioms.array-assign")<CR>'
-"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\%                    :call Perl_InsertTemplate("idioms.hash")<CR>'
-"  exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\%=         :call Perl_InsertTemplate("idioms.hash-assign")<CR>'
   exe "nnoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $&rgx_\ =\ qr//;<Tab>\\ir      :call Perl_InsertTemplate("idioms.regex")<CR>'
   "
-"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\$               <C-C>:call Perl_InsertTemplate("idioms.scalar")<CR>'
-"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\$=         <C-C>:call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
-"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\$$    <C-C>:call Perl_InsertTemplate("idioms.scalar2")<CR>'
   exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &$;<Tab>\\id              <C-C>:call Perl_InsertTemplate("idioms.scalar")<CR>'
   exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $\ &=\ ;<Tab>\\id=        <C-C>:call Perl_InsertTemplate("idioms.scalar-assign")<CR>'
   exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ (\ $&,\ $\ );<Tab>\\idd   <C-C>:call Perl_InsertTemplate("idioms.scalar2")<CR>'
@@ -224,10 +191,6 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\ia=    <C-C>:call Perl_InsertTemplate("idioms.array-assign")<CR>'
   exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\ih              <C-C>:call Perl_InsertTemplate("idioms.hash")<CR>'
   exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\ih=   <C-C>:call Perl_InsertTemplate("idioms.hash-assign")<CR>'
-"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@;<Tab>\\@               <C-C>:call Perl_InsertTemplate("idioms.array")<CR>'
-"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &@\ =\ (,,);<Tab>\\@=     <C-C>:call Perl_InsertTemplate("idioms.array-assign")<CR>'
-"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%;<Tab>\\%               <C-C>:call Perl_InsertTemplate("idioms.hash")<CR>'
-"  exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ &%\ =\ (=>,);<Tab>\\%=    <C-C>:call Perl_InsertTemplate("idioms.hash-assign")<CR>'
   exe "inoremenu <silent> ".g:Perl_Root.'&Idioms.my\ $&rgx_\ =\ qr//;<Tab>\\ir <C-C>:call Perl_InsertTemplate("idioms.regex")<CR>'
   "
   exe "anoremenu ".g:Perl_Root.'&Idioms.-SEP3-                        :'
@@ -269,11 +232,6 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : Regex menu                              {{{2
   "===============================================================================================
   "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'S&nippets.S&nippets<Tab>Perl      <Nop>'
-    exe "amenu ".g:Perl_Root.'S&nippets.-Sep0-         :'
-  endif
-  "
   " The menu entries for code snippet support will not appear if the following string is empty
   if g:Perl_CodeSnippets != ""
     exe "amenu <silent>  ".g:Perl_Root.'S&nippets.&read\ code\ snippet<Tab>\\nr    :call Perl_CodeSnippet("r")<CR>'
@@ -296,11 +254,6 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : Regex menu                              {{{2
   "===============================================================================================
   "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Rege&x.Rege&x<Tab>Perl      <Nop>'
-    exe "amenu ".g:Perl_Root.'Rege&x.-Sep0-         :'
-  endif
-  "
   exe "anoremenu ".g:Perl_Root.'Rege&x.&grouping,\ (\ )               a()<Left>'
   exe "anoremenu ".g:Perl_Root.'Rege&x.&alternation,\ (\ \|\ )        a(\|)<Left><Left>'
   exe "anoremenu ".g:Perl_Root.'Rege&x.char\.\ &class,\ [\ ]          a[]<Left>'
@@ -321,37 +274,41 @@ function! perlsupportgui#Perl_InitMenu ()
   "
   exe " menu ".g:Perl_Root.'Rege&x.-SEP3-                             :'
   "
-  exe "anoremenu ".g:Perl_Root.'Rege&x.word\ &boundary,\ \\b              a\b'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.word\ &boundary,\ \\b               \b'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.&digit,\ \\d                       a\d'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.&digit,\ \\d                        \d'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.white&space,\ \\s                  a\s'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.white&space,\ \\s                   \s'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.&word\ character,\ \\w             a\w'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.&word\ character,\ \\w              \w'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}           a\p{}<Left>'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}            \p{}<Left>'
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}           s\p{}<Esc>P'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.word\ &boundary,\ \\b            a\b'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.word\ &boundary,\ \\b             \b'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.&digit,\ \\d                     a\d'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.&digit,\ \\d                      \d'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.white&space,\ \\s                a\s'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.white&space,\ \\s                 \s'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.&word\ character,\ \\w           a\w'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.&word\ character,\ \\w            \w'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}         a\p{}<Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}          \p{}<Left>'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.match\ &property,\ \\p{}         s\p{}<Esc>P'
 
   exe "anoremenu ".g:Perl_Root.'Rege&x.-SEP4-                         :'
   exe "anoremenu ".g:Perl_Root.'Rege&x.non-word\ &bound\.,\ \\B         a\B'
   exe "inoremenu ".g:Perl_Root.'Rege&x.non-word\ &bound\.,\ \\B          \B'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.non-&digit,\ \\D                   a\D'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.non-&digit,\ \\D                    \D'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.non-white&space,\ \\S              a\S'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.non-white&space,\ \\S               \S'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.non-&digit,\ \\D                 a\D'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.non-&digit,\ \\D                  \D'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.non-white&space,\ \\S            a\S'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.non-white&space,\ \\S             \S'
   exe "anoremenu ".g:Perl_Root.'Rege&x.non-&word\ char\.,\ \\W          a\W'
   exe "inoremenu ".g:Perl_Root.'Rege&x.non-&word\ char\.,\ \\W           \W'
-  exe "anoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}    a\P{}<Left>'
-  exe "inoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}     \P{}<Left>'
-  exe "vnoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}    s\P{}<Esc>P'
+  exe "anoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}  a\P{}<Left>'
+  exe "inoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}   \P{}<Left>'
+  exe "vnoremenu ".g:Perl_Root.'Rege&x.do\ not\ match\ &prop\.,\ \\P{}  s\P{}<Esc>P'
   "
   "---------- submenu : POSIX character classes --------------------------------------------
   "
   exe " noremenu ".g:Perl_Root.'Rege&x.-SEP5-                               :'
   if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.Regex-1<Tab>Perl   <Nop>'
+    exe "amenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.Regex-1<Tab>Perl   :call Perl_MenuTitle()<CR>'
     exe "amenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.-Sep0-             :'
+    exe "amenu ".g:Perl_Root.'Rege&x.Unicode\ propert&y.Regex-2<Tab>Perl   :call Perl_MenuTitle()<CR>'
+    exe "amenu ".g:Perl_Root.'Rege&x.Unicode\ propert&y.-Sep0-             :'
+    exe "amenu ".g:Perl_Root.'Rege&x.e&xtended\ Regex.Regex-3<Tab>Perl      :call Perl_MenuTitle()<CR>'
+    exe "amenu ".g:Perl_Root.'Rege&x.e&xtended\ Regex.-Sep0-         :'
   endif
   "
   exe "nnoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&alnum:]<Tab>\\pa   a[:alnum:]'
@@ -385,11 +342,6 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "inoremenu ".g:Perl_Root.'Rege&x.POSIX\ char\.\ c&lasses.[:&xdigit:]<Tab>\\px   [:xdigit:]'
   "
   "---------- submenu : Unicode properties  --------------------------------------------
-  "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Rege&x.Unicode\ propert&y.Regex-2<Tab>Perl   <Nop>'
-    exe "amenu ".g:Perl_Root.'Rege&x.Unicode\ propert&y.-Sep0-             :'
-  endif
   "
   exe "anoremenu ".g:Perl_Root.'Rege&x.Unicode\ propert&y.&Letter.L&etter<Tab>\\p{L}                        a\p{Letter}'
   exe "anoremenu ".g:Perl_Root.'Rege&x.Unicode\ propert&y.&Letter.&Lowercase_Letter<Tab>\\p{Ll}             a\p{Lowercase_Letter}'
@@ -435,11 +387,6 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "anoremenu ".g:Perl_Root.'Rege&x.Unicode\ propert&y.Other\ (&C).U&nassigned<Tab>\\p{Cn}               a\p{Unassigned}'
   "
   "---------- subsubmenu : Regular Expression Suport  -----------------------------------------
-  "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Rege&x.e&xtended\ Regex.Regex-3<Tab>Perl      <Nop>'
-    exe "amenu ".g:Perl_Root.'Rege&x.e&xtended\ Regex.-Sep0-         :'
-  endif
   "
   exe "anoremenu ".g:Perl_Root.'Rege&x.e&xtended\ Regex.&comment<Tab>(?#\ \.\.\.\ )                       a(?#)<Left>'
   exe "anoremenu ".g:Perl_Root.'Rege&x.e&xtended\ Regex.cl&uster\ only\ paren\.<Tab>(?-imsx:\ \.\.\.\ )   a(?-imsx:)<Left>'
@@ -500,11 +447,6 @@ function! perlsupportgui#Perl_InitMenu ()
   "===============================================================================================
   "----- Menu : File-Tests menu                              {{{2
   "===============================================================================================
-  "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&File-Tests.&File-Tests<Tab>Perl             <Nop>'
-    exe "amenu ".g:Perl_Root.'&File-Tests.-Sep0-                          :'
-  endif
   "
   exe "anoremenu ".g:Perl_Root.'&File-Tests.exists<Tab>-e                     a-e '
   exe "anoremenu ".g:Perl_Root.'&File-Tests.has\ zero\ size<Tab>-z            a-z '
@@ -575,16 +517,21 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : Special-Variables menu                              {{{2
   "===============================================================================================
   "
+  "-------- submenu errors -------------------------------------------------
+  "
   if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Spec-&Var.Spec-&Var<Tab>Perl      <Nop>'
-    exe "amenu ".g:Perl_Root.'Spec-&Var.-Sep0-         :'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.&errors.Spec-Var-1<Tab>Perl       :call Perl_MenuTitle()<CR>'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.&errors.-Sep0-                    :'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.&files.Spec-Var-2<Tab>Perl     :call Perl_MenuTitle()<CR>'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.&files.-Sep0-                  :'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.&IDs.Spec-Var-3<Tab>Perl    :call Perl_MenuTitle()<CR>'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.&IDs.-Sep0-                 :'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.I&O.Spec-Var-4<Tab>Perl       :call Perl_MenuTitle()<CR>'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.I&O.-Sep0-                    :'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.&regexp.Spec-Var-5<Tab>Perl       :call Perl_MenuTitle()<CR>'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.&regexp.-Sep0-                    :'
   endif
   "
-  "-------- submenu errors -------------------------------------------------
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Spec-&Var.&errors.Spec-Var-1<Tab>Perl       <Nop>'
-    exe "amenu ".g:Perl_Root.'Spec-&Var.&errors.-Sep0-                    :'
-  endif
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&errors.$CHILD_ERROR<Tab>$?         a$CHILD_ERROR'
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&errors.$ERRNO<Tab>$!               a$ERRNO'
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&errors.$EVAL_ERROR<Tab>$@          a$EVAL_ERROR'
@@ -595,12 +542,9 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "inoremenu ".g:Perl_Root.'Spec-&Var.&errors.$EVAL_ERROR<Tab>$@           $EVAL_ERROR'
   exe "inoremenu ".g:Perl_Root.'Spec-&Var.&errors.$EXTENDED_OS_ERROR<Tab>$^E   $EXTENDED_OS_ERROR'
   exe "inoremenu ".g:Perl_Root.'Spec-&Var.&errors.$WARNING<Tab>$^W             $WARNING'
-
+	"
   "-------- submenu files -------------------------------------------------
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Spec-&Var.&files.Spec-Var-2<Tab>Perl     <Nop>'
-    exe "amenu ".g:Perl_Root.'Spec-&Var.&files.-Sep0-                  :'
-  endif
+	"
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&files.$AUTOFLUSH<Tab>$\|                   a$AUTOFLUSH'
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&files.$FORMAT_LINES_LEFT<Tab>$-            a$FORMAT_LINES_LEFT'
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&files.$FORMAT_LINES_PER_PAGE<Tab>$=        a$FORMAT_LINES_PER_PAGE'
@@ -620,10 +564,7 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "inoremenu ".g:Perl_Root.'Spec-&Var.&files.$OUTPUT_AUTOFLUSH<Tab>$\|            $OUTPUT_AUTOFLUSH'
 
   "-------- submenu IDs -------------------------------------------------
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Spec-&Var.&IDs.Spec-Var-3<Tab>Perl    <Nop>'
-    exe "amenu ".g:Perl_Root.'Spec-&Var.&IDs.-Sep0-                 :'
-  endif
+	"
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&IDs.$PID<Tab>$$                   a$PID'
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&IDs.$PROCESS_ID<Tab>$$            a$PROCESS_ID'
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&IDs.$UID<Tab>$<                   a$UID'
@@ -647,10 +588,7 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "inoremenu ".g:Perl_Root.'Spec-&Var.&IDs.$EFFECTIVE_GROUP_ID<Tab>$)     $EFFECTIVE_GROUP_ID'
 
   "-------- submenu IO -------------------------------------------------
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Spec-&Var.I&O.Spec-Var-4<Tab>Perl       <Nop>'
-    exe "amenu ".g:Perl_Root.'Spec-&Var.I&O.-Sep0-                    :'
-  endif
+	"
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.I&O.$ARG<Tab>$_                        a$ARG'
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.I&O.$INPUT_LINE_NUMBER<Tab>$\.         a$INPUT_LINE_NUMBER'
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.I&O.$NR<Tab>$\.                        a$NR'
@@ -678,10 +616,7 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "inoremenu ".g:Perl_Root.'Spec-&Var.I&O.$SUBSEP<Tab>$;                      $SUBSEP'
 
   "-------- submenu regexp -------------------------------------------------
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Spec-&Var.&regexp.Spec-Var-5<Tab>Perl       <Nop>'
-    exe "amenu ".g:Perl_Root.'Spec-&Var.&regexp.-Sep0-                    :'
-  endif
+	"
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&regexp.$MATCH<Tab>$&                      a$MATCH'
   exe "anoremenu ".g:Perl_Root."Spec-&Var.&regexp.$POSTMATCH<Tab>$'                  a$POSTMATCH"
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.&regexp.$PREMATCH<Tab>$`                   a$PREMATCH'
@@ -722,7 +657,7 @@ function! perlsupportgui#Perl_InitMenu ()
   "---------- submenu : POSIX signals --------------------------------------
   "
   if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'Spec-&Var.POSIX\ signals.Spec-Var-6<Tab>Perl     <Nop>'
+    exe "amenu ".g:Perl_Root.'Spec-&Var.POSIX\ signals.Spec-Var-6<Tab>Perl     :call Perl_MenuTitle()<CR>'
     exe "amenu ".g:Perl_Root.'Spec-&Var.POSIX\ signals.-Sep0-        :'
   endif
   exe "anoremenu ".g:Perl_Root.'Spec-&Var.POSIX\ signals.HUP    aHUP'
@@ -776,11 +711,6 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : POD menu                              {{{2
   "===============================================================================================
   "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&POD.&POD<Tab>Perl          <Nop>'
-    exe "amenu ".g:Perl_Root.'&POD.-Sep0-                 :'
-  endif
-  "
   exe "amenu ".g:Perl_Root.'&POD.=&pod\ /\ =cut                 :call Perl_InsertTemplate("pod.pod-cut")<CR>'
   exe "imenu ".g:Perl_Root.'&POD.=&pod\ /\ =cut            <C-C>:call Perl_InsertTemplate("pod.pod-cut")<CR>'
   exe "vmenu ".g:Perl_Root.'&POD.=&pod\ /\ =cut            <C-C>:call Perl_InsertTemplate("pod.pod-cut", "v")<CR>'
@@ -814,7 +744,7 @@ function! perlsupportgui#Perl_InitMenu ()
   exe "amenu ".g:Perl_Root.'&POD.-Sep2-                    :'
   "
   if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&POD.in&visible\ POD.invisible\ POD<Tab>Perl     <Nop>'
+    exe "amenu ".g:Perl_Root.'&POD.in&visible\ POD.invisible\ POD<Tab>Perl     :call Perl_MenuTitle()<CR>'
     exe "amenu ".g:Perl_Root.'&POD.in&visible\ POD.-Sep0-        :'
   endif
   exe "amenu <silent> ".g:Perl_Root.'&POD.in&visible\ POD.&Improvement        :call Perl_InsertTemplate("pod.invisible-pod-improvement")<CR>'
@@ -871,19 +801,6 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : Profiling                             {{{2
   "===============================================================================================
 	"
-	if g:Perl_MenuHeader == "yes"
-		exe "amenu <silent> ".g:Perl_Root.'&Profiling.Profiling                       <Nop>'
-		exe "amenu <silent> ".g:Perl_Root.'&Profiling.-Sep41-                         :'
-		exe "amenu <silent> ".g:Perl_Root.'&Profiling.&SmallProf<Tab>\\rps.SmallProf  <Nop>'
-		exe "amenu <silent> ".g:Perl_Root.'&Profiling.&SmallProf<Tab>\\rps.-Sep411-   :'
-		if !s:MSWIN
-			exe "amenu <silent> ".g:Perl_Root.'&Profiling.&FastProf<Tab>\\rpf.FastProf    <Nop>'
-			exe "amenu <silent> ".g:Perl_Root.'&Profiling.&FastProf<Tab>\\rpf.-Sep412-    :'
-		endif
-		exe "amenu <silent> ".g:Perl_Root.'&Profiling.&NYTProf<Tab>\\rpn.NYTProf      <Nop>'
-		exe "amenu <silent> ".g:Perl_Root.'&Profiling.&NYTProf<Tab>\\rpn.-Sep413-     :'
-	endif
-	"
 	exe "amenu <silent> ".g:Perl_Root.'&Profiling.&SmallProf<Tab>\\rps.&run\ profiler<Tab>\\rps               :call perlsupportprofiling#Perl_Smallprof()<CR>'
 	exe "amenu <silent> ".g:Perl_Root.'&Profiling.&SmallProf<Tab>\\rps.sort\ report:\ &file\ name             :call perlsupportprofiling#Perl_SmallProfSortQuickfix("file-name")<CR>'
 	exe "amenu <silent> ".g:Perl_Root.'&Profiling.&SmallProf<Tab>\\rps.sort\ report:\ &line\ number           :call perlsupportprofiling#Perl_SmallProfSortQuickfix("line-number")<CR>'
@@ -917,11 +834,6 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : Run menu                              {{{2
   "===============================================================================================
   "
-  if g:Perl_MenuHeader == "yes"
-    exe "amenu ".g:Perl_Root.'&Run.&Run<Tab>Perl                  <Nop>'
-    exe "amenu ".g:Perl_Root.'&Run.-Sep0-                         :'
-  endif
-  "
   "   run the script from the local directory
   "   ( the one which is being edited; other versions may exist elsewhere ! )
   "
@@ -953,7 +865,7 @@ function! perlsupportgui#Perl_InitMenu ()
   "
   if g:Perl_MenuHeader == "yes"
     exe "amenu <silent> ".g:Perl_Root.'&Run.perlcritic\ severity\ \ (&1).perlcritic   :call Perl_Perlcritic()<CR>'
-    exe "amenu <silent> ".g:Perl_Root.'&Run.perlcritic\ severity\ \ (&1).severity     <Nop>'
+    exe "amenu <silent> ".g:Perl_Root.'&Run.perlcritic\ severity\ \ (&1).severity     :call Perl_Perlcritic()<CR>'
     exe "amenu <silent> ".g:Perl_Root.'&Run.perlcritic\ severity\ \ (&1).-Sep5-       :'
   endif
 
@@ -965,7 +877,7 @@ function! perlsupportgui#Perl_InitMenu ()
   "
   if g:Perl_MenuHeader == "yes"
     exe "amenu <silent> ".g:Perl_Root.'&Run.perlcritic\ &verbosity.perlcritic    :call Perl_Perlcritic()<CR>'
-    exe "amenu <silent> ".g:Perl_Root.'&Run.perlcritic\ &verbosity.verbosity     <Nop>'
+    exe "amenu <silent> ".g:Perl_Root.'&Run.perlcritic\ &verbosity.verbosity     :call Perl_Perlcritic()<CR>'
     exe "amenu <silent> ".g:Perl_Root.'&Run.perlcritic\ &verbosity.-Sep6-            :'
   endif
 
@@ -997,11 +909,49 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : help menu                              {{{2
   "===============================================================================================
   "
-  if g:Perl_Root != ""
-  	exe "amenu <silent> ".g:Perl_Root.'read\ &perldoc<Tab><S-F1>\ \ \\h    :call Perl_perldoc()<CR><CR>'
-    exe "amenu <silent> ".g:Perl_Root.'&help\ \(plugin\)<Tab>\\hp           :call Perl_HelpPerlsupport()<CR>'
-  endif
+	exe "amenu <silent> ".g:Perl_Root.'read\ &perldoc<Tab><S-F1>\ \ \\h    :call Perl_perldoc()<CR><CR>'
+	exe "amenu <silent> ".g:Perl_Root.'&help\ \(plugin\)<Tab>\\hp           :call Perl_HelpPerlsupport()<CR>'
   "
 endfunction   " ---------- end of function  Perl_InitMenu  ----------
+
+"------------------------------------------------------------------------------
+"  Perl Menu Header Initialization      {{{1
+"------------------------------------------------------------------------------
+function! Perl_InitMenuHeader ()
+	exe "amenu ".g:Perl_Root.'Perl     :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'-Sep0-        :'
+	exe "amenu ".g:Perl_Root.'&Comments.&Comments<Tab>Perl     :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&Comments.-Sep0-        :'
+	exe "amenu ".g:Perl_Root.'&Statements.&Statements<Tab>Perl     :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&Statements.-Sep0-        :'
+	exe "amenu ".g:Perl_Root.'&Idioms.&Idioms<Tab>Perl    :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&Idioms.-Sep0-       :'
+	exe "amenu ".g:Perl_Root.'S&nippets.S&nippets<Tab>Perl      :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'S&nippets.-Sep0-         :'
+	exe "amenu ".g:Perl_Root.'Rege&x.Rege&x<Tab>Perl      :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'Rege&x.-Sep0-         :'
+	exe "amenu ".g:Perl_Root.'&File-Tests.&File-Tests<Tab>Perl             :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&File-Tests.-Sep0-                          :'
+	exe "amenu ".g:Perl_Root.'Spec-&Var.Spec-&Var<Tab>Perl      :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'Spec-&Var.-Sep0-         :'
+	exe "amenu ".g:Perl_Root.'&POD.&POD<Tab>Perl          :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&POD.-Sep0-                 :'
+	exe "amenu ".g:Perl_Root.'&Profiling.Profiling                       :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&Profiling.-Sep41-                         :'
+	exe "amenu ".g:Perl_Root.'&Profiling.&SmallProf<Tab>\\rps.SmallProf  :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&Profiling.&SmallProf<Tab>\\rps.-Sep411-   :'
+	if !s:MSWIN
+		exe "amenu ".g:Perl_Root.'&Profiling.&FastProf<Tab>\\rpf.FastProf    :call Perl_MenuTitle()<CR>'
+		exe "amenu ".g:Perl_Root.'&Profiling.&FastProf<Tab>\\rpf.-Sep412-    :'
+	endif
+	exe "amenu ".g:Perl_Root.'&Profiling.&NYTProf<Tab>\\rpn.NYTProf      :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&Profiling.&NYTProf<Tab>\\rpn.-Sep413-     :'
+	exe "amenu ".g:Perl_Root.'&Run.&Run<Tab>Perl                  :call Perl_MenuTitle()<CR>'
+	exe "amenu ".g:Perl_Root.'&Run.-Sep0-                         :'
+endfunction    " ----------  end of function Perl_InitMenuHeader  ----------
+
+function! Perl_MenuTitle ()
+	echo "This is a menu title."
+endfunction    " ----------  end of function Perl_MenuTitle  ----------
 "
 " vim: tabstop=2 shiftwidth=2 foldmethod=marker
