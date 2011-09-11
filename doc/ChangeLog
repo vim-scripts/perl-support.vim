@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.12
+---------------------------------------------------------------------------------------
+- New: folding for the plugin list.
+- perltidy can be used as standard beautifier (commands "={motion}" ).
+- perltidy writes backup files.
+- perltidy error handling improved.
+- Bugfix: ddd not running from Vim under a display manager.
+- Minor improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.11
 ---------------------------------------------------------------------------------------
 - Perl::Critic integration: severity and verbosity will be taken from the

@@ -51,7 +51,7 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.127 2011/06/23 15:23:41 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.134 2011/09/11 15:57:11 mehner Exp $
 "-------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
@@ -59,7 +59,7 @@
 if exists("g:Perl_Version") || &compatible
   finish
 endif
-let g:Perl_Version= "4.12"
+let g:Perl_Version= "4.13"
 "
 "#################################################################################
 "
@@ -196,19 +196,20 @@ let s:Perl_GuiTemplateBrowser    = 'gui'										" gui / explorer / commandline
 let s:Perl_Wrapper                 = s:plugin_dir.'/perl-support/scripts/wrapper.sh'
 let s:Perl_EfmPerl                 = s:plugin_dir.'/perl-support/scripts/efm_perl.pl'
 let s:Perl_PerlModuleListGenerator = s:plugin_dir.'/perl-support/scripts/pmdesc3.pl'
+let s:Perl_PerltidyBackup			     = "no"
 "
 "------------------------------------------------------------------------------
 "
 "  Look for global variables (if any), to override the defaults.
 "
-call Perl_SetLocalVariable('Perl_GuiSnippetBrowser      ')
-call Perl_SetLocalVariable('Perl_GuiTemplateBrowser     ')
 call Perl_SetLocalVariable("Perl_Ctrl_j                 ")
 call Perl_SetLocalVariable("Perl_Debugger               ")
 call Perl_SetLocalVariable("Perl_FormatDate             ")
 call Perl_SetLocalVariable("Perl_FormatTime             ")
 call Perl_SetLocalVariable("Perl_FormatYear             ")
-call Perl_SetLocalVariable("Perl_TimestampFormat        ")
+call Perl_SetLocalVariable("Perl_GlobalTemplateFile     ")
+call Perl_SetLocalVariable('Perl_GuiSnippetBrowser      ')
+call Perl_SetLocalVariable('Perl_GuiTemplateBrowser     ')
 call Perl_SetLocalVariable("Perl_LineEndCommColDefault  ")
 call Perl_SetLocalVariable("Perl_LoadMenus              ")
 call Perl_SetLocalVariable("Perl_NYTProf_browser        ")
@@ -218,12 +219,13 @@ call Perl_SetLocalVariable("Perl_PerlcriticSeverity     ")
 call Perl_SetLocalVariable("Perl_PerlcriticVerbosity    ")
 call Perl_SetLocalVariable("Perl_PerlModuleList         ")
 call Perl_SetLocalVariable("Perl_PerlModuleListGenerator")
+call Perl_SetLocalVariable('Perl_PerltidyBackup         ')
 call Perl_SetLocalVariable("Perl_PodcheckerWarnings     ")
 call Perl_SetLocalVariable("Perl_Printheader            ")
 call Perl_SetLocalVariable("Perl_ProfilerTimestamp      ")
 call Perl_SetLocalVariable("Perl_TemplateOverwrittenMsg ")
+call Perl_SetLocalVariable("Perl_TimestampFormat        ")
 call Perl_SetLocalVariable("Perl_XtermDefaults          ")
-call Perl_SetLocalVariable("Perl_GlobalTemplateFile     ")
 
 if exists('g:Perl_GlobalTemplateFile') && g:Perl_GlobalTemplateFile != ''
 	let s:Perl_GlobalTemplateDir	= fnamemodify( s:Perl_GlobalTemplateFile, ":h" )
@@ -336,20 +338,26 @@ endfunction   " ---------- end of function  Perl_GetLineEndCommCol  ----------
 "------------------------------------------------------------------------------
 "  Comments : single line-end comment     {{{1
 "------------------------------------------------------------------------------
-function! Perl_LineEndComment ( comment )
-  if !exists("b:Perl_LineEndCommentColumn")
-    let b:Perl_LineEndCommentColumn = s:Perl_LineEndCommColDefault
-  endif
-  " ----- trim whitespaces -----
-	exe 's/\s*$//'
-  let linelength= virtcol("$") - 1
-	let	diff	= 1
-	if linelength < b:Perl_LineEndCommentColumn
-		let diff	= b:Perl_LineEndCommentColumn -1 -linelength
+function! Perl_EndOfLineComment ( ) range
+	if !exists("b:Perl_LineEndCommentColumn")
+		let	b:Perl_LineEndCommentColumn	= s:Perl_LineEndCommColDefault
 	endif
-	exe "normal	".diff."A "
-	call Perl_InsertTemplate('comment.end-of-line-comment')
-endfunction   " ---------- end of function  Perl_LineEndComment  ----------
+	" ----- trim whitespaces -----
+	exe a:firstline.','.a:lastline.'s/\s*$//'
+
+	for line in range( a:lastline, a:firstline, -1 )
+		let linelength	= virtcol( [line, "$"] ) - 1
+		let	diff				= 1
+		if linelength < b:Perl_LineEndCommentColumn
+			let diff	= b:Perl_LineEndCommentColumn -1 -linelength
+		endif
+		exe "normal	".diff."A "
+		call Perl_InsertTemplate('comment.end-of-line-comment')
+		if line > a:firstline
+			normal k
+		endif
+	endfor
+endfunction		" ---------- end of function  Perl_EndOfLineComment  ----------
 "
 "------------------------------------------------------------------------------
 "  Perl_AlignLineEndComm: adjust line-end comments     {{{1
@@ -372,7 +380,7 @@ let	s:AlignRegex	= [
 	\	'\(s\|tr\){[^}]\+}{[^}]\+}' ,
 	\	]
 
-function! Perl_AlignLineEndComm ( mode ) range
+function! Perl_AlignLineEndComm ( ) range
 	"
 	if !exists("b:Perl_LineEndCommentColumn")
 		let	b:Perl_LineEndCommentColumn	= s:Perl_LineEndCommColDefault
@@ -383,18 +391,10 @@ function! Perl_AlignLineEndComm ( mode ) range
 	let	save_expandtab	= &expandtab
 	exe	":set expandtab"
 
-	if a:mode == 'v'
-		let pos0	= line("'<")
-		let pos1	= line("'>")
-	else
-		let pos0	= line(".")
-		let pos1	= pos0
-	endif
+	let	linenumber	= a:firstline
+	exe ":".a:firstline
 
-	let	linenumber	= pos0
-	exe ":".pos0
-
-	while linenumber <= pos1
+	while linenumber <= a:lastline
 		let	line= getline(".")
 		"
 		" line is not a pure comment but may contains a comment:
@@ -610,45 +610,22 @@ endfunction    " ----------  end of function Perl_UncommentBlock ----------
 "------------------------------------------------------------------------------
 "  toggle comments     {{{1
 "------------------------------------------------------------------------------
-function! Perl_CommentToggle ()
-	let	linenumber	= line(".")
-	let line				= getline(linenumber)
-	if match( line, '^#' ) == 0
-		call setline( linenumber, strpart(line, 1) )
-	else
-		call setline( linenumber, '#'.line )
-	endif
-endfunction    " ----------  end of function Perl_CommentToggle  ----------
-"
-"------------------------------------------------------------------------------
-"  Comments : toggle comments (range)   {{{1
-"------------------------------------------------------------------------------
-function! Perl_CommentToggleRange ()
+function! Perl_CommentToggle () range
 	let	comment=1									" 
-	let pos0	= line("'<")
-	let pos1	= line("'>")
-	for line in getline( pos0, pos1 )
-		if match( line, '^\s*$' ) != 0					" skip empty lines
-			if match( line, '^#') == -1						" no comment 
-				let comment = 0
-				break
-			endif
+	for line in range( a:firstline, a:lastline )
+		if match( getline(line), '^#') == -1					" no comment 
+			let comment = 0
+			break
 		endif
 	endfor
 
 	if comment == 0
-		for linenumber in range( pos0, pos1 )
-			if match( line, '^\s*$' ) != 0					" skip empty lines
-				call setline( linenumber, '#'.getline(linenumber) )
-			endif
-		endfor
+			exe a:firstline.','.a:lastline."s/^/#/"
 	else
-		for linenumber in range( pos0, pos1 )
-			call setline( linenumber, substitute( getline(linenumber), '^#', '', '' ) )
-		endfor
+			exe a:firstline.','.a:lastline."s/^#//"
 	endif
 
-endfunction    " ----------  end of function Perl_CommentToggleRange  ----------
+endfunction    " ----------  end of function Perl_CommentToggle ----------
 "
 "------------------------------------------------------------------------------
 "  Comments : vim modeline     {{{1
@@ -780,7 +757,8 @@ function! Perl_perldoc()
     " search order:  library module --> builtin function --> FAQ keyword
     "
     let delete_perldoc_errors = ""
-    if s:UNIX
+    if s:UNIX && ( match( $shell, '\ccsh$' ) >= 0 ) 
+			" not for csh, tcsh
       let delete_perldoc_errors = " 2>/dev/null"
     endif
     setlocal  modifiable
@@ -1234,12 +1212,15 @@ function! Perl_Debugger ()
   "
   silent exe  ":update"
   let l:arguments 	= exists("b:Perl_CmdLineArgs") ? " ".b:Perl_CmdLineArgs : ""
+  let l:switches    = exists("b:Perl_Switches") ? b:Perl_Switches.' ' : ""
   let filename      = expand("%:p")
   let filename_esc  = fnameescape( expand("%:p") )
   "
   if  s:MSWIN
     let l:arguments = substitute( l:arguments, '^\s\+', ' ', '' )
     let l:arguments = substitute( l:arguments, '\s\+', "\" \"", 'g')
+		let l:switches  = substitute( l:switches,  '^\s\+', ' ', '' )
+		let l:switches  = substitute( l:switches,  '\s\+', "\" \"", 'g')
   endif
   "
   " debugger is ' perl -d ... '
@@ -1249,9 +1230,9 @@ function! Perl_Debugger ()
       exe '!perl -d "'.filename.l:arguments.'"'
     else
       if has("gui_running") || &term == "xterm"
-        silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl -d '.filename_esc.l:arguments.' &'
+     	 	silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl ' . l:switches . ' -d '.filename_esc.l:arguments.' &'
       else
-        silent exe '!clear; perl -d '.filename_esc.l:arguments
+        silent exe '!clear; perl ' . l:switches . ' -d '.filename_esc.l:argument
       endif
     endif
   endif
@@ -1429,7 +1410,7 @@ function! Perl_RereadTemplates ( msg )
 			if filereadable( s:Perl_GlobalTemplateFile )
 				call Perl_ReadTemplates( s:Perl_GlobalTemplateFile )
 			else
-				echomsg "Global template file '.s:Perl_GlobalTemplateFile.' not readable."
+				echomsg "Global template file '".s:Perl_GlobalTemplateFile."' not readable."
 				return
 			endif
 			let	messsage	= "Templates read from '".s:Perl_GlobalTemplateFile."'"
@@ -2084,7 +2065,9 @@ function! Perl_Perltidy (mode)
     if Perl_Input("reformat whole file [y/n/Esc] : ", "y", '' ) != "y"
       return
     endif
-    exe ':write! '.Sou.'.bak'
+    if s:Perl_PerltidyBackup == 'yes'
+    	exe ':write! '.Sou.'.bak'
+		endif
     silent exe  ":update"
     let pos1  = line(".")
     exe '%!perltidy'
@@ -2095,7 +2078,9 @@ function! Perl_Perltidy (mode)
   if a:mode=="v"
     let pos1  = line("'<")
     let pos2  = line("'>")
-    exe pos1.','.pos2.':write! '.Sou.'.bak'
+		if s:Perl_PerltidyBackup == 'yes'
+			exe pos1.','.pos2.':write! '.Sou.'.bak'
+		endif
     silent exe pos1.','.pos2.'!perltidy'
     echo 'File "'.Sou.'" (lines '.pos1.'-'.pos2.') reformatted.'
   endif
@@ -2504,8 +2489,7 @@ if has("autocmd")
 	autocmd BufRead  *.pm  call Perl_HighlightJumpTargets()
 	autocmd BufRead  *.t   call Perl_HighlightJumpTargets() 
   "
-  autocmd BufRead            *.pod  set filetype=perl
-  autocmd BufNewFile         *.pod  set filetype=perl | call Perl_InsertTemplate('comment.file-description-pod')
+  autocmd BufNewFile         *.pod  call Perl_InsertTemplate('comment.file-description-pod')
   autocmd BufNewFile,BufRead *.t    set filetype=perl
   "
   " Wrap error descriptions in the quickfix window.

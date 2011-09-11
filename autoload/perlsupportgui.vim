@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.39 2011/05/29 08:12:03 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.40 2011/08/19 13:39:51 mehner Exp $
 "       License:  Copyright 2008-2011 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -42,12 +42,12 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : Comments menu                              {{{2
   "===============================================================================================
   "
-  exe "amenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl                   :call Perl_LineEndComment("")<CR>A'
-  exe "imenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl              <C-C>:call Perl_LineEndComment("")<CR>A'
-  exe "vmenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl              <C-C>:call Perl_MultiLineEndComments()<CR>A'
+  exe "amenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl                   :call Perl_EndOfLineComment()<CR>A'
+  exe "imenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl              <C-C>:call Perl_EndOfLineComment()<CR>A'
+  exe "vmenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl                   :call Perl_MultiLineEndComments()<CR>A'
   "
-  exe "amenu <silent>  ".g:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.<Tab>\\cj           :call Perl_AlignLineEndComm("a")<CR>'
-  exe "vmenu <silent>  ".g:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.<Tab>\\cj      <C-C>:call Perl_AlignLineEndComm("v")<CR>'
+  exe "amenu <silent>  ".g:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.<Tab>\\cj           :call Perl_AlignLineEndComm()<CR>'
+  exe "vmenu <silent>  ".g:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.<Tab>\\cj           :call Perl_AlignLineEndComm()<CR>'
   "
   exe "amenu <silent>  ".g:Perl_Root.'&Comments.&set\ end-of-line\ com\.\ col\.<Tab>\\cs       :call Perl_GetLineEndCommCol()<CR>'
 
@@ -63,7 +63,7 @@ function! perlsupportgui#Perl_InitMenu ()
   "
   exe "amenu <silent>  ".g:Perl_Root.'&Comments.toggle\ &comment<Tab>\\cc         :call Perl_CommentToggle()<CR>j'
   exe "imenu <silent>  ".g:Perl_Root.'&Comments.toggle\ &comment<Tab>\\cc    <C-C>:call Perl_CommentToggle()<CR>j'
-	exe "vmenu <silent>  ".g:Perl_Root.'&Comments.toggle\ &comment<Tab>\\cc    <C-C>:call Perl_CommentToggleRange()<CR>j'
+	exe "vmenu <silent>  ".g:Perl_Root.'&Comments.toggle\ &comment<Tab>\\cc         :call Perl_CommentToggle()<CR>j'
 
   exe "amenu <silent>  ".g:Perl_Root.'&Comments.comment\ &block<Tab>\\cb           :call Perl_CommentBlock("a")<CR>'
   exe "imenu <silent>  ".g:Perl_Root.'&Comments.comment\ &block<Tab>\\cb      <C-C>:call Perl_CommentBlock("a")<CR>'

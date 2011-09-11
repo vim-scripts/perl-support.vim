@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.12) / June 01 2011
+README for perl-support.vim (Version 4.13) / September 11 2011
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -151,13 +151,12 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.12
+  RELEASE NOTES FOR VERSION 4.13
 ---------------------------------------------------------------------------------------
-- New: folding for the plugin list.
-- perltidy can be used as standard beautifier (commands "={motion}" ).
-- perltidy writes backup files.
-- perltidy error handling improved.
-- Bugfix: ddd not running from Vim under a display manager.
+- Several hotkeys allow a range, e.g. '3\cl' (see help text and perl-hot-key.pdf).
+- perltidy backup files optional.
+- POD files have no longer filetype 'perl' (preserves proper syntyx highlighting).
+- Running Perl as debugger (\rd, F9) uses Perl switches set with \rw (thanks to Sébastien Nobili).
 - Minor improvements.
 
 ---------------------------------------------------------------------------------------
@@ -178,6 +177,7 @@ doc/perlsupport.txt               The help file for the local online help.
                                   
 ftplugin/perl.vim                 A filetype plugin. Define hotkeys, create a local 
                                   dictionary for each Perl file.
+ftplugin/pod.vim                  A filetype plugin. Define hotkeys for filetype 'pod'.
 
 plugin/perl-support.vim           The Perl plugin for Vim/gVim.
 

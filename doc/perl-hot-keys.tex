@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2003-2010  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  see \Pluginversion
 %%      Created:  06.06.2003
-%%     Revision:  $Id: perl-hot-keys.tex,v 1.41 2011/06/19 15:34:27 mehner Exp $
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.45 2011/08/20 13:12:20 mehner Exp $
 %%                
 %%=====================================================================================
 
@@ -25,8 +25,9 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{4.12}
-\newcommand{\ReleaseDate}{June 2011}
+\newcommand{\Pluginversion}{4.13}
+\newcommand{\ReleaseDate}{August 2011}
+\newcommand{\Rep}{{\scriptsize{[n]}}}
 
 %%----------------------------------------------------------------------
 %%  fancyhdr
@@ -83,7 +84,7 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%  table, left part
 %%======================================================================
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{11mm}|p{58mm}|}
+\begin{tabular}[]{|p{11mm}|p{60mm}|}
 %%----------------------------------------------------------------------
 %%  show plugin help
 %%----------------------------------------------------------------------
@@ -96,8 +97,8 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%  show plugin help
 %%----------------------------------------------------------------------
 \hline 
-\multicolumn{2}{|r|}{\textsl{\textbf{H}elp}}    \\[1.0ex]
-\hline \verb'\rp \h' & read perldoc for word under cursor       \hfill (n)   \\
+\multicolumn{2}{|r|}{\textsl{\textbf{H}elp}}\\[1.0ex]
+\hline \verb'\rp \h' & read perldoc for word under cursor \hfill (n,i)\\
 \hline \verb'\hp'   & help (plugin) \hfill (n,i)\\
 \hline 
 %%----------------------------------------------------------------------
@@ -105,27 +106,27 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%----------------------------------------------------------------------
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{C}omments}}                       \\[1.0ex]
-\hline \verb'\cl'   & end-of-line comment               \hfill (n, v, i)\\
-\hline \verb'\cj'   & adjust end-of-line comments       \hfill (n, v, i)\\
-\hline \verb'\cs'   & set end-of-line comment col.      \hfill (n)      \\
-\hline \verb'\cfr'  & frame comment                     \hfill (n, i)   \\
-\hline \verb'\cfu'  & function description              \hfill (n, i)   \\
-\hline \verb'\cm'   & method description                \hfill (n, i)   \\
-\hline \verb'\chpl' & file header (.pl)                 \hfill (n)      \\
-\hline \verb'\chpm' & file header (.pm)                 \hfill (n)      \\
-\hline \verb'\cht'  & file header (.t)                  \hfill (n)      \\
-\hline \verb'\chpo' & file header (.pod)                \hfill (n)      \\
-\hline \verb'\ckb'  & keyword comm. \verb'BUG'          \hfill (n, i)   \\
-\hline \verb'\ckt'  & keyword comm. \verb'TODO'         \hfill (n, i)   \\
-\hline \verb'\ckw'  & keyword comm. \verb'WARNING'      \hfill (n, i)   \\
-\hline \verb'\cko'  & keyword comm. \verb'WORKAROUND'   \hfill (n, i)   \\
-\hline \verb'\ckn'  & keyword comm. \verb'new keyword'  \hfill (n, i)   \\
-\hline \verb'\cc'   & code $\leftrightarrow$ comment    \hfill (n, v)   \\
-\hline \verb'\cb'   & code block $\rightarrow$ comment  \hfill (n, v)   \\
-\hline \verb'\cn'   & uncomment code block              \hfill (n)      \\
-\hline \verb'\cd'   & date                              \hfill (n, i)   \\
-\hline \verb'\ct'   & date \& time                      \hfill (n, i)   \\
-\hline \verb'\cv'   & vim modeline                      \hfill (n, i)   \\
+\hline \Rep\verb'\cl'   & end-of-line comment               \hfill (n, v, i)\\
+\hline \Rep\verb'\cj'   & adjust end-of-line comments       \hfill (n, v, i)\\
+\hline     \verb'\cs'   & set end-of-line comment col.      \hfill (n)      \\
+\hline     \verb'\cfr'  & frame comment                     \hfill (n, i)   \\
+\hline     \verb'\cfu'  & function description              \hfill (n, i)   \\
+\hline     \verb'\cm'   & method description                \hfill (n, i)   \\
+\hline     \verb'\chpl' & file header (.pl)                 \hfill (n)      \\
+\hline     \verb'\chpm' & file header (.pm)                 \hfill (n)      \\
+\hline     \verb'\cht'  & file header (.t)                  \hfill (n)      \\
+\hline     \verb'\chpo' & file header (.pod)                \hfill (n)      \\
+\hline     \verb'\ckb'  & keyword comm. \verb'BUG'          \hfill (n, i)   \\
+\hline     \verb'\ckt'  & keyword comm. \verb'TODO'         \hfill (n, i)   \\
+\hline     \verb'\ckw'  & keyword comm. \verb'WARNING'      \hfill (n, i)   \\
+\hline     \verb'\cko'  & keyword comm. \verb'WORKAROUND'   \hfill (n, i)   \\
+\hline     \verb'\ckn'  & keyword comm. \verb'new keyword'  \hfill (n, i)   \\
+\hline \Rep\verb'\cc'   & code $\leftrightarrow$ comment    \hfill (n, v)   \\
+\hline     \verb'\cb'   & code block $\rightarrow$ comment  \hfill (n, v)   \\
+\hline     \verb'\cn'   & uncomment code block              \hfill (n)      \\
+\hline     \verb'\cd'   & date                              \hfill (n, i)   \\
+\hline     \verb'\ct'   & date \& time                      \hfill (n, i)   \\
+\hline     \verb'\cv'   & vim modeline                      \hfill (n, i)   \\
 \hline
 \end{tabular}\\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
@@ -182,14 +183,14 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%  snippet menu
 %%----------------------------------------------------------------------
 \hline
-\multicolumn{2}{|r|}{\textsl{S\textbf{n}ippet}}             \\[1.0ex]
-\hline \verb'\nr'  & read code snippet         \hfill (n)   \\
-\hline \verb'\nw'  & write code snippet        \hfill (n, v)\\
-\hline \verb'\ne'  & edit code snippet         \hfill (n)   \\
+\multicolumn{2}{|r|}{\textsl{S\textbf{n}ippet}}                \\[1.0ex]
+\hline \verb'\nr'  & read code snippet         \hfill (n, i)   \\
+\hline \verb'\nw'  & write code snippet        \hfill (n, v, i)\\
+\hline \verb'\ne'  & edit code snippet         \hfill (n, i)   \\
 %
-\hline \verb'\ntl' & edit local templates      \hfill (n)   \\
-\hline \verb'\ntg' & edit global templates$^1$ \hfill (n)   \\
-\hline \verb'\ntr' & reread the templates      \hfill (n)   \\
+\hline \verb'\ntl' & edit local templates      \hfill (n, i)\\
+\hline \verb'\ntg' & edit global templates$^1$ \hfill (n, i)\\
+\hline \verb'\ntr' & reread the templates      \hfill (n, i)\\
 \hline
 \end{tabular}\\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
@@ -199,18 +200,18 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%======================================================================
 %
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{11mm}|p{58mm}|}
+\begin{tabular}[]{|p{11mm}|p{60mm}|}
 %%----------------------------------------------------------------------
 %%  menu regex menu
 %%----------------------------------------------------------------------
 \hline
 \multicolumn{2}{|r|}{\textsl{Regular E\textbf{x}pressions}}     \\[1.0ex]
-\hline \verb'\xr' &  pick up Regex                 \hfill (n, v)\\
-\hline \verb'\xs' &  pick up string                \hfill (n, v)\\
-\hline \verb'\xf' &  pick up flag(s)               \hfill (n, v)\\
-\hline \verb'\xm' &  match                         \hfill (n)   \\
-\hline \verb'\xmm'&  match multiple (Regex/target) \hfill (n)   \\
-\hline \verb'\xe' &  explain Regex                 \hfill (n, v)\\
+\hline \Rep\verb'\xr' &  pick up Regex                 \hfill (n, v)\\
+\hline \Rep\verb'\xs' &  pick up string                \hfill (n, v)\\
+\hline     \verb'\xf' &  pick up flag(s)               \hfill (n, v)\\
+\hline     \verb'\xm' &  match                         \hfill (n)   \\
+\hline     \verb'\xmm'&  match multiple (Regex/target) \hfill (n)   \\
+\hline     \verb'\xe' &  explain Regex                 \hfill (n, v)\\
 \hline
 %%----------------------------------------------------------------------
 %%  menu Posix character classes
@@ -237,21 +238,21 @@ Fritz Mehner (mehner@fh-swf.de)\\
 %%----------------------------------------------------------------------
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{P}OD}}                       \\[1.0ex]
-\hline \verb'\pod'    & run \verb'podchecker'           \hfill (n)\\
-\hline \verb'\podh'   & convert POD data to .html file  \hfill (n)\\
-\hline \verb'\podm'   & Convert POD data to *roff input \hfill (n)\\
-\hline \verb'\podt'   & Convert POD data to ASCII text  \hfill (n)\\
+\hline \verb'\pod'    & run \verb'podchecker'           \hfill (n, i)\\
+\hline \verb'\podh'   & convert POD data to .html file  \hfill (n, i)\\
+\hline \verb'\podm'   & Convert POD data to *roff input \hfill (n, i)\\
+\hline \verb'\podt'   & Convert POD data to ASCII text  \hfill (n, i)\\
 \hline
 %%----------------------------------------------------------------------
 %%  menu Profiling
 %%----------------------------------------------------------------------
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{P}rofiling}}                 \\[1.0ex]
-\hline \verb'\rps'    & run \verb'SmallProf'              \hfill (n)\\
-\hline \verb'\rpf'    & run \verb'FastProf'               \hfill (n)\\
-\hline \verb'\rpn'    & run \verb'NYTProf'                \hfill (n)\\
-\hline \verb'\rpnc'   & open CSV file (\verb'NYTProf')    \hfill (n)\\
-\hline \verb'\rpnh'   & browse HTML files (\verb'NYTProf')\hfill (n)\\
+\hline \verb'\rps'    & run \verb'SmallProf'              \hfill (n, i)\\
+\hline \verb'\rpf'    & run \verb'FastProf'               \hfill (n, i)\\
+\hline \verb'\rpn'    & run \verb'NYTProf'                \hfill (n, i)\\
+\hline \verb'\rpnc'   & open CSV file (\verb'NYTProf')    \hfill (n, i)\\
+\hline \verb'\rpnh'   & browse HTML files (\verb'NYTProf')\hfill (n, i)\\
 \hline
 \end{tabular}\\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
@@ -276,29 +277,29 @@ $^1$ {systemwide installation only}\\
 \begin{multicols}{2}
 %
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{11mm}|p{58mm}|}
+\begin{tabular}[]{|p{11mm}|p{61mm}|}
 %%----------------------------------------------------------------------
 %%  menu run
 %%----------------------------------------------------------------------
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{R}un}} \\[1.0ex]
-\hline \verb'\rr'    & update file, run script                  \hfill (n)   \\
-\hline \verb'\rs'    & update file, check syntax                \hfill (n)   \\
-\hline \verb'\ra'    & set command line arguments               \hfill (n)   \\
-\hline \verb'\rw'    & set Perl cmd.\ line switches             \hfill (n)   \\
-\hline \verb'\rm'    & run \texttt{make}                        \hfill (n)   \\
-\hline \verb'\rma'   & command line arguments for \texttt{make} \hfill (n)   \\
-\hline \verb'\rd'    & start debugger                           \hfill (n)   \\
-\hline \verb'\re'    & make script executable                   \hfill (n)   \\
-\hline \verb'\ri'    & show installed Perl modules              \hfill (n)   \\
-\hline \verb'\rg'    & generate Perl module list                \hfill (n)   \\
-\hline \verb'\ry'    & run \verb'perltidy'                      \hfill (n, v)\\
-\hline \verb'\rc'    & run \verb'perlcritic'                    \hfill (n)   \\
-\hline \verb'\rt'    & save buffer with timestamp               \hfill (n)   \\
-\hline \verb'\rh'    & hardcopy buffer                          \hfill (n, v)\\
-\hline \verb'\rk'    & settings and hotkeys                     \hfill (n)   \\
-\hline \verb'\rx'    & set xterm size                           \hfill (n, {\tiny GUI only})\\
-\hline \verb'\ro'    & change output destination                \hfill (n)   \\
+\hline \verb'\rr'    & update file, run script                  \hfill (n, i)   \\
+\hline \verb'\rs'    & update file, check syntax                \hfill (n, i)   \\
+\hline \verb'\ra'    & set command line arguments               \hfill (n, i)   \\
+\hline \verb'\rw'    & set Perl cmd.\ line switches             \hfill (n, i)   \\
+\hline \verb'\rm'    & run \texttt{make}                        \hfill (n, i)   \\
+\hline \verb'\rma'   & command line arguments for \texttt{make} \hfill (n, i)   \\
+\hline \verb'\rd'    & start debugger                           \hfill (n, i)   \\
+\hline \verb'\re'    & make script executable                   \hfill (n, i)   \\
+\hline \verb'\ri'    & show installed Perl modules              \hfill (n, i)   \\
+\hline \verb'\rg'    & generate Perl module list                \hfill (n, i)   \\
+\hline \verb'\ry'    & run \verb'perltidy'                      \hfill (n, v, i)\\
+\hline \verb'\rc'    & run \verb'perlcritic'                    \hfill (n, i)   \\
+\hline \verb'\rt'    & save buffer with timestamp               \hfill (n, i)   \\
+\hline \verb'\rh'    & hardcopy buffer                          \hfill (n, v, i)\\
+\hline \verb'\rk'    & settings and hotkeys                     \hfill (n, i)   \\
+\hline \verb'\rx'    & set xterm size                           \hfill (n, i {\tiny GUI only})\\
+\hline \verb'\ro'    & change output destination                \hfill (n, i)   \\
 \hline
 \end{tabular}%
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~

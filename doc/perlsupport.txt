@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                    June 20 2011
+*perlsupport.txt*                Perl Support                  September 11 2011
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.12
+                              Plugin version 4.13
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -900,6 +900,7 @@ g:Perl_Debugger (possible values: 'perl', 'ptkdb', 'ddd' ). The default is
 
 (1) perl
 The script will be run as 'perl -d my-script.pl my-arguments' in an xterm.
+Perl switches set with \rw or from the menu will be used.
 
 (2) ptkdb
 The debugger ptkdb will be started as an independent process. ptkdb is a Perl
@@ -1003,6 +1004,15 @@ by setting a global variable in the file .vimrc :
   let g:Perl_Perltidy  = 'on'
 
 The default is 'off'.
+
+Perltidy can empty your buffer completely in case of an error.  Setting a
+global variable in the file .vimrc will write a backup file in the current
+directory:
+
+  let g:Perl_PerltidyBackup  = 'on'
+
+The default is 'off'.
+
 
 1.9.11  PROFILER                                        *perlsupport-profiler*
 ----------------
@@ -1343,146 +1353,153 @@ All mappings (except \lps and \ups) are filetype specific: they are only
 defined for buffers with filetype 'perl' to minimize conflicts with mappings
 from other plugins.
 
+Some mappings can be used with range (of lines). In normal mode
+  \cl
+appends a end-of-line comment to the current line,  whereas 
+  4\cl
+appends end-of-line comments to the 4 lines starting with the current line.
+
 Legend:  (i) insert mode, (n) normal mode, (v) visual mode
+         [n] range
 
   -- Load / Unload Perl Support ------------------------
 
-  \lps       load perl support                       (n)
-  \ups       unload perl support                     (n)
+     \lps       load perl support                       (n)
+     \ups       unload perl support                     (n)
 
   -- Comments ------------------------------------------
 
-  \cl        line end comment                  (n,v,i)
-  \cj        adjust line end comments          (n,v  )
-  \cs        set end comment col.              (n    )
-  \cfr       frame comment                     (n   i)
-  \cfu       function description              (n   i)
-  \cm        method description                (n   i)
-  \chpl      file header (*.pl)                (n    )
-  \chpm      file header (*.pm)                (n    )
-  \cht       file header (*.t)                 (n    )
-  \chpo      file header (*.t)                 (n    )
-  \ckb       keyword comment BUG               (n   i)
-  \ckt       keyword comment TODO              (n   i)
-  \ckw       keyword comment WARNING           (n   i)
-  \cko       keyword comment WORKAROUND        (n   i)
-  \ckn       keyword comment new keyword       (n   i)
-  \cc        toggle comment                    (n,v  )
-  \cb        code block to comment             (n,v  )
-  \cn        uncomment code block              (n,v  )
-  \cd        date                              (n   i)
-  \ct        date & time                       (n   i)
-  \cv        vim modeline                      (n   i)
+  [n]\cl        line end comment                  (n,v,i)
+  [n]\cj        adjust line end comments          (n,v  )
+     \cs        set end comment col.              (n    )
+     \cfr       frame comment                     (n   i)
+     \cfu       function description              (n   i)
+     \cm        method description                (n   i)
+     \chpl      file header (*.pl)                (n    )
+     \chpm      file header (*.pm)                (n    )
+     \cht       file header (*.t)                 (n    )
+     \chpo      file header (*.pod)               (n    )
+     \ckb       keyword comment BUG               (n   i)
+     \ckt       keyword comment TODO              (n   i)
+     \ckw       keyword comment WARNING           (n   i)
+     \cko       keyword comment WORKAROUND        (n   i)
+     \ckn       keyword comment new keyword       (n   i)
+  [n]\cc        toggle comment                    (n,v  )
+     \cb        code block to comment             (n,v  )
+     \cn        uncomment code block              (n,v  )
+     \cd        date                              (n   i)
+     \ct        date & time                       (n   i)
+     \cv        vim modeline                      (n   i)
 
   -- Statements ----------------------------------------
 
-  \sd        do { } while                      (n,v,i)
-  \sf        for { }                           (n,v,i)
-  \sfe       foreach { }                       (n,v,i)
-  \si        if { }                            (n,v,i)
-  \sie       if { } else { }                   (n,v,i)
-  \se        else { }                          (n,v,i)
-  \sei       elsif { }                         (n,v,i)
-  \su        unless { }                        (n,v,i)
-  \sue       unless { } else { }               (n,v,i)
-  \st        until { }                         (n,v,i)
-  \sw        while { }                         (n,v,i)
-  \s{ \sb    { }                               (n,v,i)
+     \sd        do { } while                      (n,v,i)
+     \sf        for { }                           (n,v,i)
+     \sfe       foreach { }                       (n,v,i)
+     \si        if { }                            (n,v,i)
+     \sie       if { } else { }                   (n,v,i)
+     \se        else { }                          (n,v,i)
+     \sei       elsif { }                         (n,v,i)
+     \su        unless { }                        (n,v,i)
+     \sue       unless { } else { }               (n,v,i)
+     \st        until { }                         (n,v,i)
+     \sw        while { }                         (n,v,i)
+     \s{ \sb    { }                               (n,v,i)
 
   -- Snippets ------------------------------------------
 
-  \nr        read code snippet                 (n)
-  \nw        write code snippet                (n,v)
-  \ne        edit code snippet                 (n)
+     \nr        read code snippet                 (n,i)
+     \nw        write code snippet                (n,v,i)
+     \ne        edit code snippet                 (n,i)
 
-  \ntl       edit local template file          (n)
-  \ntg       edit global template file         (n)
-  \ntr       reread template file              (n)
+     \ntl       edit local template file          (n,i)
+     \ntg       edit global template file         (n,i)
+     \ntr       reread template file              (n,i)
 
   -- Idioms --------------------------------------------
 
-  \id  [\$ ] my $;                (*)          (n   i)
-  \id= [\$=] my $ = ;             (*)          (n   i)
-  \idd [\$$] my ( $, $ );         (*)          (n   i)
-  \ia  [\@ ] my @;                (*)          (n   i)
-  \ia= [\@=] my @ = (,,);         (*)          (n   i)
-  \ih  [\% ] my %;                (*)          (n   i)
-  \ih= [\%=] my % = (=>,=>,);     (*)          (n   i)
-  \ir        my $regex_ = q//;                 (n   i)
-  \im        $ =~ m//                          (n   i)
-  \is        $ =~ s///                         (n   i)
-  \it        $ =~ tr///                        (n   i)
-  \isu \ifu  subroutine                        (n,v,i)
-  \ip        print "...\n";                    (n   i)
-  \ii        open input file                   (n,v,i)
-  \io        open output file                  (n,v,i)
-  \ipi       open pipe                         (n,v,i)
+     \id  [\$ ] my $;                (*)          (n   i)
+     \id= [\$=] my $ = ;             (*)          (n   i)
+     \idd [\$$] my ( $, $ );         (*)          (n   i)
+     \ia  [\@ ] my @;                (*)          (n   i)
+     \ia= [\@=] my @ = (,,);         (*)          (n   i)
+     \ih  [\% ] my %;                (*)          (n   i)
+     \ih= [\%=] my % = (=>,=>,);     (*)          (n   i)
+     \ir        my $regex_ = q//;                 (n   i)
+     \im        $ =~ m//                          (n   i)
+     \is        $ =~ s///                         (n   i)
+     \it        $ =~ tr///                        (n   i)
+     \isu \ifu  subroutine                        (n,v,i)
+     \ip        print "...\n";                    (n   i)
+     \ii        open input file                   (n,v,i)
+     \io        open output file                  (n,v,i)
+     \ipi       open pipe                         (n,v,i)
 
   -- Regular Expressions -------------------------------
 
-  \xr        pick up Regex                     (n,v)
-  \xs        pick up string                    (n,v)
-  \xf        pick up flags                     (n,v)
-  \xm        match                             (n)
-  \xmm       match multiple                    (n)
-  \xe        explain Regex                     (n,v)
+  [n]\xr        pick up Regex                     (n,v)
+  [n]\xs        pick up string                    (n,v)
+     \xf        pick up flags                     (n,v)
+     \xm        match                             (n)
+     \xmm       match multiple                    (n)
+     \xe        explain Regex                     (n,v)
 
   -- POSIX Character Classes ---------------------------
 
-  \pa        [:alnum:]                         (n   i)
-  \ph        [:alpha:]                         (n   i)
-  \pi        [:ascii:]                         (n   i)
-  \pb        [:blank:]                         (n   i)
-  \pc        [:cntrl:]                         (n   i)
-  \pd        [:digit:]                         (n   i)
-  \pg        [:graph:]                         (n   i)
-  \pl        [:lower:]                         (n   i)
-  \pp        [:print:]                         (n   i)
-  \pn        [:punct:]                         (n   i)
-  \ps        [:space:]                         (n   i)
-  \pu        [:upper:]                         (n   i)
-  \pw        [:word:]                          (n   i)
-  \px        [:xdigit:]                        (n   i)
+     \pa        [:alnum:]                         (n,i)
+     \ph        [:alpha:]                         (n,i)
+     \pi        [:ascii:]                         (n,i)
+     \pb        [:blank:]                         (n,i)
+     \pc        [:cntrl:]                         (n,i)
+     \pd        [:digit:]                         (n,i)
+     \pg        [:graph:]                         (n,i)
+     \pl        [:lower:]                         (n,i)
+     \pp        [:print:]                         (n,i)
+     \pn        [:punct:]                         (n,i)
+     \ps        [:space:]                         (n,i)
+     \pu        [:upper:]                         (n,i)
+     \pw        [:word:]                          (n,i)
+     \px        [:xdigit:]                        (n,i)
 
   -- POD -----------------------------------------------
 
-  \pod       run podchecker                            (n)
-  \podh      convert POD data to .html file            (n)
-  \podm      convert POD data to *troff input (manual) (n)
-  \podt      convert POD data to ASCII text            (n)
+     \pod       run podchecker                            (n,i)
+     \podh      convert POD data to .html file            (n,i)
+     \podm      convert POD data to *troff input (manual) (n,i)
+     \podt      convert POD data to ASCII text            (n,i)
 
   -- Profiling -----------------------------------------
 
-  \rps       run Devel::SmallProf            (n)   see |perlsupport-smallprof|
-  \rpf       run Devel::FastProf             (n)   see |perlsupport-fastprof|
-  \rpn       run Devel::NYTProf              (n)   see |perlsupport-nytprof|
-  \rpnc      open CSV file (NYTProf)         (n)   see |perlsupport-nytprof|
-  \rpnh      browse HTML files (NYTProf)     (n)   see |perlsupport-nytprof|
+     \rps       run Devel::SmallProf            (n,i)   see |perlsupport-smallprof|
+     \rpf       run Devel::FastProf             (n,i)   see |perlsupport-fastprof|
+     \rpn       run Devel::NYTProf              (n,i)   see |perlsupport-nytprof|
+     \rpnc      open CSV file (NYTProf)         (n,i)   see |perlsupport-nytprof|
+     \rpnh      browse HTML files (NYTProf)     (n,i)   see |perlsupport-nytprof|
 
   -- Run -----------------------------------------------
 
-  \rr        update file, run script         (n)   see |perlsupport-run-script|
-  \rs        update file, check syntax       (n)   see |perlsupport-syntax-check|
-  \ra        set command line argument       (n)   see |perlsupport-cmdline-args|
-  \rw        set Perl command line switches  (n)   see |perlsupport-perl-switches|
-  \rm        run make                        (n)   see |perlsupport-perl-make|
-  \rma       command line argument for make  (n)   see |perlsupport-perl-make|
-  \rd        start debugger                  (n)   see |perlsupport-run-debug|
-  \re        make script executable (**)     (n)
-  \ri        show installed Perl modules     (n)   see |perlsupport-module-list|
-  \rg        generation Perl module list     (n)   see |perlsupport-module-list-generation|
-  \ry        run perltidy                    (n,v) see |perlsupport-perltidy|
-  \rc        run perlcritic                  (n)   see |perlsupport-perlcritic|
-  \rt        save buffer with timestamp      (n)   see |perlsupport-timestamp|
-  \rh        hardcopy buffer to FILENAME.ps  (n,v) see |perlsupport-hardcopy|
-  \rk        settings and hotkeys            (n)
-  \rx        set xterm size (**)             (n)   see |perlsupport-xterm|
-  \ro        change output destination       (n)   see |perlsupport-output|
+     \rr        update file, run script         (n,i)   see |perlsupport-run-script|
+     \rs        update file, check syntax       (n,i)   see |perlsupport-syntax-check|
+     \ra        set command line argument       (n,i)   see |perlsupport-cmdline-args|
+     \rw        set Perl command line switches  (n,i)   see |perlsupport-perl-switches|
+     \rm        run make                        (n,i)   see |perlsupport-perl-make|
+     \rma       command line argument for make  (n,i)   see |perlsupport-perl-make|
+     \rd        start debugger                  (n,i)   see |perlsupport-run-debug|
+     \re        make script executable (**)     (n,i)
+     \ri        show installed Perl modules     (n,i)   see |perlsupport-module-list|
+     \rg        generation Perl module list     (n,i)   see |perlsupport-module-list-generation|
+     \ry        run perltidy                    (n,v,i) see |perlsupport-perltidy|
+     \rc        run perlcritic                  (n,i)   see |perlsupport-perlcritic|
+     \rt        save buffer with timestamp      (n,i)   see |perlsupport-timestamp|
+     \rh        hardcopy buffer to FILENAME.ps  (n,v,i) see |perlsupport-hardcopy|
+     \rk        settings and hotkeys            (n,i)
+     \rx        set xterm size (**)             (n,i)   see |perlsupport-xterm|
+     \ro        change output destination       (n,i)   see |perlsupport-output|
 
   -- Help ----------------------------------------------
 
-  \rp \h     read perldoc                    (n)   see |perlsupport-perldoc|
-  \hp        help (plugin)                   (n,i) see |perlsupport-help|
+     \rp \h     read perldoc                    (n,i)   see |perlsupport-perldoc|
+     \hp        help (plugin)                   (n,i)   see |perlsupport-help|
 
 (*)  The optional key mappings in brackets start like Perl references. They
       are available for backward compatibility if you have 
@@ -1490,7 +1507,37 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
      in your "$HOME/.vimrc".
 (**) Linux/UNIX only
 
-File perl-hot-keys.pdf contains a reference card for these key mappings.
+The following mappings work also for filetype 'pod':
+
+  -- Comments ------------------------------------------
+
+  \chpo      file header (*.pod)               (n    )
+  \cb        code block to comment             (n,v  )
+  \cn        uncomment code block              (n,v  )
+
+  -- Snippets ------------------------------------------
+
+  \nr        read code snippet                 (n,i)
+  \nw        write code snippet                (n,v,i)
+  \ne        edit code snippet                 (n,i)
+
+  \ntl       edit local template file          (n,i)
+  \ntg       edit global template file         (n,i)
+  \ntr       reread template file              (n,i)
+
+  -- POD -----------------------------------------------
+
+  \pod       run podchecker                            (n,i)
+  \podh      convert POD data to .html file            (n,i)
+  \podm      convert POD data to *troff input (manual) (n,i)
+  \podt      convert POD data to ASCII text            (n,i)
+
+  -- Help ----------------------------------------------
+
+  \rp \h     read perldoc                    (n,i)   see |perlsupport-perldoc|
+  \hp        help (plugin)                   (n,i)   see |perlsupport-help|
+
+The file perl-hot-keys.pdf contains a reference card for these key mappings.
 Multi-line inserts and code snippets will be indented after insertion.
 
 The hot-keys are defined in the file type plugin perl.vim (part of this
@@ -1633,6 +1680,8 @@ g:Perl_MenuHeader              'yes'
 g:Perl_GuiSnippetBrowser       'gui'
 g:Perl_GuiTemplateBrowser      'gui'
 g:Perl_PerlTags                'off'
+g:Perl_Perltidy                'off'
+g:Perl_PerltidyBackup          'off'
 
 g:Perl_PerlModuleList          root_dir.'perl-support/modules/perl-modules.list'
 g:Perl_PerlModuleListGenerator root_dir.'perl-support/scripts/pmdesc3.pl'
@@ -1676,6 +1725,8 @@ The variable root_dir will automatically be set to one of the following values:
            g:Perl_GuiSnippetBrowser  : code snippet browser: 'gui', 'commandline'
            g:Perl_GuiTemplateBrowser : code template browser: 'gui', 'explorer', 'commandline' 
            g:Perl_PerlTags           : switch use of Perl::Tags on/off ( 'on', 'off' )
+           g:Perl_Perltidy           : use perltidy as standard beautifier
+           g:Perl_PerltidyBackup     : write a backup file before running perltidy
 
  3. group: g:Perl_PerlModuleList          : The name of the Perl module list (text file,
                                             see below).
@@ -1853,7 +1904,7 @@ link to the global directory.
 
 Create your private template directory:
 
-  mkdir --parents  ~/.vim/perl-support/template
+  mkdir --parents  ~/.vim/perl-support/templates
 
 Create a private template file 'Templates' (compulsory) in this directory to
 overwrite some macros, e.g.

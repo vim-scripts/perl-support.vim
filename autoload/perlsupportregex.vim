@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.24 2011/04/09 12:02:28 mehner Exp $
+"      Revision:  $Id: perlsupportregex.vim,v 1.25 2011/08/20 13:12:20 mehner Exp $
 "       License:  Copyright 2008-2010 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -114,12 +114,12 @@ endfunction    " ----------  end of function Perl_RegexCodeEvaluation  ---------
 "   item : regexp | string
 "   mode : n | v
 "------------------------------------------------------------------------------
-function! perlsupportregex#Perl_RegexPick ( item, mode )
+function! perlsupportregex#Perl_RegexPick ( item, mode ) range
   "
   " the complete line; remove leading and trailing whitespaces
   "
   if a:mode == 'n'
-    let line  = getline(line("."))
+    let line  = join( getline( a:firstline, a:lastline ), "\n" )
     if  s:MSWIN
       " MSWIN : copy item to the yank-register, remove trailing CR
       let line  = substitute( line, "\n$", '', '' )
