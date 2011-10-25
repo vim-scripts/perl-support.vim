@@ -39,7 +39,7 @@
 #
 #        USAGE: ./|FILENAME|  
 #
-#  DESCRIPTION: |CURSOR|
+#  DESCRIPTION: <CURSOR>
 #
 #      OPTIONS: ---
 # REQUIREMENTS: ---
@@ -62,7 +62,7 @@ use warnings;
 #
 #         FILE: |FILENAME|
 #
-#  DESCRIPTION: |CURSOR|
+#  DESCRIPTION: <CURSOR>
 #
 #        FILES: ---
 #         BUGS: ---
@@ -76,7 +76,7 @@ use warnings;
 
 use strict;
 use warnings;
->
+ 
 §%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == comment.file-description-t == start == noindent ==
 #
@@ -84,7 +84,7 @@ use warnings;
 #
 #         FILE: |FILENAME|
 #
-#  DESCRIPTION: |CURSOR|
+#  DESCRIPTION: <CURSOR>
 #
 #        FILES: ---
 #         BUGS: ---
@@ -109,7 +109,7 @@ use Test::More tests => 1;                      # last test to print
 #
 #         FILE: |FILENAME|
 #
-#  DESCRIPTION: |CURSOR|
+#  DESCRIPTION: <CURSOR>
 #
 #       AUTHOR: |AUTHOR| (|AUTHORREF|), <|EMAIL|>
 #      COMPANY: |COMPANY|

@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportregex.vim,v 1.25 2011/08/20 13:12:20 mehner Exp $
+"      Revision:  $Id: perlsupportregex.vim,v 1.26 2011/10/07 18:22:20 mehner Exp $
 "       License:  Copyright 2008-2010 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -48,6 +48,21 @@ function! perlsupportregex#Perl_RegexExplain( mode )
     echomsg "*** Your version of Vim was not compiled with Perl interface. ***"
     return
   endif
+
+	if g:Perl_PerlRegexAnalyser	== 'no'
+    perl <<INITIALIZE_PERL_INTERFACE
+		#
+		# ---------------------------------------------------------------
+		# Perl_RegexExplain (function)
+		# try to load the regex analyzer module; report failure
+		# ---------------------------------------------------------------
+		eval "require YAPE::Regex::Explain";
+		if ( !$@ ) {
+			VIM::DoCommand("let g:Perl_PerlRegexAnalyser = 'yes'");
+		}
+		#
+INITIALIZE_PERL_INTERFACE
+	endif
 
   if g:Perl_PerlRegexAnalyser != 'yes'
     echomsg "*** The Perl module YAPE::Regex::Explain can not be found. ***"

@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                  September 11 2011
+*perlsupport.txt*                Perl Support                  October 25 2011
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.13
+                              Plugin version 4.14
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -1670,7 +1670,7 @@ global variable                default value               tag (see below)
 ------------------------------------------------------------------------------
 g:Perl_GlobalTemplateFile      root_dir.'perl-support/templates/Templates'
 g:Perl_LocalTemplateFile       $HOME.'/.vim/perl-support/templates/Templates'
-g:Perl_TemplateOverwrittenMsg  'yes'
+g:Perl_TemplateOverriddenMsg   'no'
 g:Perl_Ctrl_j                  'on'
 
 g:Perl_CodeSnippets            root_dir.'perl-support/codesnippets/'
@@ -1714,7 +1714,7 @@ The variable root_dir will automatically be set to one of the following values:
  1. group: Sets the template directory and the names of the template files (see below).
            g:Perl_GlobalTemplateFile      : sets the global template file  (see|perlsupport-templates|)
            g:Perl_LocalTemplateFile       : sets the local template file  (see|perlsupport-templates|)
-           g:Perl_TemplateOverwrittenMsg  : message if a template is overwritten
+           g:Perl_TemplateOverriddenMsg   : message if a template is overwritten
            g:Perl_Ctrl_j                  : hotkey Ctrl-j  'on'/'off' (see|perlsupport-Ctrl-j|)
 
  2. group: g:Perl_CodeSnippets       : The name of the (non-standard) code snippet directory (see below).
@@ -1862,6 +1862,9 @@ in the file type plugin '~/.vim/ftplugin/perl.vim'.
 4.6  System-wide installation (Unix/Linux only)      *perlsupport-system-wide*
 ------------------------------------------------------------------------------
 
+[Fedora Linux: see below]
+
+
 A system-wide installation (one installation for all users) is done as
 follows.
 
@@ -1915,13 +1918,17 @@ overwrite some macros, e.g.
  *|COMPANY|*   = ...
  *|COPYRIGHT|* = ...
 
-You can also have local templates which overwrite the global ones. To suppress
-the messages in this case set a global variable in '~/.vimrc' (Windows:
-'~\_vimrc') :
+You can also have local templates which override the global ones. To see a
+messages in this case set a global variable in '~/.vimrc' (Windows: '~\_vimrc'):
 
-  let g:Perl_TemplateOverwrittenMsg= 'no'
+  let g:Perl_TemplateOverriddenMsg= 'yes'
 
-The default is 'yes'.
+The default is 'no'.
+
+----------------------------------------
+
+Fedora Linux : perl-support is packaged for Fedora Linux and can be installed
+system-wide by running "yum install vim-perl-support" command as root.
 
 ------------------------------------------------------------------------------
 4.7  Non-standard installation                      *perlsupport-non-standard*

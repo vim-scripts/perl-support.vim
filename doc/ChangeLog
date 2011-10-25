@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.13
+---------------------------------------------------------------------------------------
+- Several hotkeys allow a range, e.g. '3\cl' (see help text and perl-hot-key.pdf).
+- perltidy backup files optional.
+- POD files have no longer filetype 'perl' (preserves proper syntyx highlighting).
+- Running Perl as debugger (\rd, F9) uses Perl switches set with \rw (thanks to Sébastien Nobili).
+- Minor improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.12
 ---------------------------------------------------------------------------------------
 - New: folding for the plugin list.

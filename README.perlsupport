@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.13) / September 11 2011
+README for perl-support.vim (Version 4.14) / October 25 2011
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -22,7 +22,7 @@ Vim version 6.x.
 ================================================================================
 
 (1)  LINUX
-----------
+----------------------------------------------------------------------
 
 The subdirectories in the zip archive  perl-support.zip  mirror the directory
 structure which is needed below the local installation directory $HOME/.vim/
@@ -72,7 +72,7 @@ structure which is needed below the local installation directory $HOME/.vim/
 
 
 (2)  WINDOWS
-------------
+----------------------------------------------------------------------
 
 The subdirectories in the zip archive  perl-support.zip  mirror the directory
 structure which is needed below the local installation directory
@@ -151,12 +151,13 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.13
+  RELEASE NOTES FOR VERSION 4.14
 ---------------------------------------------------------------------------------------
-- Several hotkeys allow a range, e.g. '3\cl' (see help text and perl-hot-key.pdf).
-- perltidy backup files optional.
-- POD files have no longer filetype 'perl' (preserves proper syntyx highlighting).
-- Running Perl as debugger (\rd, F9) uses Perl switches set with \rw (thanks to Sébastien Nobili).
+- Plugin loads faster: loading the templates is delayed until the first use.
+- Plugin now works with pathogen.vim.
+- Menus will always be generated (for the use with :emenu).
+- Bugfix: no local templates available with a system-wide installation (thanks
+	to Iain Arnell).
 - Minor improvements.
 
 ---------------------------------------------------------------------------------------
