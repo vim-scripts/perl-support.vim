@@ -9,7 +9,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  16.12.2008 18:16:55
-"      Revision:  $Id: perlsupportgui.vim,v 1.40 2011/08/19 13:39:51 mehner Exp $
+"      Revision:  $Id: perlsupportgui.vim,v 1.41 2011/11/04 11:19:42 mehner Exp $
 "       License:  Copyright 2008-2011 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -42,9 +42,9 @@ function! perlsupportgui#Perl_InitMenu ()
   "----- Menu : Comments menu                              {{{2
   "===============================================================================================
   "
-  exe "amenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl                   :call Perl_EndOfLineComment()<CR>A'
-  exe "imenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl              <C-C>:call Perl_EndOfLineComment()<CR>A'
-  exe "vmenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl                   :call Perl_MultiLineEndComments()<CR>A'
+  exe "amenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl                   :call Perl_EndOfLineComment()<CR>'
+  exe "imenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl              <C-C>:call Perl_EndOfLineComment()<CR>'
+  exe "vmenu <silent>  ".g:Perl_Root.'&Comments.end-of-&line\ com\.<Tab>\\cl              <C-C>:call Perl_MultiLineEndComments()<CR>A'
   "
   exe "amenu <silent>  ".g:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.<Tab>\\cj           :call Perl_AlignLineEndComm()<CR>'
   exe "vmenu <silent>  ".g:Perl_Root.'&Comments.ad&just\ end-of-line\ com\.<Tab>\\cj           :call Perl_AlignLineEndComm()<CR>'

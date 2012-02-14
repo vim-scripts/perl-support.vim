@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  22.02.2009
-"      Revision:  $Id: perlsupportprofiling.vim,v 1.12 2011/06/20 06:14:42 mehner Exp $
+"      Revision:  $Id: perlsupportprofiling.vim,v 1.13 2011/11/19 13:35:26 mehner Exp $
 "       License:  Copyright 2009-2011 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -25,42 +25,6 @@ let g:loaded_perlsupportregex = "v1.0"
 "
 let s:MSWIN = has("win16") || has("win32")   || has("win64")    || has("win95")
 let s:UNIX	= has("unix")  || has("macunix") || has("win32unix")
-"
-let s:installation				= 'local'
-let s:vimfiles						= $VIM
-let	s:sourced_script_file	= expand("<sfile>")
-
-if  s:MSWIN
-  " ==========  MS Windows  ======================================================
-	"
-	if match( s:sourced_script_file, escape( s:vimfiles, ' \' ) ) == 0
-		" system wide installation
-		let s:installation	= 'system'
-		let s:plugin_dir							= $VIM.'/vimfiles'
-	else
-		" user installation assumed
-		let s:plugin_dir  						= $HOME.'/vimfiles'
-	endif
-	"
-  let s:escfilename 	  					= ''
-	"
-else
-  " ==========  Linux/Unix  ======================================================
-	"
-	if match( s:sourced_script_file, expand( "$HOME" ) ) == 0
-		" user installation assumed
-		let s:plugin_dir  						= expand("<sfile>:p:h:h")
-	else
-		" system wide installation
-		let s:installation						= 'system'
-		let s:plugin_dir  						= $VIM.'/vimfiles'
-	endif
-	"
-	let s:escfilename   						= ' \%#[]'
-	"
-  " ==============================================================================
-endif
-"
 "
 "------------------------------------------------------------------------------
 "  run : SmallProf, data structures     {{{1
@@ -90,7 +54,7 @@ let s:Perl_SmallProfSortQuickfixHL	= {
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! perlsupportprofiling#Perl_Smallprof ()
-  let Sou   = escape( expand("%:p"), s:escfilename ) " name of the file in the current buffer
+  let Sou   = escape( expand("%:p"), g:Perl_FilenameEscChar ) " name of the file in the current buffer
   if &filetype != "perl"
     echohl WarningMsg | echo Sou.' seems not to be a Perl file' | echohl None
     return
@@ -164,7 +128,7 @@ function! perlsupportprofiling#Perl_SmallProfSortQuickfix ( mode )
 			return
 		endif
 		"
-		let filename	= escape( s:Perl_CWD.'/'.s:Perl_SmallProfOutput, s:escfilename )
+		let filename	= escape( s:Perl_CWD.'/'.s:Perl_SmallProfOutput, g:Perl_FilenameEscChar )
 		exe ':edit '.filename
 		exe ':2,$sort'.s:Perl_SmallProfSortSkipRegex[a:mode]
 		let currentbuffer	= bufnr("%")
@@ -234,7 +198,7 @@ let s:Perl_FastProfSortQuickfixHL	= {
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! perlsupportprofiling#Perl_Fastprof ()
-  let Sou   = escape( expand("%:p"), s:escfilename ) " name of the file in the current buffer
+  let Sou   = escape( expand("%:p"), g:Perl_FilenameEscChar ) " name of the file in the current buffer
   if &filetype != "perl"
     echohl WarningMsg | echo Sou.' seems not to be a Perl file' | echohl None
     return
@@ -360,7 +324,7 @@ if exists( 'g:Perl_NYTProf_browser' )
 	let s:Perl_NYTProf_browser	= g:Perl_NYTProf_browser
 endif
 
-let s:Perl_csv2err            = s:plugin_dir.'/perl-support/scripts/csv2err.pl'
+let s:Perl_csv2err            = g:Perl_PluginDir.'/perl-support/scripts/csv2err.pl'
 let s:Perl_NYTProfErrorFormat	= '%f:%l:%m'
 let g:Perl_NYTProfCSVfile			= ''
 
@@ -377,7 +341,7 @@ let s:Perl_NYTProfSortQuickfixHL	= {
 "  Also called in the filetype plugin perl.vim
 "------------------------------------------------------------------------------
 function! perlsupportprofiling#Perl_NYTprof ()
-  let Sou   = escape( expand("%:p"), s:escfilename ) " name of the file in the current buffer
+  let Sou   = escape( expand("%:p"), g:Perl_FilenameEscChar ) " name of the file in the current buffer
   if &filetype != "perl"
     echohl WarningMsg | echo Sou.' seems not to be a Perl file' | echohl None
     return
@@ -486,8 +450,8 @@ function! perlsupportprofiling#Perl_NYTprofReadCSV ( mode, criterion )
 					\							.' -n "'.sourcefilename.'"'
 	else
 		silent exe ':make  '.s:Perl_csv2err.'  -s '.a:criterion
-					\						.' -i  '.escape( g:Perl_NYTProfCSVfile, s:escfilename )
-					\						.' -n  '.escape( sourcefilename, s:escfilename )
+					\						.' -i  '.escape( g:Perl_NYTProfCSVfile, g:Perl_FilenameEscChar )
+					\						.' -n  '.escape( sourcefilename, g:Perl_FilenameEscChar )
 	endif
 	"
 	exe ":setlocal makeprg=".makeprg_saved

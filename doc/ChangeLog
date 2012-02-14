@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.14
+---------------------------------------------------------------------------------------
+- Plugin loads faster: loading the templates is delayed until the first use.
+- Plugin now works with pathogen.vim.
+- Menus will always be generated (for the use with :emenu).
+- Bugfix: no local templates available with a system-wide installation (thanks
+	to Iain Arnell).
+- Minor improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.13
 ---------------------------------------------------------------------------------------
 - Several hotkeys allow a range, e.g. '3\cl' (see help text and perl-hot-key.pdf).

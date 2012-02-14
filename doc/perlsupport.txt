@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                  October 25 2011
+*perlsupport.txt*                Perl Support                 January 28 2012
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                              Plugin version 4.14
+                              Plugin version 4.15
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -1349,9 +1349,8 @@ card).
 The mappings can be suppressed with the following line in the file .vimrc :
   let g:Perl_NoKeyMappings = 1
 
-All mappings (except \lps and \ups) are filetype specific: they are only
-defined for buffers with filetype 'perl' to minimize conflicts with mappings
-from other plugins.
+All mappings  are filetype specific: they are only defined for buffers with
+filetype 'perl' to minimize conflicts with mappings from other plugins.
 
 Some mappings can be used with range (of lines). In normal mode
   \cl
@@ -1361,11 +1360,6 @@ appends end-of-line comments to the 4 lines starting with the current line.
 
 Legend:  (i) insert mode, (n) normal mode, (v) visual mode
          [n] range
-
-  -- Load / Unload Perl Support ------------------------
-
-     \lps       load perl support                       (n)
-     \ups       unload perl support                     (n)
 
   -- Comments ------------------------------------------
 
@@ -2588,7 +2582,7 @@ regular expression analyzer has been called (hotkey or menu item).
 The file '~/.vim/autoload/perlsupportgui.vim'  will only be loaded for gVim.
 If the global variable g:Perl_LoadMenus is set to 'no' (in the file ~/.vimrc)
 the menu definition are loaded at the first time the tool menu item 'Load Perl
-Support' or the hotkey \lps is used.
+Support'.
 
 
 ==============================================================================

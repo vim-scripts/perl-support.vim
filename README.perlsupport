@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.14) / October 25 2011
+README for perl-support.vim (Version 4.15) / January 23 2012
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -52,11 +52,11 @@ structure which is needed below the local installation directory $HOME/.vim/
     '$HOME/.vim/perl-support/templates/Templates' 
     Here is the minimal personalization (my settings as an example):
 
-      |AUTHOR|    = Dr. Fritz Mehner 
-      |AUTHORREF| = fgm
-      |EMAIL|     = mehner@fh-swf.de
-      |COMPANY|   = FH Südwestfalen, Iserlohn
-      |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
+      |AUTHOR|       = Dr. Fritz Mehner 
+      |AUTHORREF|    = fgm
+      |EMAIL|        = mehner@fh-swf.de
+      |ORGANIZATION| = FH Südwestfalen, Iserlohn
+      |COPYRIGHT|    = Copyright (c) |YEAR|, |AUTHOR|
 
     (Read more about the template system in the plugin documentation)
 
@@ -102,11 +102,11 @@ $HOME/vimfiles/ (find the value of $HOME with ":echo $HOME" from inside Vim).
     '$HOME/vimfiles/perl-support/templates/Templates' 
     Here is the minimal personalization (my settings as an example):
 
-      |AUTHOR|    = Dr. Fritz Mehner 
-      |AUTHORREF| = fgm
-      |EMAIL|     = mehner@fh-swf.de
-      |COMPANY|   = FH Südwestfalen, Iserlohn
-      |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
+      |AUTHOR|       = Dr. Fritz Mehner 
+      |AUTHORREF|    = fgm
+      |EMAIL|        = mehner.fritz@fh-swf.de
+      |ORGANIZATION| = FH Südwestfalen, Iserlohn
+      |COPYRIGHT|    = Copyright (c) |YEAR|, |AUTHOR|
 
     (Read more about the template system in the plugin documentation)
 
@@ -151,13 +151,12 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.14
+  RELEASE NOTES FOR VERSION 4.15
 ---------------------------------------------------------------------------------------
-- Plugin loads faster: loading the templates is delayed until the first use.
-- Plugin now works with pathogen.vim.
-- Menus will always be generated (for the use with :emenu).
-- Bugfix: no local templates available with a system-wide installation (thanks
-	to Iain Arnell).
+- Two new plugin tags: LICENCE, ORGANIZATION.
+- System-wide installation: minimal Template file for a user will automatically
+  be added.
+- Hotkeys \lcs, \ucs removed.
 - Minor improvements.
 
 ---------------------------------------------------------------------------------------
