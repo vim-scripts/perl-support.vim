@@ -12,7 +12,7 @@
 #        AUTHOR:  Dr.-Ing. Fritz Mehner (Mn), mehner@fh-swf.de
 #       COMPANY:  Fachhochschule Südwestfalen, Iserlohn
 #       CREATED:  23.11.2004 18:04:01 CET
-#      REVISION:  $Id: wrapper.sh,v 1.5 2009/06/04 18:21:55 mehner Exp $
+#      REVISION:  $Id: wrapper.sh,v 1.1.1.1 2012/01/28 10:22:30 mehner Exp $
 #===============================================================================
 
 perlexe="${0}"                                  # the perl executable

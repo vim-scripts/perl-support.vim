@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 4.15) / January 23 2012
+README for perl-support.vim (Version 5.0) / Februar 24 2012
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -35,12 +35,6 @@ structure which is needed below the local installation directory $HOME/.vim/
 
       unzip perl-support.zip
 
-    If you have already an older version of perl-support and you have modified
-    the template files you may want to save your templates first and suppress
-    overwriting them with
-
-      unzip perl-support.zip  -x *Templates *.template
-
 (1.2) Loading of plugin files must be enabled. If not use
 
       :filetype plugin on
@@ -52,11 +46,11 @@ structure which is needed below the local installation directory $HOME/.vim/
     '$HOME/.vim/perl-support/templates/Templates' 
     Here is the minimal personalization (my settings as an example):
 
-      |AUTHOR|       = Dr. Fritz Mehner 
-      |AUTHORREF|    = fgm
-      |EMAIL|        = mehner@fh-swf.de
-      |ORGANIZATION| = FH Südwestfalen, Iserlohn
-      |COPYRIGHT|    = Copyright (c) |YEAR|, |AUTHOR|
+       SetMacro( 'AUTHOR',      'Dr. Fritz Mehner' )
+       SetMacro( 'AUTHORREF',   'fgm' )
+       SetMacro( 'EMAIL',       'mehner.fritz@fh-swf.de' )
+       SetMacro( 'ORGANIZATION','FH Südwestfalen, Iserlohn' )
+       SetMacro( 'COPYRIGHT',   'Copyright (c) |YEAR|, |AUTHOR|' )
 
     (Read more about the template system in the plugin documentation)
 
@@ -85,12 +79,6 @@ $HOME/vimfiles/ (find the value of $HOME with ":echo $HOME" from inside Vim).
 
       unzip perl-support.zip
 
-    If you have already an older version of perl-support and you have modified
-    the template files you may want to save your templates first and suppress
-    overwriting them with
-
-      unzip perl-support.zip  -x *Templates *.template
-
 (2.2) Loading of plugin files must be enabled. If not use
 
       :filetype plugin on
@@ -102,11 +90,11 @@ $HOME/vimfiles/ (find the value of $HOME with ":echo $HOME" from inside Vim).
     '$HOME/vimfiles/perl-support/templates/Templates' 
     Here is the minimal personalization (my settings as an example):
 
-      |AUTHOR|       = Dr. Fritz Mehner 
-      |AUTHORREF|    = fgm
-      |EMAIL|        = mehner.fritz@fh-swf.de
-      |ORGANIZATION| = FH Südwestfalen, Iserlohn
-      |COPYRIGHT|    = Copyright (c) |YEAR|, |AUTHOR|
+       SetMacro( 'AUTHOR',      'Dr. Fritz Mehner' )
+       SetMacro( 'AUTHORREF',   'fgm' )
+       SetMacro( 'EMAIL',       'mehner.fritz@fh-swf.de' )
+       SetMacro( 'ORGANIZATION','FH Südwestfalen, Iserlohn' )
+       SetMacro( 'COPYRIGHT',   'Copyright (c) |YEAR|, |AUTHOR|' )
 
     (Read more about the template system in the plugin documentation)
 
@@ -151,13 +139,21 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 4.15
+  RELEASE NOTES FOR VERSION 5.0
 ---------------------------------------------------------------------------------------
-- Two new plugin tags: LICENCE, ORGANIZATION.
-- System-wide installation: minimal Template file for a user will automatically
-  be added.
-- Hotkeys \lcs, \ucs removed.
-- Minor improvements.
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ++  The plug-in version 5.0+ is a rewriting of version 4.15+.               ++
+  ++  The versions 5.0+ are based on a new and more powerful template system  ++
+  ++  (please see |template-support|for more information).                    ++
+  ++  The template syntax has changed!                                        ++
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- New template system (many thanks to Wolfgang Mehner)
+- A few new hotkeys and menu item.
+- A few hotkeys and menu items renamed.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'
@@ -169,15 +165,17 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 
 README.perlsupport                This file.
 
-autoload/perlsupportgui.vim       Menu definitions.
 autoload/perlsupportprofiling.vim Profiler support.
 autoload/perlsupportregex.vim     Regex analyser code.
+autoload/mmtemplates/core.vim     The template system.
 
-doc/perlsupport.txt               The help file for the local online help. 
+doc/perlsupport.txt               The help file for perl support. 
+doc/templatesupport.txt           The help file for the template system. 
                                   
 ftplugin/perl.vim                 A filetype plugin. Define hotkeys, create a local 
                                   dictionary for each Perl file.
 ftplugin/pod.vim                  A filetype plugin. Define hotkeys for filetype 'pod'.
+ftplugin/qf.vim                   A filetype plugin used by the profilers.
 
 plugin/perl-support.vim           The Perl plugin for Vim/gVim.
 
@@ -185,15 +183,10 @@ perl-support/codesnippets-perl/*  Some Perl code snippets as a starting point.
 
 perl-support/modules/             Directory for the list of installed Perl modules
 
-perl-support/scripts/efm_perl.pl  Perl script; Reformats the error messages of the Perl interpreter
-perl-support/scripts/pmdesc3.pl   Perl script; generates a list of all installed Perl modules
-perl-support/scripts/wrapper.sh   The wrapper script for the use of an xterm.
+perl-support/scripts/*            Several helper scripts.
 
-perl-support/templates/Templates            Perl main template file
-perl-support/templates/comments.template    template file for comments
-perl-support/templates/idioms.template      template file for idioms
-perl-support/templates/pod.template         template file for pod statements
-perl-support/templates/statements.template  template file for statements
+perl-support/templates/Templates  Perl main template file
+perl-support/templates/*.template Several dependent template files.
 
 perl-support/wordlists/perl.list  A file used as dictionary for automatic word completion.
                                   This file is referenced in the file customization.vimrc.
@@ -265,6 +258,9 @@ perl-support/doc/ChangeLog                The change log.
 =======================================================================================
   CREDITS
 =======================================================================================
+
+Wolfgang Mehner <wolfgang-mehner@web.de> for the implementation of the powerful
+template system templatesupport.
 
 David Fishburn <fishburn@ianywhere.com> for the implementation of the 
   single root menu and several suggestions for improving the customization

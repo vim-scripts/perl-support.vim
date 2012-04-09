@@ -1,21 +1,36 @@
-§
-§ =============================================================
-§ ========== USER MACROS ======================================
-§ =============================================================
-§
-|AUTHOR|    = YOUR NAME 
-|AUTHORREF| = 
-|EMAIL|     = 
-|COMPANY|   = 
-|COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
-§
-§ =============================================================
-§ ========== FILE INCLUDES ====================================
-§ =============================================================
-§
-|includefile| = comments.template
-|includefile| = statements.template
-|includefile| = idioms.template
-|includefile| = pod.template
-§
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+§ ==========================================================
+§  User Macros
+§ ==========================================================
+
+SetMacro( 'AUTHOR',      'YOUR NAME' )
+SetMacro( 'AUTHORREF',   '' )
+SetMacro( 'COMPANY',     '' )
+SetMacro( 'COPYRIGHT',   'Copyright (c) |YEAR|, |AUTHOR|' )
+SetMacro( 'EMAIL',       '' )
+SetMacro( 'LICENSE',     'GNU General Public License' )
+SetMacro( 'ORGANIZATION','' )
+
+SetStyle( 'default' )
+
+§ ==========================================================
+§  File Includes and Shortcuts
+§ ==========================================================
+
+MenuShortcut( 'Comments',   'c' )
+MenuShortcut( 'Idioms',     'i' )
+MenuShortcut( 'Pod',        'd' )
+MenuShortcut( 'Statements', 's' )
+MenuShortcut( 'Special Variables', 'v' )
+MenuShortcut( 'Regex', 'r' )
+MenuShortcut( 'Snippets', 'n' )
+MenuShortcut( 'File-Test', 'f' )
+
+IncludeFile( 'comments.templates' )
+IncludeFile( 'statements.templates' )
+IncludeFile( 'idioms.templates' )
+IncludeFile( 'specvar.templates' )
+IncludeFile( 'regex.templates' )
+IncludeFile( 'pod.templates' )
+IncludeFile( 'snippets.templates' )
+IncludeFile( 'filetests.templates' )
+

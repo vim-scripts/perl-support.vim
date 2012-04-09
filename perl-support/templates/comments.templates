@@ -1,13 +1,10 @@
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.end-of-line-comment == append ==
-# <CURSOR>
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.frame ==
+§== Comments.end-of-line comment == map:cl, sc:e, append ==
+§# <CURSOR>
+== Comments.frame == map:cfr, sc:f  ==
 #-------------------------------------------------------------------------------
 #  <CURSOR>
 #-------------------------------------------------------------------------------
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.function ==
+== Comments.function == map:cfu, sc:f  ==
 #===  FUNCTION  ================================================================
 #         NAME: |?FUNCTION_NAME|
 #      PURPOSE: <CURSOR>
@@ -18,8 +15,7 @@
 #     COMMENTS: none
 #     SEE ALSO: n/a
 #===============================================================================
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.method ==
+== Comments.method == map:cme, sc:m  ==
 #===  CLASS METHOD  ============================================================
 #        CLASS: |?CLASSNAME|
 #       METHOD: |?METHODNAME|
@@ -30,8 +26,7 @@
 #     COMMENTS: none
 #     SEE ALSO: n/a
 #===============================================================================
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description-pl == start == noindent ==
+== Comments.file description pl == map:chpl, sc:d, start, noindent ==
 #!/usr/bin/perl 
 #===============================================================================
 #
@@ -46,7 +41,7 @@
 #         BUGS: ---
 #        NOTES: ---
 #       AUTHOR: |AUTHOR| (|AUTHORREF|), |EMAIL|
-#      COMPANY: |COMPANY|
+# ORGANIZATION: |ORGANIZATION|
 #      VERSION: 1.0
 #      CREATED: |DATE| |TIME|
 #     REVISION: ---
@@ -55,8 +50,7 @@
 use strict;
 use warnings;
 
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description-pm == start == noindent ==
+== Comments.file description pm == map:chpm, sc:d, start, noindent ==
 #
 #===============================================================================
 #
@@ -68,7 +62,7 @@ use warnings;
 #         BUGS: ---
 #        NOTES: ---
 #       AUTHOR: |AUTHOR| (|AUTHORREF|), |EMAIL|
-#      COMPANY: |COMPANY|
+# ORGANIZATION: |ORGANIZATION|
 #      VERSION: 1.0
 #      CREATED: |DATE| |TIME|
 #     REVISION: ---
@@ -77,8 +71,7 @@ use warnings;
 use strict;
 use warnings;
  
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description-t == start == noindent ==
+== Comments.file description t == map:cht, sc:d, start, noindent ==
 #
 #===============================================================================
 #
@@ -90,7 +83,7 @@ use warnings;
 #         BUGS: ---
 #        NOTES: ---
 #       AUTHOR: |AUTHOR| (|AUTHORREF|), |EMAIL|
-#      COMPANY: |COMPANY|
+# ORGANIZATION: |ORGANIZATION|
 #      VERSION: 1.0
 #      CREATED: |DATE| |TIME|
 #     REVISION: ---
@@ -102,8 +95,7 @@ use warnings;
 use Test::More tests => 1;                      # last test to print
 
 
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description-pod == start ==
+== Comments.file description pod == map:chpo, sc:d, start ==
 #
 #===============================================================================
 #
@@ -112,21 +104,37 @@ use Test::More tests => 1;                      # last test to print
 #  DESCRIPTION: <CURSOR>
 #
 #       AUTHOR: |AUTHOR| (|AUTHORREF|), <|EMAIL|>
-#      COMPANY: |COMPANY|
+# ORGANIZATION: |ORGANIZATION|
 #      CREATED: |DATE|
 #     REVISION: ---
 #===============================================================================
 
 
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.keyword-bug == append ==
- # :BUG       :|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-todo == append ==
- # :TODO      :|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-warning == append ==
- # :WARNING   :|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-workaround == append ==
- # :WORKAROUND:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-keyword == append ==
- # :|?KEYWORD:u|:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-§%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== Comments.date == insert, map:cd, sc:d ==
+|DATE|<CURSOR>
+== Comments.date+time == insert, map:ct, sc:t ==
+|DATE| |TIME|<CURSOR>
+== ENDTEMPLATE ==
+
+== LIST: comments_keywords == hash ==
+  'BUG'         : ':BUG       :|DATE| |TIME|:|AUTHORREF|: <CURSOR>',
+  'TODO'        : ':TODO      :|DATE| |TIME|:|AUTHORREF|: <CURSOR>',
+  'WARNING'     : ':WARNING   :|DATE| |TIME|:|AUTHORREF|: <CURSOR>',
+  'WORKAROUND'  : ':WORKAROUND:|DATE| |TIME|:|AUTHORREF|: <CURSOR>',
+	'new keyword' : ':<CURSOR>:|DATE| |TIME|:|AUTHORREF|: {+COMMENT+}',
+== LIST: comments_macros == hash ==
+	'AUTHOR'       : '|AUTHOR|',
+	'AUTHORREF'    : '|AUTHORREF|',
+	'COMPANY'      : '|COMPANY|',
+	'COPYRIGHT'    : '|COPYRIGHT|',
+	'EMAIL'        : '|EMAIL|',
+	'ORGANIZATION' : '|ORGANIZATION|',
+== ENDLIST ==
+
+== Comments.keyword comments == expandmenu, append, map:ck, sc:k ==
+|PickList( 'keyword comment', 'comments_keywords' )|
+ # |PICK|
+== Comments.macros == expandmenu, insert, map:cma, sc:m ==
+|PickList( 'macro', 'comments_macros' )|
+|PICK|<CURSOR>
+== ENDTEMPLATE ==

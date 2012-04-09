@@ -3,7 +3,7 @@
 "   Language :  Perl
 "     Plugin :  perl-support.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: pod.vim,v 1.2 2011/08/13 07:33:19 mehner Exp $
+"   Revision :  $Id: pod.vim,v 1.3 2012/02/20 13:45:03 mehner Exp $
 "
 " ----------------------------------------------------------------------------
 "
@@ -74,9 +74,6 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   " Comments
   " ----------------------------------------------------------------------------
   "
-  nnoremap    <buffer>  <silent>  <LocalLeader>chpo       :call Perl_InsertTemplate("comment.file-description-pod")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>chpo  <C-C>:call Perl_InsertTemplate("comment.file-description-pod")<CR>
-
   nnoremap    <buffer>  <silent>  <LocalLeader>cb         :call Perl_CommentBlock("a")<CR>
   vnoremap    <buffer>  <silent>  <LocalLeader>cb    <C-C>:call Perl_CommentBlock("v")<CR>
   nnoremap    <buffer>  <silent>  <LocalLeader>cn         :call Perl_UncommentBlock()<CR>
@@ -85,23 +82,16 @@ if !exists("g:Perl_NoKeyMappings") || ( exists("g:Perl_NoKeyMappings") && g:Perl
   " Snippets
   " ----------------------------------------------------------------------------
   "
-  nnoremap    <buffer>  <silent>  <LocalLeader>nr         :call Perl_CodeSnippet("r")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>nw         :call Perl_CodeSnippet("w")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>nr         :call Perl_CodeSnippet("read")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>nw         :call Perl_CodeSnippet("write")<CR>
   vnoremap    <buffer>  <silent>  <LocalLeader>nw    <Esc>:call Perl_CodeSnippet("wv")<CR>
-  nnoremap    <buffer>  <silent>  <LocalLeader>ne         :call Perl_CodeSnippet("e")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>ne         :call Perl_CodeSnippet("edit")<CR>
+  nnoremap    <buffer>  <silent>  <LocalLeader>nv         :call Perl_CodeSnippet("view")<CR>
   "
-  inoremap    <buffer>  <silent>  <LocalLeader>nr    <Esc>:call Perl_CodeSnippet("r")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>nw    <Esc>:call Perl_CodeSnippet("w")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>ne    <Esc>:call Perl_CodeSnippet("e")<CR>
-  "
-  nnoremap    <buffer>  <silent>  <LocalLeader>ntl        :call Perl_BrowseTemplateFiles("Local")<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>ntl   <Esc>:call Perl_BrowseTemplateFiles("Local")<CR>
-	if g:Perl_Installation == 'system'
-		nnoremap    <buffer>  <silent>  <LocalLeader>ntg      :call Perl_BrowseTemplateFiles("Global")<CR>
-		inoremap    <buffer>  <silent>  <LocalLeader>ntg <Esc>:call Perl_BrowseTemplateFiles("Global")<CR>
-	endif
-  nnoremap    <buffer>  <silent>  <LocalLeader>ntr        :call Perl_RereadTemplates()<CR>
-  inoremap    <buffer>  <silent>  <LocalLeader>ntr   <Esc>:call Perl_RereadTemplates()<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>nr    <Esc>:call Perl_CodeSnippet("read")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>nw    <Esc>:call Perl_CodeSnippet("write")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>ne    <Esc>:call Perl_CodeSnippet("edit")<CR>
+  inoremap    <buffer>  <silent>  <LocalLeader>nv    <Esc>:call Perl_CodeSnippet("view")<CR>
   "
   " ----------------------------------------------------------------------------
   " POD

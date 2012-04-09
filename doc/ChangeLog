@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 4.15
+---------------------------------------------------------------------------------------
+- Two new plugin tags: LICENCE, ORGANIZATION.
+- System-wide installation: minimal Template file for a user will automatically
+  be added.
+- Hotkeys \lcs, \ucs removed.
+- Minor improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 4.14
 ---------------------------------------------------------------------------------------
 - Plugin loads faster: loading the templates is delayed until the first use.

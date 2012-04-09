@@ -10,7 +10,7 @@
 "       Company:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  22.02.2009
-"      Revision:  $Id: perlsupportprofiling.vim,v 1.13 2011/11/19 13:35:26 mehner Exp $
+"      Revision:  $Id: perlsupportprofiling.vim,v 1.2 2012/02/19 21:24:53 mehner Exp $
 "       License:  Copyright 2009-2011 Dr. Fritz Mehner
 "===============================================================================
 "
@@ -146,6 +146,27 @@ function! perlsupportprofiling#Perl_SmallProfSortQuickfix ( mode )
 	endif
 	"
 endfunction    " ----------  end of function Perl_SmallProfSortQuickfix  ----------
+"
+function! perlsupportprofiling#Perl_SmallProfSortInput ( )
+		let retval = input( "SmallProf report sort criterion  (tab exp.): ", '', 'customlist,perlsupportprofiling#Perl_SmallProfSortList' )
+		redraw!
+		call perlsupportprofiling#Perl_SmallProfSortQuickfix( retval )
+	return
+endfunction    " ----------  end of function Perl_SmallProfSortInput  ----------
+"
+function! perlsupportprofiling#Perl_FastProfSortInput ( )
+		let retval = input( "FastProf report sort criterion  (tab exp.): ", '', 'customlist,perlsupportprofiling#Perl_FastProfSortList' )
+		redraw!
+		call perlsupportprofiling#Perl_FastProfSortQuickfix( retval )
+	return
+endfunction    " ----------  end of function Perl_FastProfSortInput  ----------
+"
+function! perlsupportprofiling#Perl_NYTProfSortInput ( )
+		let retval = input( "NYTProf report sort criterion  (tab exp.): ", '', 'customlist,perlsupportprofiling#Perl_NYTProfSortList' )
+		redraw!
+		call perlsupportprofiling#Perl_NYTProfSortQuickfix( retval )
+	return
+endfunction    " ----------  end of function Perl_NYTProfSortInput  ----------
 "
 "------------------------------------------------------------------------------
 "  run : Profiler; ex command tab expansion     {{{1
