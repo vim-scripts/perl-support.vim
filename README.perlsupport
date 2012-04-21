@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 5.0) / Februar 24 2012
+README for perl-support.vim (Version 5.0.1) / April 21 2012
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -139,21 +139,12 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 5.0
+  RELEASE NOTES FOR VERSION 5.0.1
 ---------------------------------------------------------------------------------------
-
-  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  ++  The plug-in version 5.0+ is a rewriting of version 4.15+.               ++
-  ++  The versions 5.0+ are based on a new and more powerful template system  ++
-  ++  (please see |template-support|for more information).                    ++
-  ++  The template syntax has changed!                                        ++
-  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-- New template system (many thanks to Wolfgang Mehner)
-- A few new hotkeys and menu item.
-- A few hotkeys and menu items renamed.
+- Bugfix: resolve home for linked home directories
+- Bugfix: ":make" and ":!make" no longer affect each other.
+- Bugfix: S-F1 not working for module list.
+- Several internal improvements.
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'

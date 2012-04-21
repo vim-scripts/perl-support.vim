@@ -69,6 +69,7 @@
 == LIST: ExtendedRegex == hash ==
   'comment'                  : '(?#<SPLIT><CURSOR>)',
   'cluster only parenthesis' : '(?-imsx:<SPLIT><CURSOR>)',
+  'named capture'            : '(?<<SPLIT><CURSOR>>)',
   'pattern modifier'         : '<SPLIT>(?<CURSOR>-imsx)',
   'execute code'             : '(?{<SPLIT><CURSOR>})',
   'match regex from code'    : '(??{<SPLIT><CURSOR>})',

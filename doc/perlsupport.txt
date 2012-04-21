@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                 Februar 24 2012
+*perlsupport.txt*                Perl Support                  April 21 2012
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                             Plug-in version 5.0
+                            Plug-in version 5.0.1
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -113,15 +113,17 @@ profiler can be done with a keystroke.
 1.  USAGE WITH GUI  (gVim)                            *perlsupport-usage-gvim*
 ==============================================================================
 
+ >>>  The root menu is not visible by default.  The root menu 'Perl' will
+ >>>  appears after the first file with extension 'pl', 'pm', or 't' or with
+ >>>  filetype 'perl' or 'pod' has been opened.
+
+If the root menu 'Perl' is not visible you also can call it with the item
+"Load Perl Support" from the standard Tools-menu.  The item "Unload Perl
+Support" can be used to unload the Perl root menu. See|perlsupport-custom-root|.
+
 Nearly all menu entries insert code snippets or comments. All of these are
 contained within template files and can be changed by the user to meet their
 requirements (see|perlsupport-templates|).
-
-The root menu 'Perl' appears after the first file with extension 'pl', 'pm',
-or 't' has been opend. 
-If the root menu 'Perl' is not visible call it with the item "Load Perl
-Support" from the standard Tools-menu.  The item "Unload Perl Support" can be
-used to unload the Perl root menu.  See also |perlsupport-custom-root|.
 
 ------------------------------------------------------------------------------
 1.1 MENU 'Comments'                                     *perlsupport-comments*
@@ -1421,7 +1423,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
      \ntl       edit local template file           (in )
      \ntr       reread template file               (in )
-		 \nts       choose template style              (in )
+     \nts       choose template style              (in )
      \ntj       jump tags                          (in )
      \nxs       regex code snippet documentation   (in )
 
@@ -1434,7 +1436,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
      \iaa       array  declaration + (initial.)    (in )
      \ih        hash   declaration                 (in )
      \iha       hash   declaration + (initial.)    (in )
-		 \ir        regex  declaration                 (in )
+     \ir        regex  declaration                 (in )
      \im        match                              (in )
      \is        substitute                         (in )
      \it        translate                          (in )
@@ -1503,9 +1505,9 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
      \rg        generation Perl module list        (in )   
      \ry        run perltidy                       (inv) 
      \rc        run perlcritic                     (in )   
-		 \rpcs      set perlcritic severity            (in )
-		 \rpcv      set perlcritic verbosity           (in )
-		 \rpco      set perlcritic optionsty           (in )
+     \rpcs      set perlcritic severity            (in )
+     \rpcv      set perlcritic verbosity           (in )
+     \rpco      set perlcritic optionsty           (in )
      \rt        save buffer with timestamp         (in )   
      \rh        hardcopy buffer to FILENAME.ps     (inv) 
      \rk        settings and hotkeys               (in )
@@ -1692,6 +1694,7 @@ g:Perl_Dictionary_File         ''
 g:Perl_MenuHeader              'yes'
 g:Perl_GuiSnippetBrowser       'gui'
 g:Perl_GuiTemplateBrowser      'gui'
+g:Perl_CreateMenusDelayed      'yes'
 g:Perl_PerlTags                'off'
 g:Perl_PerltidyBackup          'off'
 
@@ -1736,6 +1739,7 @@ The variable root_dir will automatically be set to one of the following values:
            g:Perl_MenuHeader         : Switch submenu titles on/off.
            g:Perl_GuiSnippetBrowser  : code snippet browser: 'gui', 'commandline'
            g:Perl_GuiTemplateBrowser : code template browser: 'gui', 'explorer', 'commandline' 
+           g:Perl_CreateMenusDelayed : Delaying the initialization until the first file is opened.
            g:Perl_PerlTags           : switch use of Perl::Tags on/off ( 'on', 'off' )
            g:Perl_Perltidy           : use perltidy as standard beautifier
            g:Perl_PerltidyBackup     : write a backup file before running perltidy
@@ -1766,6 +1770,18 @@ The variable root_dir will automatically be set to one of the following values:
 4.3  THE ROOT MENU                                   *perlsupport-custom-root*
 ------------------------------------------------------------------------------
 
+The root menu is not visible by default.  The root menu 'Perl' will appears
+after the first file with extension 'pl', 'pm', or 't' or with filetype 'perl'
+or 'pod' has been opened. 
+When the root menu is visible all templates have been loaded and the internal
+data structures are built.  On a slow computer this may cause a noticeable
+delay when starting the editor.  Therefor loading the templates is delayed to
+the point where the first Perl file will be loaded.
+To load the menu anyway when the editor starts add the following line to
+~/.vimrc :
+>
+  let g:Perl_CreateMenusDelayed = 'no'
+<
 The variable g:Perl_Root, if set in .vimrc or in .gvimrc, gives the name of
 the single gVim root menu item in which the Perl submenus are contained. The
 default is
@@ -2075,7 +2091,7 @@ The format for *|DATE|* ,*|TIME|* , and*|YEAR|* can be set by the user. The
 defaults are
 Example:
 >
-	|DATE|        '%x'
+  |DATE|        '%x'
   |TIME|        '%X'
   |YEAR|        '%Y'
 <
@@ -2157,7 +2173,7 @@ Perl::Tags.
 The availability of Perl::Tags is automatically detected. To switch this 
 feature on put the following line into .vimrc :
 >
-  let g:Perl_PerlTags						= 'on'
+  let g:Perl_PerlTags           = 'on'
 <
 The default value is 'off'.
 
@@ -2331,7 +2347,7 @@ Open a block (modes: i,v):
   '{<CR>' =>  {
                 |
               }
-<							
+<             
 In visual mode the content of the new block will be indented.
 
 ==============================================================================

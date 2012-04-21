@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2003-2010  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  see \Pluginversion
 %%      Created:  06.06.2003
-%%     Revision:  $Id: perl-hot-keys.tex,v 1.6 2012/02/26 18:49:00 mehner Exp $
+%%     Revision:  $Id: perl-hot-keys.tex,v 1.7 2012/04/15 18:02:13 mehner Exp $
 %%                
 %%=====================================================================================
 
@@ -25,7 +25,7 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.0}
+\newcommand{\Pluginversion}{5.0.1}
 \newcommand{\ReleaseDate}{\today}
 \newcommand{\Rep}{{\scriptsize{[n]}}}
 
@@ -143,6 +143,8 @@ Fritz Mehner (mehner.fritz@fh-swf.de)\\
 \hline \verb'\sue'     & \verb'unless { } else { }'   \hfill (n, v, i)\\
 \hline \verb'\st'      & \verb'until { }'             \hfill (n, v, i)\\
 \hline \verb'\sw'      & \verb'while { }'             \hfill (n, v, i)\\
+\hline \verb'\sg'      & \verb'given { }'             \hfill (n, v, i)\\
+\hline \verb'\swh'     & \verb'when { }'              \hfill (n, v, i)\\
 \hline
 %%----------------------------------------------------------------------
 %%  menu idioms
@@ -315,6 +317,18 @@ Use tab expansion to choose the severity or the verbosity.\\[2.0ex]
                            \> \texttt{\ brutal cruel harsh stern gentle} \\[1.0ex]
 \texttt{ :CriticVerbosity} \> \texttt{\ 1} $\ldots$ \texttt{11}\\[1.0ex]
 \texttt{ :CriticOptions}   \> option(s), see \texttt{perlcritic(1)}\\[5.5ex]
+%
+\hspace{40mm} \= \hspace{50mm} \= \kill
+%%----------------------------------------------------------------------
+%%  regex tester
+%%----------------------------------------------------------------------
+\textbf{\texttt{Regular Expression Tester}}\\[1.0ex]
+%
+Ex command for the regular expression tester. Set control character\\
+replacements for newline and tabulator used to display the results\\
+of a match, e.g.:\\[2.0ex]
+
+\texttt{ :RegexSubstitutions}   \> \texttt{'\$}\texttt{\~}\texttt{'}  \\[5.5ex]
 %
 \hspace{30mm} \= \hspace{50mm} \= \kill
 %

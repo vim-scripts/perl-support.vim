@@ -17,7 +17,7 @@
 
 == LIST: errors == hash ==
 	'$CHILD_ERROR $?'       : '$CHILD_ERROR',
-	'$ERRNO $!'             : '$ERRNO',
+	'$ERRNO $!'             : '$ERRNO{<CURSOR>}',
 	'$EVAL_ERROR $@'        : '$EVAL_ERROR',
 	'$EXTENDED_OS_ERROR $^E': '$EXTENDED_OS_ERROR',
 	'$WARNING $^W'          : '$WARNING',
@@ -86,10 +86,9 @@
   '$MATCH $&'                      : '$MATCH',
   '$POSTMATCH $'''                 : '$POSTMATCH',
   '$PREMATCH $`'                   : '$PREMATCH',
-  '$digits'                        : '$digits',
   '@LAST_MATCH_END @+'             : '@LAST_MATCH_END',
   '@LAST_MATCH_START @-'           : '@LAST_MATCH_START',
-  '$LAST_PAREN_MATCH $+'           : '$LAST_PAREN_MATCH',
+  '$LAST_PAREN_MATCH $+'           : '$LAST_PAREN_MATCH{<CURSOR>}',
   '$LAST_SUBMATCH_RESULT $^N'      : '$LAST_SUBMATCH_RESULT',
   '$LAST_REGEXP_CODE_RESULT $^R'   : '$LAST_REGEXP_CODE_RESULT',
 == ENDLIST ==
