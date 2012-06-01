@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 5.0.1) / April 21 2012
+README for perl-support.vim (Version 5.1) / May 04 2012
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -139,11 +139,11 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 5.0.1
+  RELEASE NOTES FOR VERSION 5.1
 ---------------------------------------------------------------------------------------
-- Bugfix: resolve home for linked home directories
-- Bugfix: ":make" and ":!make" no longer affect each other.
-- Bugfix: S-F1 not working for module list.
+- New menu items: 'choose makefile' (\rcm), 'make clean' (\rmc)
+- Bugfix: g:Perl_LocalTemplateFile ignored if present (thanks to Sébastien Nobili)
+- Bugfix: debugger do not start in console mode
 - Several internal improvements.
 
 ---------------------------------------------------------------------------------------

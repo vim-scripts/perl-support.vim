@@ -27,7 +27,7 @@
 #     SEE ALSO: n/a
 #===============================================================================
 == Comments.file description pl == map:chpl, sc:d, start, noindent ==
-#!/usr/bin/perl 
+#!/usr/bin/env perl 
 #===============================================================================
 #
 #         FILE: |FILENAME|
@@ -49,6 +49,7 @@
 
 use strict;
 use warnings;
+use utf8;
 
 == Comments.file description pm == map:chpm, sc:d, start, noindent ==
 #
@@ -121,14 +122,14 @@ use Test::More tests => 1;                      # last test to print
   'TODO'        : ':TODO      :|DATE| |TIME|:|AUTHORREF|: <CURSOR>',
   'WARNING'     : ':WARNING   :|DATE| |TIME|:|AUTHORREF|: <CURSOR>',
   'WORKAROUND'  : ':WORKAROUND:|DATE| |TIME|:|AUTHORREF|: <CURSOR>',
-	'new keyword' : ':<CURSOR>:|DATE| |TIME|:|AUTHORREF|: {+COMMENT+}',
+  'new keyword' : ':<CURSOR>:|DATE| |TIME|:|AUTHORREF|: {+COMMENT+}',
 == LIST: comments_macros == hash ==
-	'AUTHOR'       : '|AUTHOR|',
-	'AUTHORREF'    : '|AUTHORREF|',
-	'COMPANY'      : '|COMPANY|',
-	'COPYRIGHT'    : '|COPYRIGHT|',
-	'EMAIL'        : '|EMAIL|',
-	'ORGANIZATION' : '|ORGANIZATION|',
+  'AUTHOR'       : '|AUTHOR|',
+  'AUTHORREF'    : '|AUTHORREF|',
+  'COMPANY'      : '|COMPANY|',
+  'COPYRIGHT'    : '|COPYRIGHT|',
+  'EMAIL'        : '|EMAIL|',
+  'ORGANIZATION' : '|ORGANIZATION|',
 == ENDLIST ==
 
 == Comments.keyword comments == expandmenu, append, map:ck, sc:k ==

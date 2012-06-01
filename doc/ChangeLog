@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 5.0.1
+---------------------------------------------------------------------------------------
+- Bugfix: resolve home for linked home directories
+- Bugfix: ":make" and ":!make" no longer affect each other.
+- Bugfix: S-F1 not working for module list.
+- Several internal improvements.
+
+---------------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 5.0
 ---------------------------------------------------------------------------------------
 

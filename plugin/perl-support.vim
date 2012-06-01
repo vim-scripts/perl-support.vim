@@ -37,7 +37,7 @@
 "
 "         Author:  Dr.-Ing. Fritz Mehner <mehner@fh-swf.de>
 "
-"        Version:  see variable  g:Perl_Version  below
+"        Version:  see variable  g:Perl_PluginVersion  below
 "        Created:  09.07.2001
 "        License:  Copyright (c) 2001-2011, Fritz Mehner
 "                  This program is free software; you can redistribute it
@@ -50,15 +50,15 @@
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
 "        Credits:  see perlsupport.txt
-"       Revision:  $Id: perl-support.vim,v 1.16 2012/04/20 19:51:19 mehner Exp $
+"       Revision:  $Id: perl-support.vim,v 1.21 2012/05/18 17:17:52 mehner Exp $
 "-------------------------------------------------------------------------------
 "
 " Prevent duplicate loading:
 "
-if exists("g:Perl_Version") || &compatible
+if exists("g:Perl_PluginVersion") || &compatible
   finish
 endif
-let g:Perl_Version= "5.0.1"
+let g:Perl_PluginVersion= "5.1"
 "
 "===  FUNCTION  ================================================================
 "          NAME:  Perl_SetGlobalVariable     {{{1
@@ -218,6 +218,7 @@ call s:perl_SetLocalVariable('Perl_FormatDate             ')
 call s:perl_SetLocalVariable('Perl_FormatTime             ')
 call s:perl_SetLocalVariable('Perl_FormatYear             ')
 call s:perl_SetLocalVariable('Perl_GlobalTemplateFile     ')
+call s:perl_SetLocalVariable('Perl_LocalTemplateFile      ')
 call s:perl_SetLocalVariable('Perl_GuiSnippetBrowser      ')
 call s:perl_SetLocalVariable('Perl_GuiTemplateBrowser     ')
 call s:perl_SetLocalVariable('Perl_LineEndCommColDefault  ')
@@ -259,8 +260,8 @@ endif
 "
 " escape the printheader
 "
-let s:Perl_Printheader  		= escape( s:Perl_Printheader, ' %' )
-let s:Perl_InterfaceVersion = ''
+let s:Perl_Printheader  					= escape( s:Perl_Printheader, ' %' )
+let s:Perl_PerlExecutableVersion	= ''
 "
 "------------------------------------------------------------------------------
 "  Control variables (not user configurable)
@@ -852,6 +853,10 @@ function! Perl_perldoc()
 		" highlight the headlines
 		:match Search '^\S.*$'
 		" ------------
+	"
+	" ---------- Add ':' to the keyword characters -------------------------------
+	"            Tokens like 'File::Find' are recognized as one keyword
+	setlocal iskeyword+=:
  		map    <buffer>  <silent>  <S-F1>             :call Perl_perldoc()<CR>
  		imap   <buffer>  <silent>  <S-F1>        <C-C>:call Perl_perldoc()<CR>
   endif
@@ -977,8 +982,8 @@ function! Perl_Settings ()
 				\				.' ['.s:PCseverityName[s:Perl_PerlcriticSeverity].']'
 				\				."  -verbosity ".s:Perl_PerlcriticVerbosity
 				\				."  ".s:Perl_PerlcriticOptions."\n"
-	if !empty(s:Perl_InterfaceVersion)
-		let txt = txt."  Perl interface version  :  ".s:Perl_InterfaceVersion."\n"
+	if !empty(s:Perl_PerlExecutableVersion)
+		let txt = txt."  Perl interface version  :  ".s:Perl_PerlExecutableVersion."\n"
 	endif
   let txt = txt."\n"
   let txt = txt."    Additional hot keys\n\n"
@@ -988,7 +993,7 @@ function! Perl_Settings ()
   let txt = txt."                 Ctrl-F9  :  run script                \n"
   let txt = txt."                Shift-F9  :  set command line arguments\n"
   let txt = txt."_________________________________________________________________________\n"
-  let txt = txt."  Perl-Support, Version ".g:Perl_Version." / Dr.-Ing. Fritz Mehner / mehner@fh-swf.de\n\n"
+  let txt = txt."  Perl-Support, Version ".g:Perl_PluginVersion." / Dr.-Ing. Fritz Mehner / mehner@fh-swf.de\n\n"
   echo txt
 endfunction   " ---------- end of function  Perl_Settings  ----------
 "
@@ -1216,6 +1221,7 @@ function! Perl_Run ()
 endfunction    " ----------  end of function Perl_Run  ----------
 "
 let s:Perl_MakeCmdLineArgs   = ""     " command line arguments for Run-make; initially empty
+let s:Perl_Makefile						= ''
 
 "===  FUNCTION  ================================================================
 "          NAME:  Perl_MakeArguments     {{{1
@@ -1228,17 +1234,79 @@ function! Perl_MakeArguments ()
 endfunction    " ----------  end of function Perl_MakeArguments ----------
 "
 "===  FUNCTION  ================================================================
+"          NAME:  Perl_MakeClean     {{{1
+"   DESCRIPTION:  run 'make clean'
+"    PARAMETERS:  -
+"       RETURNS:  
+"===============================================================================
+function! Perl_MakeClean()
+	" run make clean
+	if s:Perl_Makefile == ''
+		exe	":!make clean"
+	else
+		exe	':lchdir  '.fnamemodify( s:Perl_Makefile, ":p:h" )
+		if  s:MSWIN
+			exe	':!make -f "'.s:Perl_Makefile.'" clean'
+		else
+			exe	':!make -f '.s:Perl_Makefile.' clean'
+		endif
+		exe	":lchdir -"
+	endif
+endfunction    " ----------  end of function Perl_MakeClean ----------
+"
+"===  FUNCTION  ================================================================
+"          NAME:  Perl_ChooseMakefile     {{{1
+"   DESCRIPTION:  choose a makefile
+"    PARAMETERS:  -
+"       RETURNS:  
+"===============================================================================
+function! Perl_ChooseMakefile ()
+	let s:Perl_Makefile	= ''
+	let mkfile	= findfile( "Makefile", ".;" )    " try to find a Makefile
+	if mkfile == ''
+    let mkfile  = findfile( "makefile", ".;" )  " try to find a makefile
+	endif
+	if mkfile == ''
+		let mkfile	= getcwd()
+	endif
+	let	s:Perl_Makefile	= Perl_Input ( "choose a Makefile: ", mkfile, "file" )
+	if  s:MSWIN
+		let	s:Perl_Makefile	= substitute( s:Perl_Makefile, '\\ ', ' ', 'g' )
+	endif
+endfunction    " ----------  end of function Perl_ChooseMakefile  ----------
+"
+"===  FUNCTION  ================================================================
 "          NAME:  Perl_Make     {{{1
 "   DESCRIPTION:  run make(1)
 "    PARAMETERS:  -
 "       RETURNS:  
 "===============================================================================
 function! Perl_Make()
+	exe	":cclose"
 	" update : write source file if necessary
 	exe	":update"
 	" run make
-	exe		":!make ".s:Perl_MakeCmdLineArgs
+	if s:Perl_Makefile == ''
+		if filereadable('Makefile.PL')
+			:!perl Makefile.PL
+		endif
+		exe	":!make ".s:Perl_MakeCmdLineArgs
+	else
+		exe	':lchdir  '.fnamemodify( s:Perl_Makefile, ":p:h" )
+		if !filereadable(s:Perl_Makefile) && filereadable('Makefile.PL')
+			:!perl Makefile.PL
+		endif
+		if  s:MSWIN
+			exe	':!make -f "'.s:Perl_Makefile.'" '.s:Perl_MakeCmdLineArgs
+		else
+			exe	':!make -f '.s:Perl_Makefile.' '.s:Perl_MakeCmdLineArgs
+		endif
+		exe	":lchdir -"
+	endif
+	exe	":botright cwindow"
+	"
 endfunction    " ----------  end of function Perl_Make ----------
+"
 "
 "===  FUNCTION  ================================================================
 "          NAME:  Perl_Debugger     {{{1
@@ -1270,7 +1338,7 @@ function! Perl_Debugger ()
       if has("gui_running") || &term == "xterm"
      	 	silent exe "!xterm ".s:Perl_XtermDefaults.' -e perl ' . l:switches . ' -d '.filename_esc.l:arguments.' &'
       else
-        silent exe '!clear; perl ' . l:switches . ' -d '.filename_esc.l:argument
+        silent exe '!clear; perl ' . l:switches . ' -d '.filename_esc.l:arguments
       endif
     endif
   endif
@@ -2087,6 +2155,8 @@ silent call Perl_GetPerlcriticVerbosity(s:Perl_PerlcriticVerbosity)
 "===============================================================================
 function! Perl_do_tags(filename, tagfile)
 
+	if g:Perl_PerlTags == 'on'
+
 		perl <<PERL_DO_TAGS
 		my $filename = VIM::Eval('a:filename');
 		my $tagfile  = VIM::Eval('a:tagfile');
@@ -2101,6 +2171,7 @@ function! Perl_do_tags(filename, tagfile)
 		$naive_tagger->output( outfile => $tagfile );
 PERL_DO_TAGS
 
+	endif
 endfunction    " ----------  end of function Perl_do_tags  ----------
 
 "===  FUNCTION  ================================================================
@@ -2277,15 +2348,18 @@ function! s:Perl_InitMenus ()
   exe ahead.'update,\ check\ &syntax<Tab>\\rs\ \ <A-F9>       :call Perl_SyntaxCheck()<CR>'
   exe ahead.'cmd\.\ line\ &arg\.<Tab>\\ra\ \ <S-F9>           :call Perl_Arguments()<CR>'
   exe ahead.'perl\ s&witches<Tab>\\rw                         :call Perl_PerlSwitches()<CR>'
-  exe ahead.'run\ &make<Tab>\\rm                              :call Perl_Make()<CR>'
-  exe ahead.'cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rma         :call Perl_MakeArguments()<CR>'
-  exe ahead.'start\ &debugger<Tab>\\rd\ \ <F9>                :call Perl_Debugger()<CR>'
   "
   "   set execution rights for user only ( user may be root ! )
   "
   if !s:MSWIN
     exe ahead.'make\ script\ &executable<Tab>\\re              :call Perl_MakeScriptExecutable()<CR>'
   endif
+  exe ahead.'-SEP1-                     :'
+  exe ahead.'run\ &make<Tab>\\rm                              :call Perl_Make()<CR>'
+	exe ahead.'&choose\ makefile<Tab>\\rcm                      :call Perl_ChooseMakefile()<CR>'
+	exe ahead.'&make\ clean<Tab>\\rmc                           :call Perl_MakeClean()<CR>'
+  exe ahead.'cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rma         :call Perl_MakeArguments()<CR>'
+  exe ahead.'start\ &debugger<Tab>\\rd\ \ <F9>                :call Perl_Debugger()<CR>'
   exe ahead.'-SEP2-                     :'
 
   exe ahead.'show\ &installed\ Perl\ modules<Tab>\\ri  :call Perl_perldoc_show_module_list()<CR>'
@@ -2456,8 +2530,7 @@ function! Perl_InitializePerlInterface( )
 			# ---------------------------------------------------------------
 			# find out the version of the Perl interface
 			# ---------------------------------------------------------------
-			my $perlversion=sprintf "%vd", $^V;
-			VIM::DoCommand("let s:Perl_InterfaceVersion = \"$perlversion\"");
+ 			VIM::DoCommand("let s:Perl_PerlExecutableVersion = \"$^V\"");
 			VIM::DoCommand("let g:Perl_InterfaceInitialized = 'yes'");
 			#
 INITIALIZE_PERL_INTERFACE
@@ -2484,9 +2557,7 @@ function! s:CreateAdditionalMaps ()
 	endif
 	"
 	" ---------- Add ':' to the keyword characters -------------------------------
-	"            Tokens like 'File::Find' are recognized as
-	"            one keyword
-	"
+	"            Tokens like 'File::Find' are recognized as one keyword
 	setlocal iskeyword+=:
 	"
 	" ---------- Do we have a mapleader other than '\' ? ------------
@@ -2675,12 +2746,17 @@ function! s:CreateAdditionalMaps ()
 	noremap    <buffer>  <silent>  <LocalLeader>ra         :call Perl_Arguments()<CR>
 	noremap    <buffer>  <silent>  <LocalLeader>rw         :call Perl_PerlSwitches()<CR>
 	noremap    <buffer>  <silent>  <LocalLeader>rm         :call Perl_Make()<CR>
+	noremap    <buffer>  <silent>  <LocalLeader>rcm        :call Perl_ChooseMakefile()<CR>
+	noremap    <buffer>  <silent>  <LocalLeader>rmc        :call Perl_MakeClean()<CR>
 	noremap    <buffer>  <silent>  <LocalLeader>rma        :call Perl_MakeArguments()<CR>
+
 	inoremap    <buffer>  <silent>  <LocalLeader>rr    <C-C>:call Perl_Run()<CR>
 	inoremap    <buffer>  <silent>  <LocalLeader>rs    <C-C>:call Perl_SyntaxCheck()<CR>
 	inoremap    <buffer>  <silent>  <LocalLeader>ra    <C-C>:call Perl_Arguments()<CR>
 	inoremap    <buffer>  <silent>  <LocalLeader>rw    <C-C>:call Perl_PerlSwitches()<CR>
 	inoremap    <buffer>  <silent>  <LocalLeader>rm    <C-C>:call Perl_Make()<CR>
+	inoremap    <buffer>  <silent>  <LocalLeader>rcm   <C-C>:call Perl_ChooseMakefile()<CR>
+	inoremap    <buffer>  <silent>  <LocalLeader>rmc   <C-C>:call Perl_MakeClean()<CR>
 	inoremap    <buffer>  <silent>  <LocalLeader>rma   <C-C>:call Perl_MakeArguments()<CR>
 	"
 	noremap    <buffer>  <silent>  <LocalLeader>rd    :call Perl_Debugger()<CR>
@@ -2734,16 +2810,24 @@ function! s:CreateAdditionalMaps ()
 	"
 	" ----------------------------------------------------------------------------
 	"  Generate (possibly exuberant) Ctags style tags for Perl sourcecode.
-	"  Controlled by g:Perl_PerlTags, enabled by default.
+	"  Controlled by g:Perl_PerlTags, disabled by default.
 	" ----------------------------------------------------------------------------
 	if has('perl') && exists("g:Perl_PerlTags") && g:Perl_PerlTags == 'on'
 
 		if ! exists("s:defined_functions")
 			function s:init_tags()
 			perl <<EOF
-			require Perl::Tags;
-			$naive_tagger = Perl::Tags::Naive->new( max_level=>2 );
-			# only go one level down by default
+
+			use if defined $ENV{PERL_LOCAL_INSTALLATION}, lib => $ENV{PERL_LOCAL_INSTALLATION};
+
+			eval { require Perl::Tags };
+			if ( $@ ) {
+				# Perl::Tags not loadable
+				VIM::DoCommand("let g:Perl_PerlTags = 'off'" );
+				}
+			else {
+				$naive_tagger = Perl::Tags::Naive->new( max_level=>2 );
+			}
 EOF
 		endfunction
 

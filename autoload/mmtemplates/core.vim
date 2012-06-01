@@ -47,6 +47,10 @@ if &cp || ( exists('g:Templates_Version') && ! exists('g:Templates_DevelopmentOv
 	finish
 endif
 let g:Templates_Version= '0.9'     " version number of this script; do not change
+
+if ! exists ( 'g:Templates_MapInUseWarn' )
+	let g:Templates_MapInUseWarn = 1
+endif
 "
 "----------------------------------------------------------------------
 "  === Modul setup. ===   {{{1
@@ -2925,19 +2929,23 @@ function! mmtemplates#core#CreateMaps ( library, localleader, ... )
 		" no map or map already existing?
 		if empty ( mp )
 			continue
-		elseif ! empty ( maparg( leader.mp ) )
-			call s:ErrorMsg ( 'Mapping already in use: "'.leader.mp.'"' )
-			continue
 		endif
-		"
-		" visual mode: template contains a split tag, or the mode is forced
-		if visual == 1 | let v = ',"v"'
-		else           | let v = ''     | endif
-		"
-		" assemble the command to create the maps
-		let cmd .= ' noremap '.options.' '.leader.mp.'      :call mmtemplates#core#InsertTemplate('.a:library.',"'.t_name.'")<CR>'.sep
-		let cmd .= 'inoremap '.options.' '.leader.mp.' <Esc>:call mmtemplates#core#InsertTemplate('.a:library.',"'.t_name.'")<CR>'.sep
-		let cmd .= 'vnoremap '.options.' '.leader.mp.' <Esc>:call mmtemplates#core#InsertTemplate('.a:library.',"'.t_name.'"'.v.')<CR>'.sep
+
+		for mode in ['', 'v', 'i']
+			if ! empty ( maparg( leader.mp, mode ) )
+				if g:Templates_MapInUseWarn != 0
+					call s:ErrorMsg ( 'Mapping already in use: "'.leader.mp.'", mode "'.mode.'"' )
+				endif
+				continue
+			endif
+			"
+			let esc = mode == '' ? '' : '<Esc>'
+			" visual mode: template contains a split tag, or the mode is forced
+			let v = mode == 'v' && visual == 1 ? ',"v"' : ''
+			"
+			" assemble the command to create the maps
+			let cmd .= mode.'noremap '.options.' '.leader.mp.' '.esc.':call mmtemplates#core#InsertTemplate('.a:library.',"'.t_name.'"'.v.')<CR>'.sep
+		endfor
 		"
 	endfor
 	"

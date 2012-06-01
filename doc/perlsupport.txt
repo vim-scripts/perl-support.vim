@@ -1,8 +1,8 @@
-*perlsupport.txt*                Perl Support                  April 21 2012
+*perlsupport.txt*                Perl Support                  May 05 2012
 
 Perl Support                                      *perl-support* *perlsupport*
 
-                            Plug-in version 5.0.1
+                             Plug-in version 5.1
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -63,7 +63,7 @@ profiler can be done with a keystroke.
  1.9.2    Check syntax                    |perlsupport-syntax-check|
  1.9.3    Command line arguments          |perlsupport-cmdline-args|
  1.9.4    Perl command line switches      |perlsupport-perl-switches|
- 1.9.5    Run make                        |perlsupport-run-make|
+ 1.9.5    Running make                    |perlsupport-run-make|
  1.9.6    Debug                           |perlsupport-run-debug|
  1.9.7    Read perldoc                    |perlsupport-perldoc|
  1.9.8    Generate Perl module list       |perlsupport-module-list-generation|
@@ -901,15 +901,16 @@ own independent switches). The input dialog has a history.
 If the buffer gets a new name with "save as" the switches will now belong to
 the buffer with the new name.
 
-1.9.5  RUN MAKE                                         *perlsupport-run-make*
----------------
+1.9.5  RUNNING MAKE                                     *perlsupport-run-make*
+-------------------
 The item 'run make' tries to run the make(1) utility. This comes in handy e.g.
 for a module developer who needs to start 'make test' frequently in order to
-run tests. The item 'cmd. line arg. for make' takes the necessary arguments, e.g.
-
- -C /home/mehner/Path-To-Module/  test
-
-to switch to the module main directory and to run make from there.
+run tests. The item 'cmd. line arg. for make' takes the necessary arguments,
+e.g.  'test'.
+Choose a special makefile using the item 'choose makefile'. The plugin tries
+to find one ('Makefile' or 'makefile') searching from the current directory
+upwards. If no one was found the current working directory will be suggested.
+use tab-expansion and command-line editing to find or specify a makefile. 
 
 1.9.6  DEBUG                                           *perlsupport-run-debug*
 ------------
@@ -1498,6 +1499,8 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
      \ra        set command line argument          (in )   
      \rw        set Perl command line switches     (in )   
      \rm        run make                           (in )   
+     \rcm       choose makefile                    (in )   
+     \rmc       run 'make clean'                   (in )   
      \rma       command line argument for make     (in )   
      \rd        start debugger                     (in )   
      \re        make script executable (*)         (in )

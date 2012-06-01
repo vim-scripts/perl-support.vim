@@ -2,6 +2,7 @@
 == LIST: basics == hash ==
   '$BASETIME $^T'         : '$BASETIME<CURSOR>',
   '$PERL_VERSION $^V'     : '$PERL_VERSION<CURSOR>',
+  '$EXECUTABLE_NAME $^X'  : '$EXECUTABLE_NAME<CURSOR>',
   '$PROGRAM_NAME $0'      : '$PROGRAM_NAME<CURSOR>',
   '$OSNAME $^O'           : '$OSNAME<CURSOR>',
   '$SYSTEM_FD_MAX $^F'    : '$SYSTEM_FD_MAX<CURSOR>',
@@ -16,11 +17,11 @@
 == ENDTEMPLATE ==
 
 == LIST: errors == hash ==
-	'$CHILD_ERROR $?'       : '$CHILD_ERROR',
-	'$ERRNO $!'             : '$ERRNO{<CURSOR>}',
-	'$EVAL_ERROR $@'        : '$EVAL_ERROR',
-	'$EXTENDED_OS_ERROR $^E': '$EXTENDED_OS_ERROR',
-	'$WARNING $^W'          : '$WARNING',
+  '$CHILD_ERROR $?'       : '$CHILD_ERROR',
+  '$ERRNO $!'             : '$ERRNO{<CURSOR>}',
+  '$EVAL_ERROR $@'        : '$EVAL_ERROR',
+  '$EXTENDED_OS_ERROR $^E': '$EXTENDED_OS_ERROR',
+  '$WARNING $^W'          : '$WARNING',
 == ENDLIST ==
 
 == Special Variables.errors == expandmenu, insert, sc:e, map:ve ==
@@ -28,19 +29,19 @@
 |PICK|<CURSOR>
 == ENDTEMPLATE ==
 
-== LIST: files == hash ==
+== LIST: filehandle == hash ==
   '$AUTOFLUSH $\|'                   : '$AUTOFLUSH',
   '$FORMAT_LINES_LEFT $-'            : '$FORMAT_LINES_LEFT',
   '$FORMAT_LINES_PER_PAGE $='        : '$FORMAT_LINES_PER_PAGE',
-  '$FORMAT_LINE_BREAK_CHARACTER $:'  : '$FORMAT_LINES_PER_PAGE',
+  '$FORMAT_LINE_BREAK_CHARACTER $:'  : '$FORMAT_LINE_BREAK_CHARACTER',
   '$FORMAT_NAME $~'                  : '$FORMAT_NAME',
   '$FORMAT_PAGE_NUMBER $%'           : '$FORMAT_PAGE_NUMBER',
   '$FORMAT_TOP_NAME $^'              : '$FORMAT_TOP_NAME',
   '$OUTPUT_AUTOFLUSH $\|'            : '$OUTPUT_AUTOFLUSH',
 == ENDLIST ==
 
-== Special Variables.files == expandmenu, insert, sc:f, map:vf ==
-|PickList( 'files', 'files' )|
+== Special Variables.filehandle == expandmenu, insert, sc:f, map:vf ==
+|PickList( 'filehandle', 'filehandle' )|
 |PICK|<CURSOR>
 == ENDTEMPLATE ==
 
@@ -86,9 +87,9 @@
   '$MATCH $&'                      : '$MATCH',
   '$POSTMATCH $'''                 : '$POSTMATCH',
   '$PREMATCH $`'                   : '$PREMATCH',
-  '@LAST_MATCH_END @+'             : '@LAST_MATCH_END',
-  '@LAST_MATCH_START @-'           : '@LAST_MATCH_START',
-  '$LAST_PAREN_MATCH $+'           : '$LAST_PAREN_MATCH{<CURSOR>}',
+  '$LAST_MATCH_START $-'           : '$LAST_MATCH_START',
+  '$LAST_MATCH_END $+'             : '$LAST_MATCH_END',
+  '$LAST_PAREN_MATCH $+'           : '$LAST_PAREN_MATCH',
   '$LAST_SUBMATCH_RESULT $^N'      : '$LAST_SUBMATCH_RESULT',
   '$LAST_REGEXP_CODE_RESULT $^R'   : '$LAST_REGEXP_CODE_RESULT',
 == ENDLIST ==
@@ -99,25 +100,34 @@
 == ENDTEMPLATE ==
 
 == LIST: POSIX_signals == list ==
-  'HUP',
-  'INT',
-  'QUIT',
-  'ILL',
   'ABRT',
-  'FPE',
-  'KILL',
-  'SEGV',
-  'PIPE',
   'ALRM',
-  'TERM',
-  'USR1',
-  'USR2',
+  'BUS',
   'CHLD',
   'CONT',
+  'FPE',
+  'HUP',
+  'ILL',
+  'INT',
+  'KILL',
+  'PIPE',
+  'POLL',
+  'PROF',
+  'QUIT',
+  'SEGV',
   'STOP',
+  'SYS',
+  'TERM',
+  'TRAP',
   'TSTP',
   'TTIN',
   'TTOU',
+  'URG',
+  'USR1',
+  'USR2',
+  'VTALRM',
+  'XCPU',
+  'XFSZ',
 == ENDLIST ==
 
 == Special Variables.POSIX signals == expandmenu, insert, sc:p, map:vs ==
