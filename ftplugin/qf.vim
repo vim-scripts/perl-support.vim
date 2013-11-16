@@ -9,7 +9,6 @@
 "  Organization:  FH Südwestfalen, Iserlohn
 "       Version:  1.0
 "       Created:  18.02.2012 19:51
-"      Revision:  $Id: qf.vim,v 1.2 2012/02/19 21:28:31 mehner Exp $
 "       License:  Copyright (c) 2012, Dr. Fritz Mehner
 "===============================================================================
 "

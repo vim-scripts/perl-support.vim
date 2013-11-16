@@ -17,7 +17,6 @@
 #      COMPANY:  FH Südwestfalen, Iserlohn
 #      VERSION:  2.0
 #      CREATED:  13.02.2009 17:04:00
-#     REVISION:  $Id: csv2err.pl,v 1.1.1.1 2012/01/28 10:22:30 mehner Exp $
 #===============================================================================
 
 use strict;
