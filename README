@@ -32,6 +32,13 @@ This plugin comes with a help file (perlsupport.txt). Read it with
 Editing actions differ for different modes!  
 There are  a lot of  features which can be configured or customized to match your needs.
 
+GitHub
+--------------------------------------------------------
+Perl Support is on GitHub:
+
+      https://github.com/WolfgangMehner/vim-plugins
+
+(Please help us keep track of all the issues and name your report/request "Perl-Support: <title>") 
 
 MAILING LIST
 --------------------------------------------------------

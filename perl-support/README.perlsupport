@@ -1,4 +1,4 @@
-README for perl-support.vim (Version 5.2) / November 05 2013
+README for perl-support.vim (Version 5.3) / March 22 2014
 
   *  INSTALLATION
   *  RELEASE NOTES
@@ -139,18 +139,19 @@ For a system-wide installation please see the help file 'doc/perlsupport.txt'.
 =======================================================================================
 
 ---------------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 5.2
+  RELEASE NOTES FOR VERSION 5.3
 ---------------------------------------------------------------------------------------
-- New global variable g:Perl_InsertFileHeader (suppress file description comment for new files).
-- Two new ex commands: PerlScriptArguments, PerlSwitches
-- Specifying command line arguments and Perl command line switches improved.
-- Bugfix: g:Perl_LoadMenus now works.
-- Bugfix: g:Perl_MapLeader now works.
-- Bugfix: syntax check under 64-Bit MS-Windows now works.
-- Some settings moved to the filetype plugin.
-- Removed superfluous settings from the filetype plugin.
-- Integration of Make moved into the toolbox.
-- Minor improvements.
+- Adjusting end-of-line comments improved.
+- Bugfix: Map and menu entry 'Snippets->edit global templates'.
+- 'Run -> make script executable' (\re) is now a toggle.
+- Perl interpreter can be set in ~/.vimrc.
+- Script can be run via shebang (new global variable g:Perl_DirectRun)
+- Fixed problem with system-wide installations and plug-in managers (thanks to Yegor).
+- Added 'Perl_SetMapLeader' and 'Perl_ResetMapLeader'.
+- Bugfix: Resetting maplocalleader in filetype plug-in after setting it to the value of
+  g:Perl_MapLeader.
+- Bugfix: Better compatibility with custom mappings
+  (use "normal!" and "noremap" consistently).
 
 ---------------------------------------------------------------------------------------
   OLDER RELEASE NOTES : see file 'ChangeLog'
@@ -165,10 +166,13 @@ README.perlsupport                This file.
 autoload/perlsupportprofiling.vim Profiler support.
 autoload/perlsupportregex.vim     Regex analyser code.
 autoload/mmtemplates/core.vim     The template system.
+autoload/mmtoolbox/*              The toolbox (make, ...).
 
 doc/perlsupport.txt               The help file for perl support.
 doc/templatesupport.txt           The help file for the template system.
+doc/toolbox*.txt                  The help files for the toolbox.
 
+ftplugin/make.vim                 Access hotkeys for make(1) in makefiles.
 ftplugin/perl.vim                 A filetype plugin. Define hotkeys, create a local
                                   dictionary for each Perl file.
 ftplugin/pod.vim                  A filetype plugin. Define hotkeys for filetype 'pod'.
