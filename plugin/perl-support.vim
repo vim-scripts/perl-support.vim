@@ -29,7 +29,7 @@
 "                  Devel::SmallProf     (profiler)
 "                  Devel::ptkdb         (debugger frontend)
 "                  Perl::Critic         (stylechecker)
-"                  Perl::Tags           (generate Ctags style tags)
+"                  Perl::Tags::Naive    (generate Ctags style tags)
 "                  Perl::Tidy           (beautifier)
 "                  YAPE::Regex::Explain (regular expression analyzer)
 "                  ddd                  (debugger frontend)
@@ -57,7 +57,7 @@
 if exists("g:Perl_PluginVersion") || &compatible
   finish
 endif
-let g:Perl_PluginVersion= "5.3.1"
+let g:Perl_PluginVersion= "5.3.2"
 "
 "===  FUNCTION  ================================================================
 "          NAME:  Perl_SetGlobalVariable     {{{1
@@ -1312,9 +1312,15 @@ function! Perl_MakeScriptExecutable ()
 		if Perl_Input( '"'.filename.'" NOT executable. Make it executable [y/n] : ', 'y' ) == 'y'
 			silent exe "!chmod u+x ".shellescape(filename)
 			if v:shell_error
+				" confirmation for the user
 				echohl WarningMsg
 				echo 'Could not make "'.filename.'" executable!'
 			else
+				" reload the file, otherwise the message will not be visible
+				if ! &l:modified
+					silent exe "edit"
+				endif
+				" confirmation for the user
 				echohl Search
 				echo 'Made "'.filename.'" executable.'
 			endif
@@ -1328,9 +1334,15 @@ function! Perl_MakeScriptExecutable ()
 			" reset all execution bits
 			silent exe "!chmod  -x ".shellescape(filename)
 			if v:shell_error
+				" confirmation for the user
 				echohl WarningMsg
 				echo 'Could not make "'.filename.'" not executable!'
 			else
+				" reload the file, otherwise the message will not be visible
+				if ! &l:modified
+					silent exe "edit"
+				endif
+				" confirmation for the user
 				echohl Search
 				echo 'Made "'.filename.'" not executable.'
 			endif
@@ -2076,7 +2088,7 @@ silent call Perl_GetPerlcriticVerbosity(s:Perl_PerlcriticVerbosity)
 
 "===  FUNCTION  ================================================================
 "          NAME:  Perl_do_tags     {{{1
-"   DESCRIPTION:  tag a new file with Perl::Tags
+"   DESCRIPTION:  tag a new file with Perl::Tags::Naive
 "    PARAMETERS:  filename -
 "                 tagfile - name of the tag file
 "       RETURNS:
@@ -2741,9 +2753,9 @@ function! s:CreateAdditionalMaps ()
 
 			use if defined $ENV{PERL_LOCAL_INSTALLATION}, lib => $ENV{PERL_LOCAL_INSTALLATION};
 
-			eval { require Perl::Tags };
+ 			eval { require Perl::Tags::Naive };
 			if ( $@ ) {
-				# Perl::Tags not loadable
+				# Perl::Tags::Naive not loadable
 				VIM::DoCommand("let g:Perl_PerlTags = 'off'" );
 				}
 			else {
